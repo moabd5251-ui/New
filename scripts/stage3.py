@@ -34,7 +34,7 @@ def build_spread(symbol, bias, spread_type="DEBIT", dte_range=(30,60),
         if not _liquid(o, min_oi, min_vol): continue
         iv = o.get("impliedVolatility") or 0
         if iv <= 0: continue
-        g = O.greeks(S, o["strike"], T, iv, kind, r=r)
+        g = O.greeks_for(o, S, T, kind, r=r)
         mid = ((o["bid"]+o["ask"])/2)
         enriched.append(dict(strike=o["strike"], mid=mid, bid=o["bid"], ask=o["ask"],
                              oi=o.get("openInterest") or 0, vol=o.get("volume") or 0,

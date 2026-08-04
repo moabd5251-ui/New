@@ -27,7 +27,7 @@ def _enrich(legs, spot, T, kind, min_oi, min_vol):
         iv = o.get("impliedVolatility") or 0
         if iv <= 0:
             continue
-        g = O.greeks(spot, o["strike"], T, iv, kind)
+        g = O.greeks_for(o, spot, T, kind)
         out.append(dict(strike=o["strike"], mid=_mid(o), iv=iv, delta=g["delta"],
                         theta=g["theta"], vega=g["vega"],
                         oi=o.get("openInterest") or 0, vol=o.get("volume") or 0,

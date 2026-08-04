@@ -11,6 +11,7 @@ import pandas as pd
 from datetime import datetime, timezone
 import opt_lib as O
 import portfolio as P
+import feed
 
 # Liquid, optionable, and broad enough that something is always reporting.
 UNIVERSE = ["AAPL","MSFT","NVDA","AMZN","GOOGL","META","TSLA","AVGO","JPM","V","UNH","XOM",
@@ -20,30 +21,8 @@ UNIVERSE = ["AAPL","MSFT","NVDA","AMZN","GOOGL","META","TSLA","AVGO","JPM","V","
 
 
 def earnings_info(sym):
-    """Next earnings date, whether it's an estimate, and recent EPS surprise history."""
-    s, cr = O.session()
-    r = s.get(f"https://query1.finance.yahoo.com/v10/finance/quoteSummary/{sym}",
-              params={"modules": "calendarEvents,earningsHistory", "crumb": cr}, timeout=20)
-    r.raise_for_status()
-    res = r.json()["quoteSummary"]["result"][0]
-    cal = res.get("calendarEvents", {}).get("earnings", {})
-    dates = cal.get("earningsDate") or []
-    if not dates:
-        return None
-    ts = dates[0].get("raw")
-    if not ts:
-        return None
-    when = datetime.fromtimestamp(ts, timezone.utc)
-    days = (when - datetime.now(timezone.utc)).days
-    hist = res.get("earningsHistory", {}).get("history", []) or []
-    surprises = [h.get("surprisePercent", {}).get("raw") for h in hist]
-    surprises = [x for x in surprises if x is not None]
-    beats = sum(1 for x in surprises if x > 0)
-    return dict(date=when.strftime("%Y-%m-%d"), days=days,
-                estimated=bool(cal.get("isEarningsDateEstimate")),
-                beat_rate=(round(beats/len(surprises)*100) if surprises else None),
-                n_quarters=len(surprises),
-                avg_surprise=(round(float(np.mean(surprises))*100, 1) if surprises else None))
+    """Next report date, whether it is an estimate, and recent EPS surprise history."""
+    return feed.earnings(sym)
 
 
 def historical_earnings_move(df, n=4):

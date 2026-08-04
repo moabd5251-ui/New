@@ -1,22 +1,19 @@
 """Claude Portfolio — defined-risk options spreads on liquid mega-caps + index ETFs.
 Stage 1 regime -> Stage 2 screen -> Stage 3 spread construction."""
-import requests, pandas as pd, numpy as np, time, json, math
+import pandas as pd, numpy as np, time, json, math
 from datetime import datetime, timezone
 import opt_lib as O
+import feed
 
 UNIVERSE = ["SPY","QQQ","IWM","DIA","AAPL","MSFT","NVDA","AMZN","GOOGL","META","TSLA",
             "AVGO","JPM","V","UNH","XOM","WMT","LLY","MA","COST","HD","NFLX","AMD","CRM","ORCL"]
-H = {"User-Agent": O.UA, "Accept": "application/json"}
 
 def bars(sym, interval="1d", rng="1y"):
-    r = requests.get(f"https://query1.finance.yahoo.com/v8/finance/chart/{sym}",
-                     headers=H, params={"interval": interval, "range": rng}, timeout=25)
-    r.raise_for_status()
-    res = r.json()["chart"]["result"][0]; q = res["indicators"]["quote"][0]
-    df = pd.DataFrame({"Open":q["open"],"High":q["high"],"Low":q["low"],"Close":q["close"]},
-                      index=pd.to_datetime(res["timestamp"], unit="s", utc=True)).dropna()
-    df.attrs["live"] = res.get("meta", {}).get("regularMarketPrice")
-    return df.iloc[:-1]          # indicators use CLOSED bars only
+    """Completed bars only; the live quote rides along in df.attrs["live"]."""
+    df = feed.bars(sym, interval, rng)
+    out = df.iloc[:-1]           # indicators use CLOSED bars only
+    out.attrs["live"] = df.attrs.get("live")
+    return out
 
 def atr(df, p=14):
     tr = pd.concat([df['High']-df['Low'], (df['High']-df['Close'].shift()).abs(),

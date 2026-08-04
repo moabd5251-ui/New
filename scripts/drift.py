@@ -21,8 +21,24 @@ import opt_lib as O
 import portfolio as P
 import feed
 
+# Thresholds recalibrated against a 151-reaction backtest over 2 years. Read the
+# caveats in BACKTEST below before trusting any of this: the direction signal is
+# real, the absolute edge is not statistically distinguishable from zero.
 LOOKBACK_DAYS = 12          # drift decays fast; past this the edge is mostly gone
 MIN_GAP_PCT = 2.0           # smaller gaps are noise, not a surprise
+
+# What the backtest actually found (151 detected reactions, 50 names, 2 years):
+#   with the gap      avgR +0.072, 61.6% win   <- not significant on its own (t=1.18)
+#   against the gap   avgR -0.189, 45.0% win
+#   the difference    +0.261R per trade        <- IS significant (t=2.22)
+# So direction is a genuine signal; the strategy as built is not a proven edge.
+# Worse, 99% of the total came from 5 of the 151 trades — median trade was +0.07R.
+# By bucket: gaps 8%+ avgR +0.189 (best), 4-8% -0.016, 2-4% +0.042 (non-monotonic,
+# so likely noise); volume was monotonic — 3x+ volume avgR +0.120 vs +0.032 under 2x;
+# DOWN gaps (+0.157) beat UP gaps (+0.007). No single filter reached significance.
+BACKTEST = dict(n=151, with_gap_avg_r=0.072, against_gap_avg_r=-0.189,
+                spread_r=0.261, spread_t=2.22, with_gap_t=1.18,
+                win_rate=61.6, top5_share_of_profit=99, median_r=0.07)
 TARGET_DELTA = 0.80         # deep ITM: moves like stock, minimal vega left to lose
 STRUCT_DTE = (25, 70)
 
@@ -230,15 +246,25 @@ def scan(universe=None, verbose=True):
                 print(f"  [{sym}] drift scan failed: {str(ex)[:60]}")
         time.sleep(0.3)
 
-    # tradeable = gap intact, still inside the drift window, direction confirmed
+    # Tiers follow the backtest buckets: big gaps on heavy volume were the only
+    # combination that performed, and even that fell short of significance.
     for r in out:
         fresh = r["days_since"] <= 7
-        confirmed = (r.get("vol_ratio") or 0) >= 1.3
+        vr = r.get("vol_ratio") or 0
+        gap = abs(r["gap_pct"])
         r["tradeable"] = (not r["gap_filled"]) and r["state"] in ("DRIFTING", "HOLDING") and fresh
-        r["conviction"] = ("HIGH" if r["tradeable"] and confirmed and abs(r["gap_pct"]) >= 4
-                           else "MEDIUM" if r["tradeable"] else "NONE")
+        if r["tradeable"] and gap >= 8 and vr >= 3:
+            r["conviction"] = "HIGH"          # backtested avgR +0.143, n=36
+        elif r["tradeable"] and gap >= 4 and vr >= 1.5:
+            r["conviction"] = "MEDIUM"
+        elif r["tradeable"]:
+            r["conviction"] = "LOW"
+        else:
+            r["conviction"] = "NONE"
+        # observed, unvalidated: downside surprises drifted more reliably
+        r["down_gap_bonus"] = r["direction"] == "DOWN"
 
-    order = {"HIGH": 0, "MEDIUM": 1, "NONE": 2}
+    order = {"HIGH": 0, "MEDIUM": 1, "LOW": 2, "NONE": 3}
     out.sort(key=lambda x: (order.get(x["conviction"], 9), x["days_since"]))
     return out
 

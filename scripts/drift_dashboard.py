@@ -49,12 +49,27 @@ h1{font-family:var(--serif);font-weight:600;font-size:clamp(26px,4vw,38px);margi
 .trap{background:color-mix(in srgb,var(--warn) 12%,transparent);border-left:3px solid var(--warn);
   padding:14px 17px;font-size:13.5px;color:var(--ink-2);margin-bottom:26px;border-radius:0 2px 2px 0}
 .trap strong{color:var(--warn)}
+.bt{background:var(--surface);border:1px solid var(--line);border-radius:3px;
+  margin-bottom:28px;overflow:hidden}
+.bt-h{padding:12px 18px;background:var(--surface-2);border-bottom:1px solid var(--line);
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-2);
+  display:flex;gap:10px;align-items:center}
+.verdict{margin-left:auto;font-family:var(--mono);font-size:11px;font-weight:700;
+  padding:3px 9px;border-radius:2px;background:var(--warn);color:#fff;letter-spacing:.04em}
+.bt-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.bt-c{padding:14px 18px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.bt-c .k{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3)}
+.bt-c .v{font-family:var(--mono);font-size:19px;font-weight:700;margin-top:4px;letter-spacing:-.02em}
+.bt-c .n{font-size:11px;color:var(--ink-3);margin-top:3px}
+.bt-note{padding:13px 18px;font-size:12.5px;color:var(--ink-2);line-height:1.55}
+.bt-note b{color:var(--ink)}
 .group{margin-top:32px}
 .group:first-of-type{margin-top:0}
 .gh{display:flex;align-items:baseline;gap:10px;margin-bottom:4px;flex-wrap:wrap}
 .tag{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.07em;
   padding:3px 9px;border-radius:2px;color:#fff}
-.tag.hi{background:var(--accent)} .tag.med{background:var(--warn)} .tag.no{background:var(--flat)}
+.tag.hi{background:var(--accent)} .tag.med{background:var(--warn)}
+.tag.low{background:var(--flat)} .tag.no{background:var(--flat)}
 .gnote{font-size:13px;color:var(--ink-3);margin:0 0 16px}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(370px,1fr));gap:18px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:3px;
@@ -184,10 +199,39 @@ function card(r){
   </article>`;
 }
 
+function renderBT(){
+  const b=DATA.backtest; if(!b) return;
+  document.getElementById('bt').innerHTML=`
+    <div class="bt-h">Backtest &mdash; ${b.n} detected reactions, 50 names, 2 years
+      <span class="verdict">DIRECTION CONFIRMED, EDGE UNPROVEN</span></div>
+    <div class="bt-g">
+      <div class="bt-c"><div class="k">With the gap</div>
+        <div class="v" style="color:${css('--up')}">+${b.with_gap_avg_r}R</div>
+        <div class="n">${b.win_rate}% win &middot; t=${b.with_gap_t}, not significant</div></div>
+      <div class="bt-c"><div class="k">Against the gap</div>
+        <div class="v" style="color:${css('--down')}">${b.against_gap_avg_r}R</div>
+        <div class="n">45.0% win &middot; the control arm</div></div>
+      <div class="bt-c"><div class="k">The difference</div>
+        <div class="v" style="color:${css('--accent')}">+${b.spread_r}R</div>
+        <div class="n">t=${b.spread_t} &middot; <b>significant</b></div></div>
+      <div class="bt-c"><div class="k">Median trade</div>
+        <div class="v">+${b.median_r}R</div>
+        <div class="n">${b.top5_share_of_profit}% of profit came from 5 trades</div></div>
+    </div>
+    <div class="bt-note"><b>Read this before using the cards below.</b> Trading with the gap
+      beat trading against it by ${b.spread_r}R per trade, and that gap is statistically real &mdash;
+      direction is a genuine signal. But the strategy's own return, +${b.with_gap_avg_r}R per trade,
+      cannot be told apart from zero, and virtually all of it came from five outliers out of ${b.n}.
+      The median trade earned +${b.median_r}R. No filter tested &mdash; gap size, volume, direction &mdash;
+      reached significance on its own. Treat these as candidates with the odds tilted the right way,
+      not as a validated edge, and size for a long run of near-nothing punctuated by rare large winners.</div>`;
+}
+
 function render(){
   const rows=DATA.rows||[];
   const hi=rows.filter(r=>r.conviction==='HIGH');
   const med=rows.filter(r=>r.conviction==='MEDIUM');
+  const low=rows.filter(r=>r.conviction==='LOW');
   const dead=rows.filter(r=>r.conviction==='NONE');
   const sec=(list,tag,label,note)=>list.length?`<section class="group">
       <div class="gh"><span class="tag ${tag}">${label}</span>
@@ -195,8 +239,9 @@ function render(){
       <p class="gnote">${note}</p>
       <div class="cards">${list.map(card).join('')}</div></section>`:'';
   document.getElementById('groups').innerHTML =
-    sec(hi,'hi','HIGH CONVICTION','Large gap, heavy volume confirming it, still inside the first week, and the level is holding. These are the cleanest drift setups on the board.')
-  + sec(med,'med','WORTH WATCHING','The gap is intact and recent, but either the move was modest or volume did not confirm it. Smaller size, or wait for the level to prove itself.')
+    sec(hi,'hi','HIGH CONVICTION','Gap of 8% or more on triple-average volume, inside the first week, level holding — the only combination that performed in testing (+0.143R over 36 trades, still short of significance).')
+  + sec(med,'med','WORTH WATCHING','Gap of 4% or more on confirming volume. The middle bucket backtested worst of the three, so treat these as the weakest of the live candidates.')
+  + sec(low,'low','MARGINAL','Gap intact and recent, but small or unconfirmed by volume. Shown for completeness.')
   + (dead.length?`<section class="group">
       <div class="gh"><span class="tag no">NO LONGER TRADEABLE</span>
         <span style="color:var(--ink-3);font-size:12.5px">${dead.length}</span></div>
@@ -206,13 +251,14 @@ function render(){
       </section>`:'');
   redraw();
 }
+function redrawAll(){ renderBT(); }
 function redraw(){
   const byS={}; (DATA.rows||[]).forEach(r=>byS[r.symbol]=r);
   document.querySelectorAll('canvas.path').forEach(cv=>{
     const r=byS[cv.dataset.s]; if(r) drawPath(cv,r);
   });
 }
-render();
+renderBT(); render();
 addEventListener('resize',redraw);
 matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>setTimeout(redraw,40));
 new MutationObserver(()=>setTimeout(redraw,40))
@@ -236,6 +282,7 @@ BODY = """
   right about the stock and still lose money. Every structure below is deliberately low-vega: shares, deep
   in-the-money options that behave like shares, or debit spreads whose short leg cancels most of what is left.
   Long at-the-money options are the obvious instrument here and the wrong one.</div>
+  <div class="bt" id="bt"></div>
   <div id="groups"></div>
   <div class="method">
     <h3>How this is measured</h3>
@@ -246,17 +293,19 @@ BODY = """
     <p><strong>Deep in-the-money</strong> strikes are chosen around 80 delta: they track the stock closely, cost a fraction of the shares, and carry little remaining volatility exposure to lose. The capital figure on each card is what the option costs relative to buying the stock outright.</p>
     <p><strong>The window</strong> is twelve days. Drift is measurable for far longer in the literature, but it is strongest immediately, and anything past the first week here is demoted rather than recommended.</p>
   </div>
-  <div class="disclaim"><strong>Analysis only.</strong> Nothing here is placed, ordered, or executed &mdash; and
-  none of it is financial advice. This strategy is <em>not backtested</em> here: post-earnings drift is well
-  documented in academic work but has weakened as it became widely known, and no measurement of it on this
-  universe has been run. Gap and volume figures come from completed daily bars and are solid; option prices are
-  delayed and go stale outside market hours, which the cards flag. Verify against a live book before acting.</div>
+  <div class="disclaim"><strong>Analysis only.</strong> Nothing here is placed, ordered, or executed &mdash;
+  and none of it is financial advice. The backtest above has a real weakness worth naming: historical
+  announcement dates are not available on this feed, so reactions were <em>inferred</em> from outsized gaps on
+  heavy volume. Any non-earnings shock on high volume was counted as a report. Gap and volume figures on the
+  live cards come from completed daily bars and are solid; option prices are delayed and go stale outside
+  market hours, which the cards flag. Verify against a live book before acting.</div>
 </div>
 """
 
 
-def build(rows, out_path):
-    payload = json.dumps({"rows": rows}, separators=(",", ":"), default=str)
+def build(rows, out_path, backtest=None):
+    payload = json.dumps({"rows": rows, "backtest": backtest},
+                         separators=(",", ":"), default=str)
     stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%d %b %Y, %H:%M UTC")
     html = ("<title>Earnings Drift — Trade With the Gap</title>\n"
             f"<style>{CSS}</style>\n"

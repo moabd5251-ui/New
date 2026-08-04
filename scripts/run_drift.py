@@ -43,7 +43,7 @@ def main():
           f"{sum(1 for r in rows if r['conviction'] == 'HIGH')} high conviction")
 
     rows = D.attach_structures(rows)
-    DD.build(rows, str(OUT_HTML))
+    DD.build(rows, str(OUT_HTML), backtest=D.BACKTEST)
     print(f"[dashboard] wrote {OUT_HTML}")
 
     events = []

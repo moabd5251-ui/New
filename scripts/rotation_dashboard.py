@@ -133,11 +133,24 @@ entirely time value, which is the same trap the volatility-ramp backtest measure
 rose 96% of the time there and long premium still lost, because decay took the gain. A trend
 hold lasts far longer than that trade did.</div>
 
-<div class="trap"><strong>Entry is hard, exit is easy — on purpose.</strong> A market must reach
-{70}% exposure to be bought and only has to fall under {30}% to be sold. That gap is the churn
-control: LEAP spreads are wide, and equal thresholds would make you pay a round trip every time
-a market wobbled across one line. A position that slips in rank while its trend holds is left
-alone. Long-only, so a strong downtrend means cash, not a short.</div>
+<div class="trap"><strong>Backtested over 9.16 years, and it does not beat holding the index.</strong>
+100 trades, walk-forward: this returned <b>+8.29%</b> a year against <b>+13.03%</b> for simply
+holding SPY and <b>+18.70%</b> for QQQ. It did cut the drawdown — 28% against SPY's 34%, which
+is what trend following is for — but it gave up more return than it saved in risk, and its
+Sharpe was 0.45 against 0.70.
+<br><br>
+<strong>Through LEAPs it is worse, not better.</strong> Three times leverage turns +8.29% into
++24.9% gross, then 10.8%/yr of carry and ~10.9%/yr of spread across 10.9 round trips leave
+<b>+3.2% a year — earned while carrying a levered drawdown near 85%</b>. The costs consume 87%
+of the levered gross. Holding QQQ paid six times that with a third of the pain.
+<br><br>
+The hysteresis gap also failed its own test: entering and exiting at the same 70% threshold
+beat the 70/30 gap on both return and drawdown, so the churn control cost more in late exits
+than it saved in round trips. One fair caveat — the window is dominated by a historic equity
+bull market, the regime trend following is expected to lag. That suggests the signal is not
+worthless. It does not make this tradable, and it does nothing about the cost arithmetic.
+<br><br>
+<strong>Read the book below as a signal, not a recommendation.</strong></div>
 
 {warn}
 

@@ -61,6 +61,46 @@ ROTATION_UNIVERSE = [
     dict(symbol="IBIT", market="Bitcoin",           group="Crypto"),
 ]
 
+# ---------------------------------------------------------------------------
+# Measured on 9.16 years of daily bars, 100 closed trades, 460 weekly rebalances,
+# strictly walk-forward. See scripts/backtest_rotation.py.
+#
+# The signal LOSES to buying the index and holding it:
+#
+#     rotation      +8.29% CAGR   maxDD -28.4%   Sharpe 0.45
+#     SPY hold     +13.03% CAGR   maxDD -34.1%   Sharpe 0.70
+#     QQQ hold     +18.70% CAGR   maxDD -35.6%   Sharpe 0.80
+#
+# It does cut the drawdown, which is what trend following is for, but it gives up
+# more return than it saves in risk — a worse Sharpe than simply holding.
+#
+# Through LEAPs it is far worse, because the costs are large against a thin edge.
+# Three times leverage on +8.29% is +24.9% gross, and then 10.8%/yr of carry and
+# roughly 10.9%/yr of spread at 10.9 round trips a year leave +3.2% — earned while
+# carrying a levered drawdown near 85%. Holding QQQ paid six times that with a
+# third of the pain.
+#
+# The hysteresis gap does not do the job it was designed for. Entering and exiting
+# at the same 70% threshold beat the 70/30 gap on BOTH return and drawdown
+# (+11.07% and -24.4% against +8.29% and -28.4%), so the churn control was costing
+# more in late exits than it saved in avoided round trips.
+#
+# One fair caveat: the window is dominated by a historic equity bull market, which
+# is the regime trend following is expected to lag. That argues the signal is not
+# worthless, not that this is tradable — and it does nothing about the LEAP cost
+# arithmetic, which is what actually kills it.
+BACKTEST = dict(
+    years=9.16, n_trades=100, rebalances=460,
+    cagr=0.0829, max_dd=-0.2836, sharpe=0.45, win_rate=46.0,
+    avg_hold_days=87, trades_per_year=10.9, avg_win=0.121, avg_loss=-0.050,
+    spy_cagr=0.1303, spy_dd=-0.3410, spy_sharpe=0.70,
+    qqq_cagr=0.1870, qqq_dd=-0.3562, qqq_sharpe=0.80,
+    leap_gross=0.2487, leap_carry=-0.1080, leap_spread=-0.1090,
+    leap_net=0.0317, leap_dd=-0.8508,
+    beats_buy_hold=False, leap_overlay_modelled=True,
+    note="Signal underperforms buy-and-hold; the LEAP overlay consumes 87% of the "
+         "levered gross. Not tradable as configured.")
+
 MAX_POSITIONS = 3      # how many markets are held at once
 ENTER_ABOVE = 70       # exposure must reach this to open — a high bar
 EXIT_BELOW = 30        # and only fall under this to close — a low one

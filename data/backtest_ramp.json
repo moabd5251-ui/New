@@ -1,0 +1,951 @@
+[
+  {
+    "symbol": "CVX",
+    "report_date": "2026-07-31",
+    "expiry": "2026-08-21",
+    "exit_date": "2026-07-30",
+    "path": [
+      {
+        "date": "2026-06-22",
+        "dte_report": 39,
+        "spot": 175.06,
+        "strike": 175.0,
+        "iv": 0.2848,
+        "mid": 16.0903,
+        "volume": 525
+      },
+      {
+        "date": "2026-06-23",
+        "dte_report": 38,
+        "spot": 175.98,
+        "strike": 175.0,
+        "iv": 0.2811,
+        "mid": 15.8552,
+        "volume": 76
+      },
+      {
+        "date": "2026-06-24",
+        "dte_report": 37,
+        "spot": 171.45,
+        "strike": 170.0,
+        "iv": 0.2803,
+        "mid": 15.2987,
+        "volume": 2760
+      },
+      {
+        "date": "2026-06-25",
+        "dte_report": 36,
+        "spot": 172.24,
+        "strike": 170.0,
+        "iv": 0.2747,
+        "mid": 15.0025,
+        "volume": 182
+      },
+      {
+        "date": "2026-06-26",
+        "dte_report": 35,
+        "spot": 171.06,
+        "strike": 170.0,
+        "iv": 0.2715,
+        "mid": 14.5186,
+        "volume": 223
+      },
+      {
+        "date": "2026-06-29",
+        "dte_report": 32,
+        "spot": 168.47,
+        "strike": 170.0,
+        "iv": 0.2757,
+        "mid": 14.146,
+        "volume": 1342
+      },
+      {
+        "date": "2026-06-30",
+        "dte_report": 31,
+        "spot": 165.76,
+        "strike": 165.0,
+        "iv": 0.2847,
+        "mid": 14.1991,
+        "volume": 217
+      },
+      {
+        "date": "2026-07-01",
+        "dte_report": 30,
+        "spot": 165.69,
+        "strike": 165.0,
+        "iv": 0.2776,
+        "mid": 13.7057,
+        "volume": 412
+      },
+      {
+        "date": "2026-07-02",
+        "dte_report": 29,
+        "spot": 169.2,
+        "strike": 170.0,
+        "iv": 0.2755,
+        "mid": 13.7548,
+        "volume": 179
+      },
+      {
+        "date": "2026-07-06",
+        "dte_report": 25,
+        "spot": 168.1,
+        "strike": 170.0,
+        "iv": 0.2789,
+        "mid": 13.3404,
+        "volume": 244
+      },
+      {
+        "date": "2026-07-07",
+        "dte_report": 24,
+        "spot": 174.01,
+        "strike": 175.0,
+        "iv": 0.3137,
+        "mid": 15.2904,
+        "volume": 1294
+      },
+      {
+        "date": "2026-07-08",
+        "dte_report": 23,
+        "spot": 175.97,
+        "strike": 175.0,
+        "iv": 0.2925,
+        "mid": 14.2519,
+        "volume": 1027
+      },
+      {
+        "date": "2026-07-09",
+        "dte_report": 22,
+        "spot": 174.05,
+        "strike": 175.0,
+        "iv": 0.2886,
+        "mid": 13.7571,
+        "volume": 138
+      },
+      {
+        "date": "2026-07-10",
+        "dte_report": 21,
+        "spot": 176.4,
+        "strike": 175.0,
+        "iv": 0.2831,
+        "mid": 13.5451,
+        "volume": 183
+      },
+      {
+        "date": "2026-07-13",
+        "dte_report": 18,
+        "spot": 182.2,
+        "strike": 180.0,
+        "iv": 0.3023,
+        "mid": 14.4426,
+        "volume": 793
+      },
+      {
+        "date": "2026-07-14",
+        "dte_report": 17,
+        "spot": 181.76,
+        "strike": 180.0,
+        "iv": 0.2911,
+        "mid": 13.6724,
+        "volume": 344
+      },
+      {
+        "date": "2026-07-15",
+        "dte_report": 16,
+        "spot": 181.6,
+        "strike": 180.0,
+        "iv": 0.2889,
+        "mid": 13.3705,
+        "volume": 120
+      },
+      {
+        "date": "2026-07-16",
+        "dte_report": 15,
+        "spot": 183.86,
+        "strike": 185.0,
+        "iv": 0.3062,
+        "mid": 14.1212,
+        "volume": 207
+      },
+      {
+        "date": "2026-07-17",
+        "dte_report": 14,
+        "spot": 187.38,
+        "strike": 185.0,
+        "iv": 0.3035,
+        "mid": 14.1515,
+        "volume": 740
+      },
+      {
+        "date": "2026-07-20",
+        "dte_report": 11,
+        "spot": 189.71,
+        "strike": 185.0,
+        "iv": 0.3081,
+        "mid": 14.2787,
+        "volume": 335
+      },
+      {
+        "date": "2026-07-21",
+        "dte_report": 10,
+        "spot": 191.07,
+        "strike": 185.0,
+        "iv": 0.2975,
+        "mid": 14.1018,
+        "volume": 314
+      },
+      {
+        "date": "2026-07-22",
+        "dte_report": 9,
+        "spot": 192.98,
+        "strike": 185.0,
+        "iv": 0.2987,
+        "mid": 14.6766,
+        "volume": 221
+      },
+      {
+        "date": "2026-07-23",
+        "dte_report": 8,
+        "spot": 194.42,
+        "strike": 185.0,
+        "iv": 0.3256,
+        "mid": 16.108,
+        "volume": 397
+      },
+      {
+        "date": "2026-07-24",
+        "dte_report": 7,
+        "spot": 194.79,
+        "strike": 185.0,
+        "iv": 0.3249,
+        "mid": 16.0413,
+        "volume": 85
+      },
+      {
+        "date": "2026-07-27",
+        "dte_report": 4,
+        "spot": 190.0,
+        "strike": 185.0,
+        "iv": 0.3161,
+        "mid": 13.13,
+        "volume": 50
+      },
+      {
+        "date": "2026-07-28",
+        "dte_report": 3,
+        "spot": 187.58,
+        "strike": 185.0,
+        "iv": 0.3084,
+        "mid": 11.9896,
+        "volume": 149
+      },
+      {
+        "date": "2026-07-29",
+        "dte_report": 2,
+        "spot": 191.86,
+        "strike": 185.0,
+        "iv": 0.327,
+        "mid": 13.6853,
+        "volume": 754
+      },
+      {
+        "date": "2026-07-30",
+        "dte_report": 1,
+        "spot": 192.31,
+        "strike": 185.0,
+        "iv": 0.3269,
+        "mid": 13.6662,
+        "volume": 146
+      }
+    ],
+    "surprise_pct": 8.84,
+    "trades": [
+      {
+        "target_n": 14,
+        "held_from": "2026-07-17",
+        "entry_dte": 14,
+        "entry_iv": 0.3035,
+        "exit_iv": 0.3269,
+        "iv_change": 0.0234,
+        "entry_mid": 14.1515,
+        "exit_mid": 13.6662,
+        "ret_mid": -0.0343,
+        "ret_real": -0.0905,
+        "spot_move": 0.0263
+      },
+      {
+        "target_n": 10,
+        "held_from": "2026-07-21",
+        "entry_dte": 10,
+        "entry_iv": 0.2975,
+        "exit_iv": 0.3269,
+        "iv_change": 0.0294,
+        "entry_mid": 14.1018,
+        "exit_mid": 13.6662,
+        "ret_mid": -0.0309,
+        "ret_real": -0.0873,
+        "spot_move": 0.0065
+      },
+      {
+        "target_n": 7,
+        "held_from": "2026-07-24",
+        "entry_dte": 7,
+        "entry_iv": 0.3249,
+        "exit_iv": 0.3269,
+        "iv_change": 0.002,
+        "entry_mid": 16.0413,
+        "exit_mid": 13.6662,
+        "ret_mid": -0.1481,
+        "ret_real": -0.1977,
+        "spot_move": -0.0127
+      },
+      {
+        "target_n": 5,
+        "held_from": "2026-07-24",
+        "entry_dte": 7,
+        "entry_iv": 0.3249,
+        "exit_iv": 0.3269,
+        "iv_change": 0.002,
+        "entry_mid": 16.0413,
+        "exit_mid": 13.6662,
+        "ret_mid": -0.1481,
+        "ret_real": -0.1977,
+        "spot_move": -0.0127
+      }
+    ]
+  },
+  {
+    "symbol": "XOM",
+    "report_date": "2026-07-31",
+    "expiry": "2026-08-21",
+    "exit_date": "2026-07-30",
+    "path": [
+      {
+        "date": "2026-06-22",
+        "dte_report": 39,
+        "spot": 138.47,
+        "strike": 140.0,
+        "iv": 0.2977,
+        "mid": 13.3657,
+        "volume": 416
+      },
+      {
+        "date": "2026-06-23",
+        "dte_report": 38,
+        "spot": 139.73,
+        "strike": 140.0,
+        "iv": 0.2876,
+        "mid": 12.867,
+        "volume": 585
+      },
+      {
+        "date": "2026-06-24",
+        "dte_report": 37,
+        "spot": 136.9,
+        "strike": 135.0,
+        "iv": 0.2883,
+        "mid": 12.6148,
+        "volume": 418
+      },
+      {
+        "date": "2026-06-25",
+        "dte_report": 36,
+        "spot": 137.55,
+        "strike": 140.0,
+        "iv": 0.2947,
+        "mid": 12.9113,
+        "volume": 925
+      },
+      {
+        "date": "2026-06-26",
+        "dte_report": 35,
+        "spot": 136.54,
+        "strike": 135.0,
+        "iv": 0.2859,
+        "mid": 12.2357,
+        "volume": 1186
+      },
+      {
+        "date": "2026-06-29",
+        "dte_report": 32,
+        "spot": 136.06,
+        "strike": 135.0,
+        "iv": 0.2724,
+        "mid": 11.2823,
+        "volume": 120
+      },
+      {
+        "date": "2026-06-30",
+        "dte_report": 31,
+        "spot": 136.72,
+        "strike": 135.0,
+        "iv": 0.2894,
+        "mid": 11.9685,
+        "volume": 473
+      },
+      {
+        "date": "2026-07-01",
+        "dte_report": 30,
+        "spot": 136.28,
+        "strike": 135.0,
+        "iv": 0.2845,
+        "mid": 11.5866,
+        "volume": 156
+      },
+      {
+        "date": "2026-07-02",
+        "dte_report": 29,
+        "spot": 137.09,
+        "strike": 135.0,
+        "iv": 0.2814,
+        "mid": 11.4932,
+        "volume": 581
+      },
+      {
+        "date": "2026-07-06",
+        "dte_report": 25,
+        "spot": 136.44,
+        "strike": 135.0,
+        "iv": 0.2811,
+        "mid": 10.9074,
+        "volume": 379
+      },
+      {
+        "date": "2026-07-07",
+        "dte_report": 24,
+        "spot": 141.69,
+        "strike": 140.0,
+        "iv": 0.2992,
+        "mid": 11.9257,
+        "volume": 720
+      },
+      {
+        "date": "2026-07-08",
+        "dte_report": 23,
+        "spot": 141.13,
+        "strike": 140.0,
+        "iv": 0.297,
+        "mid": 11.6205,
+        "volume": 668
+      },
+      {
+        "date": "2026-07-09",
+        "dte_report": 22,
+        "spot": 137.46,
+        "strike": 135.0,
+        "iv": 0.2805,
+        "mid": 10.7261,
+        "volume": 1930
+      },
+      {
+        "date": "2026-07-10",
+        "dte_report": 21,
+        "spot": 138.88,
+        "strike": 140.0,
+        "iv": 0.2811,
+        "mid": 10.5858,
+        "volume": 270
+      },
+      {
+        "date": "2026-07-13",
+        "dte_report": 18,
+        "spot": 144.51,
+        "strike": 145.0,
+        "iv": 0.309,
+        "mid": 11.6347,
+        "volume": 1342
+      },
+      {
+        "date": "2026-07-14",
+        "dte_report": 17,
+        "spot": 145.09,
+        "strike": 145.0,
+        "iv": 0.301,
+        "mid": 11.2259,
+        "volume": 2748
+      },
+      {
+        "date": "2026-07-15",
+        "dte_report": 16,
+        "spot": 144.51,
+        "strike": 145.0,
+        "iv": 0.3195,
+        "mid": 11.7185,
+        "volume": 557
+      },
+      {
+        "date": "2026-07-16",
+        "dte_report": 15,
+        "spot": 145.95,
+        "strike": 145.0,
+        "iv": 0.2955,
+        "mid": 10.8169,
+        "volume": 838
+      },
+      {
+        "date": "2026-07-17",
+        "dte_report": 14,
+        "spot": 147.36,
+        "strike": 145.0,
+        "iv": 0.3055,
+        "mid": 11.2545,
+        "volume": 1475
+      },
+      {
+        "date": "2026-07-20",
+        "dte_report": 11,
+        "spot": 148.36,
+        "strike": 150.0,
+        "iv": 0.3233,
+        "mid": 11.4045,
+        "volume": 789
+      },
+      {
+        "date": "2026-07-21",
+        "dte_report": 10,
+        "spot": 151.71,
+        "strike": 150.0,
+        "iv": 0.3116,
+        "mid": 11.0518,
+        "volume": 3179
+      },
+      {
+        "date": "2026-07-22",
+        "dte_report": 9,
+        "spot": 154.45,
+        "strike": 150.0,
+        "iv": 0.3173,
+        "mid": 11.7268,
+        "volume": 1374
+      },
+      {
+        "date": "2026-07-23",
+        "dte_report": 8,
+        "spot": 156.89,
+        "strike": 150.0,
+        "iv": 0.332,
+        "mid": 12.9105,
+        "volume": 899
+      },
+      {
+        "date": "2026-07-24",
+        "dte_report": 7,
+        "spot": 156.94,
+        "strike": 150.0,
+        "iv": 0.3196,
+        "mid": 12.3993,
+        "volume": 279
+      },
+      {
+        "date": "2026-07-27",
+        "dte_report": 4,
+        "spot": 154.77,
+        "strike": 150.0,
+        "iv": 0.3312,
+        "mid": 11.3284,
+        "volume": 1088
+      },
+      {
+        "date": "2026-07-28",
+        "dte_report": 3,
+        "spot": 153.04,
+        "strike": 150.0,
+        "iv": 0.3414,
+        "mid": 10.9194,
+        "volume": 749
+      },
+      {
+        "date": "2026-07-29",
+        "dte_report": 2,
+        "spot": 156.75,
+        "strike": 150.0,
+        "iv": 0.3452,
+        "mid": 12.0793,
+        "volume": 1426
+      },
+      {
+        "date": "2026-07-30",
+        "dte_report": 1,
+        "spot": 156.97,
+        "strike": 150.0,
+        "iv": 0.3145,
+        "mid": 11.2204,
+        "volume": 263
+      }
+    ],
+    "surprise_pct": 13.26,
+    "trades": [
+      {
+        "target_n": 10,
+        "held_from": "2026-07-21",
+        "entry_dte": 10,
+        "entry_iv": 0.3116,
+        "exit_iv": 0.3145,
+        "iv_change": 0.0029,
+        "entry_mid": 11.0518,
+        "exit_mid": 11.2204,
+        "ret_mid": 0.0153,
+        "ret_real": -0.0439,
+        "spot_move": 0.0347
+      },
+      {
+        "target_n": 7,
+        "held_from": "2026-07-24",
+        "entry_dte": 7,
+        "entry_iv": 0.3196,
+        "exit_iv": 0.3145,
+        "iv_change": -0.0051,
+        "entry_mid": 12.3993,
+        "exit_mid": 11.2204,
+        "ret_mid": -0.0951,
+        "ret_real": -0.1478,
+        "spot_move": 0.0002
+      },
+      {
+        "target_n": 5,
+        "held_from": "2026-07-24",
+        "entry_dte": 7,
+        "entry_iv": 0.3196,
+        "exit_iv": 0.3145,
+        "iv_change": -0.0051,
+        "entry_mid": 12.3993,
+        "exit_mid": 11.2204,
+        "ret_mid": -0.0951,
+        "ret_real": -0.1478,
+        "spot_move": 0.0002
+      }
+    ]
+  },
+  {
+    "symbol": "PLTR",
+    "report_date": "2026-08-03",
+    "expiry": "2026-08-21",
+    "exit_date": "2026-07-31",
+    "path": [
+      {
+        "date": "2026-06-24",
+        "dte_report": 40,
+        "spot": 113.5,
+        "strike": 115.0,
+        "iv": 0.5836,
+        "mid": 21.102,
+        "volume": 5146
+      },
+      {
+        "date": "2026-06-25",
+        "dte_report": 39,
+        "spot": 107.27,
+        "strike": 105.0,
+        "iv": 0.6005,
+        "mid": 20.1215,
+        "volume": 1330
+      },
+      {
+        "date": "2026-06-26",
+        "dte_report": 38,
+        "spot": 112.93,
+        "strike": 115.0,
+        "iv": 0.5843,
+        "mid": 20.7292,
+        "volume": 1625
+      },
+      {
+        "date": "2026-06-29",
+        "dte_report": 35,
+        "spot": 115.7,
+        "strike": 115.0,
+        "iv": 0.581,
+        "mid": 20.3054,
+        "volume": 2225
+      },
+      {
+        "date": "2026-06-30",
+        "dte_report": 34,
+        "spot": 116.67,
+        "strike": 115.0,
+        "iv": 0.5871,
+        "mid": 20.4654,
+        "volume": 460
+      },
+      {
+        "date": "2026-07-01",
+        "dte_report": 33,
+        "spot": 125.73,
+        "strike": 125.0,
+        "iv": 0.5893,
+        "mid": 21.9562,
+        "volume": 2962
+      },
+      {
+        "date": "2026-07-02",
+        "dte_report": 32,
+        "spot": 129.3,
+        "strike": 125.0,
+        "iv": 0.6215,
+        "mid": 23.5603,
+        "volume": 2964
+      },
+      {
+        "date": "2026-07-06",
+        "dte_report": 28,
+        "spot": 132.54,
+        "strike": 125.0,
+        "iv": 0.6145,
+        "mid": 23.2518,
+        "volume": 1218
+      },
+      {
+        "date": "2026-07-07",
+        "dte_report": 27,
+        "spot": 134.37,
+        "strike": 125.0,
+        "iv": 0.6417,
+        "mid": 24.556,
+        "volume": 943
+      },
+      {
+        "date": "2026-07-08",
+        "dte_report": 26,
+        "spot": 132.22,
+        "strike": 125.0,
+        "iv": 0.5994,
+        "mid": 22.1737,
+        "volume": 855
+      },
+      {
+        "date": "2026-07-09",
+        "dte_report": 25,
+        "spot": 129.04,
+        "strike": 125.0,
+        "iv": 0.6146,
+        "mid": 21.6079,
+        "volume": 1754
+      },
+      {
+        "date": "2026-07-10",
+        "dte_report": 24,
+        "spot": 126.79,
+        "strike": 125.0,
+        "iv": 0.6011,
+        "mid": 20.4854,
+        "volume": 527
+      },
+      {
+        "date": "2026-07-13",
+        "dte_report": 21,
+        "spot": 130.04,
+        "strike": 125.0,
+        "iv": 0.639,
+        "mid": 21.6305,
+        "volume": 3723
+      },
+      {
+        "date": "2026-07-14",
+        "dte_report": 20,
+        "spot": 133.72,
+        "strike": 125.0,
+        "iv": 0.6715,
+        "mid": 23.4755,
+        "volume": 1202
+      },
+      {
+        "date": "2026-07-15",
+        "dte_report": 19,
+        "spot": 133.76,
+        "strike": 125.0,
+        "iv": 0.6468,
+        "mid": 22.4498,
+        "volume": 1928
+      },
+      {
+        "date": "2026-07-16",
+        "dte_report": 18,
+        "spot": 134.44,
+        "strike": 125.0,
+        "iv": 0.6354,
+        "mid": 22.0801,
+        "volume": 456
+      },
+      {
+        "date": "2026-07-17",
+        "dte_report": 17,
+        "spot": 132.38,
+        "strike": 125.0,
+        "iv": 0.664,
+        "mid": 21.9584,
+        "volume": 440
+      },
+      {
+        "date": "2026-07-20",
+        "dte_report": 14,
+        "spot": 134.85,
+        "strike": 125.0,
+        "iv": 0.699,
+        "mid": 22.9297,
+        "volume": 361
+      },
+      {
+        "date": "2026-07-21",
+        "dte_report": 13,
+        "spot": 132.66,
+        "strike": 125.0,
+        "iv": 0.6892,
+        "mid": 21.5738,
+        "volume": 242
+      },
+      {
+        "date": "2026-07-22",
+        "dte_report": 12,
+        "spot": 124.57,
+        "strike": 125.0,
+        "iv": 0.68,
+        "mid": 19.3482,
+        "volume": 1602
+      },
+      {
+        "date": "2026-07-23",
+        "dte_report": 11,
+        "spot": 123.37,
+        "strike": 125.0,
+        "iv": 0.6776,
+        "mid": 18.8902,
+        "volume": 962
+      },
+      {
+        "date": "2026-07-24",
+        "dte_report": 10,
+        "spot": 122.92,
+        "strike": 125.0,
+        "iv": 0.6681,
+        "mid": 18.2963,
+        "volume": 3049
+      },
+      {
+        "date": "2026-07-27",
+        "dte_report": 7,
+        "spot": 131.53,
+        "strike": 125.0,
+        "iv": 0.7107,
+        "mid": 19.7643,
+        "volume": 4851
+      },
+      {
+        "date": "2026-07-28",
+        "dte_report": 6,
+        "spot": 123.53,
+        "strike": 125.0,
+        "iv": 0.7103,
+        "mid": 18.0319,
+        "volume": 1880
+      },
+      {
+        "date": "2026-07-29",
+        "dte_report": 5,
+        "spot": 123.0,
+        "strike": 125.0,
+        "iv": 0.7584,
+        "mid": 18.8314,
+        "volume": 5255
+      },
+      {
+        "date": "2026-07-30",
+        "dte_report": 4,
+        "spot": 122.26,
+        "strike": 120.0,
+        "iv": 0.7306,
+        "mid": 17.4112,
+        "volume": 650
+      },
+      {
+        "date": "2026-07-31",
+        "dte_report": 3,
+        "spot": 123.06,
+        "strike": 125.0,
+        "iv": 0.7305,
+        "mid": 17.3467,
+        "volume": 730
+      }
+    ],
+    "surprise_pct": 18.51,
+    "trades": [
+      {
+        "target_n": 28,
+        "held_from": "2026-07-06",
+        "entry_dte": 28,
+        "entry_iv": 0.6145,
+        "exit_iv": 0.7305,
+        "iv_change": 0.116,
+        "entry_mid": 23.2518,
+        "exit_mid": 17.3467,
+        "ret_mid": -0.254,
+        "ret_real": -0.2974,
+        "spot_move": -0.0715
+      },
+      {
+        "target_n": 21,
+        "held_from": "2026-07-13",
+        "entry_dte": 21,
+        "entry_iv": 0.639,
+        "exit_iv": 0.7305,
+        "iv_change": 0.0915,
+        "entry_mid": 21.6305,
+        "exit_mid": 17.3467,
+        "ret_mid": -0.198,
+        "ret_real": -0.2448,
+        "spot_move": -0.0537
+      },
+      {
+        "target_n": 14,
+        "held_from": "2026-07-20",
+        "entry_dte": 14,
+        "entry_iv": 0.699,
+        "exit_iv": 0.7305,
+        "iv_change": 0.0315,
+        "entry_mid": 22.9297,
+        "exit_mid": 17.3467,
+        "ret_mid": -0.2435,
+        "ret_real": -0.2876,
+        "spot_move": -0.0874
+      },
+      {
+        "target_n": 10,
+        "held_from": "2026-07-24",
+        "entry_dte": 10,
+        "entry_iv": 0.6681,
+        "exit_iv": 0.7305,
+        "iv_change": 0.0624,
+        "entry_mid": 18.2963,
+        "exit_mid": 17.3467,
+        "ret_mid": -0.0519,
+        "ret_real": -0.1071,
+        "spot_move": 0.0011
+      },
+      {
+        "target_n": 7,
+        "held_from": "2026-07-27",
+        "entry_dte": 7,
+        "entry_iv": 0.7107,
+        "exit_iv": 0.7305,
+        "iv_change": 0.0198,
+        "entry_mid": 19.7643,
+        "exit_mid": 17.3467,
+        "ret_mid": -0.1223,
+        "ret_real": -0.1734,
+        "spot_move": -0.0644
+      },
+      {
+        "target_n": 5,
+        "held_from": "2026-07-29",
+        "entry_dte": 5,
+        "entry_iv": 0.7584,
+        "exit_iv": 0.7305,
+        "iv_change": -0.0279,
+        "entry_mid": 18.8314,
+        "exit_mid": 17.3467,
+        "ret_mid": -0.0788,
+        "ret_real": -0.1325,
+        "spot_move": 0.0005
+      }
+    ]
+  }
+]

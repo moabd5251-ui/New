@@ -289,8 +289,12 @@ def main():
     cutoff = (datetime.strptime(H.available_end(H.OPRA), "%Y-%m-%d")
               - timedelta(days=1)).strftime("%Y-%m-%d")
     evs = [e for e in evs if e[1] <= cutoff]
-    if a.limit:
-        evs = evs[-a.limit:]
+    if a.limit and a.limit < len(evs):
+        # Spread the sample evenly across the whole period. Taking the most recent N
+        # would pack every event into one earnings season, so a single quarter's vol
+        # regime would masquerade as a general result.
+        step = len(evs) / a.limit
+        evs = [evs[int(i * step)] for i in range(a.limit)]
     print(f"{len(evs)} earnings events, {evs[0][1]} .. {evs[-1][1]}")
 
     if a.dry_run:

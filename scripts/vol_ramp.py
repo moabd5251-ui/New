@@ -23,9 +23,42 @@ import numpy as np
 import opt_lib as O
 import feed
 
+# ---------------------------------------------------------------------------
+# Measured on the OPRA tape: 79 earnings events sampled across a year, 265 simulated
+# entries, ATM straddle on the first expiry after the report, exited the session before
+# it. See scripts/backtest_ramp.py and data/backtest_ramp.json.
+#
+# The premise is true and it is not marginal — implied vol on the earnings expiry rose
+# 96% of the time, by a median 30 points. The strategy still does not pay. Mean return
+# before costs is exactly zero and the median is -6.3%, because theta consumes the whole
+# vega gain; after crossing the spread twice it is -5.8% at a 29% win rate.
+#
+# That gap is the entire reason this constant exists. A required_iv_rise comfortably
+# below the expected ramp looks like a wide margin and is not one, because the bleed
+# that has to be covered grows as vega decays. Nothing here should let a long-premium
+# structure be graded on the ramp alone.
+#
+# Not measured: the calendar. It is the structure the arithmetic actually favours —
+# long vega AND positive theta — but no backtest has been run on it, so it carries no
+# more evidence than it did before, only a better-understood alternative.
+BACKTEST = dict(
+    n_events=79, n_entries=265, sample="2025-07-31..2026-07-31", cost=9.36,
+    iv_rise_median_pts=30.3, iv_rise_mean_pts=34.4, iv_rise_win=96.2, iv_rise_t=21.89,
+    straddle_mid_mean=-0.0004, straddle_mid_median=-0.0634, straddle_mid_win=35.8,
+    straddle_real_mean=-0.0583, straddle_real_median=-0.1179, straddle_real_win=29.1,
+    straddle_real_t=-2.83,
+    # mid-to-mid mean return by entry horizon, days before the report
+    by_entry={28: 0.0676, 21: 0.0325, 14: 0.0583, 10: -0.0232, 7: -0.0292, 5: -0.0396},
+    calendar_tested=False)
+
 # Entry window. Earlier than this and theta bleed dominates; later and the ramp is
 # already priced into the front month.
-ENTRY_MIN_DAYS = 12
+#
+# The floor moved from 12 to 14 on the backtest: every horizon of 14 days or more was
+# positive before costs, every horizon under it negative and worsening the later you
+# entered. Theta accelerates into expiry faster than the ramp does, so the last two
+# weeks are where the trade is reliably lost rather than where it is won.
+ENTRY_MIN_DAYS = 14
 ENTRY_MAX_DAYS = 40
 # Above this term spread the ramp has already largely happened.
 RAMP_STARTED_SPREAD = 6.0
@@ -240,6 +273,18 @@ def assess(rows, verbose=True):
                         d["margin"] = round(ramp - need, 1)
                         d["verdict"] = ("WORTH TAKING" if need <= ramp * 0.5
                                         else "MARGINAL" if need <= ramp else "NOT WORTH IT")
+                        # A straddle is pure long premium, and that is the one structure
+                        # here with a measured verdict: -5.8% mean at a 29% win rate over
+                        # 265 entries, despite vol rising 96% of the time. The required-rise
+                        # arithmetic keeps calling those trades worth taking, so cap it.
+                        # The ramp being real is not evidence that owning it pays.
+                        if best["structure"] == "STRADDLE" and d["verdict"] == "WORTH TAKING":
+                            d["verdict"] = "MARGINAL"
+                            d["verdict_note"] = (
+                                f"Downgraded: straddles lost {abs(BACKTEST['straddle_real_mean'])*100:.1f}% "
+                                f"on average over {BACKTEST['n_entries']} backtested entries "
+                                f"({BACKTEST['straddle_real_win']:.0f}% win rate) even though implied vol "
+                                f"rose {BACKTEST['iv_rise_win']:.0f}% of the time. Theta takes the vega gain.")
                     else:
                         d["verdict"] = "NO PRICING"
             except Exception as e:

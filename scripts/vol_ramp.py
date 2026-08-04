@@ -10,12 +10,16 @@ is REQUIRED IV RISE — how many vol points implied has to climb just to cover t
 over the holding period — measured against how much it typically climbs.
 
 Two structures, both defined-risk:
-  CALENDAR  sell an expiry that lands before earnings, buy the one containing it.
-            Long vega AND positive theta, because the near leg decays faster. The
-            better trade when a suitable front expiry exists. Needs the stock to stay
-            near the strike.
+  CALENDAR  ATM CALLS, same strike: sell the expiry landing before earnings, buy the
+            one containing it. Long vega AND positive theta, because the near leg
+            decays faster. Calls rather than puts is not a directional choice — at the
+            same ATM strike parity makes the two near-identical — but it does put early
+            assignment risk on the short call around an ex-dividend date. Needs the
+            stock to stay near the strike.
   STRADDLE  buy the ATM call and put in the earnings expiry. Pure long vega, direction
-            agnostic, but pays full theta. Max loss is the debit.
+            agnostic, but pays full theta. Max loss is the debit. MEASURED AND
+            NEGATIVE: -5.8% mean over 265 backtested entries, 29% win rate, despite
+            implied vol rising 96% of the time. See BACKTEST below.
 """
 import math, time
 from datetime import datetime, timezone, timedelta
@@ -130,9 +134,18 @@ def build_straddle(sym, spot, after, hold_days):
 
 
 def build_calendar(sym, spot, before, after, hold_days):
-    """Sell the pre-earnings expiry, buy the earnings expiry, same strike.
+    """CALL calendar: sell the ATM call expiring before earnings, buy the ATM call in
+    the expiry containing it, same strike.
 
     Long vega on the back leg, positive theta because the front decays faster.
+
+    Calls specifically, not puts. At the same ATM strike the two are near-identical by
+    put-call parity — same vega, same theta, same reason the structure works — so this
+    is not a directional choice. Where they differ is early assignment on the SHORT leg:
+    a short in-the-money call can be assigned ahead of an ex-dividend date, so on a
+    dividend payer that rallies through the strike before the front expiry, this
+    structure carries an assignment risk a put calendar would not. Worth knowing before
+    running it on a high-yield name into a dividend.
     """
     if not before:
         return None
@@ -141,8 +154,8 @@ def build_calendar(sym, spot, before, after, hold_days):
     if fdte <= 0:
         return None
     fch, bch = O.chain(sym, fts), O.chain(sym, bts)
-    fc, fp = _atm_pair(fch, spot, max(fdte, 1) / 365.0)
-    bc, bp = _atm_pair(bch, spot, max(bdte, 1) / 365.0)
+    fc, _ = _atm_pair(fch, spot, max(fdte, 1) / 365.0)
+    bc, _ = _atm_pair(bch, spot, max(bdte, 1) / 365.0)
     if not fc or not bc:
         return None
     # match strikes across expiries; fall back if the near chain lacks it
@@ -178,8 +191,11 @@ def build_calendar(sym, spot, before, after, hold_days):
                 iv=round((bc.get("impliedVolatility") or 0) * 100, 1),
                 min_oi=min(bc.get("openInterest") or 0, f.get("openInterest") or 0),
                 stale=bool(bc.get("stale") or f.get("stale")),
-                legs=f"sell {f['strike']} {datetime.fromtimestamp(fts, timezone.utc):%d%b} / "
-                     f"buy {strike} {datetime.fromtimestamp(bts, timezone.utc):%d%b}")
+                # Spell out the option type. Without it this reads "sell 210 15Aug /
+                # buy 210 22Aug", which names neither calls nor puts — and this string
+                # is what the dashboard and the push notification both show.
+                legs=f"sell {f['strike']}C {datetime.fromtimestamp(fts, timezone.utc):%d%b} / "
+                     f"buy {strike}C {datetime.fromtimestamp(bts, timezone.utc):%d%b}")
 
 
 def estimate_ramp(rows):

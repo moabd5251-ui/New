@@ -9,7 +9,7 @@ change rather than a rewrite. Select with the MARKET_DATA_PROVIDER env var:
 
 Every provider returns the same normalised shapes:
 
-  bars(sym, interval, rng)      -> DataFrame[Open,High,Low,Close] + .attrs["live"]
+  bars(sym, interval, rng)      -> DataFrame[Open,High,Low,Close,Volume] + .attrs["live"]
   chain(sym, expiry_ts=None)    -> {"quote": {"regularMarketPrice": float},
                                     "expirationDates": [unix_ts, ...],
                                     "options": [{"calls": [...], "puts": [...]}]}
@@ -65,9 +65,10 @@ class YahooProvider:
         r.raise_for_status()
         res = r.json()["chart"]["result"][0]
         q = res["indicators"]["quote"][0]
-        df = pd.DataFrame({"Open": q["open"], "High": q["high"],
-                           "Low": q["low"], "Close": q["close"]},
-                          index=pd.to_datetime(res["timestamp"], unit="s", utc=True)).dropna()
+        df = pd.DataFrame({"Open": q["open"], "High": q["high"], "Low": q["low"],
+                           "Close": q["close"], "Volume": q.get("volume")},
+                          index=pd.to_datetime(res["timestamp"], unit="s", utc=True))
+        df = df.dropna(subset=["Open", "High", "Low", "Close"])
         df.attrs["live"] = res.get("meta", {}).get("regularMarketPrice")
         return df
 
@@ -118,11 +119,20 @@ class YahooProvider:
         if not dates or not dates[0].get("raw"):
             return None
         when = datetime.fromtimestamp(dates[0]["raw"], timezone.utc)
+        # The most recent report already happened — calendarEvents carries it separately
+        # from the next scheduled date, and it is what post-earnings drift keys off.
+        call = cal.get("earningsCallDate") or []
+        last_report = None
+        if call and call[0].get("raw"):
+            last_report = datetime.fromtimestamp(call[0]["raw"], timezone.utc)
         hist = res.get("earningsHistory", {}).get("history", []) or []
         sur = [h.get("surprisePercent", {}).get("raw") for h in hist]
         sur = [x for x in sur if x is not None]
         return dict(date=when.strftime("%Y-%m-%d"),
                     days=(when - datetime.now(timezone.utc)).days,
+                    last_report=(last_report.strftime("%Y-%m-%d") if last_report else None),
+                    days_since_report=((datetime.now(timezone.utc) - last_report).days
+                                       if last_report else None),
                     estimated=bool(cal.get("isEarningsDateEstimate")),
                     beat_rate=(round(sum(1 for x in sur if x > 0) / len(sur) * 100) if sur else None),
                     n_quarters=len(sur),
@@ -164,7 +174,7 @@ class TradierProvider:
         if isinstance(days_, dict):
             days_ = [days_]
         df = pd.DataFrame([{"Open": x["open"], "High": x["high"], "Low": x["low"],
-                            "Close": x["close"],
+                            "Close": x["close"], "Volume": x.get("volume"),
                             "ts": pd.Timestamp(x["date"], tz="UTC")} for x in days_])
         if df.empty:
             raise RuntimeError(f"tradier returned no history for {sym}")

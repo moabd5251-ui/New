@@ -39,15 +39,24 @@ Set the API key as an environment variable in the environment settings — never
 ## Usage
 
     python3 scripts/run_portfolio.py    # regime, screen, spreads, position marks
-    python3 scripts/run_earnings.py     # earnings-event premium scan
+    python3 scripts/run_ramp.py         # pre-earnings vol ramp + lotto tickets
+    python3 scripts/run_drift.py        # post-earnings drift
 
 `run_portfolio.py` writes `dashboard.html`, updates `data/positions.json` marks, and
 prints a `PUSH:` line per milestone event (half of max profit, breakeven crossing,
 half of max risk, seven days to expiry).
 
-`run_earnings.py` writes `earnings.html` and `data/earnings.json`, and prints a
-`PUSH:` line for names reporting within 48 hours with actionable premium, or names
-that crossed into rich/cheap since the previous run. Each alert fires once.
+`run_ramp.py` writes `ramp.html` and `data/ramp.json`. It buys volatility into the
+report and exits the day before, plus cheap lotto tickets for names reporting too
+soon for that. Alerts on entry windows, exit deadlines, and ramps that got priced in.
+
+`run_drift.py` writes `drift.html` and `data/drift.json`. It trades WITH the gap
+after a report, using low-vega structures because implied vol collapses once the
+news is out. Alerts on new high-conviction setups and on ones that invalidate.
+
+All three refuse to run outside regular market hours: with the book closed, Yahoo
+recomputes implied vol from stale last trades and returns figures that look
+plausible but are not.
 
 ## Tracking a position
 

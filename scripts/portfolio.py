@@ -9,9 +9,18 @@ UNIVERSE = ["SPY","QQQ","IWM","DIA","AAPL","MSFT","NVDA","AMZN","GOOGL","META","
             "AVGO","JPM","V","UNH","XOM","WMT","LLY","MA","COST","HD","NFLX","AMD","CRM","ORCL"]
 
 def bars(sym, interval="1d", rng="1y"):
-    """Completed bars only; the live quote rides along in df.attrs["live"]."""
+    """Completed bars only; the live quote rides along in df.attrs["live"].
+
+    Only drops the final bar when it is genuinely still forming — i.e. when it is
+    dated today. Dropping unconditionally discarded the most recent COMPLETE session
+    whenever this ran outside regular hours, quietly making every indicator a day stale.
+    """
     df = feed.bars(sym, interval, rng)
-    out = df.iloc[:-1]           # indicators use CLOSED bars only
+    out = df
+    if len(df):
+        last_day = df.index[-1].date()
+        if last_day >= datetime.now(timezone.utc).date():
+            out = df.iloc[:-1]   # today's bar is incomplete
     out.attrs["live"] = df.attrs.get("live")
     return out
 

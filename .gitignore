@@ -1,3 +1,6 @@
 __pycache__/
 *.pyc
 scripts/*.html
+
+# Databento raw response cache — re-fetchable, and large
+data/cache/

@@ -51,6 +51,57 @@ def greeks(S, K, T, iv, kind="call", r=0.04, q=0.0):
                 vega=S * dq * _nd(d1) * math.sqrt(T) / 100.0)
 
 
+def bs_price(S, K, T, iv, kind="call", r=0.04, q=0.0):
+    """Black-Scholes value. At or past expiry this is intrinsic."""
+    if T <= 0 or iv <= 0:
+        return max(S - K, 0.0) if kind == "call" else max(K - S, 0.0)
+    sq = iv * math.sqrt(T)
+    d1 = (math.log(S / K) + (r - q + 0.5 * iv * iv) * T) / sq
+    d2 = d1 - sq
+    dq, dr = math.exp(-q * T), math.exp(-r * T)
+    if kind == "call":
+        return S * dq * _NC(d1) - K * dr * _NC(d2)
+    return K * dr * _NC(-d2) - S * dq * _NC(-d1)
+
+
+def implied_vol(price, S, K, T, kind="call", r=0.04, q=0.0,
+                lo=0.005, hi=6.0, tol=1e-5, max_iter=80):
+    """Solve Black-Scholes for volatility. Returns None when no solution exists.
+
+    Feeds that publish IV (Yahoo, Tradier) make this unnecessary. Raw market data
+    feeds — Databento and any other exchange tape — carry prices only, so every
+    volatility number in a historical study has to come from inverting the model
+    on the recorded price.
+
+    Returning None rather than a number is the point of the arbitrage-bound checks
+    below: a price at or under intrinsic, or above the underlying, has no implied
+    vol at all. Those quotes are common in thin option series and clamping them to
+    a boundary value would seed a study with vols that were never traded.
+    """
+    if price is None or price <= 0 or S <= 0 or K <= 0 or T <= 0:
+        return None
+    dq, dr = math.exp(-q * T), math.exp(-r * T)
+    intrinsic = max(S * dq - K * dr, 0.0) if kind == "call" else max(K * dr - S * dq, 0.0)
+    ceiling = S * dq if kind == "call" else K * dr
+    if price <= intrinsic + 1e-9 or price >= ceiling:
+        return None
+    # Bisection rather than Newton: vega vanishes on deep wings, where Newton diverges.
+    f_lo = bs_price(S, K, T, lo, kind, r, q) - price
+    f_hi = bs_price(S, K, T, hi, kind, r, q) - price
+    if f_lo > 0 or f_hi < 0:
+        return None
+    for _ in range(max_iter):
+        mid = 0.5 * (lo + hi)
+        f = bs_price(S, K, T, mid, kind, r, q) - price
+        if abs(f) < tol or (hi - lo) < tol:
+            return mid
+        if f < 0:
+            lo = mid
+        else:
+            hi = mid
+    return 0.5 * (lo + hi)
+
+
 def greeks_for(contract, S, T, kind="call", r=0.04, q=0.0):
     """Exchange-published greeks when the feed supplies them, Black-Scholes otherwise.
 

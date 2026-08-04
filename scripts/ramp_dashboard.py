@@ -118,6 +118,24 @@ h1{font-family:var(--serif);font-weight:600;font-size:clamp(26px,4vw,38px);margi
   display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .chip .s{font-family:var(--serif);font-size:16px;font-weight:600}
 .chip .d{font-family:var(--mono);font-size:11px;color:var(--ink-3);text-align:right}
+.lcard{background:var(--surface);border:1px solid var(--line);border-radius:3px;
+  border-top:3px solid var(--vol);display:flex;flex-direction:column;overflow:hidden}
+.lhead{padding:13px 17px 11px;border-bottom:1px solid var(--line)}
+.lrow{display:flex;align-items:center;gap:8px;font-size:12px;padding:9px 17px;
+  border-bottom:1px solid var(--line)}
+.lrow .n{font-family:var(--mono);font-weight:600}
+.lopt{padding:9px 17px;border-bottom:1px solid var(--line);display:flex;
+  justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.lopt.pick{background:color-mix(in srgb,var(--vol) 10%,transparent)}
+.lopt .st{font-family:var(--mono);font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em}
+.lopt .lg{font-family:var(--mono);font-size:13px;color:var(--ink)}
+.lopt .px{font-family:var(--mono);font-size:13px;font-weight:600;margin-left:auto}
+.lmeta{font-family:var(--mono);font-size:11px;color:var(--ink-3);flex-basis:100%}
+.mv{display:flex;align-items:center;gap:8px;padding:11px 17px;border-bottom:1px solid var(--line)}
+.mv .lab{width:74px;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3)}
+.mv .bar{flex:1;height:13px;background:var(--surface-2);border-radius:2px;overflow:hidden}
+.mv .bar i{display:block;height:100%;border-radius:2px}
+.mv .v{width:52px;text-align:right;font-family:var(--mono);font-weight:600;font-size:12px}
 .method{margin-top:36px;border-top:1px solid var(--line);padding-top:20px;
   font-size:13px;color:var(--ink-2);columns:2;column-gap:34px}
 .method h3{font-family:var(--sans);font-size:11px;text-transform:uppercase;letter-spacing:.1em;
@@ -193,6 +211,38 @@ function card(r){
   </article>`;
 }
 
+function lottoCard(r){
+  const L=r.lotto; if(!L) return '';
+  const b=L.best, live=L.verdict==='LIVE';
+  const maxMv=Math.max(b.required_move, r.hist_move||0, 1);
+  const opt=(s,key)=>s?`<div class="lopt ${s===b?'pick':''}">
+      <span class="st">${s.structure}</span><span class="lg">${s.legs}</span>
+      <span class="px">$${s.cost.toFixed(0)}</span>
+      <span class="lmeta">needs ${s.required_move}% · pays ${s.payoff_typical}x on a typical move,
+        ${s.payoff_max}x on its biggest${s.capped?' (capped)':''}${s.prob!=null?` · ~${s.prob}% odds`:' · odds n/a'}</span>
+    </div>`:'';
+  return `<article class="lcard">
+    <div class="lhead"><div class="tick"><span class="sym">${r.symbol}</span>
+      <span class="spot num">${r.spot}</span></div>
+      <div class="when" style="margin-top:6px"><span class="chip ${r.days<=1?'soon':''}">${
+        r.days===0?'reports today':r.days===1?'reports tomorrow':'in '+r.days+' days'}</span>
+        <span style="font-family:var(--mono);font-size:11px;color:var(--ink-3)">${r.date}</span></div>
+    </div>
+    ${b.stale?`<div class="warn">Priced off last trade — market closed</div>`:''}
+    ${L.too_pricey?`<div class="warn">Not really cheap — cheapest ticket is ${b.cost_pct}% of spot</div>`:''}
+    <div class="mv"><span class="lab">Needs</span>
+      <span class="bar"><i style="width:${b.required_move/maxMv*100}%;background:${live?css('--go'):css('--stop')}"></i></span>
+      <span class="v">${b.required_move}%</span></div>
+    <div class="mv"><span class="lab">Typical</span>
+      <span class="bar"><i style="width:${(r.hist_move||0)/maxMv*100}%;background:${css('--vol')}"></i></span>
+      <span class="v">${r.hist_move}%</span></div>
+    ${opt(L.spread)}${opt(L.directional)}${opt(L.strangle)}
+    <div class="why">${live
+      ? `This name typically moves further than the ticket needs (${L.required_vs_typical}x). Still a coin flip on any single report — most of these expire worthless.`
+      : `Needs a bigger move than this name usually makes (${L.required_vs_typical}x). A true long shot.`}</div>
+  </article>`;
+}
+
 function render(){
   const rows=DATA.rows||[], m=DATA.meta||{};
   const inWin=rows.filter(r=>r.window==='ENTRY WINDOW'&&r.best);
@@ -235,7 +285,15 @@ function render(){
   + sec(marg,'wait','MARGINAL','Break-even needs most of the typical expansion. Workable, but there is little room for the ramp to disappoint.')
   + sec(no,'stop','NOT WORTH IT','Decay over the holding period costs more than the ramp is likely to deliver. Skip these.')
   + chips(started,'wait','RAMP ALREADY STARTED','Front-month premium is already elevated — the expansion has largely been paid for. If you are in these, this is the window to be taking profit.')
-  + chips(late,'stop','TOO CLOSE TO ENTER','Reporting imminently. No time left to enter and still exit beforehand.')
+  + (late.filter(r=>r.lotto).length?`<section class="group">
+      <div class="gh"><span class="tag" style="background:var(--vol)">LOTTO</span>
+        <span style="color:var(--ink-3);font-size:12.5px">${late.filter(r=>r.lotto).length} reporting imminently</span></div>
+      <p class="gnote">Too close for the ramp — the expansion is already paid for and there is no time to
+        hold and exit. These are the opposite bet: small fixed cost held <em>through</em> the report,
+        paying only if the move beats what is priced. Cheapest workable ticket is highlighted.
+        Most expire worthless; that is the shape of the trade, not a flaw in it.</p>
+      <div class="cards">${late.filter(r=>r.lotto).map(lottoCard).join('')}</div></section>`:'')
+  + chips(late.filter(r=>!r.lotto),'stop','TOO CLOSE, NO TICKET','Reporting imminently with no cheap structure available at usable liquidity.')
   + chips(early,'na','TOO EARLY','Further out than the ramp reliably begins. Watch, do not buy.');
 }
 render();
@@ -262,9 +320,13 @@ BODY = """
     <p><strong>Calendars</strong> sell an expiry landing before the report and buy the one containing it. The near leg decays faster, so the position is long volatility while time works <em>for</em> you rather than against. That is why they usually need almost no expansion to break even.</p>
     <p><strong>The catch with calendars</strong> is that their risk is directional, not decay: the position wants the stock near the strike. A quiet name drifting sideways is ideal; a big move either way erodes it no matter what volatility does. Each card states its tolerance.</p>
     <p><strong>Straddles</strong> buy the at-the-money call and put outright. Direction agnostic and simple, but they pay full decay, which is why their break-even requirement is usually several times a calendar's.</p>
+    <p><strong>Lotto tickets</strong> are a separate trade for names reporting within two days, where the ramp is over. Strikes sit at the market's own expected-move boundary, so they pay only if the stock beats what is priced. Required move is compared against what the name typically does on earnings day &mdash; under 1.0 means it routinely travels far enough, though that is a base rate, not a prediction for any single report.</p>
     <p><strong>The exit date</strong> is one trading day before the report, stepped back over a weekend. Holding past it converts a volatility trade into an earnings bet &mdash; which is the opposite of the intent.</p>
   </div>
-  <div class="disclaim"><strong>Analysis only.</strong> Nothing here is placed, ordered, or executed &mdash; and none of it is financial advice. This strategy has <em>not</em> been backtested: historical implied volatility is not available on the free feed, so the ramp figure is inferred from a single day's cross-section and could be wrong. Report dates marked estimated can move by weeks, which would put your expiry on the wrong side of the event. Quotes are delayed roughly 15 minutes, and when the market is closed the book is empty
+  <div class="disclaim"><strong>Analysis only.</strong> Lotto tickets are held through the announcement
+  and are expected to lose most of the time &mdash; options priced fairly carry no edge, and these sit beyond
+  the expected move deliberately. Their appeal is a capped cost against an occasional large multiple, which
+  only works if each one is small enough that a string of total losses does not matter. Nothing here is placed, ordered, or executed &mdash; and none of it is financial advice. This strategy has <em>not</em> been backtested: historical implied volatility is not available on the free feed, so the ramp figure is inferred from a single day's cross-section and could be wrong. Report dates marked estimated can move by weeks, which would put your expiry on the wrong side of the event. Quotes are delayed roughly 15 minutes, and when the market is closed the book is empty
   &mdash; contracts then get priced off their last trade, which can sit far from the real mid. Cards
   priced that way say so. Verify pricing and dates against a live book before acting.</div>
 </div>

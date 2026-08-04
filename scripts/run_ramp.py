@@ -17,6 +17,7 @@ sys.path.insert(0, str(HERE))
 import feed
 import earnings as E
 import vol_ramp as V
+import lotto as LT
 import ramp_dashboard as RD
 
 STATE = ROOT / "data" / "ramp.json"
@@ -51,6 +52,11 @@ def main():
     print(f"[ramp] expansion estimate: +{meta.get('ramp')} pts "
           f"(flat {meta.get('base_spread')} -> peak {meta.get('peak_spread')})")
 
+    print("[lotto] building tickets for names reporting within 2 days")
+    assessed = LT.attach(assessed, max_days=2)
+    n_lot = sum(1 for r in assessed if r.get("lotto"))
+    print(f"[lotto] {n_lot} ticket(s) built")
+
     RD.build(assessed, meta, str(OUT_HTML))
     print(f"[dashboard] wrote {OUT_HTML}")
 
@@ -82,6 +88,15 @@ def main():
             fired.add("priced")
             events.append(f"{sym} ramp now priced in (term spread {r['iv_term_spread']}) — "
                           f"expansion largely done, consider taking profit")
+
+        # a lotto worth flagging: reports imminently and typically moves far enough
+        lot = r.get("lotto")
+        if lot and lot.get("verdict") == "LIVE" and not lot.get("too_pricey") and "lotto" not in fired:
+            b = lot["best"]
+            fired.add("lotto")
+            events.append(f"{sym} lotto: {b['structure'].lower()} {b['legs']} ${b['cost']:.0f}, "
+                          f"needs {b['required_move']}% vs {r['hist_move']}% typical, "
+                          f"{b['payoff_typical']}x if it moves. Held through the report")
 
         r["fired"] = sorted(fired)
 

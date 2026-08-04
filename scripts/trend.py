@@ -189,7 +189,13 @@ def evaluate(symbol, df=None):
                            label={1: "LONG", -1: "SHORT", 0: "NEUTRAL"}[v]))
     n = len(PANEL)
     close = float(df["Close"].iloc[-1])
+    # Raw momentum, carried alongside the vote. The vote is deliberately coarse — ten
+    # strategies means ties at 90 and 100 are common — so a cross-sectional ranking
+    # needs a continuous tiebreak or it falls back on universe listing order.
+    mom_63 = float(close / df["Close"].iloc[-64] - 1) if len(df) > 64 else 0.0
+    mom_126 = float(close / df["Close"].iloc[-127] - 1) if len(df) > 127 else 0.0
     return dict(symbol=symbol, price=round(close, 2),
+                mom_63=round(mom_63, 4), mom_126=round(mom_126, 4),
                 asof=df.index[-1].strftime("%Y-%m-%d"),
                 n_strategies=n, net=net, exposure_pct=int(round(net / n * 100)),
                 longs=sum(1 for d in detail if d["signal"] > 0),

@@ -1,0 +1,429 @@
+<title>ETF Trend Compass — Consensus Exposure</title>
+<style>
+:root{
+  --ground:#F6F8F7; --surface:#FFFFFF; --surface-2:#EAEEEC; --line:#D7DEDA;
+  --ink:#1A211E; --ink-2:#465049; --ink-3:#75807A;
+  --accent:#2C6E56; --accent-soft:#E2EDE8;
+  --up:#1F7A5A; --down:#B4443E; --flat:#75807A; --warn:#A8761C;
+  --sans:ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --serif:Georgia,"Iowan Old Style","Times New Roman",serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --ground:#101614; --surface:#18201D; --surface-2:#212A26; --line:#2C3733;
+    --ink:#DFE7E3; --ink-2:#A3AFA9; --ink-3:#75807A;
+    --accent:#6FB79A; --accent-soft:#1B2621;
+    --up:#46B189; --down:#DE6A63; --flat:#75807A; --warn:#CFA052;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#101614; --surface:#18201D; --surface-2:#212A26; --line:#2C3733;
+  --ink:#DFE7E3; --ink-2:#A3AFA9; --ink-3:#75807A;
+  --accent:#6FB79A; --accent-soft:#1B2621;
+  --up:#46B189; --down:#DE6A63; --flat:#75807A; --warn:#CFA052;
+}
+:root[data-theme="light"]{
+  --ground:#F6F8F7; --surface:#FFFFFF; --surface-2:#EAEEEC; --line:#D7DEDA;
+  --ink:#1A211E; --ink-2:#465049; --ink-3:#75807A;
+  --accent:#2C6E56; --accent-soft:#E2EDE8;
+  --up:#1F7A5A; --down:#B4443E; --flat:#75807A; --warn:#A8761C;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 24px 72px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+header.mast{border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:22px;
+  display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(26px,4vw,38px);margin:0;
+  letter-spacing:-.01em;text-wrap:balance}
+.sub{color:var(--ink-3);font-size:13px;margin-top:5px}
+.stamp{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);text-align:right;
+  text-transform:uppercase;letter-spacing:.07em;white-space:nowrap}
+.thesis{background:var(--accent-soft);border-left:3px solid var(--accent);padding:14px 17px;
+  font-size:13.5px;color:var(--ink-2);margin-bottom:16px;border-radius:0 2px 2px 0}
+.thesis strong{color:var(--ink)}
+.trap{background:color-mix(in srgb,var(--warn) 12%,transparent);border-left:3px solid var(--warn);
+  padding:14px 17px;font-size:13.5px;color:var(--ink-2);margin-bottom:26px;border-radius:0 2px 2px 0}
+.trap strong{color:var(--warn)}
+h2{font-family:var(--serif);font-size:20px;margin:34px 0 12px;font-weight:600}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;background:var(--surface);
+  border:1px solid var(--line);border-radius:3px;font-size:13.5px;min-width:720px}
+th{background:var(--surface-2);text-align:left;padding:9px 12px;font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2);font-weight:700;
+  border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.tick{font-weight:700;font-family:var(--mono)}
+.mkt{color:var(--ink-3);font-size:12px}
+.up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--flat)}
+.bar{position:relative;height:16px;background:var(--surface-2);border-radius:2px;
+  min-width:120px;width:130px;overflow:hidden}
+.bar i{position:absolute;top:0;bottom:0;left:50%;display:block}
+.bar .mid{position:absolute;top:0;bottom:0;left:50%;width:1px;background:var(--line)}
+.pill{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;
+  padding:2px 7px;border-radius:2px;letter-spacing:.04em;white-space:nowrap}
+.p-add{background:var(--up);color:#fff}
+.p-red{background:var(--warn);color:#fff}
+.p-rev{background:var(--down);color:#fff}
+.p-non{background:var(--surface-2);color:var(--ink-3)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:3px;
+  margin-bottom:16px;overflow:hidden}
+.card-h{padding:11px 16px;background:var(--surface-2);border-bottom:1px solid var(--line);
+  display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.card-h .tick{font-size:15px}
+.card-h .exp{margin-left:auto;font-family:var(--mono);font-weight:700;font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr))}
+.cell{padding:8px 14px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+  display:flex;justify-content:space-between;gap:8px;font-size:12.5px}
+.cell b{font-weight:500;color:var(--ink-2)}
+.sig{font-family:var(--mono);font-size:11px;font-weight:700}
+footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);
+  color:var(--ink-3);font-size:12px}
+</style>
+<div class="wrap">
+<header class="mast">
+  <div>
+    <h1>ETF Trend Compass</h1>
+    <div class="sub">Consensus trend following · exposure scales with agreement across
+      10 independent strategies</div>
+  </div>
+  <div class="stamp">Signals as of close 2026-08-03<br>Generated 04 Aug 2026 22:55 UTC</div>
+</header>
+
+<div class="thesis"><strong>How to read this.</strong> Exposure is not a call, it is a count.
+Each market runs 10 independent trend strategies; every one votes long, short or
+neutral, and exposure is their net vote in 10% steps. Eight of ten long reads
++80%. You <strong>add</strong> as more strategies confirm and <strong>reduce</strong> as they
+drop out, so the position accelerates into a strengthening trend and bleeds off as it weakens —
+never all-in, never all-out on a single signal.</div>
+
+<div class="trap"><strong>What this is not.</strong> These are my own trend strategies in the
+same consensus architecture as the TrendCompass reports — not I-System's models, which are not
+public. Readings will differ from that report, sometimes widely, and neither is the "correct"
+one. Signals come from the last completed session's close, so nothing here reacts intraday.
+This is decision support, not advice, and it places no orders.</div>
+
+
+
+<h2>Exposure book</h2>
+<div class="scroll"><table>
+<thead><tr><th>ETF / market</th><th>Close</th><th>Prev</th><th>Change</th><th>Exposure</th>
+<th></th><th>L/S/N</th><th>Action</th></tr></thead>
+<tbody><tr>
+  <td><span class="tick">EWU</span><div class="mkt">UK / FTSE 100</div></td>
+  <td class="num">48.23</td>
+  <td class="num flat">—</td>
+  <td class="num flat">—</td>
+  <td class="num up"><b>+100%</b></td>
+  <td><span class="bar"><i style="left:50%;width:50.0%;background:var(--up)"></i><span class="mid"></span></span></td>
+  <td class="num flat">10/0/0</td>
+  <td><span class="pill p-add">NEW</span></td>
+</tr><tr>
+  <td><span class="tick">TLT</span><div class="mkt">US 30-Year Bond</div></td>
+  <td class="num">82.19</td>
+  <td class="num flat">—</td>
+  <td class="num flat">—</td>
+  <td class="num down"><b>-100%</b></td>
+  <td><span class="bar"><i style="left:0.0%;width:50.0%;background:var(--down)"></i><span class="mid"></span></span></td>
+  <td class="num flat">0/10/0</td>
+  <td><span class="pill p-add">NEW</span></td>
+</tr><tr>
+  <td><span class="tick">DIA</span><div class="mkt">Dow Jones</div></td>
+  <td class="num">531.22</td>
+  <td class="num flat">—</td>
+  <td class="num flat">—</td>
+  <td class="num up"><b>+90%</b></td>
+  <td><span class="bar"><i style="left:50%;width:45.0%;background:var(--up)"></i><span class="mid"></span></span></td>
+  <td class="num flat">9/0/1</td>
+  <td><span class="pill p-add">NEW</span></td>
+</tr><tr>
+  <td><span class="tick">EFA</span><div class="mkt">Developed ex-US</div></td>
+  <td class="num">106.02</td>
+  <td class="num flat">—</td>
+  <td class="num flat">—</td>
+  <td class="num up"><b>+90%</b></td>
+  <td><span class="bar"><i style="left:50%;width:45.0%;background:var(--up)"></i><span class="mid"></span></span></td>
+  <td class="num flat">9/0/1</td>
+  <td><span class="pill p-add">NEW</span></td>
+</tr><tr>
+  <td><span class="tick">IEF</span><div class="mkt">US 10-Year Note</div></td>
+  <td class="num">92.82</td>
+  <td class="num flat">—</td>
+  <td class="num flat">—</td>
+  <td class="num down"><b>-90%</b></td>
+  <td><span class="bar"><i style="left:5.0%;width:45.0%;background:var(--down)"></i><span class="mid"></span></span></td>
+  <td class="num flat">0/9/1</td>
+  <td><span class="pill p-add">NEW</span></td>
+</tr><tr>
+  <td><span class="tick">SPY</span><div class="mkt">S&amp;P 500</div></td>
+  <td class="num">757.67</td>
+  <td class="num flat">—</td>
+  <td class="num flat">—</td>
+  <td class="num up"><b>+80%</b></td>
+  <td><span class="bar"><i style="left:50%;width:40.0%;background:var(--up)"></i><span class="mid"></span></span></td>
+  <td class="num flat">8/0/2</td>
+  <td><span class="pill p-add">NEW</span></td>
+</tr><tr>
+  <td><span class="tick">GLD</span><div class="mkt">Gold</div></td>
+  <td class="num">371.71</td>
+  <td class="num flat">—</td>
+  <td class="num flat">—</td>
+  <td class="num down"><b>-80%</b></td>
+  <td><span class="bar"><i style="left:10.0%;width:40.0%;background:var(--down)"></i><span class="mid"></span></span></td>
+  <td class="num flat">1/9/0</td>
+  <td><span class="pill p-add">NEW</span></td>
+</tr><tr>
+  <td><span class="tick">SLV</span><div class="mkt">Silver</div></td>
+  <td class="num">52.46</td>
+  <td class="num flat">—</td>
+  <td class="num flat">—</td>
+  <td class="num down"><b>-80%</b></td>
+  <td><span class="bar"><i style="left:10.0%;width:40.0%;background:var(--down)"></i><span class="mid"></span></span></td>
+  <td class="num flat">1/9/0</td>
+  <td><span class="pill p-add">NEW</span></td>
+</tr><tr>
+  <td><span class="tick">IWM</span><div class="mkt">Russell 2000</div></td>
+  <td class="num">296.22</td>
+  <td class="num flat">—</td>
+  <td class="num flat">—</td>
+  <td class="num up"><b>+50%</b></td>
+  <td><span class="bar"><i style="left:50%;width:25.0%;background:var(--up)"></i><span class="mid"></span></span></td>
+  <td class="num flat">7/2/1</td>
+  <td><span class="pill p-add">NEW</span></td>
+</tr><tr>
+  <td><span class="tick">EWG</span><div class="mkt">Germany / DAX</div></td>
+  <td class="num">43.38</td>
+  <td class="num flat">—</td>
+  <td class="num flat">—</td>
+  <td class="num up"><b>+50%</b></td>
+  <td><span class="bar"><i style="left:50%;width:25.0%;background:var(--up)"></i><span class="mid"></span></span></td>
+  <td class="num flat">6/1/3</td>
+  <td><span class="pill p-add">NEW</span></td>
+</tr><tr>
+  <td><span class="tick">IBIT</span><div class="mkt">Bitcoin</div></td>
+  <td class="num">36.16</td>
+  <td class="num flat">—</td>
+  <td class="num flat">—</td>
+  <td class="num down"><b>-50%</b></td>
+  <td><span class="bar"><i style="left:25.0%;width:25.0%;background:var(--down)"></i><span class="mid"></span></span></td>
+  <td class="num flat">2/7/1</td>
+  <td><span class="pill p-add">NEW</span></td>
+</tr><tr>
+  <td><span class="tick">DBC</span><div class="mkt">Broad Commodities</div></td>
+  <td class="num">28.88</td>
+  <td class="num flat">—</td>
+  <td class="num flat">—</td>
+  <td class="num up"><b>+40%</b></td>
+  <td><span class="bar"><i style="left:50%;width:20.0%;background:var(--up)"></i><span class="mid"></span></span></td>
+  <td class="num flat">6/2/2</td>
+  <td><span class="pill p-add">NEW</span></td>
+</tr><tr>
+  <td><span class="tick">UUP</span><div class="mkt">US Dollar Index</div></td>
+  <td class="num">28.17</td>
+  <td class="num flat">—</td>
+  <td class="num flat">—</td>
+  <td class="num up"><b>+40%</b></td>
+  <td><span class="bar"><i style="left:50%;width:20.0%;background:var(--up)"></i><span class="mid"></span></span></td>
+  <td class="num flat">7/3/0</td>
+  <td><span class="pill p-add">NEW</span></td>
+</tr><tr>
+  <td><span class="tick">EEM</span><div class="mkt">Emerging Markets</div></td>
+  <td class="num">64.32</td>
+  <td class="num flat">—</td>
+  <td class="num flat">—</td>
+  <td class="num down"><b>-30%</b></td>
+  <td><span class="bar"><i style="left:35.0%;width:15.0%;background:var(--down)"></i><span class="mid"></span></span></td>
+  <td class="num flat">2/5/3</td>
+  <td><span class="pill p-add">NEW</span></td>
+</tr><tr>
+  <td><span class="tick">EWJ</span><div class="mkt">Japan / Nikkei</div></td>
+  <td class="num">92.91</td>
+  <td class="num flat">—</td>
+  <td class="num flat">—</td>
+  <td class="num up"><b>+30%</b></td>
+  <td><span class="bar"><i style="left:50%;width:15.0%;background:var(--up)"></i><span class="mid"></span></span></td>
+  <td class="num flat">6/3/1</td>
+  <td><span class="pill p-add">NEW</span></td>
+</tr><tr>
+  <td><span class="tick">QQQ</span><div class="mkt">Nasdaq 100</div></td>
+  <td class="num">700.07</td>
+  <td class="num flat">—</td>
+  <td class="num flat">—</td>
+  <td class="num down"><b>-20%</b></td>
+  <td><span class="bar"><i style="left:40.0%;width:10.0%;background:var(--down)"></i><span class="mid"></span></span></td>
+  <td class="num flat">4/6/0</td>
+  <td><span class="pill p-add">NEW</span></td>
+</tr><tr>
+  <td><span class="tick">FXE</span><div class="mkt">Euro</div></td>
+  <td class="num">106.19</td>
+  <td class="num flat">—</td>
+  <td class="num flat">—</td>
+  <td class="num down"><b>-20%</b></td>
+  <td><span class="bar"><i style="left:40.0%;width:10.0%;background:var(--down)"></i><span class="mid"></span></span></td>
+  <td class="num flat">3/5/2</td>
+  <td><span class="pill p-add">NEW</span></td>
+</tr><tr>
+  <td><span class="tick">FXY</span><div class="mkt">Japanese Yen</div></td>
+  <td class="num">58.50</td>
+  <td class="num flat">—</td>
+  <td class="num flat">—</td>
+  <td class="num up"><b>+20%</b></td>
+  <td><span class="bar"><i style="left:50%;width:10.0%;background:var(--up)"></i><span class="mid"></span></span></td>
+  <td class="num flat">5/3/2</td>
+  <td><span class="pill p-add">NEW</span></td>
+</tr></tbody></table></div>
+
+<h2>Strategy detail</h2>
+<div class="card">
+  <div class="card-h">
+    <span class="tick">EWU</span>
+    <span class="mkt">UK / FTSE 100 · Equity</span>
+    <span class="mkt num">48.23</span>
+    <span class="exp up">+100% LONG</span>
+  </div>
+  <div class="grid"><div class="cell"><b>MA 20/50</b><span class="sig up">LONG</span></div><div class="cell"><b>MA 50/200</b><span class="sig up">LONG</span></div><div class="cell"><b>Donchian 20</b><span class="sig up">LONG</span></div><div class="cell"><b>Donchian 55</b><span class="sig up">LONG</span></div><div class="cell"><b>MACD 12/26/9</b><span class="sig up">LONG</span></div><div class="cell"><b>Momentum 63d</b><span class="sig up">LONG</span></div><div class="cell"><b>Momentum 126d</b><span class="sig up">LONG</span></div><div class="cell"><b>Keltner 20</b><span class="sig up">LONG</span></div><div class="cell"><b>Slope 40d</b><span class="sig up">LONG</span></div><div class="cell"><b>Close vs SMA100</b><span class="sig up">LONG</span></div></div>
+</div><div class="card">
+  <div class="card-h">
+    <span class="tick">TLT</span>
+    <span class="mkt">US 30-Year Bond · Rates</span>
+    <span class="mkt num">82.19</span>
+    <span class="exp down">-100% SHORT</span>
+  </div>
+  <div class="grid"><div class="cell"><b>MA 20/50</b><span class="sig down">SHORT</span></div><div class="cell"><b>MA 50/200</b><span class="sig down">SHORT</span></div><div class="cell"><b>Donchian 20</b><span class="sig down">SHORT</span></div><div class="cell"><b>Donchian 55</b><span class="sig down">SHORT</span></div><div class="cell"><b>MACD 12/26/9</b><span class="sig down">SHORT</span></div><div class="cell"><b>Momentum 63d</b><span class="sig down">SHORT</span></div><div class="cell"><b>Momentum 126d</b><span class="sig down">SHORT</span></div><div class="cell"><b>Keltner 20</b><span class="sig down">SHORT</span></div><div class="cell"><b>Slope 40d</b><span class="sig down">SHORT</span></div><div class="cell"><b>Close vs SMA100</b><span class="sig down">SHORT</span></div></div>
+</div><div class="card">
+  <div class="card-h">
+    <span class="tick">DIA</span>
+    <span class="mkt">Dow Jones · Equity</span>
+    <span class="mkt num">531.22</span>
+    <span class="exp up">+90% LONG</span>
+  </div>
+  <div class="grid"><div class="cell"><b>MA 20/50</b><span class="sig up">LONG</span></div><div class="cell"><b>MA 50/200</b><span class="sig up">LONG</span></div><div class="cell"><b>Donchian 20</b><span class="sig up">LONG</span></div><div class="cell"><b>Donchian 55</b><span class="sig up">LONG</span></div><div class="cell"><b>MACD 12/26/9</b><span class="sig flat">NEUTRAL</span></div><div class="cell"><b>Momentum 63d</b><span class="sig up">LONG</span></div><div class="cell"><b>Momentum 126d</b><span class="sig up">LONG</span></div><div class="cell"><b>Keltner 20</b><span class="sig up">LONG</span></div><div class="cell"><b>Slope 40d</b><span class="sig up">LONG</span></div><div class="cell"><b>Close vs SMA100</b><span class="sig up">LONG</span></div></div>
+</div><div class="card">
+  <div class="card-h">
+    <span class="tick">EFA</span>
+    <span class="mkt">Developed ex-US · Equity</span>
+    <span class="mkt num">106.02</span>
+    <span class="exp up">+90% LONG</span>
+  </div>
+  <div class="grid"><div class="cell"><b>MA 20/50</b><span class="sig flat">NEUTRAL</span></div><div class="cell"><b>MA 50/200</b><span class="sig up">LONG</span></div><div class="cell"><b>Donchian 20</b><span class="sig up">LONG</span></div><div class="cell"><b>Donchian 55</b><span class="sig up">LONG</span></div><div class="cell"><b>MACD 12/26/9</b><span class="sig up">LONG</span></div><div class="cell"><b>Momentum 63d</b><span class="sig up">LONG</span></div><div class="cell"><b>Momentum 126d</b><span class="sig up">LONG</span></div><div class="cell"><b>Keltner 20</b><span class="sig up">LONG</span></div><div class="cell"><b>Slope 40d</b><span class="sig up">LONG</span></div><div class="cell"><b>Close vs SMA100</b><span class="sig up">LONG</span></div></div>
+</div><div class="card">
+  <div class="card-h">
+    <span class="tick">IEF</span>
+    <span class="mkt">US 10-Year Note · Rates</span>
+    <span class="mkt num">92.82</span>
+    <span class="exp down">-90% SHORT</span>
+  </div>
+  <div class="grid"><div class="cell"><b>MA 20/50</b><span class="sig down">SHORT</span></div><div class="cell"><b>MA 50/200</b><span class="sig down">SHORT</span></div><div class="cell"><b>Donchian 20</b><span class="sig down">SHORT</span></div><div class="cell"><b>Donchian 55</b><span class="sig down">SHORT</span></div><div class="cell"><b>MACD 12/26/9</b><span class="sig down">SHORT</span></div><div class="cell"><b>Momentum 63d</b><span class="sig down">SHORT</span></div><div class="cell"><b>Momentum 126d</b><span class="sig flat">NEUTRAL</span></div><div class="cell"><b>Keltner 20</b><span class="sig down">SHORT</span></div><div class="cell"><b>Slope 40d</b><span class="sig down">SHORT</span></div><div class="cell"><b>Close vs SMA100</b><span class="sig down">SHORT</span></div></div>
+</div><div class="card">
+  <div class="card-h">
+    <span class="tick">SPY</span>
+    <span class="mkt">S&amp;P 500 · Equity</span>
+    <span class="mkt num">757.67</span>
+    <span class="exp up">+80% LONG</span>
+  </div>
+  <div class="grid"><div class="cell"><b>MA 20/50</b><span class="sig flat">NEUTRAL</span></div><div class="cell"><b>MA 50/200</b><span class="sig up">LONG</span></div><div class="cell"><b>Donchian 20</b><span class="sig up">LONG</span></div><div class="cell"><b>Donchian 55</b><span class="sig up">LONG</span></div><div class="cell"><b>MACD 12/26/9</b><span class="sig flat">NEUTRAL</span></div><div class="cell"><b>Momentum 63d</b><span class="sig up">LONG</span></div><div class="cell"><b>Momentum 126d</b><span class="sig up">LONG</span></div><div class="cell"><b>Keltner 20</b><span class="sig up">LONG</span></div><div class="cell"><b>Slope 40d</b><span class="sig up">LONG</span></div><div class="cell"><b>Close vs SMA100</b><span class="sig up">LONG</span></div></div>
+</div><div class="card">
+  <div class="card-h">
+    <span class="tick">GLD</span>
+    <span class="mkt">Gold · Commodity</span>
+    <span class="mkt num">371.71</span>
+    <span class="exp down">-80% SHORT</span>
+  </div>
+  <div class="grid"><div class="cell"><b>MA 20/50</b><span class="sig down">SHORT</span></div><div class="cell"><b>MA 50/200</b><span class="sig down">SHORT</span></div><div class="cell"><b>Donchian 20</b><span class="sig down">SHORT</span></div><div class="cell"><b>Donchian 55</b><span class="sig down">SHORT</span></div><div class="cell"><b>MACD 12/26/9</b><span class="sig up">LONG</span></div><div class="cell"><b>Momentum 63d</b><span class="sig down">SHORT</span></div><div class="cell"><b>Momentum 126d</b><span class="sig down">SHORT</span></div><div class="cell"><b>Keltner 20</b><span class="sig down">SHORT</span></div><div class="cell"><b>Slope 40d</b><span class="sig down">SHORT</span></div><div class="cell"><b>Close vs SMA100</b><span class="sig down">SHORT</span></div></div>
+</div><div class="card">
+  <div class="card-h">
+    <span class="tick">SLV</span>
+    <span class="mkt">Silver · Commodity</span>
+    <span class="mkt num">52.46</span>
+    <span class="exp down">-80% SHORT</span>
+  </div>
+  <div class="grid"><div class="cell"><b>MA 20/50</b><span class="sig down">SHORT</span></div><div class="cell"><b>MA 50/200</b><span class="sig down">SHORT</span></div><div class="cell"><b>Donchian 20</b><span class="sig down">SHORT</span></div><div class="cell"><b>Donchian 55</b><span class="sig down">SHORT</span></div><div class="cell"><b>MACD 12/26/9</b><span class="sig up">LONG</span></div><div class="cell"><b>Momentum 63d</b><span class="sig down">SHORT</span></div><div class="cell"><b>Momentum 126d</b><span class="sig down">SHORT</span></div><div class="cell"><b>Keltner 20</b><span class="sig down">SHORT</span></div><div class="cell"><b>Slope 40d</b><span class="sig down">SHORT</span></div><div class="cell"><b>Close vs SMA100</b><span class="sig down">SHORT</span></div></div>
+</div><div class="card">
+  <div class="card-h">
+    <span class="tick">IWM</span>
+    <span class="mkt">Russell 2000 · Equity</span>
+    <span class="mkt num">296.22</span>
+    <span class="exp up">+50% LONG</span>
+  </div>
+  <div class="grid"><div class="cell"><b>MA 20/50</b><span class="sig flat">NEUTRAL</span></div><div class="cell"><b>MA 50/200</b><span class="sig up">LONG</span></div><div class="cell"><b>Donchian 20</b><span class="sig down">SHORT</span></div><div class="cell"><b>Donchian 55</b><span class="sig up">LONG</span></div><div class="cell"><b>MACD 12/26/9</b><span class="sig down">SHORT</span></div><div class="cell"><b>Momentum 63d</b><span class="sig up">LONG</span></div><div class="cell"><b>Momentum 126d</b><span class="sig up">LONG</span></div><div class="cell"><b>Keltner 20</b><span class="sig up">LONG</span></div><div class="cell"><b>Slope 40d</b><span class="sig up">LONG</span></div><div class="cell"><b>Close vs SMA100</b><span class="sig up">LONG</span></div></div>
+</div><div class="card">
+  <div class="card-h">
+    <span class="tick">EWG</span>
+    <span class="mkt">Germany / DAX · Equity</span>
+    <span class="mkt num">43.38</span>
+    <span class="exp up">+50% LONG</span>
+  </div>
+  <div class="grid"><div class="cell"><b>MA 20/50</b><span class="sig down">SHORT</span></div><div class="cell"><b>MA 50/200</b><span class="sig flat">NEUTRAL</span></div><div class="cell"><b>Donchian 20</b><span class="sig up">LONG</span></div><div class="cell"><b>Donchian 55</b><span class="sig up">LONG</span></div><div class="cell"><b>MACD 12/26/9</b><span class="sig up">LONG</span></div><div class="cell"><b>Momentum 63d</b><span class="sig up">LONG</span></div><div class="cell"><b>Momentum 126d</b><span class="sig flat">NEUTRAL</span></div><div class="cell"><b>Keltner 20</b><span class="sig up">LONG</span></div><div class="cell"><b>Slope 40d</b><span class="sig flat">NEUTRAL</span></div><div class="cell"><b>Close vs SMA100</b><span class="sig up">LONG</span></div></div>
+</div><div class="card">
+  <div class="card-h">
+    <span class="tick">IBIT</span>
+    <span class="mkt">Bitcoin · Crypto</span>
+    <span class="mkt num">36.16</span>
+    <span class="exp down">-50% SHORT</span>
+  </div>
+  <div class="grid"><div class="cell"><b>MA 20/50</b><span class="sig down">SHORT</span></div><div class="cell"><b>MA 50/200</b><span class="sig down">SHORT</span></div><div class="cell"><b>Donchian 20</b><span class="sig up">LONG</span></div><div class="cell"><b>Donchian 55</b><span class="sig down">SHORT</span></div><div class="cell"><b>MACD 12/26/9</b><span class="sig flat">NEUTRAL</span></div><div class="cell"><b>Momentum 63d</b><span class="sig down">SHORT</span></div><div class="cell"><b>Momentum 126d</b><span class="sig down">SHORT</span></div><div class="cell"><b>Keltner 20</b><span class="sig down">SHORT</span></div><div class="cell"><b>Slope 40d</b><span class="sig up">LONG</span></div><div class="cell"><b>Close vs SMA100</b><span class="sig down">SHORT</span></div></div>
+</div><div class="card">
+  <div class="card-h">
+    <span class="tick">DBC</span>
+    <span class="mkt">Broad Commodities · Commodity</span>
+    <span class="mkt num">28.88</span>
+    <span class="exp up">+40% LONG</span>
+  </div>
+  <div class="grid"><div class="cell"><b>MA 20/50</b><span class="sig up">LONG</span></div><div class="cell"><b>MA 50/200</b><span class="sig up">LONG</span></div><div class="cell"><b>Donchian 20</b><span class="sig up">LONG</span></div><div class="cell"><b>Donchian 55</b><span class="sig down">SHORT</span></div><div class="cell"><b>MACD 12/26/9</b><span class="sig flat">NEUTRAL</span></div><div class="cell"><b>Momentum 63d</b><span class="sig down">SHORT</span></div><div class="cell"><b>Momentum 126d</b><span class="sig up">LONG</span></div><div class="cell"><b>Keltner 20</b><span class="sig up">LONG</span></div><div class="cell"><b>Slope 40d</b><span class="sig up">LONG</span></div><div class="cell"><b>Close vs SMA100</b><span class="sig flat">NEUTRAL</span></div></div>
+</div><div class="card">
+  <div class="card-h">
+    <span class="tick">UUP</span>
+    <span class="mkt">US Dollar Index · FX</span>
+    <span class="mkt num">28.17</span>
+    <span class="exp up">+40% LONG</span>
+  </div>
+  <div class="grid"><div class="cell"><b>MA 20/50</b><span class="sig up">LONG</span></div><div class="cell"><b>MA 50/200</b><span class="sig up">LONG</span></div><div class="cell"><b>Donchian 20</b><span class="sig down">SHORT</span></div><div class="cell"><b>Donchian 55</b><span class="sig up">LONG</span></div><div class="cell"><b>MACD 12/26/9</b><span class="sig down">SHORT</span></div><div class="cell"><b>Momentum 63d</b><span class="sig up">LONG</span></div><div class="cell"><b>Momentum 126d</b><span class="sig up">LONG</span></div><div class="cell"><b>Keltner 20</b><span class="sig down">SHORT</span></div><div class="cell"><b>Slope 40d</b><span class="sig up">LONG</span></div><div class="cell"><b>Close vs SMA100</b><span class="sig up">LONG</span></div></div>
+</div><div class="card">
+  <div class="card-h">
+    <span class="tick">EEM</span>
+    <span class="mkt">Emerging Markets · Equity</span>
+    <span class="mkt num">64.32</span>
+    <span class="exp down">-30% SHORT</span>
+  </div>
+  <div class="grid"><div class="cell"><b>MA 20/50</b><span class="sig down">SHORT</span></div><div class="cell"><b>MA 50/200</b><span class="sig up">LONG</span></div><div class="cell"><b>Donchian 20</b><span class="sig down">SHORT</span></div><div class="cell"><b>Donchian 55</b><span class="sig down">SHORT</span></div><div class="cell"><b>MACD 12/26/9</b><span class="sig flat">NEUTRAL</span></div><div class="cell"><b>Momentum 63d</b><span class="sig flat">NEUTRAL</span></div><div class="cell"><b>Momentum 126d</b><span class="sig up">LONG</span></div><div class="cell"><b>Keltner 20</b><span class="sig down">SHORT</span></div><div class="cell"><b>Slope 40d</b><span class="sig down">SHORT</span></div><div class="cell"><b>Close vs SMA100</b><span class="sig flat">NEUTRAL</span></div></div>
+</div><div class="card">
+  <div class="card-h">
+    <span class="tick">EWJ</span>
+    <span class="mkt">Japan / Nikkei · Equity</span>
+    <span class="mkt num">92.91</span>
+    <span class="exp up">+30% LONG</span>
+  </div>
+  <div class="grid"><div class="cell"><b>MA 20/50</b><span class="sig down">SHORT</span></div><div class="cell"><b>MA 50/200</b><span class="sig up">LONG</span></div><div class="cell"><b>Donchian 20</b><span class="sig down">SHORT</span></div><div class="cell"><b>Donchian 55</b><span class="sig up">LONG</span></div><div class="cell"><b>MACD 12/26/9</b><span class="sig flat">NEUTRAL</span></div><div class="cell"><b>Momentum 63d</b><span class="sig up">LONG</span></div><div class="cell"><b>Momentum 126d</b><span class="sig up">LONG</span></div><div class="cell"><b>Keltner 20</b><span class="sig up">LONG</span></div><div class="cell"><b>Slope 40d</b><span class="sig down">SHORT</span></div><div class="cell"><b>Close vs SMA100</b><span class="sig up">LONG</span></div></div>
+</div><div class="card">
+  <div class="card-h">
+    <span class="tick">QQQ</span>
+    <span class="mkt">Nasdaq 100 · Equity</span>
+    <span class="mkt num">700.07</span>
+    <span class="exp down">-20% SHORT</span>
+  </div>
+  <div class="grid"><div class="cell"><b>MA 20/50</b><span class="sig down">SHORT</span></div><div class="cell"><b>MA 50/200</b><span class="sig up">LONG</span></div><div class="cell"><b>Donchian 20</b><span class="sig down">SHORT</span></div><div class="cell"><b>Donchian 55</b><span class="sig down">SHORT</span></div><div class="cell"><b>MACD 12/26/9</b><span class="sig down">SHORT</span></div><div class="cell"><b>Momentum 63d</b><span class="sig up">LONG</span></div><div class="cell"><b>Momentum 126d</b><span class="sig up">LONG</span></div><div class="cell"><b>Keltner 20</b><span class="sig down">SHORT</span></div><div class="cell"><b>Slope 40d</b><span class="sig down">SHORT</span></div><div class="cell"><b>Close vs SMA100</b><span class="sig up">LONG</span></div></div>
+</div><div class="card">
+  <div class="card-h">
+    <span class="tick">FXE</span>
+    <span class="mkt">Euro · FX</span>
+    <span class="mkt num">106.19</span>
+    <span class="exp down">-20% SHORT</span>
+  </div>
+  <div class="grid"><div class="cell"><b>MA 20/50</b><span class="sig down">SHORT</span></div><div class="cell"><b>MA 50/200</b><span class="sig down">SHORT</span></div><div class="cell"><b>Donchian 20</b><span class="sig up">LONG</span></div><div class="cell"><b>Donchian 55</b><span class="sig down">SHORT</span></div><div class="cell"><b>MACD 12/26/9</b><span class="sig up">LONG</span></div><div class="cell"><b>Momentum 63d</b><span class="sig flat">NEUTRAL</span></div><div class="cell"><b>Momentum 126d</b><span class="sig flat">NEUTRAL</span></div><div class="cell"><b>Keltner 20</b><span class="sig up">LONG</span></div><div class="cell"><b>Slope 40d</b><span class="sig down">SHORT</span></div><div class="cell"><b>Close vs SMA100</b><span class="sig down">SHORT</span></div></div>
+</div><div class="card">
+  <div class="card-h">
+    <span class="tick">FXY</span>
+    <span class="mkt">Japanese Yen · FX</span>
+    <span class="mkt num">58.50</span>
+    <span class="exp up">+20% LONG</span>
+  </div>
+  <div class="grid"><div class="cell"><b>MA 20/50</b><span class="sig down">SHORT</span></div><div class="cell"><b>MA 50/200</b><span class="sig down">SHORT</span></div><div class="cell"><b>Donchian 20</b><span class="sig up">LONG</span></div><div class="cell"><b>Donchian 55</b><span class="sig up">LONG</span></div><div class="cell"><b>MACD 12/26/9</b><span class="sig up">LONG</span></div><div class="cell"><b>Momentum 63d</b><span class="sig flat">NEUTRAL</span></div><div class="cell"><b>Momentum 126d</b><span class="sig flat">NEUTRAL</span></div><div class="cell"><b>Keltner 20</b><span class="sig up">LONG</span></div><div class="cell"><b>Slope 40d</b><span class="sig down">SHORT</span></div><div class="cell"><b>Close vs SMA100</b><span class="sig up">LONG</span></div></div>
+</div>
+
+<footer>18 markets · 10 net long, 8 net short ·
+average exposure +7% · 0 changed since the previous run.
+Educational tooling only — no orders are placed and nothing here is financial advice.</footer>
+</div>

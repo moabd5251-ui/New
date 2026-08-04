@@ -97,24 +97,58 @@ def spend_total():
 
 
 # ---------------------------------------------------------------- transport
-def _retry(fn, tries=5, base=2.0):
-    """Databento's gateway returns an intermittent 504 on the first call of a query;
-    the identical request succeeds on retry. Not retrying makes queries look broken
-    when they are merely slow to warm."""
+RETRYABLE = ("502", "503", "504", "timed out", "timeout", "bad gateway",
+             "connection", "temporarily")
+
+
+def _retryable(e):
+    s = str(e).lower()
+    return (not s.strip()) or any(t in s for t in RETRYABLE)
+
+
+def _retry(fn, tries=8, base=1.7, cap=20.0):
+    """Databento's gateway sheds load on heavy queries, returning 502s and 504s that
+    clear when the identical request is repeated. A single attempt makes a working
+    query look broken, so anything in the 5xx family is retried — including errors
+    that arrive with an empty message, which is how a dropped gateway response
+    surfaces through the client."""
     last = None
     for i in range(tries):
         try:
             return fn()
         except Exception as e:
             last = e
-            if "504" not in str(e) and "timed out" not in str(e).lower():
+            if not _retryable(e):
                 raise
-            time.sleep(base ** i)
+            time.sleep(min(base ** i, cap))
     raise last
+
+
+_ranges = {}
+
+
+def available_end(dataset):
+    """Last date the dataset carries, as YYYY-MM-DD.
+
+    Databento rejects the whole query with a 422 when `end` runs past the tape rather
+    than returning what it has. A study whose window reaches toward today hits this on
+    its most recent events, so ranges are clamped rather than left to fail.
+    """
+    if dataset not in _ranges:
+        r = _retry(lambda: client().metadata.get_dataset_range(dataset=dataset))
+        _ranges[dataset] = str(r["end"])[:10]
+    return _ranges[dataset]
+
+
+def clamp_end(dataset, end):
+    ae = available_end(dataset)
+    return ae if str(end)[:10] > ae else end
 
 
 def estimate(**kw):
     """Dollar cost of a query, without running it."""
+    if "dataset" in kw and "end" in kw:
+        kw = dict(kw, end=clamp_end(kw["dataset"], kw["end"]))
     return float(_retry(lambda: client().metadata.get_cost(**kw)))
 
 
@@ -122,29 +156,69 @@ def _key(kw):
     return hashlib.sha1(json.dumps(kw, sort_keys=True, default=str).encode()).hexdigest()[:20]
 
 
+# Calibrated against measured queries, and deliberately rounded UP. The guard exists to
+# stop a runaway request, so over-estimating costs nothing but a refused query the caller
+# can override, while under-estimating bills real money.
+#   ohlcv-1d   4,503 recs / $0.1409 over 14 contracts x 35 sessions
+#   definition 3,538 recs / $0.0059 for one name-day
+RATE_PER_REC = {"ohlcv-1d": 3.2e-5, "definition": 2.0e-6, "cbbo-1m": 3.2e-5,
+                "tcbbo": 2.0e-5, "trades": 1.5e-5}
+RECS_PER_CONTRACT_SESSION = {"ohlcv-1d": 10, "cbbo-1m": 400, "tcbbo": 900,
+                             "trades": 900, "definition": 1}
+# A parent query is not one symbol — it is every contract listed on the name. Sizing it
+# as a single symbol is exactly how the $6.70 mistake slips past a guard.
+PARENT_CONTRACTS = 3500
+
+
+def predict_cost(dataset, schema, symbols, start, end, stype_in="raw_symbol"):
+    """Modelled cost, without an API round trip.
+
+    get_cost is authoritative but slow — often a minute per call, sometimes several
+    after gateway retries — which makes it unusable as a per-query guard in a study
+    that issues hundreds of them. This approximates it from record counts and is used
+    for the cheap majority, with the live estimate reserved for queries big enough
+    that being wrong would matter.
+    """
+    d0 = datetime.strptime(str(start)[:10], "%Y-%m-%d")
+    d1 = datetime.strptime(str(end)[:10], "%Y-%m-%d")
+    sessions = max(len(pd.bdate_range(d0, d1)), 1)
+    n = PARENT_CONTRACTS if stype_in == "parent" and schema != "definition" else len(symbols)
+    if schema == "definition":
+        n = PARENT_CONTRACTS if stype_in == "parent" else len(symbols)
+        recs = n * max(sessions, 1)
+    else:
+        recs = n * sessions * RECS_PER_CONTRACT_SESSION.get(schema, 50)
+    return recs * RATE_PER_REC.get(schema, 3.2e-5)
+
+
 def fetch(dataset, schema, symbols, start, end, stype_in="raw_symbol",
-          max_cost=DEFAULT_MAX_COST, label=None, use_cache=True):
+          max_cost=DEFAULT_MAX_COST, label=None, use_cache=True, verify_above=0.15):
     """Costed, cached timeseries pull. Returns a DataFrame (empty if no records).
 
     Raises RuntimeError when the query prices above max_cost, naming the figure, so a
     runaway request fails loudly instead of quietly billing.
     """
     kw = dict(dataset=dataset, schema=schema, symbols=sorted(symbols),
-              stype_in=stype_in, start=str(start), end=str(end))
+              stype_in=stype_in, start=str(start), end=clamp_end(dataset, end))
     path = CACHE / f"{schema}_{_key(kw)}.parquet"
     if use_cache and path.exists():
         return pd.read_parquet(path)
 
     label = label or f"{dataset}/{schema} {len(symbols)}sym {start}..{end}"
-    cost = estimate(**kw)
+    cost = predict_cost(dataset, schema, kw["symbols"], kw["start"], kw["end"], stype_in)
+    how = "model"
+    # Only pay the latency of the authoritative estimate when the modelled figure is
+    # large enough that being wrong about it matters.
+    if cost > verify_above:
+        cost, how = estimate(**kw), "api"
     if cost > max_cost:
         raise RuntimeError(
-            f"query would cost ${cost:.4f}, above the ${max_cost:.4f} ceiling — {label}. "
-            f"Narrow the symbols or date range, or pass max_cost to override.")
+            f"query would cost ${cost:.4f} ({how}), above the ${max_cost:.4f} ceiling — "
+            f"{label}. Narrow the symbols or date range, or pass max_cost to override.")
 
     data = _retry(lambda: client().timeseries.get_range(**kw))
     df = data.to_df()
-    _log_spend(cost, label)
+    _log_spend(cost, f"{label} [{how}]")
     path.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(path)
     return df
@@ -205,6 +279,79 @@ def option_quotes(raw_symbols, start, end, max_cost=DEFAULT_MAX_COST):
     out["mid"] = (out["bid"] + out["ask"]) / 2.0
     out.loc[~ok, "mid"] = out.loc[~ok, "last"]
     out["quoted"] = ok
+    return out
+
+
+def option_daily(raw_symbols, start, end, max_cost=DEFAULT_MAX_COST):
+    """Daily OHLCV per contract, consolidated across OPRA publishers.
+
+    Used instead of tcbbo for anything spanning weeks. tcbbo carries every print with
+    its NBBO, which is the better price but is unbounded in volume: an ATM contract on
+    a mega-cap prints thousands of times a day, and a 50-day pull of fourteen such
+    contracts prices at $1.15 and times the gateway out entirely. ohlcv-1d is bounded
+    at one record per contract per session per publisher, so it is both affordable and
+    actually retrievable. The cost is that a daily close is the last PRINT rather than
+    a quote — acceptable here because the study deliberately trades ATM contracts on
+    the most liquid names, and quantified separately by spread_sample().
+
+    OPRA reports per exchange, so each contract-session arrives once per publisher that
+    traded it. Those are consolidated by volume weight rather than picking one, which
+    would take whichever exchange happened to sort last.
+    """
+    if not len(raw_symbols):
+        return pd.DataFrame()
+    df = fetch(OPRA, "ohlcv-1d", list(raw_symbols), start, end, max_cost=max_cost,
+               label=f"opt-daily {len(raw_symbols)}sym {start}..{end}")
+    if df.empty:
+        return pd.DataFrame()
+    d = df.reset_index()
+    ts = "ts_event" if "ts_event" in d.columns else "ts_recv"
+    d["date"] = pd.to_datetime(d[ts]).dt.strftime("%Y-%m-%d")   # daily bars: UTC date IS the session
+    d["raw_symbol"] = d["symbol"].astype(str).str.strip()
+    d["volume"] = d["volume"].astype(float)
+    d["close"] = d["close"].astype(float)
+    d["wt"] = d["volume"].clip(lower=0)
+
+    def consolidate(g):
+        w = g["wt"].sum()
+        close = (g["close"] * g["wt"]).sum() / w if w > 0 else g["close"].iloc[-1]
+        return pd.Series({"close": close, "volume": g["volume"].sum(),
+                          "high": g["high"].astype(float).max(),
+                          "low": g["low"].astype(float).min(),
+                          "n_pub": len(g)})
+
+    out = (d.groupby(["date", "raw_symbol"], sort=False)
+             .apply(consolidate, include_groups=False).reset_index())
+    return out
+
+
+def spread_sample(raw_symbols, on, max_cost=DEFAULT_MAX_COST):
+    """Closing consolidated NBBO for a single session — bid, ask, mid per contract.
+
+    One day at a time on purpose. The same query across a multi-week range is what
+    times the gateway out, and the study only needs enough of these to characterise
+    what an ATM earnings straddle costs to cross, not a quote for every session.
+    """
+    nxt = (datetime.strptime(str(on)[:10], "%Y-%m-%d").date() + pd.Timedelta(days=1)).strftime("%Y-%m-%d")
+    df = fetch(OPRA, "cbbo-1m", list(raw_symbols), on, nxt, max_cost=max_cost,
+               label=f"bbo {len(raw_symbols)}sym {on}")
+    if df.empty:
+        return pd.DataFrame()
+    d = df.reset_index()
+    ts = "ts_recv" if "ts_recv" in d.columns else "ts_event"
+    d["t"] = pd.to_datetime(d[ts]).dt.tz_convert("America/New_York")
+    d["date"] = d["t"].dt.strftime("%Y-%m-%d")
+    d["raw_symbol"] = d["symbol"].astype(str).str.strip()
+    # keep the regular session only; the closing print is what a trader would cross at
+    d = d[(d["t"].dt.hour * 60 + d["t"].dt.minute).between(9 * 60 + 30, 16 * 60)]
+    d = d[(d["bid_px_00"] > 0) & (d["ask_px_00"] > 0) & (d["ask_px_00"] >= d["bid_px_00"])]
+    if d.empty:
+        return pd.DataFrame()
+    d = d.sort_values("t")
+    out = d.groupby(["date", "raw_symbol"], sort=False).agg(
+        bid=("bid_px_00", "last"), ask=("ask_px_00", "last")).reset_index()
+    out["mid"] = (out["bid"] + out["ask"]) / 2.0
+    out["spread_pct"] = (out["ask"] - out["bid"]) / out["mid"]
     return out
 
 

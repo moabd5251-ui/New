@@ -1,0 +1,1424 @@
+{
+  "AAPL": [
+    {
+      "date": "2025-10-30",
+      "surprise_pct": 4.52
+    },
+    {
+      "date": "2026-01-29",
+      "surprise_pct": 6.34
+    },
+    {
+      "date": "2026-04-30",
+      "surprise_pct": 3.46
+    },
+    {
+      "date": "2026-07-30",
+      "surprise_pct": 6.74
+    }
+  ],
+  "MSFT": [
+    {
+      "date": "2025-10-29",
+      "surprise_pct": 12.73
+    },
+    {
+      "date": "2026-01-28",
+      "surprise_pct": 5.69
+    },
+    {
+      "date": "2026-04-29",
+      "surprise_pct": 4.9
+    },
+    {
+      "date": "2026-07-29",
+      "surprise_pct": 11.81
+    }
+  ],
+  "NVDA": [
+    {
+      "date": "2025-08-27",
+      "surprise_pct": 4.1
+    },
+    {
+      "date": "2025-11-19",
+      "surprise_pct": 3.46
+    },
+    {
+      "date": "2026-02-25",
+      "surprise_pct": 5.32
+    },
+    {
+      "date": "2026-05-20",
+      "surprise_pct": 5.54
+    }
+  ],
+  "AMZN": [
+    {
+      "date": "2025-10-30",
+      "surprise_pct": 25.2
+    },
+    {
+      "date": "2026-02-05",
+      "surprise_pct": -0.49
+    },
+    {
+      "date": "2026-04-29",
+      "surprise_pct": 68.18
+    },
+    {
+      "date": "2026-07-30",
+      "surprise_pct": 215.02
+    }
+  ],
+  "META": [
+    {
+      "date": "2025-10-29",
+      "surprise_pct": -84.34
+    },
+    {
+      "date": "2026-01-28",
+      "surprise_pct": 8.0
+    },
+    {
+      "date": "2026-04-29",
+      "surprise_pct": 56.79
+    },
+    {
+      "date": "2026-07-29",
+      "surprise_pct": -14.42
+    }
+  ],
+  "GOOGL": [
+    {
+      "date": "2025-10-29",
+      "surprise_pct": 26.88
+    },
+    {
+      "date": "2026-02-04",
+      "surprise_pct": 7.01
+    },
+    {
+      "date": "2026-04-29",
+      "surprise_pct": 91.59
+    },
+    {
+      "date": "2026-07-22",
+      "surprise_pct": 214.23
+    }
+  ],
+  "TSLA": [
+    {
+      "date": "2025-10-22",
+      "surprise_pct": -10.53
+    },
+    {
+      "date": "2026-01-28",
+      "surprise_pct": 10.96
+    },
+    {
+      "date": "2026-04-22",
+      "surprise_pct": 17.15
+    },
+    {
+      "date": "2026-07-22",
+      "surprise_pct": -38.35
+    }
+  ],
+  "AMD": [
+    {
+      "date": "2025-08-05",
+      "surprise_pct": -0.55
+    },
+    {
+      "date": "2025-11-04",
+      "surprise_pct": 2.48
+    },
+    {
+      "date": "2026-02-03",
+      "surprise_pct": 15.98
+    },
+    {
+      "date": "2026-05-05",
+      "surprise_pct": 5.82
+    }
+  ],
+  "NFLX": [
+    {
+      "date": "2025-10-21",
+      "surprise_pct": -15.79
+    },
+    {
+      "date": "2026-01-20",
+      "surprise_pct": 1.43
+    },
+    {
+      "date": "2026-04-16",
+      "surprise_pct": -1.4
+    },
+    {
+      "date": "2026-07-16",
+      "surprise_pct": 1.45
+    }
+  ],
+  "AVGO": [
+    {
+      "date": "2025-09-04",
+      "surprise_pct": 1.6
+    },
+    {
+      "date": "2025-12-11",
+      "surprise_pct": 4.38
+    },
+    {
+      "date": "2026-03-04",
+      "surprise_pct": 1.32
+    },
+    {
+      "date": "2026-06-03",
+      "surprise_pct": 1.74
+    }
+  ],
+  "CRM": [
+    {
+      "date": "2025-09-03",
+      "surprise_pct": 4.7
+    },
+    {
+      "date": "2025-12-03",
+      "surprise_pct": 13.55
+    },
+    {
+      "date": "2026-02-25",
+      "surprise_pct": 24.85
+    },
+    {
+      "date": "2026-05-27",
+      "surprise_pct": 24.07
+    }
+  ],
+  "ADBE": [
+    {
+      "date": "2025-09-11",
+      "surprise_pct": 2.48
+    },
+    {
+      "date": "2025-12-10",
+      "surprise_pct": 1.9
+    },
+    {
+      "date": "2026-03-12",
+      "surprise_pct": 3.18
+    },
+    {
+      "date": "2026-06-11",
+      "surprise_pct": 2.5
+    }
+  ],
+  "ORCL": [
+    {
+      "date": "2025-09-09",
+      "surprise_pct": -0.62
+    },
+    {
+      "date": "2025-12-10",
+      "surprise_pct": 38.04
+    },
+    {
+      "date": "2026-03-10",
+      "surprise_pct": 5.69
+    },
+    {
+      "date": "2026-06-10",
+      "surprise_pct": 7.52
+    }
+  ],
+  "INTC": [
+    {
+      "date": "2025-10-23",
+      "surprise_pct": 3162.41
+    },
+    {
+      "date": "2026-01-22",
+      "surprise_pct": 81.51
+    },
+    {
+      "date": "2026-04-23",
+      "surprise_pct": 2108.68
+    },
+    {
+      "date": "2026-07-23",
+      "surprise_pct": 92.49
+    }
+  ],
+  "QCOM": [
+    {
+      "date": "2025-11-05",
+      "surprise_pct": 4.32
+    },
+    {
+      "date": "2026-02-04",
+      "surprise_pct": 2.87
+    },
+    {
+      "date": "2026-04-29",
+      "surprise_pct": 3.34
+    },
+    {
+      "date": "2026-07-29",
+      "surprise_pct": -0.49
+    }
+  ],
+  "MU": [
+    {
+      "date": "2025-09-23",
+      "surprise_pct": 5.94
+    },
+    {
+      "date": "2025-12-17",
+      "surprise_pct": 20.58
+    },
+    {
+      "date": "2026-03-18",
+      "surprise_pct": 33.21
+    },
+    {
+      "date": "2026-06-24",
+      "surprise_pct": 21.25
+    }
+  ],
+  "TXN": [
+    {
+      "date": "2025-10-21",
+      "surprise_pct": -0.4
+    },
+    {
+      "date": "2026-01-27",
+      "surprise_pct": -2.89
+    },
+    {
+      "date": "2026-04-22",
+      "surprise_pct": 22.76
+    },
+    {
+      "date": "2026-07-22",
+      "surprise_pct": 10.42
+    }
+  ],
+  "AMAT": [
+    {
+      "date": "2025-08-14",
+      "surprise_pct": 5.13
+    },
+    {
+      "date": "2025-11-13",
+      "surprise_pct": 3.65
+    },
+    {
+      "date": "2026-02-12",
+      "surprise_pct": 7.89
+    },
+    {
+      "date": "2026-05-14",
+      "surprise_pct": 6.5
+    }
+  ],
+  "LRCX": [
+    {
+      "date": "2025-10-22",
+      "surprise_pct": 3.27
+    },
+    {
+      "date": "2026-01-28",
+      "surprise_pct": 8.7
+    },
+    {
+      "date": "2026-04-22",
+      "surprise_pct": 7.87
+    },
+    {
+      "date": "2026-07-29",
+      "surprise_pct": 8.1
+    }
+  ],
+  "KLAC": [
+    {
+      "date": "2025-10-29",
+      "surprise_pct": 2.24
+    },
+    {
+      "date": "2026-01-29",
+      "surprise_pct": 0.59
+    },
+    {
+      "date": "2026-04-29",
+      "surprise_pct": 2.5
+    },
+    {
+      "date": "2026-07-28",
+      "surprise_pct": 5.14
+    }
+  ],
+  "JPM": [
+    {
+      "date": "2025-10-14",
+      "surprise_pct": 4.01
+    },
+    {
+      "date": "2026-01-13",
+      "surprise_pct": -3.91
+    },
+    {
+      "date": "2026-04-14",
+      "surprise_pct": 7.78
+    },
+    {
+      "date": "2026-07-14",
+      "surprise_pct": 5.86
+    }
+  ],
+  "BAC": [
+    {
+      "date": "2025-10-15",
+      "surprise_pct": 12.04
+    },
+    {
+      "date": "2026-01-14",
+      "surprise_pct": 2.23
+    },
+    {
+      "date": "2026-04-15",
+      "surprise_pct": 8.78
+    },
+    {
+      "date": "2026-07-14",
+      "surprise_pct": 7.74
+    }
+  ],
+  "GS": [
+    {
+      "date": "2025-10-14",
+      "surprise_pct": 10.49
+    },
+    {
+      "date": "2026-01-15",
+      "surprise_pct": 20.22
+    },
+    {
+      "date": "2026-04-13",
+      "surprise_pct": 7.06
+    },
+    {
+      "date": "2026-07-14",
+      "surprise_pct": 44.27
+    }
+  ],
+  "MS": [
+    {
+      "date": "2025-10-15",
+      "surprise_pct": 32.63
+    },
+    {
+      "date": "2026-01-15",
+      "surprise_pct": 9.41
+    },
+    {
+      "date": "2026-04-15",
+      "surprise_pct": 13.66
+    },
+    {
+      "date": "2026-07-15",
+      "surprise_pct": 17.94
+    }
+  ],
+  "WFC": [
+    {
+      "date": "2025-10-14",
+      "surprise_pct": 7.43
+    },
+    {
+      "date": "2026-01-14",
+      "surprise_pct": -2.85
+    },
+    {
+      "date": "2026-04-14",
+      "surprise_pct": 1.05
+    },
+    {
+      "date": "2026-07-14",
+      "surprise_pct": 16.38
+    }
+  ],
+  "C": [
+    {
+      "date": "2025-10-14",
+      "surprise_pct": 17.44
+    },
+    {
+      "date": "2026-01-14",
+      "surprise_pct": -23.43
+    },
+    {
+      "date": "2026-04-14",
+      "surprise_pct": 17.91
+    },
+    {
+      "date": "2026-07-14",
+      "surprise_pct": 15.62
+    }
+  ],
+  "V": [
+    {
+      "date": "2025-10-28",
+      "surprise_pct": 0.28
+    },
+    {
+      "date": "2026-01-29",
+      "surprise_pct": 0.88
+    },
+    {
+      "date": "2026-04-28",
+      "surprise_pct": 6.79
+    },
+    {
+      "date": "2026-07-28",
+      "surprise_pct": 2.76
+    }
+  ],
+  "MA": [
+    {
+      "date": "2025-10-30",
+      "surprise_pct": 1.52
+    },
+    {
+      "date": "2026-01-29",
+      "surprise_pct": 12.26
+    },
+    {
+      "date": "2026-04-30",
+      "surprise_pct": 4.23
+    },
+    {
+      "date": "2026-07-30",
+      "surprise_pct": 5.53
+    }
+  ],
+  "AXP": [
+    {
+      "date": "2025-10-17",
+      "surprise_pct": 3.61
+    },
+    {
+      "date": "2026-01-30",
+      "surprise_pct": -0.1
+    },
+    {
+      "date": "2026-04-23",
+      "surprise_pct": 7.18
+    },
+    {
+      "date": "2026-07-24",
+      "surprise_pct": 2.88
+    }
+  ],
+  "PYPL": [
+    {
+      "date": "2025-10-28",
+      "surprise_pct": 11.14
+    },
+    {
+      "date": "2026-02-03",
+      "surprise_pct": -4.4
+    },
+    {
+      "date": "2026-05-05",
+      "surprise_pct": 5.59
+    },
+    {
+      "date": "2026-07-28",
+      "surprise_pct": 8.03
+    }
+  ],
+  "WMT": [
+    {
+      "date": "2025-08-21",
+      "surprise_pct": -7.97
+    },
+    {
+      "date": "2025-11-20",
+      "surprise_pct": 3.11
+    },
+    {
+      "date": "2026-02-19",
+      "surprise_pct": 1.79
+    },
+    {
+      "date": "2026-05-21",
+      "surprise_pct": 0.19
+    }
+  ],
+  "COST": [
+    {
+      "date": "2025-09-25",
+      "surprise_pct": 1.13
+    },
+    {
+      "date": "2025-12-11",
+      "surprise_pct": 5.26
+    },
+    {
+      "date": "2026-03-05",
+      "surprise_pct": 0.78
+    },
+    {
+      "date": "2026-05-28",
+      "surprise_pct": 0.14
+    }
+  ],
+  "TGT": [
+    {
+      "date": "2025-08-20",
+      "surprise_pct": 0.82
+    },
+    {
+      "date": "2025-11-19",
+      "surprise_pct": 4.09
+    },
+    {
+      "date": "2026-03-03",
+      "surprise_pct": 12.97
+    },
+    {
+      "date": "2026-05-20",
+      "surprise_pct": 17.31
+    }
+  ],
+  "HD": [
+    {
+      "date": "2025-08-19",
+      "surprise_pct": -0.31
+    },
+    {
+      "date": "2025-11-18",
+      "surprise_pct": -2.45
+    },
+    {
+      "date": "2026-02-24",
+      "surprise_pct": 7.8
+    },
+    {
+      "date": "2026-05-19",
+      "surprise_pct": 0.69
+    }
+  ],
+  "LOW": [
+    {
+      "date": "2025-08-20",
+      "surprise_pct": 2.18
+    },
+    {
+      "date": "2025-11-19",
+      "surprise_pct": 3.61
+    },
+    {
+      "date": "2026-02-25",
+      "surprise_pct": 1.93
+    },
+    {
+      "date": "2026-05-20",
+      "surprise_pct": 2.12
+    }
+  ],
+  "NKE": [
+    {
+      "date": "2025-09-30",
+      "surprise_pct": 84.49
+    },
+    {
+      "date": "2025-12-18",
+      "surprise_pct": 41.9
+    },
+    {
+      "date": "2026-03-31",
+      "surprise_pct": 24.27
+    },
+    {
+      "date": "2026-06-30",
+      "surprise_pct": 466.13
+    }
+  ],
+  "SBUX": [
+    {
+      "date": "2025-10-29",
+      "surprise_pct": -6.51
+    },
+    {
+      "date": "2026-01-28",
+      "surprise_pct": -4.59
+    },
+    {
+      "date": "2026-04-28",
+      "surprise_pct": 14.51
+    },
+    {
+      "date": "2026-07-29",
+      "surprise_pct": 30.79
+    }
+  ],
+  "MCD": [
+    {
+      "date": "2025-08-06",
+      "surprise_pct": 1.39
+    },
+    {
+      "date": "2025-11-05",
+      "surprise_pct": -3.36
+    },
+    {
+      "date": "2026-02-11",
+      "surprise_pct": 2.22
+    },
+    {
+      "date": "2026-05-07",
+      "surprise_pct": 3.11
+    }
+  ],
+  "DIS": [
+    {
+      "date": "2025-08-06",
+      "surprise_pct": 11.3
+    },
+    {
+      "date": "2025-11-13",
+      "surprise_pct": 8.42
+    },
+    {
+      "date": "2026-02-02",
+      "surprise_pct": 3.44
+    },
+    {
+      "date": "2026-05-06",
+      "surprise_pct": 4.98
+    }
+  ],
+  "CMCSA": [
+    {
+      "date": "2025-10-30",
+      "surprise_pct": 1.72
+    },
+    {
+      "date": "2026-01-29",
+      "surprise_pct": 10.76
+    },
+    {
+      "date": "2026-04-23",
+      "surprise_pct": 8.29
+    },
+    {
+      "date": "2026-07-23",
+      "surprise_pct": 7.62
+    }
+  ],
+  "UNH": [
+    {
+      "date": "2025-10-28",
+      "surprise_pct": 3.99
+    },
+    {
+      "date": "2026-01-27",
+      "surprise_pct": 0.19
+    },
+    {
+      "date": "2026-04-21",
+      "surprise_pct": 9.52
+    },
+    {
+      "date": "2026-07-16",
+      "surprise_pct": 29.8
+    }
+  ],
+  "JNJ": [
+    {
+      "date": "2025-10-14",
+      "surprise_pct": 1.49
+    },
+    {
+      "date": "2026-01-21",
+      "surprise_pct": -0.11
+    },
+    {
+      "date": "2026-04-14",
+      "surprise_pct": 0.85
+    },
+    {
+      "date": "2026-07-15",
+      "surprise_pct": 1.58
+    }
+  ],
+  "PFE": [
+    {
+      "date": "2025-08-05",
+      "surprise_pct": 35.94
+    },
+    {
+      "date": "2025-11-04",
+      "surprise_pct": 37.43
+    },
+    {
+      "date": "2026-02-03",
+      "surprise_pct": 16.18
+    },
+    {
+      "date": "2026-05-05",
+      "surprise_pct": 3.93
+    }
+  ],
+  "MRK": [
+    {
+      "date": "2025-10-30",
+      "surprise_pct": 9.85
+    },
+    {
+      "date": "2026-02-03",
+      "surprise_pct": 1.47
+    },
+    {
+      "date": "2026-04-30",
+      "surprise_pct": 13.15
+    },
+    {
+      "date": "2026-08-04",
+      "surprise_pct": 49.43
+    }
+  ],
+  "ABBV": [
+    {
+      "date": "2025-10-31",
+      "surprise_pct": 4.23
+    },
+    {
+      "date": "2026-02-04",
+      "surprise_pct": 2.16
+    },
+    {
+      "date": "2026-04-29",
+      "surprise_pct": -0.77
+    },
+    {
+      "date": "2026-07-31",
+      "surprise_pct": 1.15
+    }
+  ],
+  "LLY": [
+    {
+      "date": "2025-08-07",
+      "surprise_pct": 12.89
+    },
+    {
+      "date": "2025-10-30",
+      "surprise_pct": 19.15
+    },
+    {
+      "date": "2026-02-04",
+      "surprise_pct": 9.14
+    },
+    {
+      "date": "2026-04-30",
+      "surprise_pct": 25.9
+    }
+  ],
+  "TMO": [
+    {
+      "date": "2025-10-22",
+      "surprise_pct": 5.32
+    },
+    {
+      "date": "2026-01-29",
+      "surprise_pct": 1.87
+    },
+    {
+      "date": "2026-04-23",
+      "surprise_pct": 3.79
+    },
+    {
+      "date": "2026-07-23",
+      "surprise_pct": 5.6
+    }
+  ],
+  "ABT": [
+    {
+      "date": "2025-10-15",
+      "surprise_pct": 0.05
+    },
+    {
+      "date": "2026-01-22",
+      "surprise_pct": 0.34
+    },
+    {
+      "date": "2026-04-16",
+      "surprise_pct": 0.33
+    },
+    {
+      "date": "2026-07-16",
+      "surprise_pct": 2.61
+    }
+  ],
+  "CVS": [
+    {
+      "date": "2025-07-31",
+      "surprise_pct": 23.85
+    },
+    {
+      "date": "2025-10-29",
+      "surprise_pct": 17.93
+    },
+    {
+      "date": "2026-02-10",
+      "surprise_pct": 9.38
+    },
+    {
+      "date": "2026-05-06",
+      "surprise_pct": 16.48
+    }
+  ],
+  "AMGN": [
+    {
+      "date": "2025-08-05",
+      "surprise_pct": 14.08
+    },
+    {
+      "date": "2025-11-04",
+      "surprise_pct": 12.47
+    },
+    {
+      "date": "2026-02-03",
+      "surprise_pct": 11.94
+    },
+    {
+      "date": "2026-04-30",
+      "surprise_pct": 8.04
+    }
+  ],
+  "XOM": [
+    {
+      "date": "2025-10-31",
+      "surprise_pct": 3.03
+    },
+    {
+      "date": "2026-01-30",
+      "surprise_pct": 1.12
+    },
+    {
+      "date": "2026-05-01",
+      "surprise_pct": 15.14
+    },
+    {
+      "date": "2026-07-31",
+      "surprise_pct": 13.26
+    }
+  ],
+  "CVX": [
+    {
+      "date": "2025-10-31",
+      "surprise_pct": 8.39
+    },
+    {
+      "date": "2026-01-30",
+      "surprise_pct": 5.2
+    },
+    {
+      "date": "2026-05-01",
+      "surprise_pct": 45.56
+    },
+    {
+      "date": "2026-07-31",
+      "surprise_pct": 8.84
+    }
+  ],
+  "COP": [
+    {
+      "date": "2025-08-07",
+      "surprise_pct": 4.71
+    },
+    {
+      "date": "2025-11-06",
+      "surprise_pct": 14.05
+    },
+    {
+      "date": "2026-02-05",
+      "surprise_pct": -6.47
+    },
+    {
+      "date": "2026-04-30",
+      "surprise_pct": 11.52
+    }
+  ],
+  "SLB": [
+    {
+      "date": "2025-10-17",
+      "surprise_pct": 3.95
+    },
+    {
+      "date": "2026-01-23",
+      "surprise_pct": 4.96
+    },
+    {
+      "date": "2026-04-24",
+      "surprise_pct": 1.13
+    },
+    {
+      "date": "2026-07-24",
+      "surprise_pct": 6.3
+    }
+  ],
+  "OXY": [
+    {
+      "date": "2025-08-06",
+      "surprise_pct": 24.79
+    },
+    {
+      "date": "2025-11-10",
+      "surprise_pct": 22.73
+    },
+    {
+      "date": "2026-02-18",
+      "surprise_pct": 83.77
+    },
+    {
+      "date": "2026-05-05",
+      "surprise_pct": 80.35
+    }
+  ],
+  "BA": [
+    {
+      "date": "2025-10-29",
+      "surprise_pct": -214.44
+    },
+    {
+      "date": "2026-01-27",
+      "surprise_pct": 2525.31
+    },
+    {
+      "date": "2026-04-22",
+      "surprise_pct": 70.26
+    },
+    {
+      "date": "2026-07-28",
+      "surprise_pct": -141.48
+    }
+  ],
+  "CAT": [
+    {
+      "date": "2025-10-29",
+      "surprise_pct": 9.43
+    },
+    {
+      "date": "2026-01-29",
+      "surprise_pct": 9.51
+    },
+    {
+      "date": "2026-04-30",
+      "surprise_pct": 19.3
+    },
+    {
+      "date": "2026-08-04",
+      "surprise_pct": 31.83
+    }
+  ],
+  "DE": [
+    {
+      "date": "2025-08-14",
+      "surprise_pct": 1.9
+    },
+    {
+      "date": "2025-11-26",
+      "surprise_pct": 2.5
+    },
+    {
+      "date": "2026-02-19",
+      "surprise_pct": 15.42
+    },
+    {
+      "date": "2026-05-21",
+      "surprise_pct": 14.07
+    }
+  ],
+  "GE": [
+    {
+      "date": "2025-10-21",
+      "surprise_pct": 13.01
+    },
+    {
+      "date": "2026-01-22",
+      "surprise_pct": 9.81
+    },
+    {
+      "date": "2026-04-21",
+      "surprise_pct": 16.31
+    },
+    {
+      "date": "2026-07-16",
+      "surprise_pct": 8.62
+    }
+  ],
+  "HON": [
+    {
+      "date": "2025-10-23",
+      "surprise_pct": 9.87
+    },
+    {
+      "date": "2026-01-29",
+      "surprise_pct": 2.14
+    },
+    {
+      "date": "2026-04-23",
+      "surprise_pct": 5.55
+    },
+    {
+      "date": "2026-07-23",
+      "surprise_pct": 7.22
+    }
+  ],
+  "UBER": [
+    {
+      "date": "2025-08-06",
+      "surprise_pct": 1.05
+    },
+    {
+      "date": "2025-11-04",
+      "surprise_pct": 353.17
+    },
+    {
+      "date": "2026-02-04",
+      "surprise_pct": -81.94
+    },
+    {
+      "date": "2026-05-06",
+      "surprise_pct": -81.74
+    }
+  ],
+  "ABNB": [
+    {
+      "date": "2025-08-06",
+      "surprise_pct": 9.41
+    },
+    {
+      "date": "2025-11-06",
+      "surprise_pct": -4.76
+    },
+    {
+      "date": "2026-02-12",
+      "surprise_pct": -15.65
+    },
+    {
+      "date": "2026-05-07",
+      "surprise_pct": -14.13
+    }
+  ],
+  "SHOP": [
+    {
+      "date": "2025-08-06",
+      "surprise_pct": 22.15
+    },
+    {
+      "date": "2025-11-04",
+      "surprise_pct": 0.61
+    },
+    {
+      "date": "2026-02-11",
+      "surprise_pct": -5.71
+    },
+    {
+      "date": "2026-05-05",
+      "surprise_pct": 8.56
+    }
+  ],
+  "SNAP": [
+    {
+      "date": "2025-11-05",
+      "surprise_pct": 50.58
+    },
+    {
+      "date": "2026-02-04",
+      "surprise_pct": 189.1
+    },
+    {
+      "date": "2026-05-06",
+      "surprise_pct": 25.37
+    },
+    {
+      "date": "2026-08-03",
+      "surprise_pct": 18.28
+    }
+  ],
+  "PINS": [
+    {
+      "date": "2025-08-07",
+      "surprise_pct": -6.17
+    },
+    {
+      "date": "2025-11-04",
+      "surprise_pct": -8.82
+    },
+    {
+      "date": "2026-02-12",
+      "surprise_pct": -0.69
+    },
+    {
+      "date": "2026-05-04",
+      "surprise_pct": 24.71
+    }
+  ],
+  "ROKU": [
+    {
+      "date": "2025-07-31",
+      "surprise_pct": 144.14
+    },
+    {
+      "date": "2025-10-30",
+      "surprise_pct": 71.43
+    },
+    {
+      "date": "2026-02-12",
+      "surprise_pct": 92.23
+    },
+    {
+      "date": "2026-04-30",
+      "surprise_pct": 64.42
+    }
+  ],
+  "COIN": [
+    {
+      "date": "2025-10-30",
+      "surprise_pct": 32.31
+    },
+    {
+      "date": "2026-02-12",
+      "surprise_pct": -364.89
+    },
+    {
+      "date": "2026-05-07",
+      "surprise_pct": -3458.88
+    },
+    {
+      "date": "2026-07-30",
+      "surprise_pct": -487.47
+    }
+  ],
+  "PLTR": [
+    {
+      "date": "2025-11-03",
+      "surprise_pct": 25.46
+    },
+    {
+      "date": "2026-02-02",
+      "surprise_pct": 8.6
+    },
+    {
+      "date": "2026-05-04",
+      "surprise_pct": 18.08
+    },
+    {
+      "date": "2026-08-03",
+      "surprise_pct": 18.51
+    }
+  ],
+  "SMCI": [
+    {
+      "date": "2025-08-05",
+      "surprise_pct": -6.58
+    },
+    {
+      "date": "2025-11-04",
+      "surprise_pct": -10.08
+    },
+    {
+      "date": "2026-02-03",
+      "surprise_pct": 41.43
+    },
+    {
+      "date": "2026-05-05",
+      "surprise_pct": 34.51
+    }
+  ],
+  "T": [
+    {
+      "date": "2025-10-22",
+      "surprise_pct": 0.45
+    },
+    {
+      "date": "2026-01-28",
+      "surprise_pct": 11.58
+    },
+    {
+      "date": "2026-04-22",
+      "surprise_pct": 3.42
+    },
+    {
+      "date": "2026-07-22",
+      "surprise_pct": 10.49
+    }
+  ],
+  "VZ": [
+    {
+      "date": "2025-10-29",
+      "surprise_pct": 1.53
+    },
+    {
+      "date": "2026-01-30",
+      "surprise_pct": 3.28
+    },
+    {
+      "date": "2026-04-27",
+      "surprise_pct": 5.81
+    },
+    {
+      "date": "2026-07-24",
+      "surprise_pct": 2.71
+    }
+  ],
+  "PG": [
+    {
+      "date": "2025-10-24",
+      "surprise_pct": 4.92
+    },
+    {
+      "date": "2026-01-22",
+      "surprise_pct": 1.25
+    },
+    {
+      "date": "2026-04-24",
+      "surprise_pct": 2.22
+    },
+    {
+      "date": "2026-07-29",
+      "surprise_pct": 1.55
+    }
+  ],
+  "KO": [
+    {
+      "date": "2025-10-21",
+      "surprise_pct": 5.32
+    },
+    {
+      "date": "2026-02-10",
+      "surprise_pct": 2.69
+    },
+    {
+      "date": "2026-04-28",
+      "surprise_pct": 5.88
+    },
+    {
+      "date": "2026-07-28",
+      "surprise_pct": 4.05
+    }
+  ],
+  "PEP": [
+    {
+      "date": "2025-10-09",
+      "surprise_pct": 1.33
+    },
+    {
+      "date": "2026-02-03",
+      "surprise_pct": 1.02
+    },
+    {
+      "date": "2026-04-16",
+      "surprise_pct": 3.75
+    },
+    {
+      "date": "2026-07-09",
+      "surprise_pct": -0.37
+    }
+  ],
+  "MDLZ": [
+    {
+      "date": "2025-10-28",
+      "surprise_pct": 2.94
+    },
+    {
+      "date": "2026-02-03",
+      "surprise_pct": 3.34
+    },
+    {
+      "date": "2026-04-28",
+      "surprise_pct": 10.22
+    },
+    {
+      "date": "2026-07-28",
+      "surprise_pct": 7.4
+    }
+  ],
+  "CL": [
+    {
+      "date": "2025-10-31",
+      "surprise_pct": 2.36
+    },
+    {
+      "date": "2026-01-30",
+      "surprise_pct": 4.19
+    },
+    {
+      "date": "2026-05-01",
+      "surprise_pct": 2.7
+    },
+    {
+      "date": "2026-07-31",
+      "surprise_pct": 4.53
+    }
+  ],
+  "GIS": [
+    {
+      "date": "2025-09-17",
+      "surprise_pct": 5.45
+    },
+    {
+      "date": "2025-12-17",
+      "surprise_pct": 7.09
+    },
+    {
+      "date": "2026-03-18",
+      "surprise_pct": -12.14
+    },
+    {
+      "date": "2026-07-01",
+      "surprise_pct": 19.21
+    }
+  ],
+  "F": [
+    {
+      "date": "2025-10-23",
+      "surprise_pct": 25.41
+    },
+    {
+      "date": "2026-02-10",
+      "surprise_pct": -32.87
+    },
+    {
+      "date": "2026-04-29",
+      "surprise_pct": 256.64
+    },
+    {
+      "date": "2026-07-28",
+      "surprise_pct": 21.27
+    }
+  ],
+  "GM": [
+    {
+      "date": "2025-10-21",
+      "surprise_pct": 20.55
+    },
+    {
+      "date": "2026-01-27",
+      "surprise_pct": 10.65
+    },
+    {
+      "date": "2026-04-28",
+      "surprise_pct": 40.19
+    },
+    {
+      "date": "2026-07-21",
+      "surprise_pct": 12.0
+    }
+  ]
+}

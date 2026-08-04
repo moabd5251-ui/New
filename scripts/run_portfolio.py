@@ -12,6 +12,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path.insert(0, str(HERE))
 
+import feed
 import portfolio as P
 import stage3 as S3
 import mark as M
@@ -34,6 +35,12 @@ def load_positions():
 
 def main():
     events = []
+    ok, state, msg = feed.require_open("portfolio scan")
+    if not ok:
+        print(f"[guard] {msg}")
+        print("PUSH: (none)")
+        return
+
 
     # ---- Stage 1: regime -------------------------------------------------
     reg = P.regime()

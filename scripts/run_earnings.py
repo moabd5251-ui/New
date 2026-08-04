@@ -12,6 +12,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path.insert(0, str(HERE))
 
+import feed
 import earnings as E
 import event_structures as ES
 import earnings_dashboard as ED
@@ -34,6 +35,12 @@ def load_prev():
 
 def main():
     prev = load_prev()
+    ok, state, msg = feed.require_open("earnings premium scan")
+    if not ok:
+        print(f"[guard] {msg}")
+        print("PUSH: (none)")
+        return
+
 
     print("[scan] finding names reporting within %d days" % WITHIN_DAYS)
     rows = E.scan(within_days=WITHIN_DAYS)

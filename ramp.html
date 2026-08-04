@@ -1,0 +1,270 @@
+<title>Volatility Ramp — Pre-Earnings Vol Expansion</title>
+<style>
+:root{
+  --ground:#F7F7F9; --surface:#FFFFFF; --surface-2:#EDEEF2; --line:#DBDDE4;
+  --ink:#1C1F27; --ink-2:#484E5C; --ink-3:#767D8D;
+  --accent:#5B4B8A; --accent-soft:#E9E6F2;
+  --go:#1F7A5A; --wait:#B0761F; --stop:#B4443E;
+  --vol:#7C5FB0;
+  --sans:ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --serif:Georgia,"Iowan Old Style","Times New Roman",serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --ground:#121319; --surface:#1A1C24; --surface-2:#232631; --line:#2E323E;
+    --ink:#E2E4EC; --ink-2:#A8AEBE; --ink-3:#767D8D;
+    --accent:#A594D6; --accent-soft:#221F2E;
+    --go:#46B189; --wait:#D2A052; --stop:#DE6A63;
+    --vol:#A98FDB;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#121319; --surface:#1A1C24; --surface-2:#232631; --line:#2E323E;
+  --ink:#E2E4EC; --ink-2:#A8AEBE; --ink-3:#767D8D;
+  --accent:#A594D6; --accent-soft:#221F2E;
+  --go:#46B189; --wait:#D2A052; --stop:#DE6A63;
+  --vol:#A98FDB;
+}
+:root[data-theme="light"]{
+  --ground:#F7F7F9; --surface:#FFFFFF; --surface-2:#EDEEF2; --line:#DBDDE4;
+  --ink:#1C1F27; --ink-2:#484E5C; --ink-3:#767D8D;
+  --accent:#5B4B8A; --accent-soft:#E9E6F2;
+  --go:#1F7A5A; --wait:#B0761F; --stop:#B4443E;
+  --vol:#7C5FB0;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1150px;margin:0 auto;padding:40px 24px 72px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+header.mast{border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:22px;
+  display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(26px,4vw,38px);margin:0;
+  letter-spacing:-.01em;text-wrap:balance}
+.sub{color:var(--ink-3);font-size:13px;margin-top:5px}
+.stamp{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);text-align:right;
+  text-transform:uppercase;letter-spacing:.07em;white-space:nowrap}
+.thesis{background:var(--accent-soft);border-left:3px solid var(--accent);padding:14px 17px;
+  font-size:13.5px;color:var(--ink-2);margin-bottom:24px;border-radius:0 2px 2px 0}
+.thesis strong{color:var(--ink)}
+.ramp{background:var(--surface);border:1px solid var(--line);border-radius:3px;
+  margin-bottom:28px;overflow:hidden}
+.ramp-h{padding:12px 18px;background:var(--surface-2);border-bottom:1px solid var(--line);
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-2)}
+.ramp-b{padding:16px 18px;display:flex;gap:26px;align-items:center;flex-wrap:wrap}
+.rstat .k{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-3)}
+.rstat .v{font-family:var(--mono);font-size:21px;font-weight:700;letter-spacing:-.02em;margin-top:3px}
+.rbar{flex:1;min-width:220px}
+.rtrack{height:22px;background:var(--surface-2);border-radius:3px;position:relative;overflow:hidden}
+.rtrack i{position:absolute;top:0;bottom:0;left:0;background:var(--vol);opacity:.85}
+.rlab{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;
+  color:var(--ink-3);margin-top:5px}
+.group{margin-top:32px}
+.group:first-of-type{margin-top:0}
+.gh{display:flex;align-items:baseline;gap:10px;margin-bottom:4px;flex-wrap:wrap}
+.tag{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.07em;
+  padding:3px 9px;border-radius:2px;color:#fff}
+.tag.go{background:var(--go)} .tag.wait{background:var(--wait)} .tag.stop{background:var(--stop)}
+.tag.na{background:var(--ink-3)}
+.gnote{font-size:13px;color:var(--ink-3);margin:0 0 16px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:3px;
+  display:flex;flex-direction:column;overflow:hidden}
+.card.go{border-top:3px solid var(--go)}
+.card.wait{border-top:3px solid var(--wait)}
+.card.stop{border-top:3px solid var(--stop)}
+.top{padding:14px 17px 12px;border-bottom:1px solid var(--line)}
+.tick{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.tick .sym{font-family:var(--serif);font-size:23px;font-weight:600}
+.tick .spot{margin-left:auto;font-family:var(--mono);font-size:14px;color:var(--ink-2)}
+.tl{padding:13px 17px;border-bottom:1px solid var(--line);background:var(--surface-2)}
+.tl-track{position:relative;height:3px;background:var(--line);border-radius:2px;margin:16px 0 6px}
+.tl-fill{position:absolute;top:0;bottom:0;left:0;background:var(--accent);border-radius:2px}
+.tl-pt{position:absolute;top:50%;transform:translate(-50%,-50%);width:9px;height:9px;
+  border-radius:50%;background:var(--accent);border:2px solid var(--surface-2)}
+.tl-pt.end{background:var(--stop)}
+.tl-lab{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;color:var(--ink-3)}
+.tl-lab b{display:block;color:var(--ink-2);font-weight:600;font-size:11.5px}
+.body{padding:13px 17px;border-bottom:1px solid var(--line)}
+.sname{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-3)}
+.slegs{font-family:var(--mono);font-size:13.5px;margin-top:4px;letter-spacing:-.01em;color:var(--ink)}
+.need{margin-top:12px}
+.need-row{display:flex;align-items:center;gap:9px;font-size:12px;margin-bottom:6px}
+.need-lab{width:96px;color:var(--ink-3);font-size:10.5px;text-transform:uppercase;letter-spacing:.07em}
+.need-bar{flex:1;height:14px;background:var(--surface-2);border-radius:2px;overflow:hidden}
+.need-bar i{display:block;height:100%;border-radius:2px}
+.need-val{width:56px;text-align:right;font-family:var(--mono);font-weight:600;font-size:12.5px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr)}
+.stat{padding:10px 17px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.stat:nth-child(3n){border-right:0}
+.stat .k{font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3)}
+.stat .v{font-family:var(--mono);font-size:14.5px;font-weight:600;margin-top:3px}
+.v.good{color:var(--go)} .v.bad{color:var(--stop)}
+.why{padding:11px 17px;font-size:12.5px;color:var(--ink-2);line-height:1.5}
+.risk{padding:10px 17px;background:color-mix(in srgb,var(--wait) 11%,transparent);
+  font-size:12px;color:var(--ink-2);border-top:1px solid var(--line)}
+.risk b{color:var(--wait)}
+.warn{padding:8px 17px;background:color-mix(in srgb,var(--stop) 12%,transparent);
+  color:var(--stop);font-size:11.5px;font-weight:600;border-bottom:1px solid var(--line)}
+.foot{padding:9px 17px;margin-top:auto;border-top:1px solid var(--line);
+  font-family:var(--mono);font-size:11px;color:var(--ink-3);
+  display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.slim{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.chip{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:10px 13px;
+  display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.chip .s{font-family:var(--serif);font-size:16px;font-weight:600}
+.chip .d{font-family:var(--mono);font-size:11px;color:var(--ink-3);text-align:right}
+.method{margin-top:36px;border-top:1px solid var(--line);padding-top:20px;
+  font-size:13px;color:var(--ink-2);columns:2;column-gap:34px}
+.method h3{font-family:var(--sans);font-size:11px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--ink-3);margin:0 0 8px;column-span:all}
+.method p{margin:0 0 10px;break-inside:avoid}
+.method strong{color:var(--ink)}
+.disclaim{margin-top:22px;padding:13px 16px;background:var(--surface-2);
+  border-left:3px solid var(--stop);font-size:12.5px;color:var(--ink-2);border-radius:0 2px 2px 0}
+@media (max-width:720px){.method{columns:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div><h1>Volatility Ramp</h1>
+      <div class="sub">Buy vol into earnings &middot; close before the report &middot; never hold the event</div></div>
+    <div class="stamp">Updated 04 Aug 2026, 12:21 UTC</div>
+  </header>
+  <div class="thesis"><strong>The trade:</strong> implied volatility in the expiry containing earnings
+  inflates as the announcement approaches. You buy that volatility while the term structure is still
+  flat and you close the position the day <em>before</em> the report &mdash; so you collect the expansion
+  and take neither the volatility crush nor the overnight gap. The enemy is time decay, so every card
+  below shows how far implied has to climb just to cover the bleed, against how far it typically climbs.</div>
+  <div class="ramp" id="ramp"></div>
+  <div id="groups"></div>
+  <div class="method">
+    <h3>How this is measured</h3>
+    <p><strong>The ramp</strong> is estimated from this scan's own cross-section: names two or more weeks out show the flat term structure, names reporting immediately show the inflated one, and the gap between them is the expansion. Per-name historical implied vol is not in the free feed, so this is a market-wide figure, not a name-specific one.</p>
+    <p><strong>Required rise</strong> is the decay over the holding period divided by vega &mdash; how many volatility points implied must gain before the position is merely flat. Compare it to the ramp bar beneath: comfortably shorter is a real edge, longer is a losing wait.</p>
+    <p><strong>Calendars</strong> sell an expiry landing before the report and buy the one containing it. The near leg decays faster, so the position is long volatility while time works <em>for</em> you rather than against. That is why they usually need almost no expansion to break even.</p>
+    <p><strong>The catch with calendars</strong> is that their risk is directional, not decay: the position wants the stock near the strike. A quiet name drifting sideways is ideal; a big move either way erodes it no matter what volatility does. Each card states its tolerance.</p>
+    <p><strong>Straddles</strong> buy the at-the-money call and put outright. Direction agnostic and simple, but they pay full decay, which is why their break-even requirement is usually several times a calendar's.</p>
+    <p><strong>The exit date</strong> is one trading day before the report, stepped back over a weekend. Holding past it converts a volatility trade into an earnings bet &mdash; which is the opposite of the intent.</p>
+  </div>
+  <div class="disclaim"><strong>Analysis only.</strong> Nothing here is placed, ordered, or executed &mdash; and none of it is financial advice. This strategy has <em>not</em> been backtested: historical implied volatility is not available on the free feed, so the ramp figure is inferred from a single day's cross-section and could be wrong. Report dates marked estimated can move by weeks, which would put your expiry on the wrong side of the event. Quotes are delayed roughly 15 minutes, and when the market is closed the book is empty
+  &mdash; contracts then get priced off their last trade, which can sit far from the real mid. Cards
+  priced that way say so. Verify pricing and dates against a live book before acting.</div>
+</div>
+
+<script>
+const DATA = {"rows":[{"symbol":"WMT","date":"2026-08-20","days":16,"estimated":false,"beat_rate":75,"n_quarters":4,"avg_surprise":-0.7,"spot":110.71,"expiry":"2026-08-21","expiry_ts":1787270400,"dte":16,"straddle":{"structure":"LONG STRADDLE","strike":111.0,"expiry":"2026-08-21","dte":16,"debit":7.15,"cost":715.0,"max_loss":715.0,"vega":0.0532,"theta":0.0097,"bleed":13.6,"required_iv_rise":2.56,"iv":0.2,"min_oi":852,"stale":true,"legs":"111.0C + 111.0P","expected_move":0.04,"expected_move_pct":0.0,"spot":110.71,"move_risk":"Direction agnostic \u2014 only vol and time matter."},"implied_move":6.46,"atm_strike":111.0,"front_iv":0.2,"back_iv":0.2,"iv_term_spread":0.0,"hist_move":5.8,"hist_max":7.27,"verdict":"NOT WORTH IT","premium_ratio":1.11,"rationale":"Implied and historical moves are close \u2014 no clear pricing edge on the event itself.","trend":"DOWN","rvol":22.1,"ramp_estimate":0.1,"exit_date":"2026-08-19","hold_days":14,"window":"ENTRY WINDOW","window_note":"Term structure still flat at 0.0 points, 16 days out \u2014 the expansion has not been priced yet.","calendar":{"structure":"CALENDAR","strike":111.0,"expiry":"2026-08-21","front_expiry":"2026-08-14","dte":16,"front_dte":9,"debit":1.55,"cost":155.0,"max_loss":155.0,"vega":0.0511,"theta":-0.0023,"bleed":3.27,"required_iv_rise":0.64,"iv":0.4,"min_oi":852,"stale":true,"legs":"sell 111.0 14Aug / buy 111.0 21Aug","expected_move":0.09,"expected_move_pct":0.1,"spot":110.71,"move_risk":"Profits near 111.0; a move beyond roughly \u00b10.09 (0.1%) by 2026-08-19 erodes it regardless of what vol does."},"best":{"structure":"CALENDAR","strike":111.0,"expiry":"2026-08-21","front_expiry":"2026-08-14","dte":16,"front_dte":9,"debit":1.55,"cost":155.0,"max_loss":155.0,"vega":0.0511,"theta":-0.0023,"bleed":3.27,"required_iv_rise":0.64,"iv":0.4,"min_oi":852,"stale":true,"legs":"sell 111.0 14Aug / buy 111.0 21Aug","expected_move":0.09,"expected_move_pct":0.1,"spot":110.71,"move_risk":"Profits near 111.0; a move beyond roughly \u00b10.09 (0.1%) by 2026-08-19 erodes it regardless of what vol does."},"margin":-0.5},{"symbol":"NVDA","date":"2026-08-26","days":22,"estimated":false,"beat_rate":100,"n_quarters":4,"avg_surprise":4.6,"spot":206.64,"expiry":"2026-08-28","expiry_ts":1787875200,"dte":23,"straddle":{"structure":"LONG STRADDLE","strike":205.0,"expiry":"2026-08-28","dte":23,"debit":19.62,"cost":1962.0,"max_loss":1962.0,"vega":0.0,"theta":-0.0224,"bleed":44.82,"required_iv_rise":3415606.22,"iv":0.4,"min_oi":2277,"stale":true,"legs":"205.0C + 205.0P","expected_move":0.19,"expected_move_pct":0.1,"spot":206.64,"move_risk":"Direction agnostic \u2014 only vol and time matter."},"implied_move":9.49,"atm_strike":205.0,"front_iv":0.4,"back_iv":0.4,"iv_term_spread":0.0,"hist_move":6.53,"hist_max":7.87,"verdict":"NOT WORTH IT","premium_ratio":1.45,"rationale":"Options price a bigger move than this name typically delivers \u2014 selling the event inside a defined-risk credit structure is the better side.","trend":"DOWN","rvol":42.4,"ramp_estimate":0.1,"exit_date":"2026-08-25","hold_days":20,"window":"ENTRY WINDOW","window_note":"Term structure still flat at 0.0 points, 22 days out \u2014 the expansion has not been priced yet.","calendar":null,"best":{"structure":"LONG STRADDLE","strike":205.0,"expiry":"2026-08-28","dte":23,"debit":19.62,"cost":1962.0,"max_loss":1962.0,"vega":0.0,"theta":-0.0224,"bleed":44.82,"required_iv_rise":3415606.22,"iv":0.4,"min_oi":2277,"stale":true,"legs":"205.0C + 205.0P","expected_move":0.19,"expected_move_pct":0.1,"spot":206.64,"move_risk":"Direction agnostic \u2014 only vol and time matter."},"margin":-3415606.1},{"symbol":"MRVL","date":"2026-08-27","days":23,"estimated":false,"beat_rate":75,"n_quarters":4,"avg_surprise":1.0,"spot":193.78,"expiry":"2026-08-28","expiry_ts":1787875200,"dte":23,"straddle":{"structure":"LONG STRADDLE","strike":195.0,"expiry":"2026-08-28","dte":23,"debit":41.63,"cost":4163.0,"max_loss":4163.0,"vega":0.0304,"theta":0.0202,"bleed":42.47,"required_iv_rise":13.95,"iv":0.4,"min_oi":142,"stale":true,"legs":"195.0C + 195.0P","expected_move":0.19,"expected_move_pct":0.1,"spot":193.78,"move_risk":"Direction agnostic \u2014 only vol and time matter."},"implied_move":21.48,"atm_strike":195.0,"front_iv":0.4,"back_iv":0.4,"iv_term_spread":0.0,"hist_move":21.55,"hist_max":32.52,"verdict":"NOT WORTH IT","premium_ratio":1.0,"rationale":"Implied and historical moves are close \u2014 no clear pricing edge on the event itself.","trend":"DOWN","rvol":91.4,"ramp_estimate":0.1,"exit_date":"2026-08-26","hold_days":21,"window":"ENTRY WINDOW","window_note":"Term structure still flat at 0.0 points, 23 days out \u2014 the expansion has not been priced yet.","calendar":{"structure":"CALENDAR","strike":195.0,"expiry":"2026-08-28","front_expiry":"2026-08-21","dte":23,"front_dte":16,"debit":4.35,"cost":435.0,"max_loss":435.0,"vega":0.027,"theta":-0.001,"bleed":2.0,"required_iv_rise":0.74,"iv":0.8,"min_oi":191,"stale":true,"legs":"sell 195.0 21Aug / buy 195.0 28Aug","expected_move":0.37,"expected_move_pct":0.2,"spot":193.78,"move_risk":"Profits near 195.0; a move beyond roughly \u00b10.37 (0.2%) by 2026-08-26 erodes it regardless of what vol does."},"best":{"structure":"CALENDAR","strike":195.0,"expiry":"2026-08-28","front_expiry":"2026-08-21","dte":23,"front_dte":16,"debit":4.35,"cost":435.0,"max_loss":435.0,"vega":0.027,"theta":-0.001,"bleed":2.0,"required_iv_rise":0.74,"iv":0.8,"min_oi":191,"stale":true,"legs":"sell 195.0 21Aug / buy 195.0 28Aug","expected_move":0.37,"expected_move_pct":0.2,"spot":193.78,"move_risk":"Profits near 195.0; a move beyond roughly \u00b10.37 (0.2%) by 2026-08-26 erodes it regardless of what vol does."},"margin":-0.6},{"symbol":"PANW","date":"2026-09-01","days":28,"estimated":false,"beat_rate":100,"n_quarters":4,"avg_surprise":7.1,"spot":347.13,"expiry":"2026-09-04","expiry_ts":1788480000,"dte":30,"straddle":{"structure":"LONG STRADDLE","strike":350.0,"expiry":"2026-09-04","dte":30,"debit":57.27,"cost":5727.0,"max_loss":5727.0,"vega":0.035,"theta":-0.001,"bleed":2.54,"required_iv_rise":0.73,"iv":1.2,"min_oi":2,"stale":true,"legs":"350.0C + 350.0P","expected_move":1.11,"expected_move_pct":0.3,"spot":347.13,"move_risk":"Direction agnostic \u2014 only vol and time matter."},"implied_move":16.5,"atm_strike":350.0,"front_iv":1.2,"back_iv":1.2,"iv_term_spread":0.0,"hist_move":8.25,"hist_max":9.28,"verdict":"NOT WORTH IT","premium_ratio":2.0,"rationale":"Options price a bigger move than this name typically delivers \u2014 selling the event inside a defined-risk credit structure is the better side.","trend":"UP","rvol":52.2,"ramp_estimate":0.1,"exit_date":"2026-08-31","hold_days":26,"window":"ENTRY WINDOW","window_note":"Term structure still flat at 0.0 points, 28 days out \u2014 the expansion has not been priced yet.","calendar":{"structure":"CALENDAR","strike":350.0,"expiry":"2026-09-04","front_expiry":"2026-08-28","dte":30,"front_dte":23,"debit":5.95,"cost":595.0,"max_loss":595.0,"vega":0.0299,"theta":-0.0008,"bleed":2.14,"required_iv_rise":0.72,"iv":0.8,"min_oi":69,"stale":true,"legs":"sell 350.0 28Aug / buy 350.0 04Sep","expected_move":0.74,"expected_move_pct":0.2,"spot":347.13,"move_risk":"Profits near 350.0; a move beyond roughly \u00b10.74 (0.2%) by 2026-08-31 erodes it regardless of what vol does."},"best":{"structure":"CALENDAR","strike":350.0,"expiry":"2026-09-04","front_expiry":"2026-08-28","dte":30,"front_dte":23,"debit":5.95,"cost":595.0,"max_loss":595.0,"vega":0.0299,"theta":-0.0008,"bleed":2.14,"required_iv_rise":0.72,"iv":0.8,"min_oi":69,"stale":true,"legs":"sell 350.0 28Aug / buy 350.0 04Sep","expected_move":0.74,"expected_move_pct":0.2,"spot":347.13,"move_risk":"Profits near 350.0; a move beyond roughly \u00b10.74 (0.2%) by 2026-08-31 erodes it regardless of what vol does."},"margin":-0.6},{"symbol":"CRM","date":"2026-09-02","days":29,"estimated":false,"beat_rate":100,"n_quarters":4,"avg_surprise":16.8,"spot":185.95,"expiry":"2026-09-04","expiry_ts":1788480000,"dte":30,"straddle":{"structure":"LONG STRADDLE","strike":185.0,"expiry":"2026-09-04","dte":30,"debit":23.7,"cost":2370.0,"max_loss":2370.0,"vega":0.0,"theta":-0.0202,"bleed":54.56,"required_iv_rise":3925532814820.76,"iv":0.2,"min_oi":52,"stale":true,"legs":"185.0C + 185.0P","expected_move":0.1,"expected_move_pct":0.1,"spot":185.95,"move_risk":"Direction agnostic \u2014 only vol and time matter."},"implied_move":12.75,"atm_strike":185.0,"front_iv":0.2,"back_iv":0.0,"iv_term_spread":0.2,"hist_move":8.48,"hist_max":9.68,"verdict":"NOT WORTH IT","premium_ratio":1.5,"rationale":"Options price a bigger move than this name typically delivers \u2014 selling the event inside a defined-risk credit structure is the better side.","trend":"UP","rvol":51.3,"ramp_estimate":0.1,"exit_date":"2026-09-01","hold_days":27,"window":"ENTRY WINDOW","window_note":"Term structure still flat at 0.2 points, 29 days out \u2014 the expansion has not been priced yet.","calendar":null,"best":{"structure":"LONG STRADDLE","strike":185.0,"expiry":"2026-09-04","dte":30,"debit":23.7,"cost":2370.0,"max_loss":2370.0,"vega":0.0,"theta":-0.0202,"bleed":54.56,"required_iv_rise":3925532814820.76,"iv":0.2,"min_oi":52,"stale":true,"legs":"185.0C + 185.0P","expected_move":0.1,"expected_move_pct":0.1,"spot":185.95,"move_risk":"Direction agnostic \u2014 only vol and time matter."},"margin":-3925532814820.7},{"symbol":"AVGO","date":"2026-09-02","days":29,"estimated":false,"beat_rate":100,"n_quarters":4,"avg_surprise":2.3,"spot":392.23,"expiry":"2026-09-04","expiry_ts":1788480000,"dte":30,"straddle":{"structure":"LONG STRADDLE","strike":390.0,"expiry":"2026-09-04","dte":30,"debit":53.73,"cost":5373.0,"max_loss":5373.0,"vega":0.0,"theta":-0.0426,"bleed":115.02,"required_iv_rise":214369573767296.75,"iv":0.2,"min_oi":168,"stale":true,"legs":"390.0C + 390.0P","expected_move":0.21,"expected_move_pct":0.1,"spot":392.23,"move_risk":"Direction agnostic \u2014 only vol and time matter."},"implied_move":13.7,"atm_strike":390.0,"front_iv":0.2,"back_iv":0.2,"iv_term_spread":0.0,"hist_move":11.25,"hist_max":12.59,"verdict":"NOT WORTH IT","premium_ratio":1.22,"rationale":"Implied and historical moves are close \u2014 no clear pricing edge on the event itself.","trend":"DOWN","rvol":43.9,"ramp_estimate":0.1,"exit_date":"2026-09-01","hold_days":27,"window":"ENTRY WINDOW","window_note":"Term structure still flat at 0.0 points, 29 days out \u2014 the expansion has not been priced yet.","calendar":null,"best":{"structure":"LONG STRADDLE","strike":390.0,"expiry":"2026-09-04","dte":30,"debit":53.73,"cost":5373.0,"max_loss":5373.0,"vega":0.0,"theta":-0.0426,"bleed":115.02,"required_iv_rise":214369573767296.75,"iv":0.2,"min_oi":168,"stale":true,"legs":"390.0C + 390.0P","expected_move":0.21,"expected_move_pct":0.1,"spot":392.23,"move_risk":"Direction agnostic \u2014 only vol and time matter."},"margin":-214369573767296.7},{"symbol":"SNOW","date":"2026-09-02","days":29,"estimated":false,"beat_rate":100,"n_quarters":4,"avg_surprise":20.9,"spot":307.53,"expiry":"2026-09-04","expiry_ts":1788480000,"dte":30,"straddle":{"structure":"LONG STRADDLE","strike":310.0,"expiry":"2026-09-04","dte":30,"debit":57.6,"cost":5760.0,"max_loss":5760.0,"vega":0.0388,"theta":0.0328,"bleed":88.44,"required_iv_rise":22.8,"iv":0.4,"min_oi":14,"stale":true,"legs":"310.0C + 310.0P","expected_move":0.33,"expected_move_pct":0.1,"spot":307.53,"move_risk":"Direction agnostic \u2014 only vol and time matter."},"implied_move":18.73,"atm_strike":310.0,"front_iv":0.4,"back_iv":1.2,"iv_term_spread":-0.8,"hist_move":20.0,"hist_max":36.48,"verdict":"NOT WORTH IT","premium_ratio":0.94,"rationale":"Implied and historical moves are close \u2014 no clear pricing edge on the event itself.","trend":"UP","rvol":34.2,"ramp_estimate":0.1,"exit_date":"2026-09-01","hold_days":27,"window":"ENTRY WINDOW","window_note":"Term structure still flat at -0.8 points, 29 days out \u2014 the expansion has not been priced yet.","calendar":{"structure":"CALENDAR","strike":310.0,"expiry":"2026-09-04","front_expiry":"2026-08-28","dte":30,"front_dte":23,"debit":10.0,"cost":1000.0,"max_loss":1000.0,"vega":0.0325,"theta":-0.0009,"bleed":2.46,"required_iv_rise":0.76,"iv":0.8,"min_oi":57,"stale":true,"legs":"sell 310.0 28Aug / buy 310.0 04Sep","expected_move":0.67,"expected_move_pct":0.2,"spot":307.53,"move_risk":"Profits near 310.0; a move beyond roughly \u00b10.67 (0.2%) by 2026-09-01 erodes it regardless of what vol does."},"best":{"structure":"CALENDAR","strike":310.0,"expiry":"2026-09-04","front_expiry":"2026-08-28","dte":30,"front_dte":23,"debit":10.0,"cost":1000.0,"max_loss":1000.0,"vega":0.0325,"theta":-0.0009,"bleed":2.46,"required_iv_rise":0.76,"iv":0.8,"min_oi":57,"stale":true,"legs":"sell 310.0 28Aug / buy 310.0 04Sep","expected_move":0.67,"expected_move_pct":0.2,"spot":307.53,"move_risk":"Profits near 310.0; a move beyond roughly \u00b10.67 (0.2%) by 2026-09-01 erodes it regardless of what vol does."},"margin":-0.7},{"symbol":"DELL","date":"2026-09-03","days":30,"estimated":false,"beat_rate":100,"n_quarters":4,"avg_surprise":20.1,"spot":429.02,"expiry":"2026-09-04","expiry_ts":1788480000,"dte":30,"straddle":{"structure":"LONG STRADDLE","strike":430.0,"expiry":"2026-09-04","dte":30,"debit":95.09,"cost":9509.0,"max_loss":9509.0,"vega":0.0993,"theta":-0.0456,"bleed":127.56,"required_iv_rise":12.85,"iv":0.5,"min_oi":15,"stale":true,"legs":"430.0C + 430.0P","expected_move":0.59,"expected_move_pct":0.1,"spot":429.02,"move_risk":"Direction agnostic \u2014 only vol and time matter."},"implied_move":22.16,"atm_strike":430.0,"front_iv":0.5,"back_iv":0.9,"iv_term_spread":-0.4,"hist_move":21.14,"hist_max":32.76,"verdict":"NOT WORTH IT","premium_ratio":1.05,"rationale":"Implied and historical moves are close \u2014 no clear pricing edge on the event itself.","trend":"UP","rvol":87.0,"ramp_estimate":0.1,"exit_date":"2026-09-02","hold_days":28,"window":"ENTRY WINDOW","window_note":"Term structure still flat at -0.4 points, 30 days out \u2014 the expansion has not been priced yet.","calendar":null,"best":{"structure":"LONG STRADDLE","strike":430.0,"expiry":"2026-09-04","dte":30,"debit":95.09,"cost":9509.0,"max_loss":9509.0,"vega":0.0993,"theta":-0.0456,"bleed":127.56,"required_iv_rise":12.85,"iv":0.5,"min_oi":15,"stale":true,"legs":"430.0C + 430.0P","expected_move":0.59,"expected_move_pct":0.1,"spot":429.02,"move_risk":"Direction agnostic \u2014 only vol and time matter."},"margin":-12.8},{"symbol":"ORCL","date":"2026-09-09","days":36,"estimated":true,"beat_rate":75,"n_quarters":4,"avg_surprise":12.7,"spot":141.85,"expiry":"2026-09-11","expiry_ts":1789084800,"dte":37,"straddle":{"structure":"LONG STRADDLE","strike":140.0,"expiry":"2026-09-11","dte":37,"debit":29.31,"cost":2931.0,"max_loss":2931.0,"vega":0.0,"theta":-0.0153,"bleed":51.95,"required_iv_rise":62992758154.43,"iv":0.4,"min_oi":7,"stale":true,"legs":"140.0C + 140.0P","expected_move":0.17,"expected_move_pct":0.1,"spot":141.85,"move_risk":"Direction agnostic \u2014 only vol and time matter."},"implied_move":20.66,"atm_strike":140.0,"front_iv":0.4,"back_iv":0.4,"iv_term_spread":0.0,"hist_move":17.58,"hist_max":35.95,"verdict":"NOT WORTH IT","premium_ratio":1.18,"rationale":"Implied and historical moves are close \u2014 no clear pricing edge on the event itself.","trend":"DOWN","rvol":62.7,"ramp_estimate":0.1,"exit_date":"2026-09-08","hold_days":34,"window":"ENTRY WINDOW","window_note":"Term structure still flat at 0.0 points, 36 days out \u2014 the expansion has not been priced yet.","calendar":null,"best":{"structure":"LONG STRADDLE","strike":140.0,"expiry":"2026-09-11","dte":37,"debit":29.31,"cost":2931.0,"max_loss":2931.0,"vega":0.0,"theta":-0.0153,"bleed":51.95,"required_iv_rise":62992758154.43,"iv":0.4,"min_oi":7,"stale":true,"legs":"140.0C + 140.0P","expected_move":0.17,"expected_move_pct":0.1,"spot":141.85,"move_risk":"Direction agnostic \u2014 only vol and time matter."},"margin":-62992758154.3},{"symbol":"HD","date":"2026-08-18","days":14,"estimated":false,"beat_rate":50,"n_quarters":4,"avg_surprise":1.4,"spot":340.02,"expiry":"2026-08-21","expiry_ts":1787270400,"dte":16,"straddle":null,"implied_move":7.33,"atm_strike":340.0,"front_iv":0.0,"back_iv":0.0,"iv_term_spread":0.0,"hist_move":5.36,"hist_max":6.02,"verdict":"NO PRICING","premium_ratio":1.37,"rationale":"Options price a bigger move than this name typically delivers \u2014 selling the event inside a defined-risk credit structure is the better side.","trend":"UP","rvol":26.9,"ramp_estimate":0.1,"exit_date":"2026-08-17","hold_days":12,"window":"ENTRY WINDOW","window_note":"Term structure still flat at 0.0 points, 14 days out \u2014 the expansion has not been priced yet.","calendar":null,"best":null},{"symbol":"ADBE","date":"2026-09-10","days":37,"estimated":false,"beat_rate":100,"n_quarters":4,"avg_surprise":2.5,"spot":251.34,"expiry":"2026-09-11","expiry_ts":1789084800,"dte":37,"straddle":null,"implied_move":16.15,"atm_strike":250.0,"front_iv":0.0,"back_iv":0.2,"iv_term_spread":-0.2,"hist_move":7.25,"hist_max":7.58,"verdict":"NO PRICING","premium_ratio":2.23,"rationale":"Options price a bigger move than this name typically delivers \u2014 selling the event inside a defined-risk credit structure is the better side.","trend":"UP","rvol":56.8,"ramp_estimate":0.1,"exit_date":"2026-09-09","hold_days":35,"window":"ENTRY WINDOW","window_note":"Term structure still flat at -0.2 points, 37 days out \u2014 the expansion has not been priced yet.","calendar":null,"best":null},{"symbol":"AMD","date":"2026-08-04","days":0,"estimated":false,"beat_rate":75,"n_quarters":4,"avg_surprise":5.9,"spot":484.64,"expiry":"2026-08-05","expiry_ts":1785888000,"dte":0,"straddle":43.02,"implied_move":8.88,"atm_strike":485.0,"front_iv":0.2,"back_iv":0.1,"iv_term_spread":0.1,"hist_move":18.39,"hist_max":23.71,"verdict":null,"premium_ratio":0.48,"rationale":"Options price a smaller move than this name typically delivers \u2014 buying the event with a defined-risk debit structure is the better side.","trend":"DOWN","rvol":86.9,"ramp_estimate":0.1,"exit_date":"2026-08-03","hold_days":0,"window":"TOO LATE","window_note":"Report is too close to enter and still exit in time."},{"symbol":"CAT","date":"2026-08-04","days":0,"estimated":false,"beat_rate":75,"n_quarters":4,"avg_surprise":8.6,"spot":830.03,"expiry":"2026-08-07","expiry_ts":1786060800,"dte":2,"straddle":61.43,"implied_move":7.4,"atm_strike":830.0,"front_iv":0.0,"back_iv":0.0,"iv_term_spread":0.0,"hist_move":8.87,"hist_max":11.63,"verdict":null,"premium_ratio":0.83,"rationale":"Options price a smaller move than this name typically delivers \u2014 buying the event with a defined-risk debit structure is the better side.","trend":"DOWN","rvol":39.2,"ramp_estimate":0.1,"exit_date":"2026-08-03","hold_days":0,"window":"TOO LATE","window_note":"Report is too close to enter and still exit in time."},{"symbol":"PFE","date":"2026-08-04","days":0,"estimated":false,"beat_rate":100,"n_quarters":4,"avg_surprise":23.4,"spot":25.03,"expiry":"2026-08-07","expiry_ts":1786060800,"dte":2,"straddle":0.77,"implied_move":3.08,"atm_strike":25.0,"front_iv":0.4,"back_iv":0.2,"iv_term_spread":0.2,"hist_move":5.85,"hist_max":6.83,"verdict":null,"premium_ratio":0.53,"rationale":"Options price a smaller move than this name typically delivers \u2014 buying the event with a defined-risk debit structure is the better side.","trend":"DOWN","rvol":20.6,"ramp_estimate":0.1,"exit_date":"2026-08-03","hold_days":0,"window":"TOO LATE","window_note":"Report is too close to enter and still exit in time."},{"symbol":"MRK","date":"2026-08-04","days":0,"estimated":false,"beat_rate":100,"n_quarters":4,"avg_surprise":7.4,"spot":127.77,"expiry":"2026-08-07","expiry_ts":1786060800,"dte":2,"straddle":6.35,"implied_move":4.97,"atm_strike":128.0,"front_iv":0.4,"back_iv":0.2,"iv_term_spread":0.2,"hist_move":6.27,"hist_max":7.39,"verdict":null,"premium_ratio":0.79,"rationale":"Options price a smaller move than this name typically delivers \u2014 buying the event with a defined-risk debit structure is the better side.","trend":"UP","rvol":26.9,"ramp_estimate":0.1,"exit_date":"2026-08-03","hold_days":0,"window":"TOO LATE","window_note":"Report is too close to enter and still exit in time."},{"symbol":"MCD","date":"2026-08-04","days":0,"estimated":false,"beat_rate":75,"n_quarters":4,"avg_surprise":0.8,"spot":265.23,"expiry":"2026-08-07","expiry_ts":1786060800,"dte":2,"straddle":10.8,"implied_move":4.07,"atm_strike":265.0,"front_iv":0.2,"back_iv":0.1,"iv_term_spread":0.1,"hist_move":3.5,"hist_max":4.16,"verdict":null,"premium_ratio":1.16,"rationale":"Implied and historical moves are close \u2014 no clear pricing edge on the event itself.","trend":"DOWN","rvol":21.0,"ramp_estimate":0.1,"exit_date":"2026-08-03","hold_days":0,"window":"TOO LATE","window_note":"Report is too close to enter and still exit in time."},{"symbol":"LLY","date":"2026-08-05","days":1,"estimated":false,"beat_rate":100,"n_quarters":4,"avg_surprise":16.8,"spot":1121.36,"expiry":"2026-08-07","expiry_ts":1786060800,"dte":2,"straddle":80.4,"implied_move":7.17,"atm_strike":1120.0,"front_iv":0.2,"back_iv":0.1,"iv_term_spread":0.1,"hist_move":10.61,"hist_max":14.14,"verdict":null,"premium_ratio":0.68,"rationale":"Options price a smaller move than this name typically delivers \u2014 buying the event with a defined-risk debit structure is the better side.","trend":"UP","rvol":30.5,"ramp_estimate":0.1,"exit_date":"2026-08-04","hold_days":0,"window":"TOO LATE","window_note":"Report is too close to enter and still exit in time."},{"symbol":"DIS","date":"2026-08-05","days":1,"estimated":false,"beat_rate":100,"n_quarters":4,"avg_surprise":7.0,"spot":98.14,"expiry":"2026-08-07","expiry_ts":1786060800,"dte":2,"straddle":6.12,"implied_move":6.24,"atm_strike":98.0,"front_iv":0.2,"back_iv":0.2,"iv_term_spread":0.0,"hist_move":7.0,"hist_max":7.75,"verdict":null,"premium_ratio":0.89,"rationale":"Implied and historical moves are close \u2014 no clear pricing edge on the event itself.","trend":"DOWN","rvol":25.6,"ramp_estimate":0.1,"exit_date":"2026-08-04","hold_days":0,"window":"TOO LATE","window_note":"Report is too close to enter and still exit in time."},{"symbol":"SHOP","date":"2026-08-05","days":1,"estimated":false,"beat_rate":75,"n_quarters":4,"avg_surprise":6.4,"spot":117.01,"expiry":"2026-08-07","expiry_ts":1786060800,"dte":2,"straddle":14.72,"implied_move":12.58,"atm_strike":117.0,"front_iv":0.0,"back_iv":0.0,"iv_term_spread":0.0,"hist_move":14.72,"hist_max":21.97,"verdict":null,"premium_ratio":0.85,"rationale":"Implied and historical moves are close \u2014 no clear pricing edge on the event itself.","trend":"UP","rvol":59.0,"ramp_estimate":0.1,"exit_date":"2026-08-04","hold_days":0,"window":"TOO LATE","window_note":"Report is too close to enter and still exit in time."},{"symbol":"UBER","date":"2026-08-05","days":1,"estimated":false,"beat_rate":50,"n_quarters":4,"avg_surprise":47.6,"spot":71.61,"expiry":"2026-08-07","expiry_ts":1786060800,"dte":2,"straddle":4.75,"implied_move":6.63,"atm_strike":72.0,"front_iv":0.8,"back_iv":0.4,"iv_term_spread":0.4,"hist_move":6.85,"hist_max":8.53,"verdict":null,"premium_ratio":0.97,"rationale":"Implied and historical moves are close \u2014 no clear pricing edge on the event itself.","trend":"DOWN","rvol":33.8,"ramp_estimate":0.1,"exit_date":"2026-08-04","hold_days":0,"window":"TOO LATE","window_note":"Report is too close to enter and still exit in time."},{"symbol":"ABNB","date":"2026-08-06","days":2,"estimated":false,"beat_rate":25,"n_quarters":4,"avg_surprise":-6.3,"spot":150.64,"expiry":"2026-08-07","expiry_ts":1786060800,"dte":2,"straddle":10.9,"implied_move":7.24,"atm_strike":150.0,"front_iv":0.8,"back_iv":0.4,"iv_term_spread":0.4,"hist_move":6.63,"hist_max":8.02,"verdict":null,"premium_ratio":1.09,"rationale":"Implied and historical moves are close \u2014 no clear pricing edge on the event itself.","trend":"UP","rvol":33.6,"ramp_estimate":0.1,"exit_date":"2026-08-05","hold_days":0,"window":"TOO LATE","window_note":"Report is too close to enter and still exit in time."},{"symbol":"CSCO","date":"2026-08-12","days":8,"estimated":false,"beat_rate":100,"n_quarters":4,"avg_surprise":1.8,"spot":115.86,"expiry":"2026-08-14","expiry_ts":1786665600,"dte":9,"straddle":11.21,"implied_move":9.68,"atm_strike":116.0,"front_iv":0.1,"back_iv":0.1,"iv_term_spread":0.0,"hist_move":9.41,"hist_max":13.41,"verdict":null,"premium_ratio":1.03,"rationale":"Implied and historical moves are close \u2014 no clear pricing edge on the event itself.","trend":"DOWN","rvol":33.1,"ramp_estimate":0.1,"exit_date":"2026-08-11","hold_days":6,"window":"TOO LATE","window_note":"Report is too close to enter and still exit in time."}],"meta":{"ramp":0.1,"base_spread":0.0,"peak_spread":0.1}};
+
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function money(n){return (n<0?"-$":"$")+Math.abs(Math.round(n)).toLocaleString();}
+const VMAP={'WORTH TAKING':'go','MARGINAL':'wait','NOT WORTH IT':'stop','NO PRICING':'na'};
+
+function timeline(r){
+  const total=r.days||1, held=Math.max(r.hold_days,0);
+  const pct=Math.max(4,Math.min(96,held/total*100));
+  return `<div class="tl">
+    <div class="tl-lab"><span><b>today</b>enter</span>
+      <span style="text-align:right"><b>${r.exit_date}</b>close position</span></div>
+    <div class="tl-track"><div class="tl-fill" style="width:${pct}%"></div>
+      <div class="tl-pt" style="left:0"></div>
+      <div class="tl-pt end" style="left:${pct}%"></div></div>
+    <div class="tl-lab"><span>hold ${held} days</span>
+      <span>report ${r.date} · ${r.days}d</span></div>
+  </div>`;
+}
+
+function card(r){
+  const k=VMAP[r.verdict]||'na', b=r.best;
+  if(!b) return '';
+  const ramp=r.ramp_estimate||0, need=b.required_iv_rise||0;
+  const needPct=ramp?Math.min(need/ramp*100,100):0;
+  const thin=b.min_oi<50;
+  const stale=b.stale;
+  return `<article class="card ${k}">
+    <div class="top">
+      <div class="tick"><span class="sym">${r.symbol}</span>
+        <span class="spot num">${b.spot||r.spot}</span></div>
+    </div>
+    ${r.estimated?`<div class="warn">Report date is an estimate — confirm before entering</div>`:''}
+    ${thin?`<div class="warn">Thin market — smallest leg has ${b.min_oi} open interest</div>`:''}
+    ${stale?`<div class="warn">Priced off last trade — market closed, true spread unknown</div>`:''}
+    ${timeline(r)}
+    <div class="body">
+      <div class="sname">${b.structure}</div>
+      <div class="slegs">${b.legs}</div>
+      <div class="need">
+        <div class="need-row"><span class="need-lab">Needs</span>
+          <span class="need-bar"><i style="width:${needPct}%;background:${need<=ramp*0.5?css('--go'):need<=ramp?css('--wait'):css('--stop')}"></i></span>
+          <span class="need-val">+${need}</span></div>
+        <div class="need-row"><span class="need-lab">Typical ramp</span>
+          <span class="need-bar"><i style="width:100%;background:${css('--vol')}"></i></span>
+          <span class="need-val">+${ramp}</span></div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="k">Cost</div><div class="v num">${money(b.cost)}</div></div>
+      <div class="stat"><div class="k">Max loss</div><div class="v num bad">${money(b.max_loss)}</div></div>
+      <div class="stat"><div class="k">Vega</div><div class="v num good">+${b.vega}</div></div>
+      <div class="stat"><div class="k">Theta / day</div>
+        <div class="v num ${b.theta>=0?'good':'bad'}">${b.theta>=0?'+':''}${b.theta}</div></div>
+      <div class="stat"><div class="k">Total bleed</div><div class="v num">${money(b.bleed)}</div></div>
+      <div class="stat"><div class="k">Current IV</div><div class="v num">${b.iv}%</div></div>
+    </div>
+    <div class="why">${r.window_note}</div>
+    <div class="risk"><b>Risk:</b> ${b.move_risk}</div>
+    <div class="foot"><span>term spread ${r.iv_term_spread}</span>
+      <span>${r.estimated?'estimated date':'confirmed date'}</span></div>
+  </article>`;
+}
+
+function render(){
+  const rows=DATA.rows||[], m=DATA.meta||{};
+  const inWin=rows.filter(r=>r.window==='ENTRY WINDOW'&&r.best);
+  const go=inWin.filter(r=>r.verdict==='WORTH TAKING');
+  const marg=inWin.filter(r=>r.verdict==='MARGINAL');
+  const no=inWin.filter(r=>r.verdict==='NOT WORTH IT');
+  const started=rows.filter(r=>r.window==='RAMP STARTED');
+  const late=rows.filter(r=>r.window==='TOO LATE');
+  const early=rows.filter(r=>r.window==='TOO EARLY');
+
+  const w=(m.ramp&&m.peak_spread)?Math.min(100,(m.ramp/m.peak_spread)*100):0;
+  document.getElementById('ramp').innerHTML=`
+    <div class="ramp-h">The ramp, measured across today's scan</div>
+    <div class="ramp-b">
+      <div class="rstat"><div class="k">Typical expansion</div>
+        <div class="v" style="color:${css('--vol')}">+${m.ramp??'—'} pts</div></div>
+      <div class="rbar">
+        <div class="rtrack"><i style="width:${w}%"></i></div>
+        <div class="rlab"><span>flat at +${m.base_spread??'—'} (2+ weeks out)</span>
+          <span>peaks at +${m.peak_spread??'—'} (reporting now)</span></div>
+      </div>
+    </div>`;
+
+  const sec=(list,tag,label,note)=>list.length?`<section class="group">
+      <div class="gh"><span class="tag ${tag}">${label}</span>
+        <span style="color:var(--ink-3);font-size:12.5px">${list.length} name${list.length>1?'s':''}</span></div>
+      <p class="gnote">${note}</p>
+      <div class="cards">${list.map(card).join('')}</div></section>`:'';
+
+  const chips=(list,tag,label,note)=>list.length?`<section class="group">
+      <div class="gh"><span class="tag ${tag}">${label}</span>
+        <span style="color:var(--ink-3);font-size:12.5px">${list.length}</span></div>
+      <p class="gnote">${note}</p>
+      <div class="slim">${list.map(r=>`<div class="chip"><span class="s">${r.symbol}</span>
+        <span class="d">${r.days}d · ${r.date}<br>spread ${r.iv_term_spread??'—'}</span></div>`).join('')}</div>
+      </section>`:'';
+
+  document.getElementById('groups').innerHTML =
+    sec(go,'go','ENTER NOW','The vol expansion needed to break even is well under what these names typically deliver. Buy the volatility, close on the exit date shown, never hold into the report.')
+  + sec(marg,'wait','MARGINAL','Break-even needs most of the typical expansion. Workable, but there is little room for the ramp to disappoint.')
+  + sec(no,'stop','NOT WORTH IT','Decay over the holding period costs more than the ramp is likely to deliver. Skip these.')
+  + chips(started,'wait','RAMP ALREADY STARTED','Front-month premium is already elevated — the expansion has largely been paid for. If you are in these, this is the window to be taking profit.')
+  + chips(late,'stop','TOO CLOSE TO ENTER','Reporting imminently. No time left to enter and still exit beforehand.')
+  + chips(early,'na','TOO EARLY','Further out than the ramp reliably begins. Watch, do not buy.');
+}
+render();
+
+</script>

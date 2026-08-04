@@ -72,9 +72,21 @@ class YahooProvider:
         return df
 
     def _norm(self, o):
+        """Normalise a contract, falling back to the last trade when the book is closed.
+
+        Yahoo zeroes bid/ask outside market hours. Without a fallback every liquidity
+        filter rejects every contract and scans come back silently empty. When that
+        happens we price off lastPrice and set stale=True so callers can say so —
+        a last trade is not a live quote and the real spread is unknown.
+        """
+        bid, ask = o.get("bid") or 0, o.get("ask") or 0
+        last = o.get("lastPrice") or 0
+        stale = False
+        if (bid <= 0 or ask <= 0) and last > 0:
+            bid = ask = last
+            stale = True
         return dict(contractSymbol=o.get("contractSymbol"), strike=o.get("strike"),
-                    bid=o.get("bid") or 0, ask=o.get("ask") or 0,
-                    lastPrice=o.get("lastPrice") or 0,
+                    bid=bid, ask=ask, lastPrice=last, stale=stale,
                     volume=o.get("volume") or 0, openInterest=o.get("openInterest") or 0,
                     impliedVolatility=o.get("impliedVolatility") or 0, **_blank_greeks())
 
@@ -88,7 +100,9 @@ class YahooProvider:
         r.raise_for_status()
         d = r.json()["optionChain"]["result"][0]
         opts = d.get("options") or [{"calls": [], "puts": []}]
-        return {"quote": {"regularMarketPrice": d["quote"]["regularMarketPrice"]},
+        market_state = d.get("quote", {}).get("marketState")
+        return {"quote": {"regularMarketPrice": d["quote"]["regularMarketPrice"],
+                          "marketState": market_state},
                 "expirationDates": d.get("expirationDates", []),
                 "options": [{"calls": [self._norm(o) for o in opts[0].get("calls", [])],
                              "puts": [self._norm(o) for o in opts[0].get("puts", [])]}]}
@@ -228,6 +242,31 @@ def chain(sym, expiry_ts=None):
 
 def earnings(sym):
     return provider().earnings(sym)
+
+
+def market_state(sym="SPY"):
+    """REGULAR / PRE / POST / CLOSED. Options data is only trustworthy in REGULAR.
+
+    Outside the session Yahoo empties the book AND recomputes implied vol off stale
+    last trades, which produces figures that look plausible but are not — an NVDA
+    call showing 6% IV, term structures collapsing to zero. Callers must gate on this
+    rather than quietly analysing nonsense.
+    """
+    try:
+        return provider().chain(sym)["quote"].get("marketState")
+    except Exception:
+        return None
+
+
+def require_open(context=""):
+    """(ok, state, message) — whether options analysis can be trusted right now."""
+    st = market_state()
+    if st == "REGULAR":
+        return True, st, ""
+    return False, st, (
+        f"Market is {st or 'unavailable'}, not REGULAR{(' — ' + context) if context else ''}. "
+        "Outside the session the options book is empty and implied vols are recomputed from "
+        "stale last trades, so term structure and greeks cannot be trusted. Skipping.")
 
 
 def describe():

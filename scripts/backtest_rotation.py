@@ -65,25 +65,37 @@ def load_bars(symbols, rng="5y"):
     return out
 
 
-def exposures_at(bars, upto_idx_date):
-    """Panel exposure for every symbol using only bars up to and including that date."""
+def build_frames(bars):
+    """Precompute every strategy's full signal series per symbol, once.
+
+    The panel is causal, so a signal computed over the whole history and read at a
+    date equals one computed on the slice ending there. Doing it once turns an
+    ablation — eleven full backtests — from hours into minutes.
+    """
+    return {sym: T.signal_frame(df) for sym, df in bars.items()}
+
+
+def exposures_at(frames, bars, upto_idx_date, cols=None):
+    """Panel exposure per symbol at a date, optionally from a SUBSET of strategies.
+
+    cols is what makes the ablation possible: drop one strategy's column and the
+    remaining votes are renormalised over the smaller panel, which is exactly the
+    system you would have run had that strategy never been written.
+    """
     out = {}
-    for sym, df in bars.items():
-        sl = df[df.index <= upto_idx_date]
+    for sym, f in frames.items():
+        sl = f[f.index <= upto_idx_date]
         if len(sl) < WARMUP:
             continue
-        net = 0
-        for _, fn in T.PANEL:
-            try:
-                net += int(fn(sl))
-            except Exception:
-                pass
-        out[sym] = int(round(net / len(T.PANEL) * 100))
+        row = sl.iloc[-1]
+        use = cols if cols is not None else list(f.columns)
+        out[sym] = int(round(sum(int(row[c]) for c in use) / len(use) * 100))
     return out
 
 
 def run(bars, enter_above=R.ENTER_ABOVE, exit_below=R.EXIT_BELOW,
-        max_positions=R.MAX_POSITIONS, verbose=True, entry_mode="threshold"):
+        max_positions=R.MAX_POSITIONS, verbose=True, entry_mode="threshold",
+        frames=None, cols=None):
     """Walk the calendar, rotate, and return the equity curve and the trade log.
 
     entry_mode picks WHEN a market becomes buyable:
@@ -105,6 +117,7 @@ def run(bars, enter_above=R.ENTER_ABOVE, exit_below=R.EXIT_BELOW,
     # listed in 2024 and on its own cut a five-year run to under two. Symbols join the
     # universe once they individually clear the warmup, which is also how it would have
     # been traded: you cannot rotate into a fund that does not exist yet.
+    frames = frames if frames is not None else build_frames(bars)
     cal = sorted(set().union(*[set(df.index) for df in bars.values()]))
     start_i = max(WARMUP, 1)
     if len(cal) <= start_i + 10:
@@ -135,7 +148,7 @@ def run(bars, enter_above=R.ENTER_ABOVE, exit_below=R.EXIT_BELOW,
         if (i - start_i) % REBALANCE_EVERY:
             continue
         n_rebal += 1
-        exp = exposures_at(bars, d)
+        exp = exposures_at(frames, bars, d, cols)
 
         for sym in list(held):
             if exp.get(sym, -100) < exit_below:
@@ -244,6 +257,8 @@ def show(s):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--sweep", action="store_true", help="threshold sensitivity")
+    ap.add_argument("--ablate", action="store_true",
+                    help="drop each strategy in turn and measure what it was contributing")
     ap.add_argument("--compare-entry", action="store_true",
                     help="buy confirmed strength vs buy the turn from negative to positive")
     ap.add_argument("--range", default="5y")
@@ -291,6 +306,52 @@ def main():
     out = dict(stats=s, overlay=ov, trades=res["trades"],
                params=dict(enter=R.ENTER_ABOVE, exit=R.EXIT_BELOW,
                            max_positions=R.MAX_POSITIONS, rebalance=REBALANCE_EVERY))
+
+    if a.ablate:
+        print("\n" + "=" * 92)
+        print("ABLATION — what is each strategy actually contributing?")
+        print("=" * 92)
+        frames = build_frames(bars)
+        names = [n for n, _ in T.PANEL]
+        base_r = run(bars, R.ENTER_ABOVE, R.EXIT_BELOW, verbose=False,
+                     entry_mode=R.ENTRY_MODE, frames=frames)
+        base = stats(base_r["equity"], base_r["dates"], base_r["trades"], "full panel")
+        print(f"  {'full panel (10)':<24s} CAGR {base['cagr']*100:+6.2f}%  Sharpe "
+              f"{base['sharpe']:5.2f}  maxDD {base['max_drawdown']*100:6.1f}%"
+              f"  {base['trades_per_year']:5.1f}/yr")
+        print("  " + "-" * 84)
+        abl = []
+        for drop in names:
+            cols = [n for n in names if n != drop]
+            r2 = run(bars, R.ENTER_ABOVE, R.EXIT_BELOW, verbose=False,
+                     entry_mode=R.ENTRY_MODE, frames=frames, cols=cols)
+            s2 = stats(r2["equity"], r2["dates"], r2["trades"], f"without {drop}")
+            # Positive delta means the panel got BETTER without it — the strategy was
+            # costing the system, not helping it.
+            d_cagr = s2["cagr"] - base["cagr"]
+            d_sh = s2["sharpe"] - base["sharpe"]
+            verdict = ("HURTS" if d_sh > 0.03 else "helps" if d_sh < -0.03 else "neutral")
+            print(f"  drop {drop:<19s} CAGR {s2['cagr']*100:+6.2f}% ({d_cagr*100:+5.2f})"
+                  f"  Sharpe {s2['sharpe']:5.2f} ({d_sh:+5.2f})"
+                  f"  maxDD {s2['max_drawdown']*100:6.1f}%   {verdict}")
+            abl.append(dict(dropped=drop, delta_cagr=round(d_cagr, 4),
+                            delta_sharpe=round(d_sh, 3), verdict=verdict, **s2))
+        out["ablation"] = dict(baseline=base, results=abl)
+        hurt = [x["dropped"] for x in abl if x["verdict"] == "HURTS"]
+        if hurt:
+            cols = [n for n in names if n not in hurt]
+            r3 = run(bars, R.ENTER_ABOVE, R.EXIT_BELOW, verbose=False,
+                     entry_mode=R.ENTRY_MODE, frames=frames, cols=cols)
+            s3 = stats(r3["equity"], r3["dates"], r3["trades"], "pruned panel")
+            print(f"\n  dropping all {len(hurt)} together ({', '.join(hurt)}):")
+            print(f"  {'pruned panel (%d)' % len(cols):<24s} CAGR {s3['cagr']*100:+6.2f}%"
+                  f"  Sharpe {s3['sharpe']:5.2f}  maxDD {s3['max_drawdown']*100:6.1f}%"
+                  f"  {s3['trades_per_year']:5.1f}/yr")
+            print("  NOTE: dropping the worst performers in-sample is a fit to this "
+                  "history, not a discovery. Treat as a hypothesis.")
+            out["ablation"]["pruned"] = dict(kept=cols, **s3)
+        else:
+            print("\n  no strategy is clearly hurting — the panel earns its size")
 
     if a.compare_entry:
         print("\n" + "=" * 92)

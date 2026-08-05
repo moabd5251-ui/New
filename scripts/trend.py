@@ -171,6 +171,46 @@ UNIVERSE = [
 
 STEP = 10          # exposure granularity, percent — one strategy per step at N=10
 
+# ---------------------------------------------------------------------------
+# Leave-one-out ablation over 9.16 years, via the rotation rules.
+# See scripts/backtest_rotation.py --ablate.
+#
+# Every strategy earns its place. Dropping any single one lowered BOTH return and
+# Sharpe, so there is no dead weight to prune and no pruning is warranted:
+#
+#     full panel (10)        +13.96% CAGR   Sharpe 0.77
+#     drop MA 50/200          +3.64%        0.27    <- most load-bearing by far
+#     drop Donchian 55        +5.99%        0.45
+#     drop Keltner 20         +7.22%        0.44
+#     drop Donchian 20        +7.59%        0.46
+#     drop MACD               +7.78%        0.48
+#     drop Momentum 63d       +8.73%        0.55
+#     drop Close vs SMA100    +8.82%        0.65    <- contributes least
+#     drop Slope 40d         +10.02%        0.55
+#     drop MA 20/50          +10.05%        0.54
+#     drop Momentum 126d     +10.63%        0.58
+#
+# The result is stronger than "all ten are fine". Removing ANY of them costs at
+# least three points of CAGR, which says the diversity is doing the work rather
+# than one good model carrying nine passengers — the panel is worth more than the
+# sum of its parts because the members disagree at different times, and that
+# disagreement is what produces graduated exposure instead of a binary flip.
+#
+# Two limits worth keeping in view. This is in-sample on the same nine years the
+# rules were tuned against. And leave-one-out tests only whether each member helps
+# THIS panel — not whether some different set of ten would do better, which it
+# almost certainly would on this history and probably not out of it.
+ABLATION = dict(
+    years=9.16, baseline_cagr=0.1396, baseline_sharpe=0.77,
+    all_contribute=True, pruning_warranted=False,
+    # Sharpe lost when each is removed; larger means more load-bearing
+    contribution={"MA 50/200": 0.50, "Keltner 20": 0.33, "Donchian 55": 0.32,
+                  "Donchian 20": 0.31, "MACD 12/26/9": 0.29, "MA 20/50": 0.23,
+                  "Momentum 63d": 0.22, "Slope 40d": 0.22, "Momentum 126d": 0.19,
+                  "Close vs SMA100": 0.12},
+    note="No strategy hurts. Removing any one costs 3+ points of CAGR, so the "
+         "panel's value is in the disagreement between members, not in one model.")
+
 
 def evaluate(symbol, df=None):
     """Run the panel on one symbol. Returns votes, net exposure, and per-strategy detail."""
@@ -178,12 +218,13 @@ def evaluate(symbol, df=None):
         df = P.bars(symbol, "1d", "2y")
     if df is None or len(df) < 210:
         raise RuntimeError(f"{symbol}: only {0 if df is None else len(df)} bars, need 210")
+    # Read the vectorised frame's last row rather than calling each scalar function.
+    # Both produce identical signals, but a single source means the live dashboard and
+    # the backtest cannot silently diverge after an edit to one and not the other.
+    row = signal_frame(df).iloc[-1]
     detail, net = [], 0
-    for name, fn in PANEL:
-        try:
-            v = int(fn(df))
-        except Exception:
-            v = 0
+    for name, _ in PANEL:
+        v = int(row[name])
         net += v
         detail.append(dict(strategy=name, signal=v,
                            label={1: "LONG", -1: "SHORT", 0: "NEUTRAL"}[v]))
@@ -267,3 +308,62 @@ def diff(new_rows, prev_by_sym):
         else:
             r["action"] = f"REDUCE {r['direction']} EXPOSURE"
     return new_rows
+
+
+# --------------------------------------------------------------------------
+# vectorised panel — identical signals, computed once over the whole history
+# --------------------------------------------------------------------------
+def signal_frame(df):
+    """Every strategy's signal for every bar, as a DataFrame of -1/0/+1.
+
+    The scalar functions above each recompute their indicator over whatever slice
+    they are handed and read the last value. That is fine for one live reading and
+    ruinous in a backtest, which asks for a reading at every rebalance and so pays
+    to rebuild the same rolling means hundreds of times.
+
+    Every strategy here is causal — rolling windows, EWMs, and forward-carried
+    breakout state all depend only on bars at or before each point — so computing
+    the full series once and indexing by date gives exactly the value the sliced
+    call would have returned. evaluate() reads the last row of this frame rather
+    than calling the scalar functions, so the two paths cannot drift apart.
+    """
+    c, a = df["Close"], _atr(df)
+    out = {}
+
+    def banded(diff, band):
+        s = np.sign(diff)
+        return pd.Series(np.where(diff.abs() > band, s, 0), index=df.index).fillna(0)
+
+    out["MA 20/50"] = banded(c.rolling(20).mean() - c.rolling(50).mean(), 0.25 * a)
+    out["MA 50/200"] = banded(c.rolling(50).mean() - c.rolling(200).mean(), 0.25 * a)
+
+    for n, name in ((20, "Donchian 20"), (55, "Donchian 55")):
+        hi, lo = df["High"].rolling(n).max().shift(1), df["Low"].rolling(n).min().shift(1)
+        raw = pd.Series(np.where(c > hi, 1.0, np.where(c < lo, -1.0, np.nan)), index=df.index)
+        out[name] = raw.ffill().fillna(0)          # a breakout holds until reversed
+
+    m = _ema(c, 12) - _ema(c, 26)
+    out["MACD 12/26/9"] = banded(m - _ema(m, 9), 0.05 * a)
+
+    for n, thr, name in ((63, 0.02, "Momentum 63d"), (126, 0.04, "Momentum 126d")):
+        r = c / c.shift(n) - 1
+        out[name] = pd.Series(np.where(r.abs() > thr, np.sign(r), 0), index=df.index).fillna(0)
+
+    e, ak = _ema(c, 20), _atr(df, 20)
+    raw = pd.Series(np.where(c > e + 2 * ak, 1.0, np.where(c < e - 2 * ak, -1.0, np.nan)),
+                    index=df.index)
+    out["Keltner 20"] = raw.ffill().fillna(0)
+
+    # Slope: the sign of a fitted trend line, kept only when the fit is strong enough.
+    # |slope / standard error| IS the t-statistic of the slope, and for a simple
+    # regression that equals |r|*sqrt((n-2)/(1-r^2)) — so a rolling correlation
+    # against a ramp gives the same test without fitting a line at every bar.
+    n = 40
+    ramp = pd.Series(np.arange(len(df), dtype=float), index=df.index)
+    r = c.rolling(n).corr(ramp).clip(-0.999999, 0.999999)
+    t = r.abs() * np.sqrt((n - 2) / (1 - r ** 2))
+    out["Slope 40d"] = pd.Series(np.where(t > 1.0, np.sign(r), 0), index=df.index).fillna(0)
+
+    out["Close vs SMA100"] = banded(c - c.rolling(100).mean(), 0.5 * a)
+
+    return pd.DataFrame(out, index=df.index)[[name for name, _ in PANEL]].astype(int)

@@ -1,53 +1,25 @@
 {
-  "held": {
-    "XLF": {
-      "opened": "2026-08-04",
-      "entry_exposure": 90,
-      "market": "Financials"
-    },
-    "EFA": {
-      "opened": "2026-08-04",
-      "entry_exposure": 90,
-      "market": "Developed ex-US"
-    },
-    "XLV": {
-      "opened": "2026-08-04",
-      "entry_exposure": 80,
-      "market": "Health Care"
-    }
+  "held": {},
+  "asof": "2026-08-04",
+  "last_exposures": {
+    "TLT": -100,
+    "SPY": 90,
+    "IWM": 90,
+    "XLF": 90,
+    "EFA": 90,
+    "XLV": 80,
+    "XLI": 80,
+    "GLD": -80,
+    "SLV": -80,
+    "GDX": -80,
+    "XLE": 70,
+    "IBIT": -50,
+    "XLU": -40,
+    "XLP": 40,
+    "XLK": 20,
+    "QQQ": 0,
+    "EEM": 0
   },
-  "asof": "2026-08-03",
-  "generated": "2026-08-04T23:41:33Z",
-  "history": [
-    {
-      "action": "OPEN",
-      "symbol": "XLF",
-      "market": "Financials",
-      "exposure_pct": 90,
-      "rank": 1,
-      "reason": "rank 1 at 90% exposure (9/10 strategies long)",
-      "at": "2026-08-04T23:19:33Z",
-      "asof": "2026-08-03"
-    },
-    {
-      "action": "OPEN",
-      "symbol": "EFA",
-      "market": "Developed ex-US",
-      "exposure_pct": 90,
-      "rank": 2,
-      "reason": "rank 2 at 90% exposure (9/10 strategies long)",
-      "at": "2026-08-04T23:19:33Z",
-      "asof": "2026-08-03"
-    },
-    {
-      "action": "OPEN",
-      "symbol": "XLV",
-      "market": "Health Care",
-      "exposure_pct": 80,
-      "rank": 3,
-      "reason": "rank 3 at 80% exposure (9/10 strategies long)",
-      "at": "2026-08-04T23:19:33Z",
-      "asof": "2026-08-03"
-    }
-  ]
+  "generated": "2026-08-05T00:10:20Z",
+  "history": []
 }

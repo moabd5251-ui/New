@@ -72,6 +72,7 @@ def main():
 
     res["market_state"] = state
     res["allocation"] = a.allocation
+    res["max_positions"] = R.MAX_POSITIONS
     R.save(res)
     RD.build(res, str(OUT_HTML))
     print(f"[dashboard] wrote {OUT_HTML}")

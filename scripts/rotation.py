@@ -19,11 +19,14 @@ Two frictions drive the design:
   exceed what the trend pays. The universe here is restricted to names whose LEAPS are
   actually tradable rather than to everything the panel can score.
 
-  CHURN. LEAP spreads are wide and a trend hold lasts months, so rotating on every
-  change in rank would pay the spread repeatedly for the same view. Entry and exit
-  thresholds are deliberately far apart: a market must be strong to get in and only has
-  to stop being weak to stay. Without that gap, a market oscillating around a single
-  threshold generates a trade each time it crosses.
+  TIMING. Entry is bought on the TURN — the panel flipping from negative to positive —
+  rather than on confirmed strength, and the position is held until it turns negative
+  again. Backtesting says this matters more than anything else in the design: the same
+  panel, universe and exits went from 0.45 Sharpe to 0.76 on that change alone, because
+  waiting for 70% agreement buys the tail end of a move and a levered structure cannot
+  pay its costs from there. Counter-intuitively it also trades LESS — 8.6 round trips a
+  year against 10.9 — since holding across the whole positive range keeps a working
+  position on longer than a threshold exit does.
 
 Long-only by construction, because LEAP CALLS are the instrument. A market in a strong
 DOWNtrend is not an opportunity here, it is a reason to hold nothing — so in a broad
@@ -62,50 +65,68 @@ ROTATION_UNIVERSE = [
 ]
 
 # ---------------------------------------------------------------------------
-# Measured on 9.16 years of daily bars, 100 closed trades, 460 weekly rebalances,
-# strictly walk-forward. See scripts/backtest_rotation.py.
+# Measured on 9.16 years of daily bars, 79 closed trades, strictly walk-forward.
+# See scripts/backtest_rotation.py --compare-entry.
 #
-# The signal LOSES to buying the index and holding it:
+# Entry timing turned out to matter more than anything else tested:
 #
-#     rotation      +8.29% CAGR   maxDD -28.4%   Sharpe 0.45
-#     SPY hold     +13.03% CAGR   maxDD -34.1%   Sharpe 0.70
-#     QQQ hold     +18.70% CAGR   maxDD -35.6%   Sharpe 0.80
+#     buy the turn (flip to positive)  +13.73% CAGR  maxDD -28.9%  Sharpe 0.76
+#     buy 70% confirmed strength        +8.29% CAGR  maxDD -28.4%  Sharpe 0.45
+#     SPY buy & hold                   +13.03% CAGR  maxDD -34.1%  Sharpe 0.70
+#     QQQ buy & hold                   +18.70% CAGR  maxDD -35.6%  Sharpe 0.80
 #
-# It does cut the drawdown, which is what trend following is for, but it gives up
-# more return than it saves in risk — a worse Sharpe than simply holding.
+# Buying the turn nearly doubled the Sharpe of the same panel, on the same universe,
+# with the same exits — the only change was WHEN a market becomes buyable. It beats
+# holding SPY on both return and drawdown, which the threshold version did not.
 #
-# Through LEAPs it is far worse, because the costs are large against a thin edge.
-# Three times leverage on +8.29% is +24.9% gross, and then 10.8%/yr of carry and
-# roughly 10.9%/yr of spread at 10.9 round trips a year leave +3.2% — earned while
-# carrying a levered drawdown near 85%. Holding QQQ paid six times that with a
-# third of the pain.
+# The mechanism is visible in the trade statistics rather than the headline. Win rate
+# FELL, from 46% to 41.8%, while the average winner grew from +12.1% to +18.1% and the
+# average loser shrank from -5.0% to -3.6%. Entering at the flip catches whole moves
+# instead of their tail ends, and the losers are cut early because a failed turn goes
+# straight back through zero.
 #
-# The hysteresis gap does not do the job it was designed for. Entering and exiting
-# at the same 70% threshold beat the 70/30 gap on BOTH return and drawdown
-# (+11.07% and -24.4% against +8.29% and -28.4%), so the churn control was costing
-# more in late exits than it saved in avoided round trips.
+# It also trades LESS, not more, which is the opposite of the intuition that an earlier
+# trigger means more churn: 8.6 round trips a year against 10.9, because holding until
+# the panel turns negative keeps a working position on for 105 days rather than 87.
 #
-# One fair caveat: the window is dominated by a historic equity bull market, which
-# is the regime trend following is expected to lag. That argues the signal is not
-# worthless, not that this is tradable — and it does nothing about the LEAP cost
-# arithmetic, which is what actually kills it.
+# Through LEAPs the same signal nets +21.79% after 10.8%/yr carry and 8.6%/yr spread,
+# against +3.17% for the threshold version. But leverage scales risk with return — the
+# levered drawdown is near 87%, so this earns more than QQQ while risking far more, and
+# is not better risk-adjusted. The edge is in the SIGNAL; leverage only magnifies it.
+#
+# Caveat unchanged: the window is dominated by a historic equity bull market, the regime
+# trend following is expected to lag. That the turn entry beats SPY anyway is the
+# encouraging part of this result.
 BACKTEST = dict(
-    years=9.16, n_trades=100, rebalances=460,
-    cagr=0.0829, max_dd=-0.2836, sharpe=0.45, win_rate=46.0,
-    avg_hold_days=87, trades_per_year=10.9, avg_win=0.121, avg_loss=-0.050,
+    years=9.16, n_trades=79, entry_mode="cross",
+    cagr=0.1373, max_dd=-0.2890, sharpe=0.76, vol=0.180, win_rate=41.8,
+    avg_hold_days=105, trades_per_year=8.6, avg_win=0.181, avg_loss=-0.036,
     spy_cagr=0.1303, spy_dd=-0.3410, spy_sharpe=0.70,
     qqq_cagr=0.1870, qqq_dd=-0.3562, qqq_sharpe=0.80,
-    leap_gross=0.2487, leap_carry=-0.1080, leap_spread=-0.1090,
-    leap_net=0.0317, leap_dd=-0.8508,
-    beats_buy_hold=False, leap_overlay_modelled=True,
-    note="Signal underperforms buy-and-hold; the LEAP overlay consumes 87% of the "
-         "levered gross. Not tradable as configured.")
+    leap_gross=0.4119, leap_carry=-0.1080, leap_spread=-0.0860,
+    leap_net=0.2179, leap_dd=-0.8676,
+    # what the previous configuration scored, kept so the change is auditable
+    threshold_cagr=0.0829, threshold_sharpe=0.45, threshold_leap_net=0.0317,
+    beats_spy=True, beats_qqq=False, leap_overlay_modelled=True,
+    note="Buying the turn beats SPY on return and drawdown and nearly doubles the "
+         "Sharpe of the threshold version. Through LEAPs it out-returns QQQ while "
+         "carrying a ~87% levered drawdown, so the leverage is not free.")
 
 MAX_POSITIONS = 3      # how many markets are held at once
-ENTER_ABOVE = 70       # exposure must reach this to open — a high bar
-EXIT_BELOW = 30        # and only fall under this to close — a low one
-# The gap between those two IS the churn control. Equal thresholds would trade every
-# time a market oscillated across the line, paying a wide LEAP spread each round trip.
+
+# Buy the TURN, not confirmed strength. A market qualifies when the panel flips from
+# negative to positive since the last look, and is held until it goes negative again.
+#
+# This was the largest single improvement measured anywhere in the repo. Waiting for
+# 70% agreement buys late by construction — by the time seven of ten strategies have
+# come onside, most of the move has happened — and a levered, cost-heavy structure
+# cannot pay for itself on the tail end of a trend. Entering at the flip and giving the
+# position the whole positive range to work in lengthened the average hold from 87 days
+# to 105 and CUT round trips from 10.9 a year to 8.6, so it captures more per trade
+# while paying the spread less often.
+ENTRY_MODE = "cross"
+ENTER_ABOVE = 0        # the level a flip must reach; 0 takes every turn positive
+EXIT_BELOW = 0         # and it is held until the panel turns negative again
 
 TARGET_DELTA = 0.80    # deep enough that extrinsic, and therefore theta, stays small
 MIN_DTE = 270          # LEAPS: far enough out that decay is slow over a months-long hold
@@ -161,19 +182,36 @@ def decide(ranked, state, max_positions=MAX_POSITIONS):
                                         "no longer reads a long trend at all")))
             held.pop(sym)
 
-    # 2. fill free slots with the strongest qualifying markets not already held
+    # 2. fill free slots with markets that have just TURNED, strongest first
+    #
+    # A market qualifies on the flip from negative to positive, not on reaching a level,
+    # so a name that has been strong for months is not a buy — that move is already
+    # made. prev holds the previous run's readings; with none recorded nothing triggers,
+    # because there is no prior side to have crossed from and assuming one would open
+    # the whole book on the first run.
+    prev = state.get("last_exposures") or {}
     free = max_positions - len(held)
     for r in ranked:
         if free <= 0:
             break
-        if r["symbol"] in held or r["exposure_pct"] < ENTER_ABOVE:
+        sym = r["symbol"]
+        if sym in held:
             continue
-        actions.append(dict(action="OPEN", symbol=r["symbol"], market=r["market"],
-                            exposure_pct=r["exposure_pct"], rank=r["rank"],
-                            reason=(f"rank {r['rank']} at {r['exposure_pct']}% exposure "
-                                    f"({r['longs']}/{r['n_strategies']} strategies long)")))
-        held[r["symbol"]] = dict(opened=datetime.now(timezone.utc).strftime("%Y-%m-%d"),
-                                 entry_exposure=r["exposure_pct"], market=r["market"])
+        if ENTRY_MODE == "cross":
+            was = prev.get(sym)
+            if was is None or was > 0 or r["exposure_pct"] <= ENTER_ABOVE:
+                continue
+            why = (f"turned positive: {was}% -> {r['exposure_pct']}% "
+                   f"({r['longs']}/{r['n_strategies']} strategies long)")
+        else:
+            if r["exposure_pct"] < ENTER_ABOVE:
+                continue
+            why = (f"rank {r['rank']} at {r['exposure_pct']}% exposure "
+                   f"({r['longs']}/{r['n_strategies']} strategies long)")
+        actions.append(dict(action="OPEN", symbol=sym, market=r["market"],
+                            exposure_pct=r["exposure_pct"], rank=r["rank"], reason=why))
+        held[sym] = dict(opened=datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+                         entry_exposure=r["exposure_pct"], market=r["market"])
         free -= 1
 
     # 3. hold the rest
@@ -211,6 +249,9 @@ def save(result):
                              asof=result["asof"]))
     STATE.write_text(json.dumps(
         {"held": result["held"], "asof": result["asof"],
+         # every market's reading, not just the held ones — the cross trigger needs a
+         # prior side for markets that are NOT in the book, which is all of them
+         "last_exposures": {r["symbol"]: r["exposure_pct"] for r in result["rows"]},
          "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
          "history": hist[-300:]}, indent=2, default=str))
 

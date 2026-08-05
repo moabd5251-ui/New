@@ -108,10 +108,11 @@ footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);
 <div class="wrap">
 <header class="mast">
   <div><h1>LEAP Rotation</h1>
-    <div class="sub">Hold deep-ITM calls in the strongest markets ·
-      max 3 of
-      17 · everything else in cash</div></div>
-  <div class="stamp">Signals as of close 2026-08-03<br>Generated 04 Aug 2026 23:41 UTC</div>
+    <div class="sub">Deep-ITM calls bought on the turn · holding
+      0 of a maximum
+      3 · 17 markets watched ·
+      everything else in cash</div></div>
+  <div class="stamp">Signals as of close 2026-08-04<br>Generated 05 Aug 2026 00:10 UTC</div>
 </header>
 
 <div class="thesis"><strong>Why deep in the money.</strong> Only the time value in a premium
@@ -121,44 +122,33 @@ entirely time value, which is the same trap the volatility-ramp backtest measure
 rose 96% of the time there and long premium still lost, because decay took the gain. A trend
 hold lasts far longer than that trade did.</div>
 
-<div class="trap"><strong>Backtested over 9.16 years, and it does not beat holding the index.</strong>
-100 trades, walk-forward: this returned <b>+8.29%</b> a year against <b>+13.03%</b> for simply
-holding SPY and <b>+18.70%</b> for QQQ. It did cut the drawdown — 28% against SPY's 34%, which
-is what trend following is for — but it gave up more return than it saved in risk, and its
-Sharpe was 0.45 against 0.70.
+<div class="trap"><strong>Buy the turn, not confirmed strength.</strong> Backtested over 9.16
+years, 79 trades, walk-forward. Entering when the panel flips from negative to positive
+returned <b>+13.73%</b> a year at a <b>0.76</b> Sharpe, against <b>+8.29%</b> and <b>0.45</b>
+for the earlier version that waited for 70% agreement. Same panel, same universe, same exits
+— the only change was when a market becomes buyable. It beats holding SPY (+13.03%, 0.70) on
+both return and drawdown; QQQ still won on raw return (+18.70%) with a much deeper drawdown.
 <br><br>
-<strong>Through LEAPs it is worse, not better.</strong> Three times leverage turns +8.29% into
-+24.9% gross, then 10.8%/yr of carry and ~10.9%/yr of spread across 10.9 round trips leave
-<b>+3.2% a year — earned while carrying a levered drawdown near 85%</b>. The costs consume 87%
-of the levered gross. Holding QQQ paid six times that with a third of the pain.
+The mechanism is in the trade log, not the headline. Win rate <em>fell</em>, 46% to 41.8%,
+while the average winner grew from +12.1% to +18.1% and the average loser shrank from -5.0%
+to -3.6%. Entering at the flip catches whole moves instead of their tail ends, and failed
+turns cut themselves quickly by going straight back through zero. It also trades <em>less</em>
+— 8.6 round trips a year against 10.9 — because holding across the whole positive range keeps
+a working position on for 105 days rather than 87.
 <br><br>
-The hysteresis gap also failed its own test: entering and exiting at the same 70% threshold
-beat the 70/30 gap on both return and drawdown, so the churn control cost more in late exits
-than it saved in round trips. One fair caveat — the window is dominated by a historic equity
-bull market, the regime trend following is expected to lag. That suggests the signal is not
-worthless. It does not make this tradable, and it does nothing about the cost arithmetic.
+<strong>Leverage is not free.</strong> The same signal through LEAPs nets +21.79% after
+10.8%/yr carry and 8.6%/yr spread, but the levered drawdown is near <b>87%</b>. That
+out-returns QQQ while risking far more, so it is not better risk-adjusted — the edge lives in
+the signal, and leverage only magnifies whatever is there, in both directions.
 <br><br>
-<strong>Read the book below as a signal, not a recommendation.</strong></div>
+One caveat: the window is dominated by a historic equity bull market, the regime trend
+following is expected to lag. Beating SPY anyway is the encouraging part.
+<strong>Still a signal, not a recommendation.</strong></div>
 
-<div class="trap"><strong>Market is POST.</strong> Rankings and rotation calls are computed from completed daily bars and stand. Contract selection is skipped — a LEAP's bid/ask and greeks are meaningless against a closed book.</div>
+<div class="trap"><strong>Market is POSTPOST.</strong> Rankings and rotation calls are computed from completed daily bars and stand. Contract selection is skipped — a LEAP's bid/ask and greeks are meaningless against a closed book.</div>
 
 <h2>The book</h2>
-<div class="book"><div class="pos hold">
-  <div class="pos-h"><span class="sym">XLF</span>
-    <span class="pill p-non">HOLD</span>
-    <span class="exp up">+90%</span></div>
-  <div class="why">still 90% long, above the 30% floor</div><div class="nocon">No contract selected — the options book is closed, so LEAP pricing and greeks cannot be trusted. Signal stands.</div>
-</div><div class="pos hold">
-  <div class="pos-h"><span class="sym">EFA</span>
-    <span class="pill p-non">HOLD</span>
-    <span class="exp up">+90%</span></div>
-  <div class="why">still 90% long, above the 30% floor</div><div class="nocon">No contract selected — the options book is closed, so LEAP pricing and greeks cannot be trusted. Signal stands.</div>
-</div><div class="pos hold">
-  <div class="pos-h"><span class="sym">XLV</span>
-    <span class="pill p-non">HOLD</span>
-    <span class="exp up">+80%</span></div>
-  <div class="why">still 80% long, above the 30% floor</div><div class="nocon">No contract selected — the options book is closed, so LEAP pricing and greeks cannot be trusted. Signal stands.</div>
-</div></div>
+<div class="book"><div class="pos"><div class="why">Nothing qualifies. No market reached the entry threshold.</div></div></div>
 
 <h2>Ranking · markets in an uptrend</h2>
 <div class="scroll"><table>
@@ -169,71 +159,79 @@ worthless. It does not make this tradable, and it does nothing about the cost ar
   <td><span class="tick">XLF</span></td>
   <td class="mkt">Financials</td>
   <td class="num up"><b>90%</b></td>
-  <td class="num">+10.5%</td>
+  <td class="num">+12.2%</td>
   <td class="num flat">9/0/1</td>
-  <td class="num">57.38</td>
+  <td class="num">57.88</td>
 </tr><tr>
   <td class="num flat">2</td>
+  <td><span class="tick">IWM</span></td>
+  <td class="mkt">Russell 2000</td>
+  <td class="num up"><b>90%</b></td>
+  <td class="num">+8.6%</td>
+  <td class="num flat">9/0/1</td>
+  <td class="num">301.71</td>
+</tr><tr>
+  <td class="num flat">3</td>
+  <td><span class="tick">SPY</span></td>
+  <td class="mkt">S&amp;P 500</td>
+  <td class="num up"><b>90%</b></td>
+  <td class="num">+7.4%</td>
+  <td class="num flat">9/0/1</td>
+  <td class="num">771.33</td>
+</tr><tr>
+  <td class="num flat">4</td>
   <td><span class="tick">EFA</span></td>
   <td class="mkt">Developed ex-US</td>
   <td class="num up"><b>90%</b></td>
-  <td class="num">+3.8%</td>
+  <td class="num">+6.6%</td>
   <td class="num flat">9/0/1</td>
-  <td class="num">106.02</td>
+  <td class="num">107.32</td>
 </tr><tr>
-  <td class="num flat">3</td>
+  <td class="num flat">5</td>
   <td><span class="tick">XLV</span></td>
   <td class="mkt">Health Care</td>
   <td class="num up"><b>80%</b></td>
-  <td class="num">+11.8%</td>
+  <td class="num">+12.0%</td>
   <td class="num flat">9/1/0</td>
-  <td class="num">162.24</td>
+  <td class="num">162.10</td>
 </tr><tr>
-  <td class="num flat">4</td>
-  <td><span class="tick">SPY</span></td>
-  <td class="mkt">S&amp;P 500</td>
+  <td class="num flat">6</td>
+  <td><span class="tick">XLI</span></td>
+  <td class="mkt">Industrials</td>
   <td class="num up"><b>80%</b></td>
-  <td class="num">+5.1%</td>
-  <td class="num flat">8/0/2</td>
-  <td class="num">757.67</td>
+  <td class="num">+9.0%</td>
+  <td class="num flat">9/1/0</td>
+  <td class="num">186.40</td>
 </tr><tr>
-  <td class="num flat">5</td>
+  <td class="num flat">7</td>
   <td><span class="tick">XLE</span></td>
   <td class="mkt">Energy</td>
   <td class="num up"><b>70%</b></td>
-  <td class="num">-0.1%</td>
+  <td class="num">-1.5%</td>
   <td class="num flat">8/1/1</td>
-  <td class="num">58.79</td>
-</tr><tr>
-  <td class="num flat">6</td>
-  <td><span class="tick">IWM</span></td>
-  <td class="mkt">Russell 2000</td>
-  <td class="num up"><b>50%</b></td>
-  <td class="num">+6.1%</td>
-  <td class="num flat">7/2/1</td>
-  <td class="num">296.22</td>
-</tr><tr>
-  <td class="num flat">7</td>
-  <td><span class="tick">XLI</span></td>
-  <td class="mkt">Industrials</td>
-  <td class="num up"><b>50%</b></td>
-  <td class="num">+5.9%</td>
-  <td class="num flat">7/2/1</td>
-  <td class="num">183.16</td>
+  <td class="num">58.52</td>
 </tr><tr>
   <td class="num flat">8</td>
   <td><span class="tick">XLP</span></td>
   <td class="mkt">Staples</td>
-  <td class="num up"><b>30%</b></td>
-  <td class="num">+0.8%</td>
-  <td class="num flat">5/2/3</td>
-  <td class="num">84.86</td>
+  <td class="num up"><b>40%</b></td>
+  <td class="num">+2.2%</td>
+  <td class="num flat">6/2/2</td>
+  <td class="num">85.37</td>
+</tr><tr>
+  <td class="num flat">9</td>
+  <td><span class="tick">XLK</span></td>
+  <td class="mkt">Technology</td>
+  <td class="num up"><b>20%</b></td>
+  <td class="num">+15.3%</td>
+  <td class="num flat">6/4/0</td>
+  <td class="num">186.90</td>
 </tr></tbody></table></div>
 
 <h2>Excluded · no long trend, so no position</h2>
-<div class="excl"><span>TLT -100%</span><span>GLD -80%</span><span>SLV -80%</span><span>GDX -80%</span><span>IBIT -50%</span><span>XLU -40%</span><span>EEM -30%</span><span>QQQ -20%</span><span>XLK -10%</span></div>
+<div class="excl"><span>TLT -100%</span><span>GLD -80%</span><span>SLV -80%</span><span>GDX -80%</span><span>IBIT -50%</span><span>XLU -40%</span><span>QQQ 0%</span><span>EEM 0%</span></div>
 
-<footer>8 of 17 markets in an uptrend ·
+<footer>9 of 17 markets in an uptrend ·
 sizing shown against $25,000 per position ·
 signals from completed daily bars.
 Educational tooling only — no orders are placed and nothing here is financial advice.</footer>

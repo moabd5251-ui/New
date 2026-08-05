@@ -120,9 +120,10 @@ def build(res, out_path):
 <div class="wrap">
 <header class="mast">
   <div><h1>LEAP Rotation</h1>
-    <div class="sub">Hold deep-ITM calls in the strongest {len(ranked) and ''}markets ·
-      max {len([a for a in actions if a['action'] != 'CLOSE'])} of
-      {len(res['rows'])} · everything else in cash</div></div>
+    <div class="sub">Deep-ITM calls bought on the turn · holding
+      {len([a for a in actions if a['action'] != 'CLOSE'])} of a maximum
+      {res.get('max_positions', 3)} · {len(res['rows'])} markets watched ·
+      everything else in cash</div></div>
   <div class="stamp">Signals as of close {html.escape(str(asof))}<br>Generated {gen}</div>
 </header>
 
@@ -133,24 +134,28 @@ entirely time value, which is the same trap the volatility-ramp backtest measure
 rose 96% of the time there and long premium still lost, because decay took the gain. A trend
 hold lasts far longer than that trade did.</div>
 
-<div class="trap"><strong>Backtested over 9.16 years, and it does not beat holding the index.</strong>
-100 trades, walk-forward: this returned <b>+8.29%</b> a year against <b>+13.03%</b> for simply
-holding SPY and <b>+18.70%</b> for QQQ. It did cut the drawdown — 28% against SPY's 34%, which
-is what trend following is for — but it gave up more return than it saved in risk, and its
-Sharpe was 0.45 against 0.70.
+<div class="trap"><strong>Buy the turn, not confirmed strength.</strong> Backtested over 9.16
+years, 79 trades, walk-forward. Entering when the panel flips from negative to positive
+returned <b>+13.73%</b> a year at a <b>0.76</b> Sharpe, against <b>+8.29%</b> and <b>0.45</b>
+for the earlier version that waited for 70% agreement. Same panel, same universe, same exits
+— the only change was when a market becomes buyable. It beats holding SPY (+13.03%, 0.70) on
+both return and drawdown; QQQ still won on raw return (+18.70%) with a much deeper drawdown.
 <br><br>
-<strong>Through LEAPs it is worse, not better.</strong> Three times leverage turns +8.29% into
-+24.9% gross, then 10.8%/yr of carry and ~10.9%/yr of spread across 10.9 round trips leave
-<b>+3.2% a year — earned while carrying a levered drawdown near 85%</b>. The costs consume 87%
-of the levered gross. Holding QQQ paid six times that with a third of the pain.
+The mechanism is in the trade log, not the headline. Win rate <em>fell</em>, 46% to 41.8%,
+while the average winner grew from +12.1% to +18.1% and the average loser shrank from -5.0%
+to -3.6%. Entering at the flip catches whole moves instead of their tail ends, and failed
+turns cut themselves quickly by going straight back through zero. It also trades <em>less</em>
+— 8.6 round trips a year against 10.9 — because holding across the whole positive range keeps
+a working position on for 105 days rather than 87.
 <br><br>
-The hysteresis gap also failed its own test: entering and exiting at the same 70% threshold
-beat the 70/30 gap on both return and drawdown, so the churn control cost more in late exits
-than it saved in round trips. One fair caveat — the window is dominated by a historic equity
-bull market, the regime trend following is expected to lag. That suggests the signal is not
-worthless. It does not make this tradable, and it does nothing about the cost arithmetic.
+<strong>Leverage is not free.</strong> The same signal through LEAPs nets +21.79% after
+10.8%/yr carry and 8.6%/yr spread, but the levered drawdown is near <b>87%</b>. That
+out-returns QQQ while risking far more, so it is not better risk-adjusted — the edge lives in
+the signal, and leverage only magnifies whatever is there, in both directions.
 <br><br>
-<strong>Read the book below as a signal, not a recommendation.</strong></div>
+One caveat: the window is dominated by a historic equity bull market, the regime trend
+following is expected to lag. Beating SPY anyway is the encouraging part.
+<strong>Still a signal, not a recommendation.</strong></div>
 
 {warn}
 

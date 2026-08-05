@@ -83,8 +83,23 @@ def exposures_at(bars, upto_idx_date):
 
 
 def run(bars, enter_above=R.ENTER_ABOVE, exit_below=R.EXIT_BELOW,
-        max_positions=R.MAX_POSITIONS, verbose=True):
-    """Walk the calendar, rotate, and return the equity curve and the trade log."""
+        max_positions=R.MAX_POSITIONS, verbose=True, entry_mode="threshold"):
+    """Walk the calendar, rotate, and return the equity curve and the trade log.
+
+    entry_mode picks WHEN a market becomes buyable:
+
+      "threshold"  exposure has reached enter_above. Buys confirmed strength, and by
+                   construction buys late — by the time eight of ten strategies agree,
+                   much of the move is behind you.
+      "cross"      exposure has just turned from negative to positive, i.e. the panel
+                   flipped sides since the previous rebalance. Buys the turn, so it
+                   catches far more of the move and takes far more false starts. Here
+                   enter_above is the level the cross must REACH to count, so 0 takes
+                   every flip and 20 filters the weakest ones.
+
+    The two differ only in the trigger; ranking, exit and sizing are shared, so the
+    comparison isolates entry timing rather than confounding it with everything else.
+    """
     # Calendar from the LONGEST-running symbols, not the intersection. Requiring every
     # symbol to have bars would let the newest listing truncate the whole test — IBIT
     # listed in 2024 and on its own cut a five-year run to under two. Symbols join the
@@ -96,6 +111,7 @@ def run(bars, enter_above=R.ENTER_ABOVE, exit_below=R.EXIT_BELOW,
         raise RuntimeError("not enough overlapping history")
 
     held = {}                 # sym -> entry close
+    prev_exp = {}             # last rebalance's readings, for the cross trigger
     equity = [1.0]
     dates = [cal[start_i]]
     trades = []
@@ -134,14 +150,24 @@ def run(bars, enter_above=R.ENTER_ABOVE, exit_below=R.EXIT_BELOW,
 
         free = max_positions - len(held)
         if free > 0:
-            cands = sorted([(v, s) for s, v in exp.items()
-                            if v >= enter_above and s not in held], reverse=True)
+            if entry_mode == "cross":
+                # Turned from negative to positive since the previous rebalance, and
+                # reached the qualifying level. prev_exp is empty on the first pass, so
+                # nothing triggers until there is a genuine prior reading to cross from.
+                cands = sorted([(v, s) for s, v in exp.items()
+                                if s not in held and v > 0 and v >= enter_above
+                                and prev_exp.get(s) is not None and prev_exp[s] <= 0],
+                               reverse=True)
+            else:
+                cands = sorted([(v, s) for s, v in exp.items()
+                                if v >= enter_above and s not in held], reverse=True)
             for v, sym in cands[:free]:
                 df = bars[sym]
                 sl = df[df.index <= nxt]
                 if not len(sl):
                     continue
                 held[sym] = dict(px=sl["Close"].iloc[-1], date=nxt, exposure=v)
+        prev_exp = exp
 
     # close whatever is still open at the end, so the log is complete
     last = cal[-1]
@@ -218,6 +244,8 @@ def show(s):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--sweep", action="store_true", help="threshold sensitivity")
+    ap.add_argument("--compare-entry", action="store_true",
+                    help="buy confirmed strength vs buy the turn from negative to positive")
     ap.add_argument("--range", default="5y")
     a = ap.parse_args()
 
@@ -263,6 +291,35 @@ def main():
     out = dict(stats=s, overlay=ov, trades=res["trades"],
                params=dict(enter=R.ENTER_ABOVE, exit=R.EXIT_BELOW,
                            max_positions=R.MAX_POSITIONS, rebalance=REBALANCE_EVERY))
+
+    if a.compare_entry:
+        print("\n" + "=" * 92)
+        print("ENTRY TIMING — buy confirmed strength, or buy the turn?")
+        print("=" * 92)
+        trials = [
+            ("threshold", 70, 30, "confirmed: reach 70%"),
+            ("threshold", 90, 30, "confirmed: reach 90%"),
+            ("cross",      0, 0,  "turn: any flip to positive, exit back under 0"),
+            ("cross",      0, 30, "turn: any flip, exit under 30%"),
+            ("cross",     20, 0,  "turn: flip reaching 20%, exit under 0"),
+            ("cross",     20, -30, "turn: flip reaching 20%, exit under -30%"),
+            ("cross",     40, 0,  "turn: flip reaching 40%, exit under 0"),
+        ]
+        comp = []
+        for mode, ent, ext, label in trials:
+            r2 = run(bars, ent, ext, verbose=False, entry_mode=mode)
+            s2 = stats(r2["equity"], r2["dates"], r2["trades"], label)
+            o2 = leap_overlay(s2)
+            print(f"  {label:<44s} CAGR {s2['cagr']*100:+6.2f}%  maxDD {s2['max_drawdown']*100:6.1f}%"
+                  f"  win {s2['win_rate']:4.1f}%  {s2['trades_per_year']:5.1f}/yr"
+                  f"  hold {s2['avg_hold_days']:3.0f}d  LEAPnet {o2['net_cagr']*100:+6.2f}%")
+            comp.append(dict(mode=mode, enter=ent, exit=ext, **s2, overlay=o2))
+        out["entry_comparison"] = comp
+        best = max(comp, key=lambda c: c["overlay"]["net_cagr"])
+        print(f"\n  best on ETF return : {max(comp, key=lambda c: c['cagr'])['label']}"
+              f" at {max(c['cagr'] for c in comp)*100:+.2f}%")
+        print(f"  best through LEAPs : {best['label']} at "
+              f"{best['overlay']['net_cagr']*100:+.2f}% net — QQQ buy & hold was +18.70%")
 
     if a.sweep:
         print("\n" + "=" * 92)

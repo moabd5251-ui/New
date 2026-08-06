@@ -3,3 +3,5 @@ dist/
 .DS_Store
 *.log
 .env.local
+coupons.db
+server/coupons.db

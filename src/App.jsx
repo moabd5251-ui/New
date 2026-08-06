@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { mockCoupons } from './data/mockCoupons'
 import CouponList from './components/CouponList'
 import ClippedCoupons from './components/ClippedCoupons'
 import SearchBar from './components/SearchBar'
@@ -7,13 +6,62 @@ import SavingsCalculator from './components/SavingsCalculator'
 import PriceAlerts from './components/PriceAlerts'
 
 export default function App() {
+  const [coupons, setCoupons] = useState([])
   const [clipped, setClipped] = useState([])
   const [used, setUsed] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('All')
   const [storeFilter, setStoreFilter] = useState('All')
   const [tab, setTab] = useState('browse')
+  const [categories, setCategories] = useState([])
+  const [stores, setStores] = useState([])
+  const [loading, setLoading] = useState(true)
 
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
+  // Fetch coupons from API
+  useEffect(() => {
+    fetchCoupons()
+    fetchStores()
+    fetchCategories()
+  }, [])
+
+  const fetchCoupons = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch(`${API_URL}/api/coupons`)
+      const data = await response.json()
+      setCoupons(data)
+    } catch (err) {
+      console.error('Failed to fetch coupons:', err)
+      // Fallback to empty if API unavailable
+      setCoupons([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchStores = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/coupons/stores`)
+      const data = await response.json()
+      setStores(['All', ...data])
+    } catch (err) {
+      console.error('Failed to fetch stores:', err)
+    }
+  }
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/coupons/categories`)
+      const data = await response.json()
+      setCategories(['All', ...data])
+    } catch (err) {
+      console.error('Failed to fetch categories:', err)
+    }
+  }
+
+  // Load saved data from localStorage
   useEffect(() => {
     const saved = localStorage.getItem('clippedCoupons')
     const usedSaved = localStorage.getItem('usedCoupons')
@@ -29,10 +77,7 @@ export default function App() {
     localStorage.setItem('usedCoupons', JSON.stringify(used))
   }, [used])
 
-  const categories = ['All', ...new Set(mockCoupons.map(c => c.category))]
-  const stores = ['All', ...new Set(mockCoupons.map(c => c.store))]
-
-  const filteredCoupons = mockCoupons.filter(coupon => {
+  const filteredCoupons = coupons.filter(coupon => {
     const matchesSearch = coupon.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          coupon.description.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCategory = categoryFilter === 'All' || coupon.category === categoryFilter
@@ -122,6 +167,11 @@ export default function App() {
 
         {tab === 'browse' && (
           <div className="space-y-6">
+            {loading && (
+              <div className="bg-blue-100 border border-blue-400 text-blue-800 px-4 py-3 rounded">
+                ⏳ Loading fresh coupons from Seattle-area stores...
+              </div>
+            )}
             <SearchBar
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}

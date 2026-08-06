@@ -41,8 +41,22 @@ def session_bar(symbol):
         return None
 
 
+# Names that carry a genuine same-day expiry. Only these get a forward-log entry:
+# scoring a one-day-out chain against today's close would be grading a claim the
+# strategy never made.
+ZERO_DTE_NAMES = ["SPY", "QQQ", "IWM"]
+
+# Captured for the searchable dashboard. Wider than the logged set on purpose — the
+# page is worth browsing for names whose nearest expiry is tomorrow, even though their
+# positioning is not a zero-DTE claim.
+UNIVERSE = ZERO_DTE_NAMES + [
+    "DIA", "GLD", "SLV", "TLT", "XLE", "XLF", "XLK", "EEM", "EFA", "IBIT",
+    "AAPL", "MSFT", "NVDA", "AMZN", "META", "GOOGL", "TSLA", "AMD", "NFLX",
+    "AVGO", "COIN", "PLTR", "MU"]
+
+
 def main():
-    syms = [s.upper() for s in sys.argv[1:]] or ["SPY", "QQQ"]
+    syms = [s.upper() for s in sys.argv[1:]] or UNIVERSE
 
     # ---- 1. score anything still open, against bars that already exist -----
     scored = []
@@ -77,24 +91,25 @@ def main():
             print(f"[{sym}] {a['error']}")
             continue
         results[sym] = a
-        print(f"[{sym}] {a['expiry']} spot {a['spot']} | GEX ${a['total_gex']/1e9:+.2f}bn "
-              f"({a['regime'].split(' —')[0]}) | max pain {a['max_pain']} | "
-              f"flip {a['zero_gamma']} | flow {(a.get('flow') or {}).get('bias')}")
-        # Only record a call while the session is live; a premarket chain carries
-        # yesterday's open interest and no flow, so it is not the same claim.
-        if ok:
+        print(f"[{sym}] {a['expiry']} dte {a['dte']} spot {a['spot']} | "
+              f"GEX ${a['total_gex']/1e9:+.2f}bn ({a['regime'].split(' —')[0]}) | "
+              f"max pain {a['max_pain']} | flip {a['zero_gamma']}")
+        # Log only genuine zero-DTE names, and only while the session is live. A
+        # premarket chain carries yesterday's open interest and no flow at all, so
+        # recording one would file a different claim under the same name.
+        if ok and a["dte"] == 0 and sym in ZERO_DTE_NAMES:
             bar = session_bar(sym)
             e = L.record(a, session_open=(bar or {}).get("open"))
             if e:
-                print(f"   recorded: max pain {e['max_pain']}, magnet {e['top_magnet']}, "
+                print(f"   logged: max pain {e['max_pain']}, magnet {e['top_magnet']}, "
                       f"expected ±{e['expected_move_pct']}%")
 
     if not results:
         print("PUSH: (none)")
         return
 
-    primary = results.get(syms[0]) or next(iter(results.values()))
-    ZD.build(primary, Z.read(primary), str(OUT_HTML))
+    reads = {s: Z.read(a) for s, a in results.items()}
+    ZD.build_interactive(results, str(OUT_HTML), reads)
     STATE.write_text(json.dumps(
         {k: {kk: vv for kk, vv in v.items() if kk != "rows"} for k, v in results.items()},
         indent=2, default=str))

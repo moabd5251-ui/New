@@ -1,0 +1,40 @@
+[
+  {
+    "symbol": "SPY",
+    "expiry": "2026-08-06",
+    "recorded_at": "2026-08-06T13:39:14Z",
+    "spot_at_read": 770.21,
+    "session_open": 770.21,
+    "max_pain": 768.0,
+    "zero_gamma": 749.18,
+    "total_gex": 407972012.5716911,
+    "regime": "long",
+    "top_magnet": 765.0,
+    "magnet_side": "put",
+    "straddle": 3.56,
+    "expected_move_pct": 0.46,
+    "flow_bias": "PUTS \u2014 downside flow dominates",
+    "flow_ratio": 1.53,
+    "close": null,
+    "scored": false
+  },
+  {
+    "symbol": "QQQ",
+    "expiry": "2026-08-06",
+    "recorded_at": "2026-08-06T13:39:22Z",
+    "spot_at_read": 712.3,
+    "session_open": 710.82,
+    "max_pain": 718.0,
+    "zero_gamma": 691.0,
+    "total_gex": -61093160.265714616,
+    "regime": "short",
+    "top_magnet": 709.0,
+    "magnet_side": "put",
+    "straddle": 5.8,
+    "expected_move_pct": 0.81,
+    "flow_bias": "PUTS \u2014 downside flow dominates",
+    "flow_ratio": 1.65,
+    "close": null,
+    "scored": false
+  }
+]

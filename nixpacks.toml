@@ -1,5 +1,0 @@
-[build]
-cmds = [
-  "npm install",
-  "npm --prefix server install"
-]

@@ -143,33 +143,44 @@ const couponSources = {
 
 // Function to sync coupons
 async function syncCoupons() {
-  console.log('🔄 Starting coupon sync...')
-  let totalAdded = 0
+  return new Promise((resolve) => {
+    console.log('🔄 Starting coupon sync...')
+    let totalAdded = 0
 
-  for (const [key, fetcher] of Object.entries(couponSources)) {
-    try {
-      const coupons = await fetcher()
-      for (const coupon of coupons) {
-        db.run(
-          `INSERT OR IGNORE INTO coupons (title, store, discount, category, expiresAt, description, image, source)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-          [coupon.title, coupon.store, coupon.discount, coupon.category, coupon.expiresAt, coupon.description, coupon.image, coupon.source],
-          (err) => {
-            if (!err) totalAdded++
+    const fetchers = Object.entries(couponSources)
+    let completed = 0
+
+    for (const [key, fetcher] of fetchers) {
+      (async () => {
+        try {
+          const coupons = await fetcher()
+          for (const coupon of coupons) {
+            db.run(
+              `INSERT OR IGNORE INTO coupons (title, store, discount, category, expiresAt, description, image, source)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+              [coupon.title, coupon.store, coupon.discount, coupon.category, coupon.expiresAt, coupon.description, coupon.image, coupon.source],
+              (err) => {
+                if (!err) totalAdded++
+              }
+            )
           }
-        )
-      }
-      console.log(`✅ Synced ${coupons.length} coupons from ${key}`)
-    } catch (err) {
-      console.error(`❌ Error syncing ${key}:`, err.message)
+          console.log(`✅ Synced ${coupons.length} coupons from ${key}`)
+        } catch (err) {
+          console.error(`❌ Error syncing ${key}:`, err.message)
+        } finally {
+          completed++
+          if (completed === fetchers.length) {
+            db.run(
+              `INSERT INTO sync_log (source, count, status) VALUES (?, ?, ?)`,
+              ['all_sources', totalAdded, 'success']
+            )
+            console.log(`✅ Sync complete! Added ${totalAdded} coupons`)
+            resolve()
+          }
+        }
+      })()
     }
-  }
-
-  db.run(
-    `INSERT INTO sync_log (source, count, status) VALUES (?, ?, ?)`,
-    ['all_sources', totalAdded, 'success']
-  )
-  console.log(`✅ Sync complete! Added ${totalAdded} coupons`)
+  })
 }
 
 // API Routes
@@ -237,14 +248,25 @@ app.post('/api/sync', (req, res) => {
 // Schedule daily sync at 2 AM
 cron.schedule('0 2 * * *', () => {
   console.log('⏰ Running scheduled coupon sync...')
-  syncCoupons()
+  syncCoupons().catch(err => console.error('❌ Scheduled sync error:', err))
 })
 
-// Initial sync on startup
-syncCoupons()
+// Initial sync on startup (don't wait for it to complete)
+syncCoupons().catch(err => console.error('❌ Initial sync error:', err))
 
-app.listen(PORT, () => {
-  console.log(`🚀 Coupon Clipper API running on http://localhost:${PORT}`)
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error('❌ Uncaught exception:', err)
+  process.exit(1)
+})
+
+process.on('unhandledRejection', (err) => {
+  console.error('❌ Unhandled rejection:', err)
+  process.exit(1)
+})
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Coupon Clipper API running on http://0.0.0.0:${PORT}`)
   console.log(`📊 API endpoints:`)
   console.log(`   GET /api/coupons - Get all coupons`)
   console.log(`   GET /api/coupons/stores - Get all stores`)

@@ -1,0 +1,230 @@
+<title>LEAP Rotation — Concentrate in the Strongest Trends</title>
+<style>
+:root{
+  --ground:#F6F8F7; --surface:#FFFFFF; --surface-2:#EAEEEC; --line:#D7DEDA;
+  --ink:#1A211E; --ink-2:#465049; --ink-3:#75807A;
+  --accent:#2C6E56; --accent-soft:#E2EDE8;
+  --up:#1F7A5A; --down:#B4443E; --flat:#75807A; --warn:#A8761C;
+  --sans:ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --serif:Georgia,"Iowan Old Style","Times New Roman",serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --ground:#101614; --surface:#18201D; --surface-2:#212A26; --line:#2C3733;
+    --ink:#DFE7E3; --ink-2:#A3AFA9; --ink-3:#75807A;
+    --accent:#6FB79A; --accent-soft:#1B2621;
+    --up:#46B189; --down:#DE6A63; --flat:#75807A; --warn:#CFA052;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#101614; --surface:#18201D; --surface-2:#212A26; --line:#2C3733;
+  --ink:#DFE7E3; --ink-2:#A3AFA9; --ink-3:#75807A;
+  --accent:#6FB79A; --accent-soft:#1B2621;
+  --up:#46B189; --down:#DE6A63; --flat:#75807A; --warn:#CFA052;
+}
+:root[data-theme="light"]{
+  --ground:#F6F8F7; --surface:#FFFFFF; --surface-2:#EAEEEC; --line:#D7DEDA;
+  --ink:#1A211E; --ink-2:#465049; --ink-3:#75807A;
+  --accent:#2C6E56; --accent-soft:#E2EDE8;
+  --up:#1F7A5A; --down:#B4443E; --flat:#75807A; --warn:#A8761C;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 24px 72px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+header.mast{border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:22px;
+  display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(26px,4vw,38px);margin:0;
+  letter-spacing:-.01em;text-wrap:balance}
+.sub{color:var(--ink-3);font-size:13px;margin-top:5px}
+.stamp{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);text-align:right;
+  text-transform:uppercase;letter-spacing:.07em;white-space:nowrap}
+.thesis{background:var(--accent-soft);border-left:3px solid var(--accent);padding:14px 17px;
+  font-size:13.5px;color:var(--ink-2);margin-bottom:16px;border-radius:0 2px 2px 0}
+.thesis strong{color:var(--ink)}
+.trap{background:color-mix(in srgb,var(--warn) 12%,transparent);border-left:3px solid var(--warn);
+  padding:14px 17px;font-size:13.5px;color:var(--ink-2);margin-bottom:26px;border-radius:0 2px 2px 0}
+.trap strong{color:var(--warn)}
+h2{font-family:var(--serif);font-size:20px;margin:34px 0 12px;font-weight:600}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;background:var(--surface);
+  border:1px solid var(--line);border-radius:3px;font-size:13.5px;min-width:720px}
+th{background:var(--surface-2);text-align:left;padding:9px 12px;font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2);font-weight:700;
+  border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.tick{font-weight:700;font-family:var(--mono)}
+.mkt{color:var(--ink-3);font-size:12px}
+.up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--flat)}
+.bar{position:relative;height:16px;background:var(--surface-2);border-radius:2px;
+  min-width:120px;width:130px;overflow:hidden}
+.bar i{position:absolute;top:0;bottom:0;left:50%;display:block}
+.bar .mid{position:absolute;top:0;bottom:0;left:50%;width:1px;background:var(--line)}
+.pill{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;
+  padding:2px 7px;border-radius:2px;letter-spacing:.04em;white-space:nowrap}
+.p-add{background:var(--up);color:#fff}
+.p-red{background:var(--warn);color:#fff}
+.p-rev{background:var(--down);color:#fff}
+.p-non{background:var(--surface-2);color:var(--ink-3)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:3px;
+  margin-bottom:16px;overflow:hidden}
+.card-h{padding:11px 16px;background:var(--surface-2);border-bottom:1px solid var(--line);
+  display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.card-h .tick{font-size:15px}
+.card-h .exp{margin-left:auto;font-family:var(--mono);font-weight:700;font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr))}
+.cell{padding:8px 14px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+  display:flex;justify-content:space-between;gap:8px;font-size:12.5px}
+.cell b{font-weight:500;color:var(--ink-2)}
+.sig{font-family:var(--mono);font-size:11px;font-weight:700}
+footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);
+  color:var(--ink-3);font-size:12px}
+
+.book{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin-bottom:8px}
+.pos{background:var(--surface);border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.pos.open{border-color:var(--up);border-width:1.5px}
+.pos.close{border-color:var(--down);border-width:1.5px}
+.pos-h{padding:12px 16px;background:var(--surface-2);border-bottom:1px solid var(--line);
+  display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.pos-h .sym{font-family:var(--serif);font-size:22px;font-weight:600}
+.pos-h .exp{margin-left:auto;font-family:var(--mono);font-weight:700}
+.why{padding:10px 16px;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--line)}
+.kv{display:grid;grid-template-columns:repeat(3,1fr)}
+.kv div{padding:9px 16px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.kv div:nth-child(3n){border-right:0}
+.kv .k{font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3)}
+.kv .v{font-family:var(--mono);font-size:14px;font-weight:600;margin-top:2px}
+.split{display:flex;height:9px;border-radius:2px;overflow:hidden;margin-top:6px;background:var(--surface-2)}
+.split i{display:block;height:100%}
+.nocon{padding:11px 16px;font-size:12.5px;color:var(--warn);
+  background:color-mix(in srgb,var(--warn) 10%,transparent)}
+.excl{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 4px}
+.excl span{font-family:var(--mono);font-size:11.5px;padding:3px 9px;border-radius:2px;
+  background:var(--surface-2);color:var(--ink-3);border:1px solid var(--line)}
+</style>
+<div class="wrap">
+<header class="mast">
+  <div><h1>LEAP Rotation</h1>
+    <div class="sub">Deep-ITM calls bought on the turn · holding
+      0 of a maximum
+      3 · 16 markets watched ·
+      everything else in cash</div></div>
+  <div class="stamp">Signals as of close 2026-08-05<br>Generated 06 Aug 2026 13:02 UTC</div>
+</header>
+
+<div class="thesis"><strong>Why deep in the money.</strong> Only the time value in a premium
+decays, so an 0.80-delta LEAP puts most of your money in intrinsic value that does not bleed —
+you get stock-like exposure with leverage and a floor. Cheap out-of-the-money calls are almost
+entirely time value, which is the same trap the volatility-ramp backtest measured: implied vol
+rose 96% of the time there and long premium still lost, because decay took the gain. A trend
+hold lasts far longer than that trade did.</div>
+
+<div class="trap"><strong>Buy the turn, not confirmed strength.</strong> Backtested over 9.16
+years, 79 trades, walk-forward. Entering when the panel flips from negative to positive
+returned <b>+13.73%</b> a year at a <b>0.76</b> Sharpe, against <b>+8.29%</b> and <b>0.45</b>
+for the earlier version that waited for 70% agreement. Same panel, same universe, same exits
+— the only change was when a market becomes buyable. It beats holding SPY (+13.03%, 0.70) on
+both return and drawdown; QQQ still won on raw return (+18.70%) with a much deeper drawdown.
+<br><br>
+The mechanism is in the trade log, not the headline. Win rate <em>fell</em>, 46% to 41.8%,
+while the average winner grew from +12.1% to +18.1% and the average loser shrank from -5.0%
+to -3.6%. Entering at the flip catches whole moves instead of their tail ends, and failed
+turns cut themselves quickly by going straight back through zero. It also trades <em>less</em>
+— 8.6 round trips a year against 10.9 — because holding across the whole positive range keeps
+a working position on for 105 days rather than 87.
+<br><br>
+<strong>Leverage is not free.</strong> The same signal through LEAPs nets +21.79% after
+10.8%/yr carry and 8.6%/yr spread, but the levered drawdown is near <b>87%</b>. That
+out-returns QQQ while risking far more, so it is not better risk-adjusted — the edge lives in
+the signal, and leverage only magnifies whatever is there, in both directions.
+<br><br>
+One caveat: the window is dominated by a historic equity bull market, the regime trend
+following is expected to lag. Beating SPY anyway is the encouraging part.
+<strong>Still a signal, not a recommendation.</strong></div>
+
+
+
+<h2>The book</h2>
+<div class="book"><div class="pos"><div class="why">Nothing qualifies. No market reached the entry threshold.</div></div></div>
+
+<h2>Ranking · markets in an uptrend</h2>
+<div class="scroll"><table>
+<thead><tr><th>#</th><th>ETF</th><th>Market</th><th>Exposure</th><th>63d momentum</th>
+<th>L/S/N</th><th>Close</th></tr></thead>
+<tbody><tr>
+  <td class="num flat">1</td>
+  <td><span class="tick">XLF</span></td>
+  <td class="mkt">Financials</td>
+  <td class="num up"><b>100%</b></td>
+  <td class="num">+12.4%</td>
+  <td class="num flat">10/0/0</td>
+  <td class="num">58.00</td>
+</tr><tr>
+  <td class="num flat">2</td>
+  <td><span class="tick">EFA</span></td>
+  <td class="mkt">Developed ex-US</td>
+  <td class="num up"><b>100%</b></td>
+  <td class="num">+5.3%</td>
+  <td class="num flat">10/0/0</td>
+  <td class="num">107.43</td>
+</tr><tr>
+  <td class="num flat">3</td>
+  <td><span class="tick">SPY</span></td>
+  <td class="mkt">S&amp;P 500</td>
+  <td class="num up"><b>90%</b></td>
+  <td class="num">+6.4%</td>
+  <td class="num flat">9/0/1</td>
+  <td class="num">769.79</td>
+</tr><tr>
+  <td class="num flat">4</td>
+  <td><span class="tick">IWM</span></td>
+  <td class="mkt">Russell 2000</td>
+  <td class="num up"><b>90%</b></td>
+  <td class="num">+6.1%</td>
+  <td class="num flat">9/0/1</td>
+  <td class="num">299.77</td>
+</tr><tr>
+  <td class="num flat">5</td>
+  <td><span class="tick">XLV</span></td>
+  <td class="mkt">Health Care</td>
+  <td class="num up"><b>80%</b></td>
+  <td class="num">+13.0%</td>
+  <td class="num flat">9/1/0</td>
+  <td class="num">164.16</td>
+</tr><tr>
+  <td class="num flat">6</td>
+  <td><span class="tick">XLE</span></td>
+  <td class="mkt">Energy</td>
+  <td class="num up"><b>40%</b></td>
+  <td class="num">-3.6%</td>
+  <td class="num flat">6/2/2</td>
+  <td class="num">57.31</td>
+</tr><tr>
+  <td class="num flat">7</td>
+  <td><span class="tick">XLP</span></td>
+  <td class="mkt">Staples</td>
+  <td class="num up"><b>30%</b></td>
+  <td class="num">+1.5%</td>
+  <td class="num flat">5/2/3</td>
+  <td class="num">85.33</td>
+</tr><tr>
+  <td class="num flat">8</td>
+  <td><span class="tick">XLK</span></td>
+  <td class="mkt">Technology</td>
+  <td class="num up"><b>20%</b></td>
+  <td class="num">+12.2%</td>
+  <td class="num flat">6/4/0</td>
+  <td class="num">185.91</td>
+</tr></tbody></table></div>
+
+<h2>Excluded · no long trend, so no position</h2>
+<div class="excl"><span>TLT -100%</span><span>SLV -60%</span><span>XLU -50%</span><span>GLD -40%</span><span>GDX -30%</span><span>IBIT -30%</span><span>EEM -10%</span><span>QQQ 0%</span></div>
+
+<footer>8 of 16 markets in an uptrend ·
+sizing shown against $25,000 per position ·
+signals from completed daily bars.
+Educational tooling only — no orders are placed and nothing here is financial advice.</footer>
+</div>

@@ -1,0 +1,234 @@
+<title>Earnings Watch — Event Premium vs History</title>
+<style>
+:root{
+  --ground:#F6F7FA; --surface:#FFFFFF; --surface-2:#EEF1F6; --line:#DCE1EA;
+  --ink:#1D2430; --ink-2:#4A5364; --ink-3:#79839A;
+  --accent:#3E5C89; --accent-soft:#E4EAF4;
+  --rich:#8E4B9C; --cheap:#1F7A8C; --fair:#79839A;
+  --profit:#1F8A5F; --loss:#C4453C; --caution:#B37A1E;
+  --sans:ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --serif:Georgia,"Iowan Old Style","Times New Roman",serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --ground:#11141B; --surface:#191D26; --surface-2:#212734; --line:#2C3341;
+    --ink:#DFE5EF; --ink-2:#A5AFC1; --ink-3:#727D91;
+    --accent:#7D9BCC; --accent-soft:#1E2735;
+    --rich:#C083CE; --cheap:#4FB3C6; --fair:#727D91;
+    --profit:#43B583; --loss:#E0685E; --caution:#D3A244;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#11141B; --surface:#191D26; --surface-2:#212734; --line:#2C3341;
+  --ink:#DFE5EF; --ink-2:#A5AFC1; --ink-3:#727D91;
+  --accent:#7D9BCC; --accent-soft:#1E2735;
+  --rich:#C083CE; --cheap:#4FB3C6; --fair:#727D91;
+  --profit:#43B583; --loss:#E0685E; --caution:#D3A244;
+}
+:root[data-theme="light"]{
+  --ground:#F6F7FA; --surface:#FFFFFF; --surface-2:#EEF1F6; --line:#DCE1EA;
+  --ink:#1D2430; --ink-2:#4A5364; --ink-3:#79839A;
+  --accent:#3E5C89; --accent-soft:#E4EAF4;
+  --rich:#8E4B9C; --cheap:#1F7A8C; --fair:#79839A;
+  --profit:#1F8A5F; --loss:#C4453C; --caution:#B37A1E;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 24px 72px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+header.masthead{border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:24px;
+  display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(26px,4vw,38px);margin:0;
+  letter-spacing:-.01em;text-wrap:balance}
+.sub{color:var(--ink-3);font-size:13px;margin-top:5px}
+.stamp{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);text-align:right;
+  text-transform:uppercase;letter-spacing:.07em;white-space:nowrap}
+.thesis{background:var(--accent-soft);border-left:3px solid var(--accent);padding:14px 17px;
+  font-size:13.5px;color:var(--ink-2);margin-bottom:26px;border-radius:0 2px 2px 0}
+.thesis strong{color:var(--ink)}
+.tally{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  border:1px solid var(--line);border-radius:3px;overflow:hidden;margin-bottom:30px;background:var(--surface)}
+.t{padding:14px 17px;border-right:1px solid var(--line)}
+.t:last-child{border-right:0}
+.t .k{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-3)}
+.t .v{font-family:var(--mono);font-size:22px;font-weight:700;margin-top:4px;letter-spacing:-.02em}
+.group{margin-top:34px}
+.group:first-of-type{margin-top:0}
+.ghead{display:flex;align-items:baseline;gap:10px;margin-bottom:5px;flex-wrap:wrap}
+.gtag{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.07em;
+  padding:3px 9px;border-radius:2px;color:#fff}
+.gtag.rich{background:var(--rich)} .gtag.cheap{background:var(--cheap)} .gtag.fair{background:var(--fair)}
+.gnote{font-size:13px;color:var(--ink-3);margin:0 0 16px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(345px,1fr));gap:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:3px;
+  display:flex;flex-direction:column;overflow:hidden}
+.card.rich{border-top:3px solid var(--rich)}
+.card.cheap{border-top:3px solid var(--cheap)}
+.card.fair{border-top:3px solid var(--fair)}
+.top{padding:14px 17px 12px;border-bottom:1px solid var(--line)}
+.tick{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.tick .sym{font-family:var(--serif);font-size:23px;font-weight:600}
+.tick .spot{margin-left:auto;font-family:var(--mono);font-size:14px;color:var(--ink-2)}
+.when{display:flex;align-items:center;gap:7px;margin-top:8px;font-family:var(--mono);font-size:11.5px;
+  color:var(--ink-3);flex-wrap:wrap}
+.chip{background:var(--surface-2);padding:2px 8px;border-radius:2px;font-weight:600;color:var(--ink-2)}
+.chip.soon{background:color-mix(in srgb,var(--caution) 22%,transparent);color:var(--caution)}
+.est{color:var(--caution)}
+.moves{padding:14px 17px;border-bottom:1px solid var(--line)}
+.mrow{display:flex;align-items:center;gap:9px;margin-bottom:7px;font-size:12px}
+.mrow:last-child{margin-bottom:0}
+.mlab{width:76px;color:var(--ink-3);font-size:10.5px;text-transform:uppercase;letter-spacing:.07em}
+.mbar{flex:1;height:15px;background:var(--surface-2);border-radius:2px;overflow:hidden;position:relative}
+.mbar i{display:block;height:100%;border-radius:2px}
+.mval{width:52px;text-align:right;font-family:var(--mono);font-weight:600;font-size:12.5px}
+.ratio{margin-top:9px;font-size:12px;color:var(--ink-2);font-family:var(--mono)}
+.struct{padding:12px 17px;border-bottom:1px solid var(--line);background:var(--surface-2)}
+.sname{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-2)}
+.slegs{font-family:var(--mono);font-size:14px;margin-top:5px;letter-spacing:-.01em}
+.stats{display:grid;grid-template-columns:repeat(3,1fr)}
+.stat{padding:10px 17px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.stat:nth-child(3n){border-right:0}
+.stat .k{font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3)}
+.stat .v{font-family:var(--mono);font-size:14.5px;font-weight:600;margin-top:3px}
+.v.pos{color:var(--profit)} .v.neg{color:var(--loss)}
+.greeks{display:flex;border-bottom:1px solid var(--line)}
+.gk{flex:1;padding:8px 17px;border-right:1px solid var(--line)}
+.gk:last-child{border-right:0}
+.gk .k{font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3)}
+.gk .v{font-family:var(--mono);font-size:12.5px;margin-top:2px}
+.why{padding:11px 17px;font-size:12.5px;color:var(--ink-2);line-height:1.5}
+.foot{padding:9px 17px;margin-top:auto;border-top:1px solid var(--line);
+  font-family:var(--mono);font-size:11px;color:var(--ink-3);
+  display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.warn{padding:8px 17px;background:color-mix(in srgb,var(--caution) 13%,transparent);
+  color:var(--caution);font-size:11.5px;font-weight:600;border-bottom:1px solid var(--line)}
+.method{margin-top:36px;border-top:1px solid var(--line);padding-top:20px;
+  font-size:13px;color:var(--ink-2);columns:2;column-gap:34px}
+.method h3{font-family:var(--sans);font-size:11px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--ink-3);margin:0 0 8px;column-span:all}
+.method p{margin:0 0 10px;break-inside:avoid}
+.method strong{color:var(--ink)}
+.disclaim{margin-top:22px;padding:13px 16px;background:var(--surface-2);
+  border-left:3px solid var(--caution);font-size:12.5px;color:var(--ink-2);border-radius:0 2px 2px 0}
+@media (max-width:720px){.method{columns:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <div><h1>Earnings Watch</h1>
+      <div class="sub">Optionable names reporting within 30 days &middot; defined-risk event structures</div></div>
+    <div class="stamp">Updated 04 Aug 2026, 03:37 UTC</div>
+  </header>
+  <div class="thesis"><strong>The question this answers:</strong> is the options market pricing a bigger move
+  than the stock actually tends to make on earnings day? When implied exceeds historical, the event premium is
+  rich and worth selling. When it falls short, the event is cheap and worth buying. Everything below is sorted
+  by that gap, and every structure caps its loss by construction.</div>
+  <div class="tally" id="tally"></div>
+  <div id="groups"></div>
+  <div class="method">
+    <h3>How this is measured</h3>
+    <p><strong>Implied move</strong> is the at-the-money straddle in the first expiry after the report, as a percentage of spot &mdash; what the market charges to own the event.</p>
+    <p><strong>Historical move</strong> is inferred from the four largest single-day moves of the past year. Exact announcement dates aren't in the free feed, but for large caps those days are overwhelmingly earnings reactions. It is an approximation, and a name with a big non-earnings shock in its history will read as cheaper than it is.</p>
+    <p><strong>IV term structure</strong> compares implied vol in the expiry containing earnings against the one after it. A wide positive spread is the event premium priced into the front month, and it is what collapses once the report lands.</p>
+    <p><strong>Iron condors</strong> sell roughly 20-delta strikes and buy 10-delta wings. They carry positive theta and negative vega &mdash; they profit from decay and from the volatility crush after the announcement.</p>
+    <p><strong>Debit verticals</strong> buy roughly 55-delta and sell 30-delta in the trend direction. Negative theta, positive vega &mdash; the mirror image, and the right side only when the event is genuinely underpriced.</p>
+    <p><strong>Estimated dates</strong> are flagged. An estimated date can be wrong by weeks, which would put the chosen expiry on the wrong side of the report &mdash; confirm before acting on those.</p>
+  </div>
+  <div class="disclaim"><strong>Analysis only.</strong> Nothing here is placed, ordered, or executed &mdash; and none of it is financial advice. Earnings positions carry gap risk that no model captures: a stock can move far beyond both breakevens overnight, and on a condor that means the full defined loss. Quotes are free-tier and delayed roughly 15 minutes. Verify the report date and live pricing before acting.</div>
+</div>
+
+<script>
+const DATA = {"rows":[{"symbol":"HD","date":"2026-08-18","days":14,"estimated":false,"beat_rate":50,"n_quarters":4,"avg_surprise":1.4,"spot":340.02,"expiry":"2026-08-21","expiry_ts":1787270400,"dte":16,"straddle":22.9,"implied_move":6.73,"atm_strike":340.0,"front_iv":40.5,"back_iv":38.1,"iv_term_spread":2.4,"hist_move":5.36,"hist_max":6.02,"verdict":"PREMIUM RICH","premium_ratio":1.26,"rationale":"Options price a bigger move than this name typically delivers \u2014 selling the event inside a defined-risk credit structure is the better side.","trend":"UP","rvol":26.9,"structure":"IRON CONDOR","side":"SELL EVENT","short_put":320.0,"long_put":300.0,"short_call":365.0,"long_call":385.0,"width":20.0,"net":5.35,"max_profit":5.35,"max_loss":14.65,"rr":0.36,"be_low":314.65,"be_high":370.35,"pop":66.4,"net_delta":-0.01,"net_theta":0.232,"net_vega":-0.202,"credit_per":534.5,"risk_per":1465.5,"min_oi":843,"has_structure":true},{"symbol":"NVDA","date":"2026-08-26","days":22,"estimated":false,"beat_rate":100,"n_quarters":4,"avg_surprise":4.6,"spot":206.64,"expiry":"2026-08-28","expiry_ts":1787875200,"dte":23,"straddle":19.58,"implied_move":9.47,"atm_strike":205.0,"front_iv":46.0,"back_iv":45.0,"iv_term_spread":1.0,"hist_move":6.53,"hist_max":7.87,"verdict":"PREMIUM RICH","premium_ratio":1.45,"rationale":"Options price a bigger move than this name typically delivers \u2014 selling the event inside a defined-risk credit structure is the better side.","trend":"DOWN","rvol":42.4,"structure":"IRON CONDOR","side":"SELL EVENT","short_put":190.0,"long_put":180.0,"short_call":230.0,"long_call":240.0,"width":10.0,"net":3.03,"max_profit":3.03,"max_loss":6.97,"rr":0.43,"be_low":186.97,"be_high":233.03,"pop":65.4,"net_delta":0.015,"net_theta":0.094,"net_vega":-0.098,"credit_per":303.0,"risk_per":697.0,"min_oi":3142,"has_structure":true},{"symbol":"PANW","date":"2026-09-01","days":28,"estimated":false,"beat_rate":100,"n_quarters":4,"avg_surprise":7.1,"spot":347.13,"expiry":"2026-09-04","expiry_ts":1788480000,"dte":30,"straddle":50.65,"implied_move":14.59,"atm_strike":350.0,"front_iv":68.0,"back_iv":64.8,"iv_term_spread":3.1,"hist_move":8.25,"hist_max":9.28,"verdict":"PREMIUM RICH","premium_ratio":1.77,"rationale":"Options price a bigger move than this name typically delivers \u2014 selling the event inside a defined-risk credit structure is the better side.","trend":"UP","rvol":52.2,"structure":"IRON CONDOR","side":"SELL EVENT","short_put":305.0,"long_put":275.0,"short_call":420.0,"long_call":450.0,"width":30.0,"net":8.43,"max_profit":8.43,"max_loss":21.57,"rr":0.39,"be_low":296.57,"be_high":428.43,"pop":64.8,"net_delta":0.02,"net_theta":0.193,"net_vega":-0.192,"credit_per":843.0,"risk_per":2157.0,"min_oi":2,"has_structure":true},{"symbol":"CRM","date":"2026-09-02","days":29,"estimated":false,"beat_rate":100,"n_quarters":4,"avg_surprise":16.8,"spot":185.95,"expiry":"2026-09-04","expiry_ts":1788480000,"dte":30,"straddle":23.15,"implied_move":12.45,"atm_strike":185.0,"front_iv":55.6,"back_iv":53.3,"iv_term_spread":2.2,"hist_move":8.48,"hist_max":9.68,"verdict":"PREMIUM RICH","premium_ratio":1.47,"rationale":"Options price a bigger move than this name typically delivers \u2014 selling the event inside a defined-risk credit structure is the better side.","trend":"UP","rvol":51.3,"structure":"IRON CONDOR","side":"SELL EVENT","short_put":165.0,"long_put":155.0,"short_call":215.0,"long_call":230.0,"width":15.0,"net":3.09,"max_profit":3.09,"max_loss":11.91,"rr":0.26,"be_low":161.91,"be_high":218.09,"pop":65.8,"net_delta":-0.006,"net_theta":0.103,"net_vega":-0.111,"credit_per":309.0,"risk_per":1191.0,"min_oi":10,"has_structure":true},{"symbol":"AMD","date":"2026-08-04","days":0,"estimated":false,"beat_rate":75,"n_quarters":4,"avg_surprise":5.9,"spot":484.64,"expiry":"2026-08-05","expiry_ts":1785888000,"dte":0,"straddle":43.1,"implied_move":8.89,"atm_strike":485.0,"front_iv":150.6,"back_iv":123.7,"iv_term_spread":26.9,"hist_move":18.39,"hist_max":23.71,"verdict":"PREMIUM CHEAP","premium_ratio":0.48,"rationale":"Options price a smaller move than this name typically delivers \u2014 buying the event with a defined-risk debit structure is the better side.","trend":"DOWN","rvol":86.9,"structure":"DEBIT PUT SPREAD","side":"BUY EVENT","long_strike":490.0,"short_strike":465.0,"width":25.0,"net":11.58,"max_profit":13.42,"max_loss":11.58,"rr":1.16,"breakeven":478.43,"pop":45.1,"net_delta":-0.249,"net_theta":-0.996,"net_vega":0.014,"cost_per":1157.5,"risk_per":1157.5,"min_oi":348,"has_structure":true},{"symbol":"CAT","date":"2026-08-04","days":0,"estimated":false,"beat_rate":75,"n_quarters":4,"avg_surprise":8.6,"spot":830.03,"expiry":"2026-08-07","expiry_ts":1786060800,"dte":2,"straddle":62.17,"implied_move":7.49,"atm_strike":830.0,"front_iv":89.7,"back_iv":63.5,"iv_term_spread":26.2,"hist_move":8.87,"hist_max":11.63,"verdict":"PREMIUM CHEAP","premium_ratio":0.84,"rationale":"Options price a smaller move than this name typically delivers \u2014 buying the event with a defined-risk debit structure is the better side.","trend":"DOWN","rvol":39.2,"structure":"DEBIT PUT SPREAD","side":"BUY EVENT","long_strike":840.0,"short_strike":805.0,"width":35.0,"net":16.58,"max_profit":18.42,"max_loss":16.58,"rr":1.11,"breakeven":823.42,"pop":46.2,"net_delta":-0.255,"net_theta":-0.539,"net_vega":0.027,"cost_per":1657.5,"risk_per":1657.5,"min_oi":52,"has_structure":true},{"symbol":"PFE","date":"2026-08-04","days":0,"estimated":false,"beat_rate":100,"n_quarters":4,"avg_surprise":23.4,"spot":25.03,"expiry":"2026-08-07","expiry_ts":1786060800,"dte":2,"straddle":0.77,"implied_move":3.08,"atm_strike":25.0,"front_iv":38.8,"back_iv":30.3,"iv_term_spread":8.5,"hist_move":5.85,"hist_max":6.83,"verdict":"PREMIUM CHEAP","premium_ratio":0.53,"rationale":"Options price a smaller move than this name typically delivers \u2014 buying the event with a defined-risk debit structure is the better side.","trend":"DOWN","rvol":20.6,"structure":"DEBIT PUT SPREAD","side":"BUY EVENT","long_strike":25.0,"short_strike":24.5,"width":0.5,"net":0.18,"max_profit":0.32,"max_loss":0.18,"rr":1.7,"breakeven":24.82,"pop":37.8,"net_delta":-0.266,"net_theta":-0.019,"net_vega":0.002,"cost_per":18.5,"risk_per":18.5,"min_oi":4842,"has_structure":true},{"symbol":"MRK","date":"2026-08-04","days":0,"estimated":false,"beat_rate":100,"n_quarters":4,"avg_surprise":7.4,"spot":127.77,"expiry":"2026-08-07","expiry_ts":1786060800,"dte":2,"straddle":6.17,"implied_move":4.83,"atm_strike":128.0,"front_iv":57.8,"back_iv":44.3,"iv_term_spread":13.5,"hist_move":6.27,"hist_max":7.39,"verdict":"PREMIUM CHEAP","premium_ratio":0.77,"rationale":"Options price a smaller move than this name typically delivers \u2014 buying the event with a defined-risk debit structure is the better side.","trend":"UP","rvol":26.9,"structure":"DEBIT CALL SPREAD","side":"BUY EVENT","long_strike":127.0,"short_strike":131.0,"width":4.0,"net":1.75,"max_profit":2.25,"max_loss":1.75,"rr":1.28,"breakeven":128.75,"pop":42.3,"net_delta":0.277,"net_theta":-0.083,"net_vega":0.005,"cost_per":175.5,"risk_per":175.5,"min_oi":110,"has_structure":true},{"symbol":"LLY","date":"2026-08-05","days":1,"estimated":false,"beat_rate":100,"n_quarters":4,"avg_surprise":16.8,"spot":1121.36,"expiry":"2026-08-07","expiry_ts":1786060800,"dte":2,"straddle":79.75,"implied_move":7.11,"atm_strike":1120.0,"front_iv":85.2,"back_iv":58.2,"iv_term_spread":27.0,"hist_move":10.61,"hist_max":14.14,"verdict":"PREMIUM CHEAP","premium_ratio":0.67,"rationale":"Options price a smaller move than this name typically delivers \u2014 buying the event with a defined-risk debit structure is the better side.","trend":"UP","rvol":30.5,"structure":"DEBIT CALL SPREAD","side":"BUY EVENT","long_strike":1115.0,"short_strike":1162.5,"width":47.5,"net":19.57,"max_profit":27.93,"max_loss":19.57,"rr":1.43,"breakeven":1134.58,"pop":41.6,"net_delta":0.25,"net_theta":-0.87,"net_vega":0.04,"cost_per":1957.5,"risk_per":1957.5,"min_oi":4,"has_structure":true},{"symbol":"SHOP","date":"2026-08-05","days":1,"estimated":false,"beat_rate":75,"n_quarters":4,"avg_surprise":6.4,"spot":117.01,"expiry":"2026-08-07","expiry_ts":1786060800,"dte":2,"straddle":14.32,"implied_move":12.24,"atm_strike":117.0,"front_iv":146.7,"back_iv":100.7,"iv_term_spread":46.0,"hist_move":14.72,"hist_max":21.97,"verdict":"PREMIUM CHEAP","premium_ratio":0.83,"rationale":"Options price a smaller move than this name typically delivers \u2014 buying the event with a defined-risk debit structure is the better side.","trend":"UP","rvol":59.0,"structure":"DEBIT CALL SPREAD","side":"BUY EVENT","long_strike":116.0,"short_strike":125.0,"width":9.0,"net":3.83,"max_profit":5.17,"max_loss":3.83,"rr":1.35,"breakeven":119.83,"pop":39.6,"net_delta":0.262,"net_theta":-0.215,"net_vega":0.005,"cost_per":382.5,"risk_per":382.5,"min_oi":50,"has_structure":true},{"symbol":"MCD","date":"2026-08-04","days":0,"estimated":false,"beat_rate":75,"n_quarters":4,"avg_surprise":0.8,"spot":265.23,"expiry":"2026-08-07","expiry_ts":1786060800,"dte":2,"straddle":10.3,"implied_move":3.88,"atm_strike":265.0,"front_iv":50.1,"back_iv":41.0,"iv_term_spread":9.1,"hist_move":3.5,"hist_max":4.16,"verdict":"FAIR","premium_ratio":1.11,"rationale":"Implied and historical moves are close \u2014 no clear pricing edge on the event itself.","trend":"DOWN","rvol":21.0,"has_structure":false},{"symbol":"DIS","date":"2026-08-05","days":1,"estimated":false,"beat_rate":100,"n_quarters":4,"avg_surprise":7.0,"spot":98.14,"expiry":"2026-08-07","expiry_ts":1786060800,"dte":2,"straddle":6.08,"implied_move":6.2,"atm_strike":98.0,"front_iv":74.2,"back_iv":50.8,"iv_term_spread":23.4,"hist_move":7.0,"hist_max":7.75,"verdict":"FAIR","premium_ratio":0.89,"rationale":"Implied and historical moves are close \u2014 no clear pricing edge on the event itself.","trend":"DOWN","rvol":25.6,"has_structure":false},{"symbol":"UBER","date":"2026-08-05","days":1,"estimated":false,"beat_rate":50,"n_quarters":4,"avg_surprise":47.6,"spot":71.61,"expiry":"2026-08-07","expiry_ts":1786060800,"dte":2,"straddle":4.85,"implied_move":6.77,"atm_strike":72.0,"front_iv":80.7,"back_iv":56.6,"iv_term_spread":24.1,"hist_move":6.85,"hist_max":8.53,"verdict":"FAIR","premium_ratio":0.99,"rationale":"Implied and historical moves are close \u2014 no clear pricing edge on the event itself.","trend":"DOWN","rvol":33.8,"has_structure":false},{"symbol":"ABNB","date":"2026-08-06","days":2,"estimated":false,"beat_rate":25,"n_quarters":4,"avg_surprise":-6.3,"spot":150.64,"expiry":"2026-08-07","expiry_ts":1786060800,"dte":2,"straddle":11.23,"implied_move":7.45,"atm_strike":150.0,"front_iv":89.3,"back_iv":61.2,"iv_term_spread":28.1,"hist_move":6.63,"hist_max":8.02,"verdict":"FAIR","premium_ratio":1.12,"rationale":"Implied and historical moves are close \u2014 no clear pricing edge on the event itself.","trend":"UP","rvol":33.6,"has_structure":false},{"symbol":"CSCO","date":"2026-08-12","days":8,"estimated":false,"beat_rate":100,"n_quarters":4,"avg_surprise":1.8,"spot":115.86,"expiry":"2026-08-14","expiry_ts":1786665600,"dte":9,"straddle":10.53,"implied_move":9.08,"atm_strike":116.0,"front_iv":65.6,"back_iv":58.3,"iv_term_spread":7.2,"hist_move":9.41,"hist_max":13.41,"verdict":"FAIR","premium_ratio":0.96,"rationale":"Implied and historical moves are close \u2014 no clear pricing edge on the event itself.","trend":"DOWN","rvol":33.1,"has_structure":false},{"symbol":"WMT","date":"2026-08-20","days":16,"estimated":false,"beat_rate":75,"n_quarters":4,"avg_surprise":-0.7,"spot":110.71,"expiry":"2026-08-21","expiry_ts":1787270400,"dte":16,"straddle":7.08,"implied_move":6.39,"atm_strike":111.0,"front_iv":36.9,"back_iv":35.0,"iv_term_spread":1.9,"hist_move":5.8,"hist_max":7.27,"verdict":"FAIR","premium_ratio":1.1,"rationale":"Implied and historical moves are close \u2014 no clear pricing edge on the event itself.","trend":"DOWN","rvol":22.1,"has_structure":false},{"symbol":"MRVL","date":"2026-08-27","days":23,"estimated":false,"beat_rate":75,"n_quarters":4,"avg_surprise":1.0,"spot":193.78,"expiry":"2026-08-28","expiry_ts":1787875200,"dte":23,"straddle":42.2,"implied_move":21.78,"atm_strike":195.0,"front_iv":104.3,"back_iv":101.2,"iv_term_spread":3.0,"hist_move":21.55,"hist_max":32.52,"verdict":"FAIR","premium_ratio":1.01,"rationale":"Implied and historical moves are close \u2014 no clear pricing edge on the event itself.","trend":"DOWN","rvol":91.4,"has_structure":false},{"symbol":"AVGO","date":"2026-09-02","days":29,"estimated":false,"beat_rate":100,"n_quarters":4,"avg_surprise":2.3,"spot":392.23,"expiry":"2026-09-04","expiry_ts":1788480000,"dte":30,"straddle":53.08,"implied_move":13.53,"atm_strike":390.0,"front_iv":57.5,"back_iv":56.2,"iv_term_spread":1.3,"hist_move":11.25,"hist_max":12.59,"verdict":"FAIR","premium_ratio":1.2,"rationale":"Implied and historical moves are close \u2014 no clear pricing edge on the event itself.","trend":"DOWN","rvol":43.9,"has_structure":false},{"symbol":"SNOW","date":"2026-09-02","days":29,"estimated":false,"beat_rate":100,"n_quarters":4,"avg_surprise":20.9,"spot":307.53,"expiry":"2026-09-04","expiry_ts":1788480000,"dte":30,"straddle":57.38,"implied_move":18.66,"atm_strike":310.0,"front_iv":78.8,"back_iv":76.2,"iv_term_spread":2.6,"hist_move":20.0,"hist_max":36.48,"verdict":"FAIR","premium_ratio":0.93,"rationale":"Implied and historical moves are close \u2014 no clear pricing edge on the event itself.","trend":"UP","rvol":34.2,"has_structure":false},{"symbol":"DELL","date":"2026-09-03","days":30,"estimated":false,"beat_rate":100,"n_quarters":4,"avg_surprise":20.1,"spot":429.02,"expiry":"2026-09-04","expiry_ts":1788480000,"dte":30,"straddle":95.4,"implied_move":22.24,"atm_strike":430.0,"front_iv":97.1,"back_iv":93.2,"iv_term_spread":3.8,"hist_move":21.14,"hist_max":32.76,"verdict":"FAIR","premium_ratio":1.05,"rationale":"Implied and historical moves are close \u2014 no clear pricing edge on the event itself.","trend":"UP","rvol":87.0,"has_structure":false}]};
+
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function money(n){return (n<0?"-$":"$")+Math.abs(n).toLocaleString(undefined,{maximumFractionDigits:0});}
+const KEY={'PREMIUM RICH':'rich','PREMIUM CHEAP':'cheap','FAIR':'fair','NO DATA':'fair'};
+
+function card(r){
+  const k=KEY[r.verdict]||'fair';
+  const maxMove=Math.max(r.implied_move||0, r.hist_move||0, 1);
+  const soon=r.days<=2;
+  const thin=r.has_structure && r.min_oi<50;
+  const structBlock = r.has_structure ? `
+    <div class="struct">
+      <div class="sname">${r.structure} &middot; ${r.side}</div>
+      <div class="slegs">${r.structure==='IRON CONDOR'
+        ? `${r.long_put} / ${r.short_put} &nbsp;—&nbsp; ${r.short_call} / ${r.long_call}`
+        : `${r.long_strike} / ${r.short_strike}`}</div>
+    </div>
+    ${thin?`<div class="warn">Thin market — smallest leg has ${r.min_oi} open interest</div>`:''}
+    <div class="stats">
+      <div class="stat"><div class="k">${r.structure==='IRON CONDOR'?'Credit':'Cost'}</div>
+        <div class="v num">${money(r.structure==='IRON CONDOR'?r.credit_per:r.cost_per)}</div></div>
+      <div class="stat"><div class="k">Max gain</div><div class="v num pos">${money(r.max_profit*100)}</div></div>
+      <div class="stat"><div class="k">Max loss</div><div class="v num neg">${money(r.max_loss*100)}</div></div>
+      <div class="stat"><div class="k">Reward : risk</div><div class="v num">${r.rr}:1</div></div>
+      <div class="stat"><div class="k">Breakeven</div><div class="v num" style="font-size:12px">${
+        r.structure==='IRON CONDOR'?`${r.be_low}–${r.be_high}`:r.breakeven}</div></div>
+      <div class="stat"><div class="k">Prob. of profit</div><div class="v num">${r.pop}%</div></div>
+    </div>
+    <div class="greeks">
+      <div class="gk"><div class="k">Delta</div><div class="v num">${r.net_delta>0?'+':''}${r.net_delta}</div></div>
+      <div class="gk"><div class="k">Theta / day</div><div class="v num">${r.net_theta>0?'+':''}${r.net_theta}</div></div>
+      <div class="gk"><div class="k">Vega</div><div class="v num">${r.net_vega>0?'+':''}${r.net_vega}</div></div>
+    </div>`
+  : `<div class="why" style="color:var(--ink-3)">No structure built — pricing shows no clear edge on the event.</div>`;
+
+  return `<article class="card ${k}">
+    <div class="top">
+      <div class="tick"><span class="sym">${r.symbol}</span><span class="spot num">${r.spot}</span></div>
+      <div class="when">
+        <span class="chip ${soon?'soon':''}">${r.days===0?'reports today':r.days===1?'reports tomorrow':'in '+r.days+' days'}</span>
+        <span>${r.date}</span>
+        ${r.estimated?'<span class="est">· date estimated</span>':'<span>· confirmed</span>'}
+      </div>
+    </div>
+    <div class="moves">
+      <div class="mrow"><span class="mlab">Implied</span>
+        <span class="mbar"><i style="width:${(r.implied_move/maxMove*100).toFixed(1)}%;background:${css('--accent')}"></i></span>
+        <span class="mval">${r.implied_move}%</span></div>
+      <div class="mrow"><span class="mlab">Historical</span>
+        <span class="mbar"><i style="width:${((r.hist_move||0)/maxMove*100).toFixed(1)}%;background:${css('--ink-3')}"></i></span>
+        <span class="mval">${r.hist_move==null?'—':r.hist_move+'%'}</span></div>
+      <div class="ratio">ratio ${r.premium_ratio==null?'—':r.premium_ratio}&times; &middot; straddle ${r.straddle} &middot; exp ${r.expiry}</div>
+    </div>
+    ${structBlock}
+    <div class="why">${r.rationale}</div>
+    <div class="foot">
+      <span>IV ${r.front_iv}${r.back_iv?` → ${r.back_iv}`:''}${r.iv_term_spread!=null?` (${r.iv_term_spread>0?'+':''}${r.iv_term_spread})`:''}</span>
+      <span>${r.beat_rate!=null?`beat ${r.beat_rate}% of ${r.n_quarters}q`:''}</span>
+    </div>
+  </article>`;
+}
+
+function render(){
+  const rows=DATA.rows||[];
+  const groups=[
+    ['PREMIUM RICH','rich','Options price a bigger move than these names historically deliver. Selling the event inside a defined-risk condor is the better side — these profit if the move comes in smaller than priced.'],
+    ['PREMIUM CHEAP','cheap','Options price a smaller move than these names historically deliver. Buying the event with a defined-risk vertical is the better side — cost is the whole risk.'],
+    ['FAIR','fair','Implied and historical moves line up. No pricing edge on the event itself, so no structure is proposed.']
+  ];
+  const n=v=>rows.filter(r=>r.verdict===v).length;
+  document.getElementById('tally').innerHTML=`
+    <div class="t"><div class="k">Reporting ≤30d</div><div class="v">${rows.length}</div></div>
+    <div class="t"><div class="k">Premium rich</div><div class="v" style="color:${css('--rich')}">${n('PREMIUM RICH')}</div></div>
+    <div class="t"><div class="k">Premium cheap</div><div class="v" style="color:${css('--cheap')}">${n('PREMIUM CHEAP')}</div></div>
+    <div class="t"><div class="k">Fairly priced</div><div class="v" style="color:${css('--fair')}">${n('FAIR')}</div></div>
+    <div class="t"><div class="k">Reporting ≤48h</div><div class="v" style="color:${css('--caution')}">${rows.filter(r=>r.days<=2).length}</div></div>`;
+  document.getElementById('groups').innerHTML=groups.map(([v,k,note])=>{
+    const g=rows.filter(r=>r.verdict===v);
+    if(!g.length) return '';
+    return `<section class="group">
+      <div class="ghead"><span class="gtag ${k}">${v}</span><span style="color:var(--ink-3);font-size:12.5px">${g.length} name${g.length>1?'s':''}</span></div>
+      <p class="gnote">${note}</p>
+      <div class="cards">${g.map(card).join('')}</div>
+    </section>`;
+  }).join('');
+}
+render();
+
+</script>

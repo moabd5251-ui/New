@@ -1,0 +1,4231 @@
+{
+  "SPY": {
+    "symbol": "SPY",
+    "expiry": "2026-08-06",
+    "dte": 0,
+    "spot": 770.34,
+    "quote_spot": 770.34,
+    "parity_strikes": 48,
+    "total_gex": -284932486.0588974,
+    "regime": "SHORT GAMMA \u2014 hedging amplifies moves, trends extend",
+    "zero_gamma": 749.13,
+    "max_pain": 768.0,
+    "call_volume": 1124066,
+    "put_volume": 997782,
+    "call_oi": 229927,
+    "put_oi": 173991,
+    "pc_volume": 0.89,
+    "pc_oi": 0.76,
+    "atm_strike": 770.0,
+    "straddle": 2.77,
+    "expected_move_pct": 0.36,
+    "call_walls": [
+      {
+        "strike": 780.0,
+        "oi": 18264,
+        "vol": 23949,
+        "gex": 149893560.9579655
+      },
+      {
+        "strike": 775.0,
+        "oi": 12110,
+        "vol": 123099,
+        "gex": 419683493.84149456
+      },
+      {
+        "strike": 772.0,
+        "oi": 11015,
+        "vol": 228319,
+        "gex": 636072870.3418715
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 760.0,
+        "oi": 16455,
+        "vol": 32050,
+        "gex": -122450431.99208295
+      },
+      {
+        "strike": 770.0,
+        "oi": 9416,
+        "vol": 195542,
+        "gex": -530549998.1932075
+      },
+      {
+        "strike": 765.0,
+        "oi": 9401,
+        "vol": 71040,
+        "gex": -223318417.3047347
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 772.0,
+        "vol": 228319,
+        "oi": 11015
+      },
+      {
+        "strike": 771.0,
+        "vol": 156832,
+        "oi": 5129
+      },
+      {
+        "strike": 773.0,
+        "vol": 131326,
+        "oi": 6365
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 770.0,
+        "vol": 195542,
+        "oi": 9416
+      },
+      {
+        "strike": 769.0,
+        "vol": 131216,
+        "oi": 6662
+      },
+      {
+        "strike": 768.0,
+        "vol": 97268,
+        "oi": 8943
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 775.0,
+        "score": 2.892,
+        "oi": 15215,
+        "vol": 125456,
+        "turnover": 8.25,
+        "excess": 3.94,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 312076784.64431536,
+        "distance_pct": 0.6
+      },
+      {
+        "strike": 774.0,
+        "score": 2.434,
+        "oi": 9741,
+        "vol": 104908,
+        "turnover": 10.77,
+        "excess": 3.13,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 166974817.54372483,
+        "distance_pct": 0.48
+      },
+      {
+        "strike": 767.0,
+        "score": 1.87,
+        "oi": 10017,
+        "vol": 72846,
+        "turnover": 7.27,
+        "excess": 2.36,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": -167897229.43301624,
+        "distance_pct": 0.43
+      },
+      {
+        "strike": 765.0,
+        "score": 1.709,
+        "oi": 11223,
+        "vol": 72690,
+        "turnover": 6.48,
+        "excess": 2.42,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": -180037260.371512,
+        "distance_pct": 0.69
+      },
+      {
+        "strike": 776.0,
+        "score": 1.599,
+        "oi": 12569,
+        "vol": 64882,
+        "turnover": 5.16,
+        "excess": 2.3,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 204779729.87617326,
+        "distance_pct": 0.73
+      }
+    ],
+    "flow": {
+      "bias": "CALLS \u2014 upside flow dominates",
+      "ratio": 0.77,
+      "put_below": 806084,
+      "call_above": 1010372,
+      "downside_vol": 919778,
+      "upside_vol": 1202032
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:37:26Z"
+  },
+  "QQQ": {
+    "symbol": "QQQ",
+    "expiry": "2026-08-06",
+    "dte": 0,
+    "spot": 717.08,
+    "quote_spot": 717.1,
+    "parity_strikes": 55,
+    "total_gex": -591989691.8952329,
+    "regime": "SHORT GAMMA \u2014 hedging amplifies moves, trends extend",
+    "zero_gamma": 696.0,
+    "max_pain": 718.0,
+    "call_volume": 1011530,
+    "put_volume": 708436,
+    "call_oi": 92685,
+    "put_oi": 92123,
+    "pc_volume": 0.7,
+    "pc_oi": 0.99,
+    "atm_strike": 717.0,
+    "straddle": 4.32,
+    "expected_move_pct": 0.6,
+    "call_walls": [
+      {
+        "strike": 730.0,
+        "oi": 10845,
+        "vol": 12064,
+        "gex": 34239474.504924186
+      },
+      {
+        "strike": 725.0,
+        "oi": 7434,
+        "vol": 36359,
+        "gex": 74730602.15279269
+      },
+      {
+        "strike": 735.0,
+        "oi": 5894,
+        "vol": 5136,
+        "gex": 4000490.3384869504
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 700.0,
+        "oi": 8556,
+        "vol": 50420,
+        "gex": -47118277.96752354
+      },
+      {
+        "strike": 710.0,
+        "oi": 5496,
+        "vol": 69065,
+        "gex": -127792817.47651231
+      },
+      {
+        "strike": 708.0,
+        "oi": 5452,
+        "vol": 27660,
+        "gex": -98287190.72163856
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 718.0,
+        "vol": 117657,
+        "oi": 858
+      },
+      {
+        "strike": 720.0,
+        "vol": 117504,
+        "oi": 4224
+      },
+      {
+        "strike": 722.0,
+        "vol": 79621,
+        "oi": 2364
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 710.0,
+        "vol": 69065,
+        "oi": 5496
+      },
+      {
+        "strike": 715.0,
+        "vol": 63322,
+        "oi": 3877
+      },
+      {
+        "strike": 700.0,
+        "vol": 50420,
+        "oi": 8556
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 720.0,
+        "score": 2.855,
+        "oi": 10230,
+        "vol": 125913,
+        "turnover": 12.31,
+        "excess": 3.55,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": -41554126.18731205,
+        "distance_pct": 0.41
+      },
+      {
+        "strike": 714.0,
+        "score": 1.573,
+        "oi": 3519,
+        "vol": 82428,
+        "turnover": 23.42,
+        "excess": 1.98,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": -68092021.24370614,
+        "distance_pct": 0.43
+      },
+      {
+        "strike": 710.0,
+        "score": 1.564,
+        "oi": 8489,
+        "vol": 80736,
+        "turnover": 9.51,
+        "excess": 2.49,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": -58199676.51814234,
+        "distance_pct": 0.99
+      },
+      {
+        "strike": 722.0,
+        "score": 1.481,
+        "oi": 4684,
+        "vol": 81703,
+        "turnover": 17.44,
+        "excess": 2.09,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 764939.3640099689,
+        "distance_pct": 0.69
+      },
+      {
+        "strike": 713.0,
+        "score": 1.371,
+        "oi": 3027,
+        "vol": 77988,
+        "turnover": 25.76,
+        "excess": 1.84,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": -60472214.47341704,
+        "distance_pct": 0.57
+      }
+    ],
+    "flow": {
+      "bias": "PUTS \u2014 downside flow dominates",
+      "ratio": 1.6,
+      "put_below": 650026,
+      "call_above": 602606,
+      "downside_vol": 1058950,
+      "upside_vol": 661016
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:37:33Z"
+  },
+  "IWM": {
+    "symbol": "IWM",
+    "expiry": "2026-08-06",
+    "dte": 0,
+    "spot": 301.0,
+    "quote_spot": 300.98,
+    "parity_strikes": 14,
+    "total_gex": -31605707.67293532,
+    "regime": "SHORT GAMMA \u2014 hedging amplifies moves, trends extend",
+    "zero_gamma": 292.0,
+    "max_pain": 298.0,
+    "call_volume": 153559,
+    "put_volume": 138255,
+    "call_oi": 41359,
+    "put_oi": 23346,
+    "pc_volume": 0.9,
+    "pc_oi": 0.56,
+    "atm_strike": 301.0,
+    "straddle": 1.4,
+    "expected_move_pct": 0.46,
+    "call_walls": [
+      {
+        "strike": 305.0,
+        "oi": 19686,
+        "vol": 3280,
+        "gex": 21116782.454524655
+      },
+      {
+        "strike": 302.0,
+        "oi": 2874,
+        "vol": 40183,
+        "gex": 27024697.315612707
+      },
+      {
+        "strike": 306.0,
+        "oi": 1985,
+        "vol": 1742,
+        "gex": 730138.2614104776
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 298.0,
+        "oi": 4691,
+        "vol": 33349,
+        "gex": -56158861.92332932
+      },
+      {
+        "strike": 295.0,
+        "oi": 4046,
+        "vol": 6316,
+        "gex": -13280449.512638865
+      },
+      {
+        "strike": 297.0,
+        "oi": 2497,
+        "vol": 19444,
+        "gex": -19970982.426839277
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 301.0,
+        "vol": 51904,
+        "oi": 1196
+      },
+      {
+        "strike": 302.0,
+        "vol": 40183,
+        "oi": 2874
+      },
+      {
+        "strike": 303.0,
+        "vol": 16315,
+        "oi": 1521
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 299.0,
+        "vol": 43559,
+        "oi": 1189
+      },
+      {
+        "strike": 298.0,
+        "vol": 33349,
+        "oi": 4691
+      },
+      {
+        "strike": 297.0,
+        "vol": 19444,
+        "oi": 2497
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 299.0,
+        "score": 2.481,
+        "oi": 3026,
+        "vol": 48089,
+        "turnover": 15.89,
+        "excess": 3.47,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": 11039944.91168242,
+        "distance_pct": 0.66
+      },
+      {
+        "strike": 298.0,
+        "score": 1.862,
+        "oi": 5811,
+        "vol": 34197,
+        "turnover": 5.88,
+        "excess": 2.97,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": -42750649.313197404,
+        "distance_pct": 1.0
+      },
+      {
+        "strike": 305.0,
+        "score": 1.646,
+        "oi": 19797,
+        "vol": 3317,
+        "turnover": 0.17,
+        "excess": 2.96,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 20997714.9521142,
+        "distance_pct": 1.33
+      },
+      {
+        "strike": 301.0,
+        "score": 1.029,
+        "oi": 2444,
+        "vol": 60130,
+        "turnover": 24.6,
+        "excess": 1.03,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": -801027.5646854341,
+        "distance_pct": 0.0
+      },
+      {
+        "strike": 303.0,
+        "score": 0.942,
+        "oi": 1935,
+        "vol": 16563,
+        "turnover": 8.56,
+        "excess": 1.32,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 5551160.813907312,
+        "distance_pct": 0.67
+      }
+    ],
+    "flow": {
+      "bias": "PUTS \u2014 downside flow dominates",
+      "ratio": 1.2,
+      "put_below": 128610,
+      "call_above": 122779,
+      "downside_vol": 159390,
+      "upside_vol": 132424
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:37:39Z"
+  },
+  "DIA": {
+    "symbol": "DIA",
+    "expiry": "2026-08-07",
+    "dte": 1,
+    "spot": 541.71,
+    "quote_spot": 541.57,
+    "parity_strikes": 38,
+    "total_gex": 44765562.876366936,
+    "regime": "LONG GAMMA \u2014 hedging damps moves, price pins",
+    "zero_gamma": 527.13,
+    "max_pain": 536.0,
+    "call_volume": 3063,
+    "put_volume": 8945,
+    "call_oi": 24286,
+    "put_oi": 17731,
+    "pc_volume": 2.92,
+    "pc_oi": 0.73,
+    "atm_strike": 542.0,
+    "straddle": 3.82,
+    "expected_move_pct": 0.71,
+    "call_walls": [
+      {
+        "strike": 550.0,
+        "oi": 1884,
+        "vol": 79,
+        "gex": 15750670.130656004
+      },
+      {
+        "strike": 552.0,
+        "oi": 1299,
+        "vol": 7,
+        "gex": 6361963.544037179
+      },
+      {
+        "strike": 547.0,
+        "oi": 1101,
+        "vol": 939,
+        "gex": 17003815.240477055
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 535.0,
+        "oi": 3031,
+        "vol": 1507,
+        "gex": -26709573.72862104
+      },
+      {
+        "strike": 540.0,
+        "oi": 2569,
+        "vol": 1871,
+        "gex": -53493793.820063084
+      },
+      {
+        "strike": 528.0,
+        "oi": 1588,
+        "vol": 104,
+        "gex": -2651480.5938719334
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 544.0,
+        "vol": 1072,
+        "oi": 991
+      },
+      {
+        "strike": 547.0,
+        "vol": 939,
+        "oi": 1101
+      },
+      {
+        "strike": 545.0,
+        "vol": 230,
+        "oi": 780
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 540.0,
+        "vol": 1871,
+        "oi": 2569
+      },
+      {
+        "strike": 535.0,
+        "vol": 1507,
+        "oi": 3031
+      },
+      {
+        "strike": 541.0,
+        "vol": 923,
+        "oi": 231
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 535.0,
+        "score": 3.319,
+        "oi": 6273,
+        "vol": 1537,
+        "turnover": 0.25,
+        "excess": 5.78,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": 1859359.9659317099,
+        "distance_pct": 1.24
+      },
+      {
+        "strike": 544.0,
+        "score": 2.721,
+        "oi": 1348,
+        "vol": 1272,
+        "turnover": 0.94,
+        "excess": 3.41,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 14278853.25768299,
+        "distance_pct": 0.42
+      },
+      {
+        "strike": 540.0,
+        "score": 1.84,
+        "oi": 4212,
+        "vol": 1882,
+        "turnover": 0.45,
+        "excess": 2.19,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": -19281920.23253344,
+        "distance_pct": 0.31
+      },
+      {
+        "strike": 547.0,
+        "score": 1.702,
+        "oi": 1326,
+        "vol": 966,
+        "turnover": 0.73,
+        "excess": 2.7,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 13528921.117763761,
+        "distance_pct": 0.98
+      },
+      {
+        "strike": 537.0,
+        "score": 1.475,
+        "oi": 3864,
+        "vol": 374,
+        "turnover": 0.1,
+        "excess": 2.24,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 35767063.857014604,
+        "distance_pct": 0.87
+      }
+    ],
+    "flow": {
+      "bias": "PUTS \u2014 downside flow dominates",
+      "ratio": 1.21,
+      "put_below": 6366,
+      "call_above": 2858,
+      "downside_vol": 6571,
+      "upside_vol": 5422
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:37:45Z"
+  },
+  "GLD": {
+    "symbol": "GLD",
+    "expiry": "2026-08-07",
+    "dte": 1,
+    "spot": 392.0,
+    "quote_spot": 391.9,
+    "parity_strikes": 53,
+    "total_gex": 182722826.4515717,
+    "regime": "LONG GAMMA \u2014 hedging damps moves, price pins",
+    "zero_gamma": 403.0,
+    "max_pain": 385.0,
+    "call_volume": 13625,
+    "put_volume": 3005,
+    "call_oi": 38920,
+    "put_oi": 7104,
+    "pc_volume": 0.22,
+    "pc_oi": 0.18,
+    "atm_strike": 392.0,
+    "straddle": 5.35,
+    "expected_move_pct": 1.36,
+    "call_walls": [
+      {
+        "strike": 400.0,
+        "oi": 9760,
+        "vol": 3695,
+        "gex": 43839121.83074812
+      },
+      {
+        "strike": 395.0,
+        "oi": 1932,
+        "vol": 2478,
+        "gex": 14372271.664248602
+      },
+      {
+        "strike": 402.0,
+        "oi": 1698,
+        "vol": 91,
+        "gex": 5868273.603273101
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 390.0,
+        "oi": 2153,
+        "vol": 1017,
+        "gex": -18411637.320439365
+      },
+      {
+        "strike": 385.0,
+        "oi": 909,
+        "vol": 626,
+        "gex": -5069137.415295891
+      },
+      {
+        "strike": 384.0,
+        "oi": 679,
+        "vol": 77,
+        "gex": -3272118.634977136
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 400.0,
+        "vol": 3695,
+        "oi": 9760
+      },
+      {
+        "strike": 395.0,
+        "vol": 2478,
+        "oi": 1932
+      },
+      {
+        "strike": 393.0,
+        "vol": 515,
+        "oi": 1242
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 390.0,
+        "vol": 1017,
+        "oi": 2153
+      },
+      {
+        "strike": 385.0,
+        "vol": 626,
+        "oi": 909
+      },
+      {
+        "strike": 386.0,
+        "vol": 406,
+        "oi": 539
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 390.0,
+        "score": 2.773,
+        "oi": 6335,
+        "vol": 2796,
+        "turnover": 0.44,
+        "excess": 3.62,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 17351236.47151484,
+        "distance_pct": 0.51
+      },
+      {
+        "strike": 400.0,
+        "score": 2.292,
+        "oi": 9761,
+        "vol": 3697,
+        "turnover": 0.38,
+        "excess": 5.1,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 43834630.11744579,
+        "distance_pct": 2.04
+      },
+      {
+        "strike": 395.0,
+        "score": 1.658,
+        "oi": 1983,
+        "vol": 2487,
+        "turnover": 1.25,
+        "excess": 2.42,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 13992879.39981968,
+        "distance_pct": 0.76
+      },
+      {
+        "strike": 392.0,
+        "score": 1.201,
+        "oi": 1651,
+        "vol": 1320,
+        "turnover": 0.8,
+        "excess": 1.2,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 6959550.947368239,
+        "distance_pct": 0.0
+      },
+      {
+        "strike": 391.0,
+        "score": 0.992,
+        "oi": 2250,
+        "vol": 954,
+        "turnover": 0.42,
+        "excess": 1.14,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 16624321.132590983,
+        "distance_pct": 0.26
+      }
+    ],
+    "flow": {
+      "bias": "BALANCED",
+      "ratio": 0.98,
+      "put_below": 2921,
+      "call_above": 8319,
+      "downside_vol": 8227,
+      "upside_vol": 8403
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:37:49Z"
+  },
+  "SLV": {
+    "symbol": "SLV",
+    "expiry": "2026-08-07",
+    "dte": 1,
+    "spot": 55.77,
+    "quote_spot": 55.76,
+    "parity_strikes": 20,
+    "total_gex": 13273391.675959274,
+    "regime": "LONG GAMMA \u2014 hedging damps moves, price pins",
+    "zero_gamma": 57.0,
+    "max_pain": 55.0,
+    "call_volume": 5596,
+    "put_volume": 2157,
+    "call_oi": 26869,
+    "put_oi": 6005,
+    "pc_volume": 0.39,
+    "pc_oi": 0.22,
+    "atm_strike": 56.0,
+    "straddle": 1.29,
+    "expected_move_pct": 2.32,
+    "call_walls": [
+      {
+        "strike": 57.0,
+        "oi": 7261,
+        "vol": 1624,
+        "gex": 3862739.4371897765
+      },
+      {
+        "strike": 56.0,
+        "oi": 5312,
+        "vol": 2031,
+        "gex": 3672813.0091910404
+      },
+      {
+        "strike": 56.5,
+        "oi": 2447,
+        "vol": 674,
+        "gex": 1523623.4137379972
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 55.0,
+        "oi": 2224,
+        "vol": 765,
+        "gex": -1581223.6433204643
+      },
+      {
+        "strike": 55.5,
+        "oi": 588,
+        "vol": 970,
+        "gex": -430091.17780028406
+      },
+      {
+        "strike": 54.5,
+        "oi": 430,
+        "vol": 212,
+        "gex": -255341.36180124007
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 56.0,
+        "vol": 2031,
+        "oi": 5312
+      },
+      {
+        "strike": 57.0,
+        "vol": 1624,
+        "oi": 7261
+      },
+      {
+        "strike": 56.5,
+        "vol": 674,
+        "oi": 2447
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 55.5,
+        "vol": 970,
+        "oi": 588
+      },
+      {
+        "strike": 55.0,
+        "vol": 765,
+        "oi": 2224
+      },
+      {
+        "strike": 54.5,
+        "vol": 212,
+        "oi": 430
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 56.0,
+        "score": 1.23,
+        "oi": 7434,
+        "vol": 2169,
+        "turnover": 0.29,
+        "excess": 1.53,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 2205623.7762273005,
+        "distance_pct": 0.41
+      },
+      {
+        "strike": 55.5,
+        "score": 0.962,
+        "oi": 5302,
+        "vol": 1894,
+        "turnover": 0.36,
+        "excess": 1.24,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 3017952.720414918,
+        "distance_pct": 0.48
+      },
+      {
+        "strike": 55.0,
+        "score": 0.594,
+        "oi": 7631,
+        "vol": 1081,
+        "turnover": 0.14,
+        "excess": 1.09,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 2263055.2413170133,
+        "distance_pct": 1.38
+      },
+      {
+        "strike": 57.0,
+        "score": 0.575,
+        "oi": 7578,
+        "vol": 1677,
+        "turnover": 0.22,
+        "excess": 1.34,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 3694100.3514455045,
+        "distance_pct": 2.21
+      },
+      {
+        "strike": 56.5,
+        "score": 0.293,
+        "oi": 2771,
+        "vol": 693,
+        "turnover": 0.25,
+        "excess": 0.52,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 1321884.964187073,
+        "distance_pct": 1.31
+      }
+    ],
+    "flow": {
+      "bias": "CALLS \u2014 upside flow dominates",
+      "ratio": 0.71,
+      "put_below": 1947,
+      "call_above": 4329,
+      "downside_vol": 3214,
+      "upside_vol": 4539
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:37:53Z"
+  },
+  "TLT": {
+    "symbol": "TLT",
+    "expiry": "2026-08-07",
+    "dte": 1,
+    "spot": 82.85,
+    "quote_spot": 82.82,
+    "parity_strikes": 6,
+    "total_gex": 215061572.0093552,
+    "regime": "LONG GAMMA \u2014 hedging damps moves, price pins",
+    "zero_gamma": 82.02,
+    "max_pain": 82.5,
+    "call_volume": 5967,
+    "put_volume": 1271,
+    "call_oi": 118437,
+    "put_oi": 51450,
+    "pc_volume": 0.21,
+    "pc_oi": 0.43,
+    "atm_strike": 83.0,
+    "straddle": 0.51,
+    "expected_move_pct": 0.61,
+    "call_walls": [
+      {
+        "strike": 83.0,
+        "oi": 31509,
+        "vol": 2560,
+        "gex": 138083481.93106213
+      },
+      {
+        "strike": 84.0,
+        "oi": 19868,
+        "vol": 2767,
+        "gex": 20872613.825169317
+      },
+      {
+        "strike": 84.5,
+        "oi": 6949,
+        "vol": 16,
+        "gex": 1589131.7655884377
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 82.5,
+        "oi": 12271,
+        "vol": 550,
+        "gex": -41814130.11214499
+      },
+      {
+        "strike": 80.5,
+        "oi": 8368,
+        "vol": 100,
+        "gex": -191248.70785599604
+      },
+      {
+        "strike": 81.5,
+        "oi": 7102,
+        "vol": 26,
+        "gex": -4349835.508133683
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 84.0,
+        "vol": 2767,
+        "oi": 19868
+      },
+      {
+        "strike": 83.0,
+        "vol": 2560,
+        "oi": 31509
+      },
+      {
+        "strike": 83.5,
+        "vol": 414,
+        "oi": 5929
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 82.5,
+        "vol": 550,
+        "oi": 12271
+      },
+      {
+        "strike": 82.0,
+        "vol": 281,
+        "oi": 6949
+      },
+      {
+        "strike": 81.0,
+        "vol": 126,
+        "oi": 4244
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 84.0,
+        "score": 1.992,
+        "oi": 21328,
+        "vol": 2786,
+        "turnover": 0.13,
+        "excess": 3.66,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 19338789.777215462,
+        "distance_pct": 1.39
+      },
+      {
+        "strike": 82.5,
+        "score": 1.725,
+        "oi": 46974,
+        "vol": 665,
+        "turnover": 0.01,
+        "excess": 2.16,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 76438315.26979353,
+        "distance_pct": 0.42
+      },
+      {
+        "strike": 83.0,
+        "score": 0.899,
+        "oi": 37687,
+        "vol": 2648,
+        "turnover": 0.07,
+        "excess": 1.0,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 111009320.53685407,
+        "distance_pct": 0.19
+      },
+      {
+        "strike": 83.5,
+        "score": 0.534,
+        "oi": 8430,
+        "vol": 490,
+        "turnover": 0.06,
+        "excess": 0.79,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 9742919.984838746,
+        "distance_pct": 0.79
+      },
+      {
+        "strike": 82.0,
+        "score": 0.48,
+        "oi": 12917,
+        "vol": 351,
+        "turnover": 0.03,
+        "excess": 0.77,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": -1646528.6012912896,
+        "distance_pct": 1.02
+      }
+    ],
+    "flow": {
+      "bias": "CALLS \u2014 upside flow dominates",
+      "ratio": 0.21,
+      "put_below": 1083,
+      "call_above": 5776,
+      "downside_vol": 1274,
+      "upside_vol": 5964
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:37:58Z"
+  },
+  "XLE": {
+    "symbol": "XLE",
+    "expiry": "2026-08-07",
+    "dte": 1,
+    "spot": 57.71,
+    "quote_spot": 57.72,
+    "parity_strikes": 10,
+    "total_gex": -3881230.447424927,
+    "regime": "SHORT GAMMA \u2014 hedging amplifies moves, trends extend",
+    "zero_gamma": 56.0,
+    "max_pain": 58.5,
+    "call_volume": 903,
+    "put_volume": 498,
+    "call_oi": 16450,
+    "put_oi": 18752,
+    "pc_volume": 0.55,
+    "pc_oi": 1.14,
+    "atm_strike": 57.5,
+    "straddle": 0.86,
+    "expected_move_pct": 1.49,
+    "call_walls": [
+      {
+        "strike": 59.0,
+        "oi": 10864,
+        "vol": 314,
+        "gex": 6919073.285439951
+      },
+      {
+        "strike": 58.0,
+        "oi": 1447,
+        "vol": 308,
+        "gex": 1740196.0084459698
+      },
+      {
+        "strike": 58.5,
+        "oi": 774,
+        "vol": 195,
+        "gex": 740771.9640671582
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 56.0,
+        "oi": 4616,
+        "vol": 21,
+        "gex": -1731344.4207258723
+      },
+      {
+        "strike": 57.5,
+        "oi": 1606,
+        "vol": 117,
+        "gex": -1933071.2183026862
+      },
+      {
+        "strike": 56.5,
+        "oi": 1542,
+        "vol": 10,
+        "gex": -990235.7487602041
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 59.0,
+        "vol": 314,
+        "oi": 10864
+      },
+      {
+        "strike": 58.0,
+        "vol": 308,
+        "oi": 1447
+      },
+      {
+        "strike": 58.5,
+        "vol": 195,
+        "oi": 774
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 57.0,
+        "vol": 279,
+        "oi": 1254
+      },
+      {
+        "strike": 57.5,
+        "vol": 117,
+        "oi": 1606
+      },
+      {
+        "strike": 56.0,
+        "vol": 21,
+        "oi": 4616
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 58.0,
+        "score": 1.078,
+        "oi": 5906,
+        "vol": 354,
+        "turnover": 0.06,
+        "excess": 1.4,
+        "side": "put",
+        "below_spot": false,
+        "net_gex": -3622301.5739041204,
+        "distance_pct": 0.5
+      },
+      {
+        "strike": 59.0,
+        "score": 0.86,
+        "oi": 14261,
+        "vol": 328,
+        "turnover": 0.02,
+        "excess": 2.01,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 4755589.12208948,
+        "distance_pct": 2.24
+      },
+      {
+        "strike": 57.5,
+        "score": 0.821,
+        "oi": 1926,
+        "vol": 136,
+        "turnover": 0.07,
+        "excess": 1.0,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": -1547901.3616047662,
+        "distance_pct": 0.36
+      },
+      {
+        "strike": 57.0,
+        "score": 0.581,
+        "oi": 1686,
+        "vol": 335,
+        "turnover": 0.2,
+        "excess": 1.01,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": -787094.5781830021,
+        "distance_pct": 1.23
+      },
+      {
+        "strike": 58.5,
+        "score": 0.413,
+        "oi": 2652,
+        "vol": 206,
+        "turnover": 0.08,
+        "excess": 0.75,
+        "side": "put",
+        "below_spot": false,
+        "net_gex": -1056604.972002768,
+        "distance_pct": 1.37
+      }
+    ],
+    "flow": {
+      "bias": "CALLS \u2014 upside flow dominates",
+      "ratio": 0.58,
+      "put_below": 427,
+      "call_above": 817,
+      "downside_vol": 513,
+      "upside_vol": 888
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:38:02Z"
+  },
+  "XLF": {
+    "symbol": "XLF",
+    "expiry": "2026-08-07",
+    "dte": 1,
+    "spot": 57.91,
+    "quote_spot": 57.87,
+    "parity_strikes": 7,
+    "total_gex": 22982987.400536418,
+    "regime": "LONG GAMMA \u2014 hedging damps moves, price pins",
+    "zero_gamma": 57.05,
+    "max_pain": 57.5,
+    "call_volume": 2819,
+    "put_volume": 357,
+    "call_oi": 22182,
+    "put_oi": 8945,
+    "pc_volume": 0.13,
+    "pc_oi": 0.4,
+    "atm_strike": 58.0,
+    "straddle": 0.49,
+    "expected_move_pct": 0.84,
+    "call_walls": [
+      {
+        "strike": 58.0,
+        "oi": 7377,
+        "vol": 2301,
+        "gex": 15248050.219354995
+      },
+      {
+        "strike": 59.0,
+        "oi": 2095,
+        "vol": 459,
+        "gex": 1195567.6520938152
+      },
+      {
+        "strike": 58.5,
+        "oi": 1200,
+        "vol": 10,
+        "gex": 1725209.5733640003
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 57.5,
+        "oi": 5216,
+        "vol": 63,
+        "gex": -8134577.900912385
+      },
+      {
+        "strike": 57.0,
+        "oi": 2346,
+        "vol": 58,
+        "gex": -1972374.9201838202
+      },
+      {
+        "strike": 56.5,
+        "oi": 1164,
+        "vol": 26,
+        "gex": -507696.13808810414
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 58.0,
+        "vol": 2301,
+        "oi": 7377
+      },
+      {
+        "strike": 59.0,
+        "vol": 459,
+        "oi": 2095
+      },
+      {
+        "strike": 58.5,
+        "vol": 10,
+        "oi": 1200
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 57.5,
+        "vol": 63,
+        "oi": 5216
+      },
+      {
+        "strike": 57.0,
+        "vol": 58,
+        "oi": 2346
+      },
+      {
+        "strike": 56.5,
+        "vol": 26,
+        "oi": 1164
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 57.5,
+        "score": 1.387,
+        "oi": 14170,
+        "vol": 84,
+        "turnover": 0.01,
+        "excess": 1.98,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 5829572.889879314,
+        "distance_pct": 0.71
+      },
+      {
+        "strike": 59.0,
+        "score": 1.091,
+        "oi": 2096,
+        "vol": 499,
+        "turnover": 0.24,
+        "excess": 2.32,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 1194996.9754102381,
+        "distance_pct": 1.88
+      },
+      {
+        "strike": 58.0,
+        "score": 0.915,
+        "oi": 7584,
+        "vol": 2385,
+        "turnover": 0.31,
+        "excess": 1.0,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 14820187.07777895,
+        "distance_pct": 0.16
+      },
+      {
+        "strike": 57.0,
+        "score": 0.416,
+        "oi": 4311,
+        "vol": 75,
+        "turnover": 0.02,
+        "excess": 0.81,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": -320321.7581372699,
+        "distance_pct": 1.57
+      },
+      {
+        "strike": 58.5,
+        "score": 0.335,
+        "oi": 1211,
+        "vol": 96,
+        "turnover": 0.08,
+        "excess": 0.54,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 1709395.1522748303,
+        "distance_pct": 1.02
+      }
+    ],
+    "flow": {
+      "bias": "CALLS \u2014 upside flow dominates",
+      "ratio": 0.06,
+      "put_below": 147,
+      "call_above": 2780,
+      "downside_vol": 186,
+      "upside_vol": 2990
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:38:07Z"
+  },
+  "XLK": {
+    "symbol": "XLK",
+    "expiry": "2026-08-07",
+    "dte": 1,
+    "spot": 185.94,
+    "quote_spot": 186.34,
+    "parity_strikes": 28,
+    "total_gex": -3315591.617659943,
+    "regime": "SHORT GAMMA \u2014 hedging amplifies moves, trends extend",
+    "zero_gamma": 181.0,
+    "max_pain": 185.0,
+    "call_volume": 111,
+    "put_volume": 51,
+    "call_oi": 2317,
+    "put_oi": 3243,
+    "pc_volume": 0.46,
+    "pc_oi": 1.4,
+    "atm_strike": 186.0,
+    "straddle": 3.6,
+    "expected_move_pct": 1.93,
+    "call_walls": [
+      {
+        "strike": 186.0,
+        "oi": 238,
+        "vol": 4,
+        "gex": 808908.6592870849
+      },
+      {
+        "strike": 190.0,
+        "oi": 238,
+        "vol": 5,
+        "gex": 390053.61597363005
+      },
+      {
+        "strike": 188.0,
+        "oi": 215,
+        "vol": 39,
+        "gex": 504528.05259795114
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 183.0,
+        "oi": 1195,
+        "vol": 1,
+        "gex": -3697527.5876421635
+      },
+      {
+        "strike": 185.0,
+        "oi": 813,
+        "vol": 27,
+        "gex": -3043460.657216518
+      },
+      {
+        "strike": 181.0,
+        "oi": 319,
+        "vol": 1,
+        "gex": -738872.7850910751
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 188.0,
+        "vol": 39,
+        "oi": 215
+      },
+      {
+        "strike": 187.5,
+        "vol": 12,
+        "oi": 92
+      },
+      {
+        "strike": 187.0,
+        "vol": 7,
+        "oi": 115
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 185.0,
+        "vol": 27,
+        "oi": 813
+      },
+      {
+        "strike": 184.0,
+        "vol": 4,
+        "oi": 247
+      },
+      {
+        "strike": 181.0,
+        "vol": 1,
+        "oi": 319
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 185.0,
+        "score": 2.065,
+        "oi": 1501,
+        "vol": 27,
+        "turnover": 0.02,
+        "excess": 2.69,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": -467936.75541459396,
+        "distance_pct": 0.51
+      },
+      {
+        "strike": 184.0,
+        "score": 1.485,
+        "oi": 466,
+        "vol": 46,
+        "turnover": 0.1,
+        "excess": 2.42,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": -102484.6755695421,
+        "distance_pct": 1.05
+      },
+      {
+        "strike": 188.0,
+        "score": 1.157,
+        "oi": 233,
+        "vol": 40,
+        "turnover": 0.17,
+        "excess": 1.92,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 462288.49470602965,
+        "distance_pct": 1.11
+      },
+      {
+        "strike": 186.0,
+        "score": 0.983,
+        "oi": 361,
+        "vol": 5,
+        "turnover": 0.01,
+        "excess": 1.0,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 390859.2261261125,
+        "distance_pct": 0.03
+      },
+      {
+        "strike": 183.0,
+        "score": 0.71,
+        "oi": 1253,
+        "vol": 2,
+        "turnover": 0.0,
+        "excess": 1.39,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": -3518065.997614343,
+        "distance_pct": 1.58
+      }
+    ],
+    "flow": {
+      "bias": "BALANCED",
+      "ratio": 0.95,
+      "put_below": 35,
+      "call_above": 67,
+      "downside_vol": 79,
+      "upside_vol": 83
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:38:11Z"
+  },
+  "EEM": {
+    "symbol": "EEM",
+    "expiry": "2026-08-07",
+    "dte": 1,
+    "spot": 65.34,
+    "quote_spot": 65.47,
+    "parity_strikes": 18,
+    "total_gex": -7797468.064334648,
+    "regime": "SHORT GAMMA \u2014 hedging amplifies moves, trends extend",
+    "zero_gamma": 63.5,
+    "max_pain": 64.0,
+    "call_volume": 199,
+    "put_volume": 21,
+    "call_oi": 9490,
+    "put_oi": 15185,
+    "pc_volume": 0.11,
+    "pc_oi": 1.6,
+    "atm_strike": 65.5,
+    "straddle": 1.25,
+    "expected_move_pct": 1.91,
+    "call_walls": [
+      {
+        "strike": 67.0,
+        "oi": 5419,
+        "vol": 2,
+        "gex": 2589779.0532026147
+      },
+      {
+        "strike": 65.5,
+        "oi": 1631,
+        "vol": 150,
+        "gex": 1871722.6062796789
+      },
+      {
+        "strike": 66.0,
+        "oi": 290,
+        "vol": 12,
+        "gex": 260843.22907631993
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 64.0,
+        "oi": 10897,
+        "vol": 2,
+        "gex": -11459014.141876087
+      },
+      {
+        "strike": 63.5,
+        "oi": 3649,
+        "vol": 3,
+        "gex": -2791553.098966235
+      },
+      {
+        "strike": 64.5,
+        "oi": 122,
+        "vol": 2,
+        "gex": -161283.21621587992
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 65.5,
+        "vol": 150,
+        "oi": 1631
+      },
+      {
+        "strike": 66.0,
+        "vol": 12,
+        "oi": 290
+      },
+      {
+        "strike": 66.5,
+        "vol": 9,
+        "oi": 249
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 63.5,
+        "vol": 3,
+        "oi": 3649
+      },
+      {
+        "strike": 64.0,
+        "vol": 2,
+        "oi": 10897
+      },
+      {
+        "strike": 64.5,
+        "vol": 2,
+        "oi": 122
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 65.5,
+        "score": 0.872,
+        "oi": 1694,
+        "vol": 152,
+        "turnover": 0.09,
+        "excess": 1.0,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 1799424.3081830388,
+        "distance_pct": 0.24
+      },
+      {
+        "strike": 66.0,
+        "score": 0.843,
+        "oi": 372,
+        "vol": 23,
+        "turnover": 0.06,
+        "excess": 1.35,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 187087.55740646395,
+        "distance_pct": 1.01
+      },
+      {
+        "strike": 64.0,
+        "score": 0.803,
+        "oi": 12237,
+        "vol": 2,
+        "turnover": 0.0,
+        "excess": 1.79,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": -10049903.473791847,
+        "distance_pct": 2.05
+      },
+      {
+        "strike": 65.0,
+        "score": 0.616,
+        "oi": 528,
+        "vol": 13,
+        "turnover": 0.02,
+        "excess": 0.81,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 494192.06568863976,
+        "distance_pct": 0.52
+      },
+      {
+        "strike": 64.5,
+        "score": 0.525,
+        "oi": 180,
+        "vol": 16,
+        "turnover": 0.09,
+        "excess": 0.93,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": -84607.58883455995,
+        "distance_pct": 1.29
+      }
+    ],
+    "flow": {
+      "bias": "CALLS \u2014 upside flow dominates",
+      "ratio": 0.18,
+      "put_below": 8,
+      "call_above": 173,
+      "downside_vol": 34,
+      "upside_vol": 186
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:38:15Z"
+  },
+  "EFA": {
+    "symbol": "EFA",
+    "expiry": "2026-08-07",
+    "dte": 1,
+    "spot": 107.82,
+    "quote_spot": 107.89,
+    "parity_strikes": 9,
+    "total_gex": 13516783.82960274,
+    "regime": "LONG GAMMA \u2014 hedging damps moves, price pins",
+    "zero_gamma": 105.85,
+    "max_pain": 106.0,
+    "call_volume": 205,
+    "put_volume": 2,
+    "call_oi": 7534,
+    "put_oi": 4855,
+    "pc_volume": 0.01,
+    "pc_oi": 0.64,
+    "atm_strike": 108.0,
+    "straddle": 0.78,
+    "expected_move_pct": 0.73,
+    "call_walls": [
+      {
+        "strike": 108.0,
+        "oi": 958,
+        "vol": 203,
+        "gex": 4569802.5353517365
+      },
+      {
+        "strike": 109.0,
+        "oi": 163,
+        "vol": 0,
+        "gex": 337519.559714544
+      },
+      {
+        "strike": 110.0,
+        "oi": 1,
+        "vol": 0,
+        "gex": 358.519700016
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 105.0,
+        "oi": 2642,
+        "vol": 0,
+        "gex": -1638573.3683866803
+      },
+      {
+        "strike": 106.0,
+        "oi": 2106,
+        "vol": 1,
+        "gex": -3276257.6451178067
+      },
+      {
+        "strike": 107.0,
+        "oi": 26,
+        "vol": 1,
+        "gex": -90854.518557816
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 108.0,
+        "vol": 203,
+        "oi": 958
+      },
+      {
+        "strike": 109.0,
+        "vol": 0,
+        "oi": 163
+      },
+      {
+        "strike": 110.0,
+        "vol": 0,
+        "oi": 1
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 106.0,
+        "vol": 1,
+        "oi": 2106
+      },
+      {
+        "strike": 107.0,
+        "vol": 1,
+        "oi": 26
+      },
+      {
+        "strike": 105.0,
+        "vol": 0,
+        "oi": 2642
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 106.0,
+        "score": 1.156,
+        "oi": 4930,
+        "vol": 1,
+        "turnover": 0.0,
+        "excess": 2.33,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 1116976.7280126247,
+        "distance_pct": 1.69
+      },
+      {
+        "strike": 107.0,
+        "score": 1.128,
+        "oi": 2461,
+        "vol": 1,
+        "turnover": 0.0,
+        "excess": 1.64,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 8418020.584837643,
+        "distance_pct": 0.76
+      },
+      {
+        "strike": 108.0,
+        "score": 0.909,
+        "oi": 998,
+        "vol": 203,
+        "turnover": 0.2,
+        "excess": 1.0,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 4378996.583980056,
+        "distance_pct": 0.17
+      },
+      {
+        "strike": 105.5,
+        "score": 0.9,
+        "oi": 494,
+        "vol": 2,
+        "turnover": 0.0,
+        "excess": 2.06,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 461070.2844034559,
+        "distance_pct": 2.15
+      },
+      {
+        "strike": 105.0,
+        "score": 0.353,
+        "oi": 3280,
+        "vol": 0,
+        "turnover": 0.0,
+        "excess": 0.91,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": -1242884.5686021603,
+        "distance_pct": 2.62
+      }
+    ],
+    "flow": {
+      "bias": "CALLS \u2014 upside flow dominates",
+      "ratio": 0.02,
+      "put_below": 2,
+      "call_above": 203,
+      "downside_vol": 4,
+      "upside_vol": 203
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:38:19Z"
+  },
+  "IBIT": {
+    "symbol": "IBIT",
+    "expiry": "2026-08-07",
+    "dte": 1,
+    "spot": 36.56,
+    "quote_spot": 36.56,
+    "parity_strikes": 9,
+    "total_gex": 54359933.00920333,
+    "regime": "LONG GAMMA \u2014 hedging damps moves, price pins",
+    "zero_gamma": 35.58,
+    "max_pain": 36.0,
+    "call_volume": 5487,
+    "put_volume": 5104,
+    "call_oi": 134721,
+    "put_oi": 36149,
+    "pc_volume": 0.93,
+    "pc_oi": 0.27,
+    "atm_strike": 36.5,
+    "straddle": 0.54,
+    "expected_move_pct": 1.49,
+    "call_walls": [
+      {
+        "strike": 37.0,
+        "oi": 52989,
+        "vol": 2588,
+        "gex": 32569438.938880112
+      },
+      {
+        "strike": 37.5,
+        "oi": 29482,
+        "vol": 576,
+        "gex": 9421155.439308064
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 36.0,
+        "oi": 19131,
+        "vol": 2924,
+        "gex": -10475524.031646684
+      },
+      {
+        "strike": 35.5,
+        "oi": 7933,
+        "vol": 696,
+        "gex": -2376155.119276758
+      },
+      {
+        "strike": 36.5,
+        "oi": 6133,
+        "vol": 1404,
+        "gex": -4856505.16856627
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 37.0,
+        "vol": 2588,
+        "oi": 52989
+      },
+      {
+        "strike": 37.5,
+        "vol": 576,
+        "oi": 29482
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 36.0,
+        "vol": 2924,
+        "oi": 19131
+      },
+      {
+        "strike": 36.5,
+        "vol": 1404,
+        "oi": 6133
+      },
+      {
+        "strike": 35.5,
+        "vol": 696,
+        "oi": 7933
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 36.5,
+        "score": 0.904,
+        "oi": 23769,
+        "vol": 3224,
+        "turnover": 0.14,
+        "excess": 1.0,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 9108817.699986596,
+        "distance_pct": 0.18
+      },
+      {
+        "strike": 37.0,
+        "score": 0.859,
+        "oi": 55456,
+        "vol": 2659,
+        "turnover": 0.05,
+        "excess": 1.47,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 31053109.02395027,
+        "distance_pct": 1.19
+      },
+      {
+        "strike": 36.0,
+        "score": 0.833,
+        "oi": 49028,
+        "vol": 3364,
+        "turnover": 0.07,
+        "excess": 1.6,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 5895117.438958144,
+        "distance_pct": 1.55
+      },
+      {
+        "strike": 37.5,
+        "score": 0.214,
+        "oi": 29967,
+        "vol": 585,
+        "turnover": 0.02,
+        "excess": 0.54,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 9266170.689695947,
+        "distance_pct": 2.56
+      },
+      {
+        "strike": 35.5,
+        "score": 0.139,
+        "oi": 12650,
+        "vol": 759,
+        "turnover": 0.06,
+        "excess": 0.38,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": -963281.8433876277,
+        "distance_pct": 2.91
+      }
+    ],
+    "flow": {
+      "bias": "PUTS \u2014 downside flow dominates",
+      "ratio": 2.26,
+      "put_below": 5024,
+      "call_above": 3164,
+      "downside_vol": 7347,
+      "upside_vol": 3244
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:38:23Z"
+  },
+  "AAPL": {
+    "symbol": "AAPL",
+    "expiry": "2026-08-07",
+    "dte": 1,
+    "spot": 312.31,
+    "quote_spot": 312.12,
+    "parity_strikes": 23,
+    "total_gex": 324598039.7367572,
+    "regime": "LONG GAMMA \u2014 hedging damps moves, price pins",
+    "zero_gamma": 320.0,
+    "max_pain": 307.5,
+    "call_volume": 199252,
+    "put_volume": 74508,
+    "call_oi": 100358,
+    "put_oi": 31914,
+    "pc_volume": 0.37,
+    "pc_oi": 0.32,
+    "atm_strike": 312.5,
+    "straddle": 4.71,
+    "expected_move_pct": 1.51,
+    "call_walls": [
+      {
+        "strike": 320.0,
+        "oi": 22811,
+        "vol": 68332,
+        "gex": 116738272.78958155
+      },
+      {
+        "strike": 315.0,
+        "oi": 14883,
+        "vol": 45639,
+        "gex": 92859150.67919728
+      },
+      {
+        "strike": 312.5,
+        "oi": 9957,
+        "vol": 11313,
+        "gex": 51325285.453392535
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 305.0,
+        "oi": 9624,
+        "vol": 5649,
+        "gex": -14737137.697955819
+      },
+      {
+        "strike": 310.0,
+        "oi": 8821,
+        "vol": 21962,
+        "gex": -32280371.669653058
+      },
+      {
+        "strike": 307.5,
+        "oi": 2725,
+        "vol": 10667,
+        "gex": -6602006.883249226
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 320.0,
+        "vol": 68332,
+        "oi": 22811
+      },
+      {
+        "strike": 317.5,
+        "vol": 61931,
+        "oi": 8239
+      },
+      {
+        "strike": 315.0,
+        "vol": 45639,
+        "oi": 14883
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 310.0,
+        "vol": 21962,
+        "oi": 8821
+      },
+      {
+        "strike": 307.5,
+        "vol": 10667,
+        "oi": 2725
+      },
+      {
+        "strike": 305.0,
+        "vol": 5649,
+        "oi": 9624
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 312.5,
+        "score": 0.964,
+        "oi": 13637,
+        "vol": 32981,
+        "turnover": 2.42,
+        "excess": 1.0,
+        "side": "put",
+        "below_spot": false,
+        "net_gex": 32356012.532986335,
+        "distance_pct": 0.06
+      },
+      {
+        "strike": 315.0,
+        "score": 0.825,
+        "oi": 19803,
+        "vol": 58501,
+        "turnover": 2.95,
+        "excess": 1.25,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 62161910.78524777,
+        "distance_pct": 0.86
+      },
+      {
+        "strike": 310.0,
+        "score": 0.811,
+        "oi": 32912,
+        "vol": 30777,
+        "turnover": 0.94,
+        "excess": 1.17,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 55880430.26817848,
+        "distance_pct": 0.74
+      },
+      {
+        "strike": 320.0,
+        "score": 0.607,
+        "oi": 24586,
+        "vol": 68992,
+        "turnover": 2.81,
+        "excess": 1.51,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 107654478.38330795,
+        "distance_pct": 2.46
+      },
+      {
+        "strike": 317.5,
+        "score": 0.53,
+        "oi": 8608,
+        "vol": 62971,
+        "turnover": 7.32,
+        "excess": 1.06,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 48358537.32192525,
+        "distance_pct": 1.66
+      }
+    ],
+    "flow": {
+      "bias": "CALLS \u2014 upside flow dominates",
+      "ratio": 0.23,
+      "put_below": 38278,
+      "call_above": 187215,
+      "downside_vol": 50315,
+      "upside_vol": 223445
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:38:27Z"
+  },
+  "MSFT": {
+    "symbol": "MSFT",
+    "expiry": "2026-08-07",
+    "dte": 1,
+    "spot": 496.17,
+    "quote_spot": 496.32,
+    "parity_strikes": 40,
+    "total_gex": 125445754.0252764,
+    "regime": "LONG GAMMA \u2014 hedging damps moves, price pins",
+    "zero_gamma": 484.1,
+    "max_pain": 490.0,
+    "call_volume": 84992,
+    "put_volume": 15165,
+    "call_oi": 28349,
+    "put_oi": 9926,
+    "pc_volume": 0.18,
+    "pc_oi": 0.35,
+    "atm_strike": 495.0,
+    "straddle": 9.28,
+    "expected_move_pct": 1.87,
+    "call_walls": [
+      {
+        "strike": 500.0,
+        "oi": 7980,
+        "vol": 24866,
+        "gex": 62571034.001630716
+      },
+      {
+        "strike": 510.0,
+        "oi": 3868,
+        "vol": 9309,
+        "gex": 18216395.18570848
+      },
+      {
+        "strike": 505.0,
+        "oi": 3594,
+        "vol": 7279,
+        "gex": 23420330.419704106
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 485.0,
+        "oi": 2656,
+        "vol": 2837,
+        "gex": -12868092.338176513
+      },
+      {
+        "strike": 490.0,
+        "oi": 2580,
+        "vol": 4507,
+        "gex": -17257200.631353542
+      },
+      {
+        "strike": 495.0,
+        "oi": 708,
+        "vol": 2366,
+        "gex": -5610676.620258829
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 500.0,
+        "vol": 24866,
+        "oi": 7980
+      },
+      {
+        "strike": 510.0,
+        "vol": 9309,
+        "oi": 3868
+      },
+      {
+        "strike": 505.0,
+        "vol": 7279,
+        "oi": 3594
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 490.0,
+        "vol": 4507,
+        "oi": 2580
+      },
+      {
+        "strike": 485.0,
+        "vol": 2837,
+        "oi": 2656
+      },
+      {
+        "strike": 495.0,
+        "vol": 2366,
+        "oi": 708
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 500.0,
+        "score": 2.123,
+        "oi": 9468,
+        "vol": 25319,
+        "turnover": 2.67,
+        "excess": 3.11,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 50903653.22538679,
+        "distance_pct": 0.77
+      },
+      {
+        "strike": 495.0,
+        "score": 1.293,
+        "oi": 3347,
+        "vol": 17709,
+        "turnover": 5.29,
+        "excess": 1.48,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 15302565.753841525,
+        "distance_pct": 0.24
+      },
+      {
+        "strike": 490.0,
+        "score": 0.792,
+        "oi": 5970,
+        "vol": 8083,
+        "turnover": 1.35,
+        "excess": 1.38,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": 5417958.337750528,
+        "distance_pct": 1.24
+      },
+      {
+        "strike": 505.0,
+        "score": 0.502,
+        "oi": 3770,
+        "vol": 7369,
+        "turnover": 1.95,
+        "excess": 1.04,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 22273424.979006298,
+        "distance_pct": 1.78
+      },
+      {
+        "strike": 497.5,
+        "score": 0.451,
+        "oi": 999,
+        "vol": 7175,
+        "turnover": 7.18,
+        "excess": 0.52,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 1072973.7227804489,
+        "distance_pct": 0.27
+      }
+    ],
+    "flow": {
+      "bias": "CALLS \u2014 upside flow dominates",
+      "ratio": 0.62,
+      "put_below": 14028,
+      "call_above": 60649,
+      "downside_vol": 38371,
+      "upside_vol": 61786
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:38:38Z"
+  },
+  "NVDA": {
+    "symbol": "NVDA",
+    "expiry": "2026-08-07",
+    "dte": 1,
+    "spot": 219.07,
+    "quote_spot": 218.99,
+    "parity_strikes": 25,
+    "total_gex": 402343831.6925821,
+    "regime": "LONG GAMMA \u2014 hedging damps moves, price pins",
+    "zero_gamma": 225.0,
+    "max_pain": 215.0,
+    "call_volume": 300650,
+    "put_volume": 141589,
+    "call_oi": 185177,
+    "put_oi": 28424,
+    "pc_volume": 0.47,
+    "pc_oi": 0.15,
+    "atm_strike": 220.0,
+    "straddle": 4.8,
+    "expected_move_pct": 2.19,
+    "call_walls": [
+      {
+        "strike": 220.0,
+        "oi": 55069,
+        "vol": 28989,
+        "gex": 149856605.12792417
+      },
+      {
+        "strike": 225.0,
+        "oi": 45083,
+        "vol": 170499,
+        "gex": 127247608.26667368
+      },
+      {
+        "strike": 222.5,
+        "oi": 29084,
+        "vol": 91431,
+        "gex": 87994591.8427224
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 215.0,
+        "oi": 9419,
+        "vol": 42082,
+        "gex": -14180937.936756918
+      },
+      {
+        "strike": 217.5,
+        "oi": 6188,
+        "vol": 33836,
+        "gex": -13097081.65659075
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 225.0,
+        "vol": 170499,
+        "oi": 45083
+      },
+      {
+        "strike": 222.5,
+        "vol": 91431,
+        "oi": 29084
+      },
+      {
+        "strike": 220.0,
+        "vol": 28989,
+        "oi": 55069
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 215.0,
+        "vol": 42082,
+        "oi": 9419
+      },
+      {
+        "strike": 217.5,
+        "vol": 33836,
+        "oi": 6188
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 220.0,
+        "score": 0.871,
+        "oi": 61471,
+        "vol": 71476,
+        "turnover": 1.16,
+        "excess": 1.09,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 132435152.2954963,
+        "distance_pct": 0.42
+      },
+      {
+        "strike": 225.0,
+        "score": 0.599,
+        "oi": 46351,
+        "vol": 174285,
+        "turnover": 3.76,
+        "excess": 1.57,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 123668654.61935335,
+        "distance_pct": 2.7
+      },
+      {
+        "strike": 222.5,
+        "score": 0.542,
+        "oi": 34231,
+        "vol": 110829,
+        "turnover": 3.24,
+        "excess": 1.05,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 72422175.2489082,
+        "distance_pct": 1.56
+      },
+      {
+        "strike": 217.5,
+        "score": 0.417,
+        "oi": 33805,
+        "vol": 38607,
+        "turnover": 1.14,
+        "excess": 0.6,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": 45355100.649496295,
+        "distance_pct": 0.72
+      },
+      {
+        "strike": 215.0,
+        "score": 0.326,
+        "oi": 37743,
+        "vol": 47042,
+        "turnover": 1.25,
+        "excess": 0.69,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": 28462748.879327916,
+        "distance_pct": 1.86
+      }
+    ],
+    "flow": {
+      "bias": "CALLS \u2014 upside flow dominates",
+      "ratio": 0.24,
+      "put_below": 75918,
+      "call_above": 290919,
+      "downside_vol": 85649,
+      "upside_vol": 356590
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:38:43Z"
+  },
+  "AMZN": {
+    "symbol": "AMZN",
+    "expiry": "2026-08-07",
+    "dte": 1,
+    "spot": 273.8,
+    "quote_spot": 273.68,
+    "parity_strikes": 20,
+    "total_gex": 131761190.76387277,
+    "regime": "LONG GAMMA \u2014 hedging damps moves, price pins",
+    "zero_gamma": 271.05,
+    "max_pain": 272.5,
+    "call_volume": 33202,
+    "put_volume": 17705,
+    "call_oi": 56616,
+    "put_oi": 24933,
+    "pc_volume": 0.53,
+    "pc_oi": 0.44,
+    "atm_strike": 275.0,
+    "straddle": 5.21,
+    "expected_move_pct": 1.9,
+    "call_walls": [
+      {
+        "strike": 280.0,
+        "oi": 16043,
+        "vol": 10702,
+        "gex": 52856145.41625196
+      },
+      {
+        "strike": 275.0,
+        "oi": 15265,
+        "vol": 10861,
+        "gex": 70513054.56118435
+      },
+      {
+        "strike": 277.5,
+        "oi": 7213,
+        "vol": 6045,
+        "gex": 30160981.331358816
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 270.0,
+        "oi": 7501,
+        "vol": 6042,
+        "gex": -25832187.36518478
+      },
+      {
+        "strike": 267.5,
+        "oi": 4743,
+        "vol": 2956,
+        "gex": -11754576.847573252
+      },
+      {
+        "strike": 272.5,
+        "oi": 4717,
+        "vol": 5365,
+        "gex": -20328681.45316117
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 275.0,
+        "vol": 10861,
+        "oi": 15265
+      },
+      {
+        "strike": 280.0,
+        "vol": 10702,
+        "oi": 16043
+      },
+      {
+        "strike": 277.5,
+        "vol": 6045,
+        "oi": 7213
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 270.0,
+        "vol": 6042,
+        "oi": 7501
+      },
+      {
+        "strike": 272.5,
+        "vol": 5365,
+        "oi": 4717
+      },
+      {
+        "strike": 267.5,
+        "vol": 2956,
+        "oi": 4743
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 275.0,
+        "score": 1.124,
+        "oi": 18548,
+        "vol": 12436,
+        "turnover": 0.67,
+        "excess": 1.42,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 55348013.085627966,
+        "distance_pct": 0.44
+      },
+      {
+        "strike": 272.5,
+        "score": 0.791,
+        "oi": 13447,
+        "vol": 8803,
+        "turnover": 0.65,
+        "excess": 1.02,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 17294678.539651427,
+        "distance_pct": 0.47
+      },
+      {
+        "strike": 280.0,
+        "score": 0.598,
+        "oi": 19357,
+        "vol": 11891,
+        "turnover": 0.61,
+        "excess": 1.41,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 41937659.7272001,
+        "distance_pct": 2.27
+      },
+      {
+        "strike": 270.0,
+        "score": 0.505,
+        "oi": 14903,
+        "vol": 6670,
+        "turnover": 0.45,
+        "excess": 0.93,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": -340939.4146318212,
+        "distance_pct": 1.39
+      },
+      {
+        "strike": 277.5,
+        "score": 0.394,
+        "oi": 8588,
+        "vol": 6623,
+        "turnover": 0.77,
+        "excess": 0.71,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 24411452.79529638,
+        "distance_pct": 1.35
+      }
+    ],
+    "flow": {
+      "bias": "CALLS \u2014 upside flow dominates",
+      "ratio": 0.64,
+      "put_below": 14363,
+      "call_above": 27608,
+      "downside_vol": 19957,
+      "upside_vol": 30950
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:38:47Z"
+  },
+  "META": {
+    "symbol": "META",
+    "expiry": "2026-08-07",
+    "dte": 1,
+    "spot": 593.67,
+    "quote_spot": 593.5,
+    "parity_strikes": 82,
+    "total_gex": 137701624.25006548,
+    "regime": "LONG GAMMA \u2014 hedging damps moves, price pins",
+    "zero_gamma": 577.58,
+    "max_pain": 587.5,
+    "call_volume": 26776,
+    "put_volume": 6399,
+    "call_oi": 25714,
+    "put_oi": 6925,
+    "pc_volume": 0.24,
+    "pc_oi": 0.27,
+    "atm_strike": 592.5,
+    "straddle": 13.12,
+    "expected_move_pct": 2.21,
+    "call_walls": [
+      {
+        "strike": 600.0,
+        "oi": 7360,
+        "vol": 7651,
+        "gex": 57326176.83518961
+      },
+      {
+        "strike": 610.0,
+        "oi": 4909,
+        "vol": 4493,
+        "gex": 27007154.328954324
+      },
+      {
+        "strike": 595.0,
+        "oi": 2196,
+        "vol": 2453,
+        "gex": 18334973.537892915
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 580.0,
+        "oi": 1841,
+        "vol": 1188,
+        "gex": -10342487.306734031
+      },
+      {
+        "strike": 590.0,
+        "oi": 1097,
+        "vol": 2153,
+        "gex": -8915563.992032029
+      },
+      {
+        "strike": 585.0,
+        "oi": 562,
+        "vol": 966,
+        "gex": -3989134.4384524636
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 600.0,
+        "vol": 7651,
+        "oi": 7360
+      },
+      {
+        "strike": 610.0,
+        "vol": 4493,
+        "oi": 4909
+      },
+      {
+        "strike": 595.0,
+        "vol": 2453,
+        "oi": 2196
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 590.0,
+        "vol": 2153,
+        "oi": 1097
+      },
+      {
+        "strike": 580.0,
+        "vol": 1188,
+        "oi": 1841
+      },
+      {
+        "strike": 585.0,
+        "vol": 966,
+        "oi": 562
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 600.0,
+        "score": 1.988,
+        "oi": 8041,
+        "vol": 7711,
+        "turnover": 0.96,
+        "excess": 3.26,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 52021947.70139014,
+        "distance_pct": 1.07
+      },
+      {
+        "strike": 590.0,
+        "score": 1.415,
+        "oi": 4349,
+        "vol": 4933,
+        "turnover": 1.13,
+        "excess": 1.94,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 17514166.27422882,
+        "distance_pct": 0.62
+      },
+      {
+        "strike": 595.0,
+        "score": 1.176,
+        "oi": 2566,
+        "vol": 2720,
+        "turnover": 1.06,
+        "excess": 1.33,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 15245747.577501122,
+        "distance_pct": 0.22
+      },
+      {
+        "strike": 610.0,
+        "score": 0.772,
+        "oi": 5463,
+        "vol": 4502,
+        "turnover": 0.82,
+        "excess": 2.05,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 23959290.507760458,
+        "distance_pct": 2.75
+      },
+      {
+        "strike": 592.5,
+        "score": 0.595,
+        "oi": 942,
+        "vol": 1703,
+        "turnover": 1.81,
+        "excess": 0.67,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 3105924.479096614,
+        "distance_pct": 0.2
+      }
+    ],
+    "flow": {
+      "bias": "CALLS \u2014 upside flow dominates",
+      "ratio": 0.6,
+      "put_below": 6031,
+      "call_above": 20337,
+      "downside_vol": 12470,
+      "upside_vol": 20705
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:38:54Z"
+  },
+  "GOOGL": {
+    "symbol": "GOOGL",
+    "expiry": "2026-08-07",
+    "dte": 1,
+    "spot": 360.55,
+    "quote_spot": 360.5,
+    "parity_strikes": 31,
+    "total_gex": 73884667.28978743,
+    "regime": "LONG GAMMA \u2014 hedging damps moves, price pins",
+    "zero_gamma": 355.21,
+    "max_pain": 357.5,
+    "call_volume": 23753,
+    "put_volume": 11683,
+    "call_oi": 33462,
+    "put_oi": 19121,
+    "pc_volume": 0.49,
+    "pc_oi": 0.57,
+    "atm_strike": 360.0,
+    "straddle": 6.73,
+    "expected_move_pct": 1.87,
+    "call_walls": [
+      {
+        "strike": 370.0,
+        "oi": 5880,
+        "vol": 9672,
+        "gex": 25277989.015209004
+      },
+      {
+        "strike": 367.5,
+        "oi": 4333,
+        "vol": 1617,
+        "gex": 22221158.460997123
+      },
+      {
+        "strike": 365.0,
+        "oi": 3604,
+        "vol": 6454,
+        "gex": 20459686.462750703
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 350.0,
+        "oi": 5214,
+        "vol": 2382,
+        "gex": -11258269.979713349
+      },
+      {
+        "strike": 360.0,
+        "oi": 4359,
+        "vol": 3433,
+        "gex": -23912793.8456145
+      },
+      {
+        "strike": 355.0,
+        "oi": 2440,
+        "vol": 2223,
+        "gex": -9290523.748549
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 370.0,
+        "vol": 9672,
+        "oi": 5880
+      },
+      {
+        "strike": 365.0,
+        "vol": 6454,
+        "oi": 3604
+      },
+      {
+        "strike": 362.5,
+        "vol": 2999,
+        "oi": 1787
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 360.0,
+        "vol": 3433,
+        "oi": 4359
+      },
+      {
+        "strike": 350.0,
+        "vol": 2382,
+        "oi": 5214
+      },
+      {
+        "strike": 355.0,
+        "vol": 2223,
+        "oi": 2440
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 360.0,
+        "score": 0.916,
+        "oi": 10318,
+        "vol": 4432,
+        "turnover": 0.43,
+        "excess": 1.0,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": 8777350.34480001,
+        "distance_pct": 0.15
+      },
+      {
+        "strike": 365.0,
+        "score": 0.802,
+        "oi": 5412,
+        "vol": 6591,
+        "turnover": 1.22,
+        "excess": 1.4,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 10195781.600194301,
+        "distance_pct": 1.23
+      },
+      {
+        "strike": 370.0,
+        "score": 0.764,
+        "oi": 6744,
+        "vol": 9810,
+        "turnover": 1.45,
+        "excess": 1.97,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 21563672.261953805,
+        "distance_pct": 2.62
+      },
+      {
+        "strike": 357.5,
+        "score": 0.637,
+        "oi": 5437,
+        "vol": 3507,
+        "turnover": 0.65,
+        "excess": 0.96,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 14507476.86214288,
+        "distance_pct": 0.85
+      },
+      {
+        "strike": 362.5,
+        "score": 0.628,
+        "oi": 3489,
+        "vol": 3764,
+        "turnover": 1.08,
+        "excess": 0.83,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 494362.93877725117,
+        "distance_pct": 0.54
+      }
+    ],
+    "flow": {
+      "bias": "CALLS \u2014 upside flow dominates",
+      "ratio": 0.62,
+      "put_below": 10600,
+      "call_above": 20742,
+      "downside_vol": 13611,
+      "upside_vol": 21825
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:38:58Z"
+  },
+  "TSLA": {
+    "symbol": "TSLA",
+    "expiry": "2026-08-07",
+    "dte": 1,
+    "spot": 320.88,
+    "quote_spot": 320.93,
+    "parity_strikes": 77,
+    "total_gex": 168754255.16083443,
+    "regime": "LONG GAMMA \u2014 hedging damps moves, price pins",
+    "zero_gamma": 330.0,
+    "max_pain": 317.5,
+    "call_volume": 127971,
+    "put_volume": 105796,
+    "call_oi": 80110,
+    "put_oi": 29784,
+    "pc_volume": 0.83,
+    "pc_oi": 0.37,
+    "atm_strike": 320.0,
+    "straddle": 7.5,
+    "expected_move_pct": 2.34,
+    "call_walls": [
+      {
+        "strike": 330.0,
+        "oi": 21871,
+        "vol": 18081,
+        "gex": 56795320.56599845
+      },
+      {
+        "strike": 325.0,
+        "oi": 14682,
+        "vol": 27228,
+        "gex": 54997981.01790179
+      },
+      {
+        "strike": 322.5,
+        "oi": 6615,
+        "vol": 17974,
+        "gex": 27088457.26041732
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 320.0,
+        "oi": 9624,
+        "vol": 23894,
+        "gex": -40758027.32792986
+      },
+      {
+        "strike": 315.0,
+        "oi": 4440,
+        "vol": 23066,
+        "gex": -16595426.854739698
+      },
+      {
+        "strike": 312.5,
+        "oi": 1806,
+        "vol": 9084,
+        "gex": -5593638.685762848
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 325.0,
+        "vol": 27228,
+        "oi": 14682
+      },
+      {
+        "strike": 330.0,
+        "vol": 18081,
+        "oi": 21871
+      },
+      {
+        "strike": 322.5,
+        "vol": 17974,
+        "oi": 6615
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 320.0,
+        "vol": 23894,
+        "oi": 9624
+      },
+      {
+        "strike": 315.0,
+        "vol": 23066,
+        "oi": 4440
+      },
+      {
+        "strike": 317.5,
+        "vol": 18261,
+        "oi": 1316
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 320.0,
+        "score": 0.858,
+        "oi": 18037,
+        "vol": 54668,
+        "turnover": 3.03,
+        "excess": 1.0,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": -5128633.737959594,
+        "distance_pct": 0.28
+      },
+      {
+        "strike": 325.0,
+        "score": 0.842,
+        "oi": 18023,
+        "vol": 40568,
+        "turnover": 2.25,
+        "excess": 1.49,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 42482775.0118529,
+        "distance_pct": 1.28
+      },
+      {
+        "strike": 322.5,
+        "score": 0.755,
+        "oi": 10967,
+        "vol": 28206,
+        "turnover": 2.57,
+        "excess": 0.98,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 9266996.036330216,
+        "distance_pct": 0.5
+      },
+      {
+        "strike": 317.5,
+        "score": 0.599,
+        "oi": 11211,
+        "vol": 27650,
+        "turnover": 2.47,
+        "excess": 0.98,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": 35396053.47803311,
+        "distance_pct": 1.05
+      },
+      {
+        "strike": 315.0,
+        "score": 0.577,
+        "oi": 16076,
+        "vol": 30736,
+        "turnover": 1.91,
+        "excess": 1.21,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": 26896552.172681734,
+        "distance_pct": 1.83
+      }
+    ],
+    "flow": {
+      "bias": "PUTS \u2014 downside flow dominates",
+      "ratio": 1.29,
+      "put_below": 74305,
+      "call_above": 70793,
+      "downside_vol": 131483,
+      "upside_vol": 102284
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:39:03Z"
+  },
+  "AMD": {
+    "symbol": "AMD",
+    "expiry": "2026-08-07",
+    "dte": 1,
+    "spot": 487.85,
+    "quote_spot": 487.11,
+    "parity_strikes": 107,
+    "total_gex": 23725435.592493255,
+    "regime": "LONG GAMMA \u2014 hedging damps moves, price pins",
+    "zero_gamma": 478.35,
+    "max_pain": 487.5,
+    "call_volume": 25886,
+    "put_volume": 9429,
+    "call_oi": 21208,
+    "put_oi": 13404,
+    "pc_volume": 0.36,
+    "pc_oi": 0.63,
+    "atm_strike": 487.5,
+    "straddle": 20.02,
+    "expected_move_pct": 4.1,
+    "call_walls": [
+      {
+        "strike": 500.0,
+        "oi": 5937,
+        "vol": 6718,
+        "gex": 16532005.051955253
+      },
+      {
+        "strike": 495.0,
+        "oi": 3869,
+        "vol": 3264,
+        "gex": 12182353.363216577
+      },
+      {
+        "strike": 490.0,
+        "oi": 2530,
+        "vol": 3834,
+        "gex": 8724921.44156325
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 480.0,
+        "oi": 3838,
+        "vol": 1644,
+        "gex": -14331793.19118195
+      },
+      {
+        "strike": 475.0,
+        "oi": 1051,
+        "vol": 3069,
+        "gex": -3862092.139261401
+      },
+      {
+        "strike": 485.0,
+        "oi": 936,
+        "vol": 556,
+        "gex": -3417226.9832844003
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 500.0,
+        "vol": 6718,
+        "oi": 5937
+      },
+      {
+        "strike": 490.0,
+        "vol": 3834,
+        "oi": 2530
+      },
+      {
+        "strike": 495.0,
+        "vol": 3264,
+        "oi": 3869
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 475.0,
+        "vol": 3069,
+        "oi": 1051
+      },
+      {
+        "strike": 480.0,
+        "vol": 1644,
+        "oi": 3838
+      },
+      {
+        "strike": 477.5,
+        "vol": 977,
+        "oi": 432
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 490.0,
+        "score": 1.124,
+        "oi": 3750,
+        "vol": 5533,
+        "turnover": 1.48,
+        "excess": 1.42,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 4517647.070532751,
+        "distance_pct": 0.44
+      },
+      {
+        "strike": 500.0,
+        "score": 0.972,
+        "oi": 9260,
+        "vol": 7060,
+        "turnover": 0.76,
+        "excess": 2.42,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 7278871.687015502,
+        "distance_pct": 2.49
+      },
+      {
+        "strike": 487.5,
+        "score": 0.959,
+        "oi": 1669,
+        "vol": 1817,
+        "turnover": 1.09,
+        "excess": 1.0,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 3238607.387621925,
+        "distance_pct": 0.07
+      },
+      {
+        "strike": 485.0,
+        "score": 0.712,
+        "oi": 3127,
+        "vol": 3254,
+        "turnover": 1.04,
+        "excess": 0.96,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 4581858.829083251,
+        "distance_pct": 0.58
+      },
+      {
+        "strike": 480.0,
+        "score": 0.667,
+        "oi": 4592,
+        "vol": 4169,
+        "turnover": 0.91,
+        "excess": 1.31,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": -11516219.4376251,
+        "distance_pct": 1.61
+      }
+    ],
+    "flow": {
+      "bias": "BALANCED",
+      "ratio": 1.02,
+      "put_below": 7132,
+      "call_above": 15192,
+      "downside_vol": 17826,
+      "upside_vol": 17489
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:39:09Z"
+  },
+  "NFLX": {
+    "symbol": "NFLX",
+    "expiry": "2026-08-07",
+    "dte": 1,
+    "spot": 73.6,
+    "quote_spot": 73.61,
+    "parity_strikes": 15,
+    "total_gex": 37503039.661363214,
+    "regime": "LONG GAMMA \u2014 hedging damps moves, price pins",
+    "zero_gamma": 75.0,
+    "max_pain": 73.0,
+    "call_volume": 15342,
+    "put_volume": 11626,
+    "call_oi": 48394,
+    "put_oi": 11018,
+    "pc_volume": 0.76,
+    "pc_oi": 0.23,
+    "atm_strike": 74.0,
+    "straddle": 1.54,
+    "expected_move_pct": 2.09,
+    "call_walls": [
+      {
+        "strike": 75.0,
+        "oi": 23166,
+        "vol": 8632,
+        "gex": 23105089.061683208
+      },
+      {
+        "strike": 74.0,
+        "oi": 9099,
+        "vol": 4527,
+        "gex": 10409819.701248001
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 72.0,
+        "oi": 3731,
+        "vol": 1495,
+        "gex": -2265010.6565632005
+      },
+      {
+        "strike": 73.0,
+        "oi": 2900,
+        "vol": 5536,
+        "gex": -2721459.0361600006
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 75.0,
+        "vol": 8632,
+        "oi": 23166
+      },
+      {
+        "strike": 74.0,
+        "vol": 4527,
+        "oi": 9099
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 73.0,
+        "vol": 5536,
+        "oi": 2900
+      },
+      {
+        "strike": 72.0,
+        "vol": 1495,
+        "oi": 3731
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 74.0,
+        "score": 0.788,
+        "oi": 11764,
+        "vol": 8437,
+        "turnover": 0.72,
+        "excess": 1.04,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 7360894.599168001,
+        "distance_pct": 0.54
+      },
+      {
+        "strike": 75.0,
+        "score": 0.707,
+        "oi": 24888,
+        "vol": 9317,
+        "turnover": 0.37,
+        "excess": 1.51,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 21387616.75898881,
+        "distance_pct": 1.9
+      },
+      {
+        "strike": 73.0,
+        "score": 0.678,
+        "oi": 14819,
+        "vol": 6878,
+        "turnover": 0.46,
+        "excess": 1.01,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 8463737.602457602,
+        "distance_pct": 0.82
+      },
+      {
+        "strike": 72.0,
+        "score": 0.187,
+        "oi": 7941,
+        "vol": 2336,
+        "turnover": 0.29,
+        "excess": 0.43,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": 290790.70074879983,
+        "distance_pct": 2.17
+      }
+    ],
+    "flow": {
+      "bias": "CALLS \u2014 upside flow dominates",
+      "ratio": 0.52,
+      "put_below": 7031,
+      "call_above": 13159,
+      "downside_vol": 9214,
+      "upside_vol": 17754
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:39:15Z"
+  },
+  "AVGO": {
+    "symbol": "AVGO",
+    "expiry": "2026-08-07",
+    "dte": 1,
+    "spot": 423.99,
+    "quote_spot": 423.71,
+    "parity_strikes": 47,
+    "total_gex": 51647747.827290304,
+    "regime": "LONG GAMMA \u2014 hedging damps moves, price pins",
+    "zero_gamma": 413.24,
+    "max_pain": 415.0,
+    "call_volume": 14718,
+    "put_volume": 1963,
+    "call_oi": 16058,
+    "put_oi": 3528,
+    "pc_volume": 0.13,
+    "pc_oi": 0.22,
+    "atm_strike": 425.0,
+    "straddle": 11.68,
+    "expected_move_pct": 2.75,
+    "call_walls": [
+      {
+        "strike": 425.0,
+        "oi": 3654,
+        "vol": 1860,
+        "gex": 16415194.255950546
+      },
+      {
+        "strike": 430.0,
+        "oi": 3351,
+        "vol": 1920,
+        "gex": 12096211.27389041
+      },
+      {
+        "strike": 435.0,
+        "oi": 1246,
+        "vol": 6485,
+        "gex": 3245619.882346254
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 415.0,
+        "oi": 1080,
+        "vol": 777,
+        "gex": -5311914.497930881
+      },
+      {
+        "strike": 412.5,
+        "oi": 829,
+        "vol": 350,
+        "gex": -3858316.1280774814
+      },
+      {
+        "strike": 422.5,
+        "oi": 672,
+        "vol": 143,
+        "gex": -3225460.7526422404
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 435.0,
+        "vol": 6485,
+        "oi": 1246
+      },
+      {
+        "strike": 430.0,
+        "vol": 1920,
+        "oi": 3351
+      },
+      {
+        "strike": 425.0,
+        "vol": 1860,
+        "oi": 3654
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 415.0,
+        "vol": 777,
+        "oi": 1080
+      },
+      {
+        "strike": 412.5,
+        "vol": 350,
+        "oi": 829
+      },
+      {
+        "strike": 420.0,
+        "vol": 212,
+        "oi": 448
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 425.0,
+        "score": 1.285,
+        "oi": 3799,
+        "vol": 2087,
+        "turnover": 0.55,
+        "excess": 1.47,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 15763797.65849219,
+        "distance_pct": 0.24
+      },
+      {
+        "strike": 435.0,
+        "score": 0.941,
+        "oi": 1307,
+        "vol": 6526,
+        "turnover": 4.99,
+        "excess": 2.41,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 3086725.1690050648,
+        "distance_pct": 2.6
+      },
+      {
+        "strike": 420.0,
+        "score": 0.848,
+        "oi": 3550,
+        "vol": 1399,
+        "turnover": 0.39,
+        "excess": 1.33,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 13215753.05416758,
+        "distance_pct": 0.94
+      },
+      {
+        "strike": 430.0,
+        "score": 0.803,
+        "oi": 3433,
+        "vol": 1992,
+        "turnover": 0.58,
+        "excess": 1.49,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 11800213.265994554,
+        "distance_pct": 1.42
+      },
+      {
+        "strike": 415.0,
+        "score": 0.512,
+        "oi": 2773,
+        "vol": 1489,
+        "turnover": 0.54,
+        "excess": 1.16,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 3015003.3215107666,
+        "distance_pct": 2.12
+      }
+    ],
+    "flow": {
+      "bias": "CALLS \u2014 upside flow dominates",
+      "ratio": 0.37,
+      "put_below": 1607,
+      "call_above": 11776,
+      "downside_vol": 4549,
+      "upside_vol": 12132
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:39:20Z"
+  },
+  "COIN": {
+    "symbol": "COIN",
+    "expiry": "2026-08-07",
+    "dte": 1,
+    "spot": 148.94,
+    "quote_spot": 148.87,
+    "parity_strikes": 45,
+    "total_gex": 12816602.015874669,
+    "regime": "LONG GAMMA \u2014 hedging damps moves, price pins",
+    "zero_gamma": 145.75,
+    "max_pain": 147.0,
+    "call_volume": 1548,
+    "put_volume": 1339,
+    "call_oi": 17694,
+    "put_oi": 6132,
+    "pc_volume": 0.86,
+    "pc_oi": 0.35,
+    "atm_strike": 149.0,
+    "straddle": 5.97,
+    "expected_move_pct": 4.01,
+    "call_walls": [
+      {
+        "strike": 152.5,
+        "oi": 5409,
+        "vol": 263,
+        "gex": 5507472.863855161
+      },
+      {
+        "strike": 150.0,
+        "oi": 3703,
+        "vol": 463,
+        "gex": 4255886.167650348
+      },
+      {
+        "strike": 149.0,
+        "oi": 3301,
+        "vol": 138,
+        "gex": 3870020.04954026
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 145.0,
+        "oi": 1424,
+        "vol": 583,
+        "gex": -1456873.9804551678
+      },
+      {
+        "strike": 146.0,
+        "oi": 1088,
+        "vol": 215,
+        "gex": -1190349.961675776
+      },
+      {
+        "strike": 147.0,
+        "oi": 842,
+        "vol": 197,
+        "gex": -965475.644780328
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 150.0,
+        "vol": 463,
+        "oi": 3703
+      },
+      {
+        "strike": 152.5,
+        "vol": 263,
+        "oi": 5409
+      },
+      {
+        "strike": 149.0,
+        "vol": 138,
+        "oi": 3301
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 145.0,
+        "vol": 583,
+        "oi": 1424
+      },
+      {
+        "strike": 148.0,
+        "vol": 229,
+        "oi": 662
+      },
+      {
+        "strike": 146.0,
+        "vol": 215,
+        "oi": 1088
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 148.0,
+        "score": 0.981,
+        "oi": 3065,
+        "vol": 758,
+        "turnover": 0.25,
+        "excess": 1.35,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 2042268.865760288,
+        "distance_pct": 0.63
+      },
+      {
+        "strike": 149.0,
+        "score": 0.976,
+        "oi": 3883,
+        "vol": 218,
+        "turnover": 0.06,
+        "excess": 1.0,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 3187696.00566494,
+        "distance_pct": 0.04
+      },
+      {
+        "strike": 150.0,
+        "score": 0.874,
+        "oi": 4662,
+        "vol": 498,
+        "turnover": 0.11,
+        "excess": 1.25,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 3153700.1469167033,
+        "distance_pct": 0.71
+      },
+      {
+        "strike": 152.5,
+        "score": 0.466,
+        "oi": 5984,
+        "vol": 263,
+        "turnover": 0.04,
+        "excess": 1.14,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 4922004.774242161,
+        "distance_pct": 2.39
+      },
+      {
+        "strike": 146.0,
+        "score": 0.395,
+        "oi": 3393,
+        "vol": 326,
+        "turnover": 0.1,
+        "excess": 0.86,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 1331485.2052935844,
+        "distance_pct": 1.97
+      }
+    ],
+    "flow": {
+      "bias": "PUTS \u2014 downside flow dominates",
+      "ratio": 1.95,
+      "put_below": 1224,
+      "call_above": 864,
+      "downside_vol": 1908,
+      "upside_vol": 979
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:39:23Z"
+  },
+  "PLTR": {
+    "symbol": "PLTR",
+    "expiry": "2026-08-07",
+    "dte": 1,
+    "spot": 157.25,
+    "quote_spot": 157.14,
+    "parity_strikes": 53,
+    "total_gex": 5730883.623459999,
+    "regime": "LONG GAMMA \u2014 hedging damps moves, price pins",
+    "zero_gamma": 158.36,
+    "max_pain": 157.5,
+    "call_volume": 41311,
+    "put_volume": 10944,
+    "call_oi": 32525,
+    "put_oi": 24178,
+    "pc_volume": 0.26,
+    "pc_oi": 0.74,
+    "atm_strike": 157.5,
+    "straddle": 4.88,
+    "expected_move_pct": 3.1,
+    "call_walls": [
+      {
+        "strike": 160.0,
+        "oi": 15108,
+        "vol": 21717,
+        "gex": 14024343.894945
+      },
+      {
+        "strike": 157.5,
+        "oi": 8781,
+        "vol": 7681,
+        "gex": 11479807.240141876
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 155.0,
+        "oi": 13952,
+        "vol": 6822,
+        "gex": -22466331.754240002
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 160.0,
+        "vol": 21717,
+        "oi": 15108
+      },
+      {
+        "strike": 157.5,
+        "vol": 7681,
+        "oi": 8781
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 155.0,
+        "vol": 6822,
+        "oi": 13952
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 157.5,
+        "score": 0.913,
+        "oi": 13320,
+        "vol": 10112,
+        "turnover": 0.76,
+        "excess": 1.0,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 5545762.705008752,
+        "distance_pct": 0.16
+      },
+      {
+        "strike": 155.0,
+        "score": 0.515,
+        "oi": 22588,
+        "vol": 18735,
+        "turnover": 0.83,
+        "excess": 0.96,
+        "side": "put",
+        "below_spot": true,
+        "net_gex": -8560136.152920002,
+        "distance_pct": 1.43
+      },
+      {
+        "strike": 160.0,
+        "score": 0.509,
+        "oi": 20795,
+        "vol": 23408,
+        "turnover": 1.13,
+        "excess": 1.04,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 8745257.07137125,
+        "distance_pct": 1.75
+      }
+    ],
+    "flow": {
+      "bias": "CALLS \u2014 upside flow dominates",
+      "ratio": 0.56,
+      "put_below": 6822,
+      "call_above": 29398,
+      "downside_vol": 18735,
+      "upside_vol": 33520
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:39:28Z"
+  },
+  "MU": {
+    "symbol": "MU",
+    "expiry": "2026-08-07",
+    "dte": 1,
+    "spot": 895.3,
+    "quote_spot": 894.63,
+    "parity_strikes": 205,
+    "total_gex": 39975191.9432649,
+    "regime": "LONG GAMMA \u2014 hedging damps moves, price pins",
+    "zero_gamma": 881.0,
+    "max_pain": 890.0,
+    "call_volume": 50858,
+    "put_volume": 16729,
+    "call_oi": 17380,
+    "put_oi": 9294,
+    "pc_volume": 0.33,
+    "pc_oi": 0.53,
+    "atm_strike": 895.0,
+    "straddle": 43.3,
+    "expected_move_pct": 4.84,
+    "call_walls": [
+      {
+        "strike": 900.0,
+        "oi": 6637,
+        "vol": 18530,
+        "gex": 34420190.3159051
+      },
+      {
+        "strike": 920.0,
+        "oi": 2160,
+        "vol": 5069,
+        "gex": 8830007.983439999
+      },
+      {
+        "strike": 910.0,
+        "oi": 1281,
+        "vol": 2366,
+        "gex": 5975982.037027799
+      }
+    ],
+    "put_walls": [
+      {
+        "strike": 890.0,
+        "oi": 1358,
+        "vol": 1527,
+        "gex": -7597878.801175599
+      },
+      {
+        "strike": 880.0,
+        "oi": 1258,
+        "vol": 4378,
+        "gex": -7391316.2505826
+      },
+      {
+        "strike": 870.0,
+        "oi": 694,
+        "vol": 2718,
+        "gex": -4144316.4739269996
+      }
+    ],
+    "call_vol_walls": [
+      {
+        "strike": 900.0,
+        "vol": 18530,
+        "oi": 6637
+      },
+      {
+        "strike": 920.0,
+        "vol": 5069,
+        "oi": 2160
+      },
+      {
+        "strike": 910.0,
+        "vol": 2366,
+        "oi": 1281
+      }
+    ],
+    "put_vol_walls": [
+      {
+        "strike": 880.0,
+        "vol": 4378,
+        "oi": 1258
+      },
+      {
+        "strike": 870.0,
+        "vol": 2718,
+        "oi": 694
+      },
+      {
+        "strike": 875.0,
+        "vol": 1916,
+        "oi": 535
+      }
+    ],
+    "magnets": [
+      {
+        "strike": 900.0,
+        "score": 2.636,
+        "oi": 9351,
+        "vol": 21124,
+        "turnover": 2.26,
+        "excess": 3.47,
+        "side": "call",
+        "below_spot": false,
+        "net_gex": 20345096.6715829,
+        "distance_pct": 0.52
+      },
+      {
+        "strike": 895.0,
+        "score": 0.98,
+        "oi": 917,
+        "vol": 4191,
+        "turnover": 4.57,
+        "excess": 1.0,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 167726.86733249994,
+        "distance_pct": 0.03
+      },
+      {
+        "strike": 890.0,
+        "score": 0.688,
+        "oi": 2451,
+        "vol": 5811,
+        "turnover": 2.37,
+        "excess": 0.93,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": -1482649.3978729984,
+        "distance_pct": 0.59
+      },
+      {
+        "strike": 880.0,
+        "score": 0.606,
+        "oi": 2343,
+        "vol": 9430,
+        "turnover": 4.02,
+        "excess": 1.23,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": -1016452.8707081014,
+        "distance_pct": 1.71
+      },
+      {
+        "strike": 885.0,
+        "score": 0.413,
+        "oi": 2449,
+        "vol": 3118,
+        "turnover": 1.27,
+        "excess": 0.7,
+        "side": "call",
+        "below_spot": true,
+        "net_gex": 9697538.633446999,
+        "distance_pct": 1.15
+      }
+    ],
+    "flow": {
+      "bias": "BALANCED",
+      "ratio": 1.03,
+      "put_below": 13335,
+      "call_above": 29841,
+      "downside_vol": 34352,
+      "upside_vol": 33235
+    },
+    "greek_source": "feed",
+    "generated": "2026-08-06T14:39:33Z"
+  }
+}

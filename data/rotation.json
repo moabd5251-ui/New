@@ -1,0 +1,24 @@
+{
+  "held": {},
+  "asof": "2026-08-05",
+  "last_exposures": {
+    "XLF": 100,
+    "TLT": -100,
+    "EFA": 100,
+    "SPY": 90,
+    "IWM": 90,
+    "XLV": 80,
+    "SLV": -60,
+    "XLU": -50,
+    "XLE": 40,
+    "GLD": -40,
+    "XLP": 30,
+    "GDX": -30,
+    "IBIT": -30,
+    "XLK": 20,
+    "EEM": -10,
+    "QQQ": 0
+  },
+  "generated": "2026-08-06T13:02:45Z",
+  "history": []
+}

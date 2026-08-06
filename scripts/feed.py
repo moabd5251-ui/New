@@ -162,9 +162,24 @@ class TradierProvider:
         self._fallback = YahooProvider()      # earnings calendar only
 
     def _get(self, path, **params):
-        r = requests.get(f"{self.BASE}{path}", headers=self.h, params=params, timeout=25)
-        r.raise_for_status()
-        return r.json()
+        """GET with retry on gateway errors — Tradier sheds load with intermittent
+        502s that clear on the identical request, and a scan of seventeen symbols
+        drops names silently if one bad gateway is treated as a hard failure."""
+        last = None
+        for i in range(4):
+            try:
+                r = requests.get(f"{self.BASE}{path}", headers=self.h,
+                                 params=params, timeout=25)
+                if r.status_code in (502, 503, 504):
+                    last = requests.HTTPError(f"{r.status_code} from {path}")
+                    time.sleep(1.5 ** i)
+                    continue
+                r.raise_for_status()
+                return r.json()
+            except requests.RequestException as e:
+                last = e
+                time.sleep(1.5 ** i)
+        raise last
 
     def bars(self, sym, interval="1d", rng="1y"):
         days = {"1y": 400, "2y": 760, "60d": 90, "5d": 10}.get(rng, 400)
@@ -185,15 +200,47 @@ class TradierProvider:
         return df
 
     def _norm(self, o):
+        """Normalise a Tradier contract.
+
+        Greeks are passed through UNSCALED. Verified against live responses: on a
+        5-day ATM SPY call Tradier published theta -0.4138 and vega 0.3777, while
+        Black-Scholes on the same inputs gives -0.469 and 0.351 — the same units.
+        Tradier already quotes theta per DAY and vega per VOL POINT, which is the
+        convention greeks() uses.
+
+        This code previously divided theta by 365 and vega by 100 on the assumption
+        they arrived annualised. Both were wrong, and neither could be caught until a
+        token existed: a theta 365x too small makes the holding cost of every options
+        position round to nothing, so required_iv_rise collapses toward zero and every
+        trade reads as free.
+        """
         g = o.get("greeks") or {}
         return dict(contractSymbol=o.get("symbol"), strike=o.get("strike"),
                     bid=o.get("bid") or 0, ask=o.get("ask") or 0,
-                    lastPrice=o.get("last") or 0,
+                    lastPrice=o.get("last") or 0, stale=False,
                     volume=o.get("volume") or 0, openInterest=o.get("open_interest") or 0,
                     impliedVolatility=g.get("mid_iv") or g.get("smv_vol") or 0,
                     delta=g.get("delta"), gamma=g.get("gamma"),
-                    theta=(g.get("theta") / 365.0 if g.get("theta") is not None else None),
-                    vega=(g.get("vega") / 100.0 if g.get("vega") is not None else None))
+                    theta=g.get("theta"), vega=g.get("vega"))
+
+    # Tradier's own vocabulary from /markets/clock, mapped to the provider-neutral
+    # states the rest of the code gates on.
+    _CLOCK = {"open": "REGULAR", "premarket": "PRE",
+              "postmarket": "POST", "closed": "CLOSED"}
+
+    def market_state(self):
+        """REGULAR / PRE / POST / CLOSED, from the exchange clock.
+
+        Yahoo ships this inside every quote, so nothing needed to ask for it
+        separately. Tradier does not, and a chain that simply omits marketState reads
+        as None — which makes require_open() refuse forever and silently disables every
+        options pipeline rather than failing loudly.
+        """
+        try:
+            d = self._get("/markets/clock")
+            return self._CLOCK.get(((d.get("clock") or {}).get("state") or "").lower())
+        except Exception:
+            return None
 
     def _expirations(self, sym):
         d = self._get("/markets/options/expirations", symbol=sym, includeAllRoots="true")
@@ -262,8 +309,13 @@ def market_state(sym="SPY"):
     call showing 6% IV, term structures collapsing to zero. Callers must gate on this
     rather than quietly analysing nonsense.
     """
+    p = provider()
+    # A provider with a dedicated clock endpoint answers directly; asking it for a whole
+    # option chain just to read a session flag is an expensive way to learn the time.
+    if hasattr(p, "market_state"):
+        return p.market_state()
     try:
-        return provider().chain(sym)["quote"].get("marketState")
+        return p.chain(sym)["quote"].get("marketState")
     except Exception:
         return None
 

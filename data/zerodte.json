@@ -1,0 +1,63 @@
+{
+  "symbol": "SPY",
+  "expiry": "2026-08-06",
+  "dte": 0,
+  "spot": 770.92,
+  "quote_spot": 769.79,
+  "parity_strikes": 75,
+  "total_gex": 409072835.77487993,
+  "regime": "LONG GAMMA \u2014 hedging damps moves, price pins",
+  "zero_gamma": 749.18,
+  "max_pain": 768.0,
+  "call_volume": 0,
+  "put_volume": 0,
+  "call_oi": 232591,
+  "put_oi": 173991,
+  "pc_volume": null,
+  "pc_oi": 0.75,
+  "atm_strike": 771.0,
+  "straddle": 4.36,
+  "expected_move_pct": 0.57,
+  "call_walls": [
+    {
+      "strike": 780.0,
+      "oi": 18264,
+      "vol": 0,
+      "gex": 269628698.54722404
+    },
+    {
+      "strike": 775.0,
+      "oi": 12110,
+      "vol": 0,
+      "gex": 446153603.403069
+    },
+    {
+      "strike": 772.0,
+      "oi": 11015,
+      "vol": 0,
+      "gex": 505317301.0686602
+    }
+  ],
+  "put_walls": [
+    {
+      "strike": 760.0,
+      "oi": 16455,
+      "vol": 0,
+      "gex": -159699183.91179094
+    },
+    {
+      "strike": 770.0,
+      "oi": 9416,
+      "vol": 0,
+      "gex": -390215701.4563723
+    },
+    {
+      "strike": 765.0,
+      "oi": 9401,
+      "vol": 0,
+      "gex": -205887590.14176583
+    }
+  ],
+  "greek_source": "feed",
+  "generated": "2026-08-06T13:22:15Z"
+}

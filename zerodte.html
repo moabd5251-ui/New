@@ -1,0 +1,170 @@
+<title>Zero-DTE Positioning — SPY</title>
+<style>
+:root{
+  --ground:#F6F8F7; --surface:#FFFFFF; --surface-2:#EAEEEC; --line:#D7DEDA;
+  --ink:#1A211E; --ink-2:#465049; --ink-3:#75807A;
+  --accent:#2C6E56; --accent-soft:#E2EDE8;
+  --up:#1F7A5A; --down:#B4443E; --flat:#75807A; --warn:#A8761C;
+  --sans:ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --serif:Georgia,"Iowan Old Style","Times New Roman",serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --ground:#101614; --surface:#18201D; --surface-2:#212A26; --line:#2C3733;
+    --ink:#DFE7E3; --ink-2:#A3AFA9; --ink-3:#75807A;
+    --accent:#6FB79A; --accent-soft:#1B2621;
+    --up:#46B189; --down:#DE6A63; --flat:#75807A; --warn:#CFA052;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#101614; --surface:#18201D; --surface-2:#212A26; --line:#2C3733;
+  --ink:#DFE7E3; --ink-2:#A3AFA9; --ink-3:#75807A;
+  --accent:#6FB79A; --accent-soft:#1B2621;
+  --up:#46B189; --down:#DE6A63; --flat:#75807A; --warn:#CFA052;
+}
+:root[data-theme="light"]{
+  --ground:#F6F8F7; --surface:#FFFFFF; --surface-2:#EAEEEC; --line:#D7DEDA;
+  --ink:#1A211E; --ink-2:#465049; --ink-3:#75807A;
+  --accent:#2C6E56; --accent-soft:#E2EDE8;
+  --up:#1F7A5A; --down:#B4443E; --flat:#75807A; --warn:#A8761C;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 24px 72px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+header.mast{border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:22px;
+  display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(26px,4vw,38px);margin:0;
+  letter-spacing:-.01em;text-wrap:balance}
+.sub{color:var(--ink-3);font-size:13px;margin-top:5px}
+.stamp{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);text-align:right;
+  text-transform:uppercase;letter-spacing:.07em;white-space:nowrap}
+.thesis{background:var(--accent-soft);border-left:3px solid var(--accent);padding:14px 17px;
+  font-size:13.5px;color:var(--ink-2);margin-bottom:16px;border-radius:0 2px 2px 0}
+.thesis strong{color:var(--ink)}
+.trap{background:color-mix(in srgb,var(--warn) 12%,transparent);border-left:3px solid var(--warn);
+  padding:14px 17px;font-size:13.5px;color:var(--ink-2);margin-bottom:26px;border-radius:0 2px 2px 0}
+.trap strong{color:var(--warn)}
+h2{font-family:var(--serif);font-size:20px;margin:34px 0 12px;font-weight:600}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;background:var(--surface);
+  border:1px solid var(--line);border-radius:3px;font-size:13.5px;min-width:720px}
+th{background:var(--surface-2);text-align:left;padding:9px 12px;font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2);font-weight:700;
+  border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.tick{font-weight:700;font-family:var(--mono)}
+.mkt{color:var(--ink-3);font-size:12px}
+.up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--flat)}
+.bar{position:relative;height:16px;background:var(--surface-2);border-radius:2px;
+  min-width:120px;width:130px;overflow:hidden}
+.bar i{position:absolute;top:0;bottom:0;left:50%;display:block}
+.bar .mid{position:absolute;top:0;bottom:0;left:50%;width:1px;background:var(--line)}
+.pill{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;
+  padding:2px 7px;border-radius:2px;letter-spacing:.04em;white-space:nowrap}
+.p-add{background:var(--up);color:#fff}
+.p-red{background:var(--warn);color:#fff}
+.p-rev{background:var(--down);color:#fff}
+.p-non{background:var(--surface-2);color:var(--ink-3)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:3px;
+  margin-bottom:16px;overflow:hidden}
+.card-h{padding:11px 16px;background:var(--surface-2);border-bottom:1px solid var(--line);
+  display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.card-h .tick{font-size:15px}
+.card-h .exp{margin-left:auto;font-family:var(--mono);font-weight:700;font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr))}
+.cell{padding:8px 14px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+  display:flex;justify-content:space-between;gap:8px;font-size:12.5px}
+.cell b{font-weight:500;color:var(--ink-2)}
+.sig{font-family:var(--mono);font-size:11px;font-weight:700}
+footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);
+  color:var(--ink-3);font-size:12px}
+
+.hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  background:var(--surface);border:1px solid var(--line);border-radius:3px;margin-bottom:22px}
+.hero div{padding:13px 17px;border-right:1px solid var(--line)}
+.hero div:last-child{border-right:0}
+.hero .k{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-3)}
+.hero .v{font-family:var(--mono);font-size:20px;font-weight:600;margin-top:3px;letter-spacing:-.02em}
+.hero .n{font-size:11.5px;color:var(--ink-3);margin-top:2px}
+.regime{padding:13px 17px;border-radius:0 2px 2px 0;margin-bottom:20px;font-size:14px;
+  border-left:3px solid}
+.regime.long{background:color-mix(in srgb,var(--up) 11%,transparent);border-color:var(--up)}
+.regime.short{background:color-mix(in srgb,var(--down) 11%,transparent);border-color:var(--down)}
+.regime b{display:block;font-size:15px;margin-bottom:3px;color:var(--ink)}
+.gx{background:var(--surface);border:1px solid var(--line);border-radius:3px;
+  padding:14px 8px;margin-bottom:24px;overflow-x:auto}
+.gxrow{display:grid;grid-template-columns:62px 1fr 62px;align-items:center;
+  gap:6px;height:19px;min-width:520px}
+.gxrow.spot{background:color-mix(in srgb,var(--accent) 14%,transparent)}
+.gxrow.pain{background:color-mix(in srgb,var(--warn) 13%,transparent)}
+.gxk{font-family:var(--mono);font-size:11px;text-align:right;color:var(--ink-2);
+  font-variant-numeric:tabular-nums}
+.gxtag{font-family:var(--mono);font-size:9.5px;color:var(--ink-3);letter-spacing:.04em}
+.gxbar{position:relative;height:13px;background:var(--surface-2);border-radius:2px}
+.gxbar i{position:absolute;top:0;bottom:0;display:block;border-radius:1px}
+.gxbar .mid{position:absolute;top:-3px;bottom:-3px;left:50%;width:1px;background:var(--line)}
+.legend{display:flex;gap:16px;font-size:11.5px;color:var(--ink-3);margin:8px 0 0 68px;
+  font-family:var(--mono)}
+.legend b{display:inline-block;width:9px;height:9px;border-radius:1px;margin-right:4px}
+ul.read{margin:0;padding-left:19px}
+ul.read li{margin-bottom:7px;font-size:13.5px;color:var(--ink-2)}
+</style>
+<div class="wrap">
+<header class="mast">
+  <div><h1>Zero-DTE Positioning</h1>
+    <div class="sub">SPY · expiry 2026-08-06 ·
+      dealer gamma, walls and pin levels</div></div>
+  <div class="stamp">Spot 770.92<br>Generated 06 Aug 2026 13:22 UTC</div>
+</header>
+
+<div class="hero">
+  <div><div class="k">Net gamma exposure</div>
+    <div class="v" style="color:var(--up)">
+      $+0.41bn</div><div class="n">dealer hedging per 1% move</div></div>
+  <div><div class="k">Gamma flip</div><div class="v">749.18</div>
+    <div class="n">regime boundary</div></div>
+  <div><div class="k">Max pain</div><div class="v">768.0</div>
+    <div class="n">most premium expires worthless</div></div>
+  <div><div class="k">Expected move</div>
+    <div class="v">0.57%</div>
+    <div class="n">ATM straddle ±4.36</div></div>
+  <div><div class="k">Put / call OI</div><div class="v">0.75</div>
+    <div class="n">volume n/a</div></div>
+</div>
+
+<div class="regime long">
+  <b>LONG GAMMA — hedging damps moves, price pins</b>
+  Dealers sell rallies and buy dips to stay flat, which suppresses realised volatility and draws price toward the heaviest open interest.
+</div>
+
+<h2>Gamma by strike</h2>
+<div class="gx"><div class="gxrow"><span class="gxk">748</span><span class="gxbar"><i style="left:49.9%;width:0.1%;background:var(--down)"></i><span class="mid"></span></span><span class="gxtag">4,219</span></div><div class="gxrow"><span class="gxk">749</span><span class="gxbar"><i style="left:49.9%;width:0.1%;background:var(--down)"></i><span class="mid"></span></span><span class="gxtag">2,650</span></div><div class="gxrow"><span class="gxk">750</span><span class="gxbar"><i style="left:50%;width:1.0%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">16,214</span></div><div class="gxrow"><span class="gxk">751</span><span class="gxbar"><i style="left:49.9%;width:0.1%;background:var(--down)"></i><span class="mid"></span></span><span class="gxtag">3,849</span></div><div class="gxrow"><span class="gxk">752</span><span class="gxbar"><i style="left:50%;width:0.3%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">6,161</span></div><div class="gxrow"><span class="gxk">753</span><span class="gxbar"><i style="left:48.5%;width:1.5%;background:var(--down)"></i><span class="mid"></span></span><span class="gxtag">7,599</span></div><div class="gxrow"><span class="gxk">754</span><span class="gxbar"><i style="left:49.9%;width:0.1%;background:var(--down)"></i><span class="mid"></span></span><span class="gxtag">9,330</span></div><div class="gxrow"><span class="gxk">755</span><span class="gxbar"><i style="left:50%;width:0.3%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">12,723</span></div><div class="gxrow"><span class="gxk">756</span><span class="gxbar"><i style="left:48.5%;width:1.5%;background:var(--down)"></i><span class="mid"></span></span><span class="gxtag">6,782</span></div><div class="gxrow"><span class="gxk">757</span><span class="gxbar"><i style="left:47.1%;width:2.9%;background:var(--down)"></i><span class="mid"></span></span><span class="gxtag">5,995</span></div><div class="gxrow"><span class="gxk">758</span><span class="gxbar"><i style="left:46.0%;width:4.0%;background:var(--down)"></i><span class="mid"></span></span><span class="gxtag">7,801</span></div><div class="gxrow"><span class="gxk">759</span><span class="gxbar"><i style="left:42.3%;width:7.7%;background:var(--down)"></i><span class="mid"></span></span><span class="gxtag">8,308</span></div><div class="gxrow"><span class="gxk">760</span><span class="gxbar"><i style="left:29.0%;width:21.0%;background:var(--down)"></i><span class="mid"></span></span><span class="gxtag">18,575</span></div><div class="gxrow"><span class="gxk">761</span><span class="gxbar"><i style="left:43.4%;width:6.6%;background:var(--down)"></i><span class="mid"></span></span><span class="gxtag">6,087</span></div><div class="gxrow"><span class="gxk">762</span><span class="gxbar"><i style="left:44.4%;width:5.6%;background:var(--down)"></i><span class="mid"></span></span><span class="gxtag">7,700</span></div><div class="gxrow"><span class="gxk">763</span><span class="gxbar"><i style="left:40.5%;width:9.5%;background:var(--down)"></i><span class="mid"></span></span><span class="gxtag">6,619</span></div><div class="gxrow"><span class="gxk">764</span><span class="gxbar"><i style="left:40.0%;width:10.0%;background:var(--down)"></i><span class="mid"></span></span><span class="gxtag">7,357</span></div><div class="gxrow"><span class="gxk">765</span><span class="gxbar"><i style="left:25.0%;width:25.0%;background:var(--down)"></i><span class="mid"></span></span><span class="gxtag">11,223</span></div><div class="gxrow"><span class="gxk">766</span><span class="gxbar"><i style="left:38.4%;width:11.6%;background:var(--down)"></i><span class="mid"></span></span><span class="gxtag">7,163</span></div><div class="gxrow"><span class="gxk">767</span><span class="gxbar"><i style="left:29.8%;width:20.2%;background:var(--down)"></i><span class="mid"></span></span><span class="gxtag">10,017</span></div><div class="gxrow pain"><span class="gxk">768</span><span class="gxbar"><i style="left:16.7%;width:33.3%;background:var(--down)"></i><span class="mid"></span></span><span class="gxtag">MAX PAIN</span></div><div class="gxrow"><span class="gxk">769</span><span class="gxbar"><i style="left:36.0%;width:14.0%;background:var(--down)"></i><span class="mid"></span></span><span class="gxtag">10,849</span></div><div class="gxrow"><span class="gxk">770</span><span class="gxbar"><i style="left:30.1%;width:19.9%;background:var(--down)"></i><span class="mid"></span></span><span class="gxtag">15,648</span></div><div class="gxrow spot"><span class="gxk">771</span><span class="gxbar"><i style="left:8.1%;width:41.9%;background:var(--down)"></i><span class="mid"></span></span><span class="gxtag">SPOT</span></div><div class="gxrow"><span class="gxk">772</span><span class="gxbar"><i style="left:50%;width:16.0%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">19,722</span></div><div class="gxrow"><span class="gxk">773</span><span class="gxbar"><i style="left:50%;width:7.5%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">11,619</span></div><div class="gxrow"><span class="gxk">774</span><span class="gxbar"><i style="left:50%;width:23.9%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">9,741</span></div><div class="gxrow"><span class="gxk">775</span><span class="gxbar"><i style="left:50%;width:50.0%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">15,215</span></div><div class="gxrow"><span class="gxk">776</span><span class="gxbar"><i style="left:50%;width:36.6%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">12,569</span></div><div class="gxrow"><span class="gxk">777</span><span class="gxbar"><i style="left:50%;width:38.2%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">11,809</span></div><div class="gxrow"><span class="gxk">778</span><span class="gxbar"><i style="left:50%;width:17.1%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">6,018</span></div><div class="gxrow"><span class="gxk">779</span><span class="gxbar"><i style="left:50%;width:18.4%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">7,126</span></div><div class="gxrow"><span class="gxk">780</span><span class="gxbar"><i style="left:50%;width:39.5%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">18,761</span></div><div class="gxrow"><span class="gxk">781</span><span class="gxbar"><i style="left:50%;width:10.8%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">6,350</span></div><div class="gxrow"><span class="gxk">782</span><span class="gxbar"><i style="left:50%;width:13.0%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">9,247</span></div><div class="gxrow"><span class="gxk">783</span><span class="gxbar"><i style="left:50%;width:7.3%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">6,493</span></div><div class="gxrow"><span class="gxk">784</span><span class="gxbar"><i style="left:50%;width:7.2%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">8,364</span></div><div class="gxrow"><span class="gxk">785</span><span class="gxbar"><i style="left:50%;width:5.2%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">7,984</span></div><div class="gxrow"><span class="gxk">786</span><span class="gxbar"><i style="left:50%;width:2.1%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">4,352</span></div><div class="gxrow"><span class="gxk">787</span><span class="gxbar"><i style="left:50%;width:1.4%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">3,956</span></div><div class="gxrow"><span class="gxk">788</span><span class="gxbar"><i style="left:50%;width:0.4%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">1,440</span></div><div class="gxrow"><span class="gxk">789</span><span class="gxbar"><i style="left:50%;width:0.7%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">4,021</span></div><div class="gxrow"><span class="gxk">790</span><span class="gxbar"><i style="left:50%;width:1.1%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">8,933</span></div><div class="gxrow"><span class="gxk">791</span><span class="gxbar"><i style="left:50%;width:0.1%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">1,423</span></div><div class="gxrow"><span class="gxk">792</span><span class="gxbar"><i style="left:50%;width:0.1%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">1,734</span></div><div class="gxrow"><span class="gxk">793</span><span class="gxbar"><i style="left:50%;width:0.2%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">6,451</span></div><div class="gxrow"><span class="gxk">794</span><span class="gxbar"><i style="left:50%;width:0.1%;background:var(--up)"></i><span class="mid"></span></span><span class="gxtag">2,664</span></div></div>
+<div class="legend"><span><b style="background:var(--up)"></b>call gamma (dealer long)</span>
+  <span><b style="background:var(--down)"></b>put gamma (dealer short)</span>
+  <span>right column = total OI at strike</span></div>
+
+<h2>The read</h2>
+<ul class="read"><li>LONG GAMMA — hedging damps moves, price pins</li><li>Max pain 768.0 sits 2.92 below spot 770.92 — the strike where the most premium expires worthless.</li><li>Spot is ABOVE the 749.18 gamma flip, so dealers are damping moves. A break back under 749.18 switches that to amplification.</li><li>The ATM straddle prices a 0.57% move still to come (±4.36) by the close.</li><li>Heaviest call wall 780.0 (18,264 OI) — resistance while dealers are long gamma there.</li><li>Heaviest put wall 760.0 (16,455 OI) — support on the same logic.</li></ul>
+
+<div class="trap"><strong>What is measured, and what is assumed.</strong> Strikes, open
+interest, gamma and spot all come off the tape — greeks here are
+feed-sourced, and spot is solved from put-call parity across
+75 strikes rather than taken from a single quote. What is
+<em>assumed</em> is that dealers are long the calls and short the puts. Nobody publishes dealer
+inventory; it is inferred from the customer flow it implies. That is the standard convention and
+a real assumption — when customers have been net sellers of calls, the sign flips and every
+conclusion above inverts.
+<br><br>
+Read this as a map of where hedging pressure can build, not a forecast. Max pain says where
+option buyers lose most, not where price is going, and pinning evidence is strongest only in the
+final hours and only at strikes with genuinely heavy open interest. <strong>Unbacktested in this
+repo</strong> — unlike the trend and rotation systems, no walk-forward test has been run on
+whether these levels predict anything.</div>
+
+<footer>Zero-DTE positioning for SPY, expiry 2026-08-06.
+Educational tooling only — no orders are placed and nothing here is financial advice.</footer>
+</div>

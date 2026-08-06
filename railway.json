@@ -3,7 +3,7 @@
     "builder": "nixpacks"
   },
   "deploy": {
-    "startCommand": "npm --prefix server start",
+    "startCommand": "node api.js",
     "restartPolicyType": "on_failure",
     "restartPolicyMaxRetries": 5
   }

@@ -1,63 +1,167 @@
 {
-  "symbol": "SPY",
+  "symbol": "QQQ",
   "expiry": "2026-08-06",
   "dte": 0,
-  "spot": 770.92,
-  "quote_spot": 769.79,
-  "parity_strikes": 75,
-  "total_gex": 409072835.77487993,
-  "regime": "LONG GAMMA \u2014 hedging damps moves, price pins",
-  "zero_gamma": 749.18,
-  "max_pain": 768.0,
-  "call_volume": 0,
-  "put_volume": 0,
-  "call_oi": 232591,
-  "put_oi": 173991,
-  "pc_volume": null,
-  "pc_oi": 0.75,
-  "atm_strike": 771.0,
-  "straddle": 4.36,
-  "expected_move_pct": 0.57,
+  "spot": 709.32,
+  "quote_spot": 709.11,
+  "parity_strikes": 63,
+  "total_gex": -102902170.12518214,
+  "regime": "SHORT GAMMA \u2014 hedging amplifies moves, trends extend",
+  "zero_gamma": 689.0,
+  "max_pain": 717.0,
+  "call_volume": 36143,
+  "put_volume": 101521,
+  "call_oi": 76624,
+  "put_oi": 111901,
+  "pc_volume": 2.81,
+  "pc_oi": 1.46,
+  "atm_strike": 709.0,
+  "straddle": 6.07,
+  "expected_move_pct": 0.86,
   "call_walls": [
     {
-      "strike": 780.0,
-      "oi": 18264,
-      "vol": 0,
-      "gex": 269628698.54722404
+      "strike": 730.0,
+      "oi": 10845,
+      "vol": 1770,
+      "gex": 130466696.50428718
     },
     {
-      "strike": 775.0,
-      "oi": 12110,
-      "vol": 0,
-      "gex": 446153603.403069
+      "strike": 725.0,
+      "oi": 7434,
+      "vol": 1754,
+      "gex": 147407481.11876142
     },
     {
-      "strike": 772.0,
-      "oi": 11015,
-      "vol": 0,
-      "gex": 505317301.0686602
+      "strike": 715.0,
+      "oi": 4241,
+      "vol": 3101,
+      "gex": 78204687.48897615
     }
   ],
   "put_walls": [
     {
-      "strike": 760.0,
-      "oi": 16455,
-      "vol": 0,
-      "gex": -159699183.91179094
+      "strike": 700.0,
+      "oi": 8556,
+      "vol": 13818,
+      "gex": -32760156.37541227
     },
     {
-      "strike": 770.0,
-      "oi": 9416,
-      "vol": 0,
-      "gex": -390215701.4563723
+      "strike": 695.0,
+      "oi": 6699,
+      "vol": 1379,
+      "gex": -12268794.577064022
     },
     {
-      "strike": 765.0,
-      "oi": 9401,
-      "vol": 0,
-      "gex": -205887590.14176583
+      "strike": 690.0,
+      "oi": 6064,
+      "vol": 567,
+      "gex": -4698621.341121399
     }
   ],
+  "call_vol_walls": [
+    {
+      "strike": 720.0,
+      "vol": 3714,
+      "oi": 4224
+    },
+    {
+      "strike": 715.0,
+      "vol": 3101,
+      "oi": 4241
+    },
+    {
+      "strike": 712.0,
+      "vol": 3055,
+      "oi": 948
+    }
+  ],
+  "put_vol_walls": [
+    {
+      "strike": 700.0,
+      "vol": 13818,
+      "oi": 8556
+    },
+    {
+      "strike": 709.0,
+      "vol": 11767,
+      "oi": 2529
+    },
+    {
+      "strike": 708.0,
+      "vol": 6643,
+      "oi": 5452
+    }
+  ],
+  "magnets": [
+    {
+      "strike": 700.0,
+      "score": 2.419,
+      "oi": 10993,
+      "vol": 13841,
+      "turnover": 1.26,
+      "excess": 4.33,
+      "side": "put",
+      "below_spot": true,
+      "net_gex": -23429102.01743194,
+      "distance_pct": 1.31
+    },
+    {
+      "strike": 710.0,
+      "score": 1.664,
+      "oi": 8489,
+      "vol": 14775,
+      "turnover": 1.74,
+      "excess": 1.76,
+      "side": "put",
+      "below_spot": false,
+      "net_gex": -30325492.703499347,
+      "distance_pct": 0.1
+    },
+    {
+      "strike": 705.0,
+      "score": 1.648,
+      "oi": 7633,
+      "vol": 6375,
+      "turnover": 0.84,
+      "excess": 2.25,
+      "side": "put",
+      "below_spot": true,
+      "net_gex": -20540770.338390622,
+      "distance_pct": 0.61
+    },
+    {
+      "strike": 715.0,
+      "score": 1.23,
+      "oi": 8118,
+      "vol": 4313,
+      "turnover": 0.53,
+      "excess": 1.82,
+      "side": "call",
+      "below_spot": false,
+      "net_gex": 6712215.57321088,
+      "distance_pct": 0.8
+    },
+    {
+      "strike": 709.0,
+      "score": 1.113,
+      "oi": 3635,
+      "vol": 12548,
+      "turnover": 3.45,
+      "excess": 1.14,
+      "side": "put",
+      "below_spot": true,
+      "net_gex": -15622487.28228246,
+      "distance_pct": 0.05
+    }
+  ],
+  "flow": {
+    "bias": "PUTS \u2014 downside flow dominates",
+    "ratio": 1.29,
+    "put_below": 75540,
+    "call_above": 34107,
+    "downside_vol": 77576,
+    "upside_vol": 60088
+  },
   "greek_source": "feed",
-  "generated": "2026-08-06T13:22:15Z"
+  "generated": "2026-08-06T13:33:49Z"
 }

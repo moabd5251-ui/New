@@ -168,13 +168,104 @@ def zero_gamma(rows, spot):
     return None if total == 0 else (rows[0]["strike"] if total < 0 else rows[-1]["strike"])
 
 
-def walls(rows, spot, n=3):
-    """Largest open-interest strikes above and below spot — the hedging anchors."""
-    above = sorted([r for r in rows if r["strike"] > spot],
-                   key=lambda r: -r["call_oi"])[:n]
-    below = sorted([r for r in rows if r["strike"] < spot],
-                   key=lambda r: -r["put_oi"])[:n]
+def walls(rows, spot, n=3, key="oi"):
+    """Largest strikes above and below spot — the hedging anchors.
+
+    key="oi" reads EXISTING positioning, carried in from prior sessions. key="vol"
+    reads TODAY's flow, and the two answer different questions. Open interest says
+    where dealers are already hedged; volume says where they are being forced to hedge
+    right now. A strike heavy in both is where the pull is strongest, which is why the
+    magnets() ranking below wants both rather than either.
+    """
+    ck, pk = ("call_" + key), ("put_" + key)
+    above = sorted([r for r in rows if r["strike"] > spot], key=lambda r: -r[ck])[:n]
+    below = sorted([r for r in rows if r["strike"] < spot], key=lambda r: -r[pk])[:n]
     return above, below
+
+
+def magnets(rows, spot, n=5):
+    """Strikes pulling price AWAY from where it already is, ranked.
+
+    The naive version of this ranks by size and proximity, and it does not work: volume
+    and gamma both peak at the money by construction, so the score simply rediscovers
+    spot and calls it a target. Tested against a real chain it returned the at-the-money
+    strike while the analyst reading the same board called a level seven points lower.
+
+    What actually marks a magnet is interest that is LARGE FOR ITS DISTANCE. Activity
+    decays away from the money, so this fits that decay from the chain itself and scores
+    each strike on how far it punches above the decay curve. A strike with ordinary ATM
+    volume scores nothing; one with heavy interest well out of the money scores highly,
+    which is the thing worth knowing because it is somewhere price is not yet.
+
+    Freshness still counts — volume far above resting open interest means positions
+    opened today, which dealers are hedging now rather than inventory long since
+    neutralised.
+    """
+    if not rows:
+        return []
+    pts = []
+    for r in rows:
+        oi = r["call_oi"] + r["put_oi"]
+        vol = r["call_vol"] + r["put_vol"]
+        if oi <= 0 and vol <= 0:
+            continue
+        pts.append((abs(r["strike"] - spot) / spot, oi, vol, r))
+    if not pts:
+        return []
+
+    # Expected size at a given distance, from the chain's own decay. A coarse two-band
+    # average is enough and avoids fitting a curve to twenty noisy points.
+    near = [p for p in pts if p[0] <= 0.004]
+    far = [p for p in pts if p[0] > 0.004]
+
+    def avg(g, i):
+        return (sum(x[i] for x in g) / len(g)) if g else 0.0
+
+    exp_near_oi, exp_near_vol = avg(near, 1) or 1, avg(near, 2) or 1
+    exp_far_oi, exp_far_vol = avg(far, 1) or 1, avg(far, 2) or 1
+
+    out = []
+    for dist, oi, vol, r in pts:
+        e_oi = exp_near_oi if dist <= 0.004 else exp_far_oi
+        e_vol = exp_near_vol if dist <= 0.004 else exp_far_vol
+        excess = 0.45 * (oi / e_oi) + 0.55 * (vol / e_vol)
+        # gamma is negligible far out, so a distant strike needs real size to matter
+        score = excess * (1.0 / (1.0 + dist * 60))
+        side = "put" if r["put_vol"] + r["put_oi"] > r["call_vol"] + r["call_oi"] else "call"
+        out.append(dict(strike=r["strike"], score=round(score, 3),
+                        oi=int(oi), vol=int(vol),
+                        turnover=round(vol / oi, 2) if oi else None,
+                        excess=round(excess, 2), side=side,
+                        below_spot=r["strike"] < spot, net_gex=r["net_gex"],
+                        distance_pct=round(dist * 100, 2)))
+    out.sort(key=lambda x: -x["score"])
+    return out[:n]
+
+
+def flow_bias(rows, spot):
+    """Which side today's flow is leaning on, and therefore which way hedging pushes.
+
+    Puts bought below spot and calls bought above are both customer bets, but they
+    force opposite dealer hedges: short puts make dealers sell the underlying as it
+    falls, short calls make them buy as it rises. Comparing the two says which
+    direction the hedging feedback currently runs.
+    """
+    put_below = sum(r["put_vol"] for r in rows if r["strike"] < spot)
+    call_above = sum(r["call_vol"] for r in rows if r["strike"] > spot)
+    put_above = sum(r["put_vol"] for r in rows if r["strike"] > spot)
+    call_below = sum(r["call_vol"] for r in rows if r["strike"] < spot)
+    downside = put_below + call_below
+    upside = call_above + put_above
+    total = downside + upside
+    if not total:
+        return dict(bias="NONE", ratio=None)
+    ratio = downside / upside if upside else None
+    bias = ("PUTS — downside flow dominates" if ratio and ratio > 1.15 else
+            "CALLS — upside flow dominates" if ratio and ratio < 0.87 else
+            "BALANCED")
+    return dict(bias=bias, ratio=round(ratio, 2) if ratio else None,
+                put_below=int(put_below), call_above=int(call_above),
+                downside_vol=int(downside), upside_vol=int(upside))
 
 
 def analyze(symbol="SPY", width_pct=0.03):
@@ -202,7 +293,10 @@ def analyze(symbol="SPY", width_pct=0.03):
     total_gex = sum(r["net_gex"] for r in rows)
     flip = zero_gamma(rows, spot)
     mp, _curve = max_pain(calls, puts)
-    up, down = walls(rows, spot)
+    up, down = walls(rows, spot, key="oi")
+    vup, vdown = walls(rows, spot, key="vol")
+    mag = magnets(rows, spot)
+    flow = flow_bias(rows, spot)
 
     cv = sum(_num(c.get("volume")) for c in calls)
     pv = sum(_num(p.get("volume")) for p in puts)
@@ -235,6 +329,11 @@ def analyze(symbol="SPY", width_pct=0.03):
                          vol=int(r["call_vol"]), gex=r["call_gex"]) for r in up],
         put_walls=[dict(strike=r["strike"], oi=int(r["put_oi"]),
                         vol=int(r["put_vol"]), gex=r["put_gex"]) for r in down],
+        call_vol_walls=[dict(strike=r["strike"], vol=int(r["call_vol"]),
+                             oi=int(r["call_oi"])) for r in vup],
+        put_vol_walls=[dict(strike=r["strike"], vol=int(r["put_vol"]),
+                            oi=int(r["put_oi"])) for r in vdown],
+        magnets=mag, flow=flow,
         rows=rows,
         greek_source=("feed" if any(c.get("gamma") is not None for c in calls)
                       else "black-scholes"),

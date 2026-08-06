@@ -77,6 +77,25 @@ def build(a, read_lines, out_path):
 
     lng = a["total_gex"] > 0
     flip = a.get("zero_gamma")
+
+    mrows = "".join(
+        f'<tr><td class="num"><b>{m["strike"]:g}</b></td>'
+        f'<td class="{"down" if m["side"]=="put" else "up"}">{m["side"]}</td>'
+        f'<td class="num flat">{m["distance_pct"]:.2f}% {"below" if m["below_spot"] else "above"}</td>'
+        f'<td class="num">{m["oi"]:,}</td><td class="num">{m["vol"]:,}</td>'
+        f'<td class="num flat">{(str(m["turnover"])+"x") if m["turnover"] else "—"}</td>'
+        f'<td class="num">{m["excess"]:.1f}x</td>'
+        f'<td class="num"><b>{m["score"]:.2f}</b></td></tr>'
+        for m in (a.get("magnets") or []))
+    fl = a.get("flow") or {}
+    fb = fl.get("bias", "—")
+    flow_cls = "short" if fb.startswith("PUTS") else "long" if fb.startswith("CALLS") else "long"
+    fdetail = (f'Downside flow {fl.get("downside_vol",0):,} contracts against upside '
+               f'{fl.get("upside_vol",0):,} — ratio {fl.get("ratio")}. Puts bought below spot force '
+               f'dealers to SELL the underlying as it falls; calls bought above force them to BUY '
+               f'as it rises. This is which way the hedging feedback currently runs.'
+               ) if fl.get("ratio") else "No flow recorded yet."
+    magnet_rows, flow_bias, flow_detail = mrows, fb, fdetail
     doc = f"""<title>Zero-DTE Positioning — {html.escape(a['symbol'])}</title>
 <style>{CSS}</style>
 <div class="wrap">
@@ -112,6 +131,19 @@ def build(a, read_lines, out_path):
 <div class="legend"><span><b style="background:var(--up)"></b>call gamma (dealer long)</span>
   <span><b style="background:var(--down)"></b>put gamma (dealer short)</span>
   <span>right column = total OI at strike</span></div>
+
+<h2>Magnets — where the pull is</h2>
+<div class="scroll"><table>
+<thead><tr><th>Strike</th><th>Side</th><th>Distance</th><th>Open int</th><th>Volume</th>
+<th>Turnover</th><th>Excess</th><th>Pull</th></tr></thead>
+<tbody>{magnet_rows}</tbody></table></div>
+<p class="sub" style="margin-top:8px">Excess is interest relative to what this chain carries at
+that distance — volume and gamma both peak at the money by construction, so raw size just
+rediscovers spot. A strike scores here by punching above the decay curve, which is what makes it
+somewhere price is <em>not yet</em>.</p>
+
+<div class="regime {flow_cls}" style="margin-top:20px"><b>Flow bias: {flow_bias}</b>
+{flow_detail}</div>
 
 <h2>The read</h2>
 <ul class="read">{''.join(f'<li>{html.escape(l)}</li>' for l in read_lines)}</ul>

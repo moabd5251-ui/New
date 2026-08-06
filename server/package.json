@@ -1,0 +1,18 @@
+{
+  "name": "coupon-clipper-server",
+  "version": "1.0.0",
+  "description": "Backend API for Coupon Clipper app",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "axios": "^1.4.0",
+    "sqlite3": "^5.1.6",
+    "node-cron": "^3.0.2",
+    "dotenv": "^16.0.3"
+  }
+}

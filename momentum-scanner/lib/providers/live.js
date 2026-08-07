@@ -119,6 +119,38 @@ async function fetchChart(symbol) {
   };
 }
 
+/**
+ * 1-minute intraday bars for pattern detection. Best-effort: a symbol with no
+ * intraday history simply gets no setup, which is the honest outcome.
+ */
+async function fetchIntraday(symbol) {
+  const url = `${YAHOO_CHART}/${encodeURIComponent(symbol)}?range=1d&interval=1m`;
+  const payload = await fetchJson(url);
+  const result = payload?.chart?.result?.[0];
+  const stamps = result?.timestamp ?? [];
+  const bars = result?.indicators?.quote?.[0] ?? {};
+  if (!stamps.length) return [];
+
+  const candles = [];
+  for (let i = 0; i < stamps.length; i += 1) {
+    const open = bars.open?.[i];
+    const high = bars.high?.[i];
+    const low = bars.low?.[i];
+    const close = bars.close?.[i];
+    // Yahoo pads the series with nulls for minutes that had no trades.
+    if (![open, high, low, close].every(Number.isFinite)) continue;
+    candles.push({
+      time: new Date(stamps[i] * 1000).toISOString(),
+      open,
+      high,
+      low,
+      close,
+      volume: Number.isFinite(bars.volume?.[i]) ? bars.volume[i] : null,
+    });
+  }
+  return candles.slice(-120);
+}
+
 async function fetchFinnhubProfile(symbol, apiKey) {
   const url = `${FINNHUB}/stock/profile2?symbol=${encodeURIComponent(symbol)}&token=${apiKey}`;
   const profile = await fetchJson(url);
@@ -200,6 +232,9 @@ export async function getQuotes({
   const settled = await mapLimit(symbols, 5, async (symbol) => {
     const base = await fetchChart(symbol);
 
+    // Intraday is supplementary — a failure here costs the setup, not the quote.
+    const intraday = await fetchIntraday(symbol).catch(() => []);
+
     let profile = { float: null, floatIsEstimated: false, name: null, sector: null };
     let news = [];
     if (apiKey) {
@@ -222,6 +257,7 @@ export async function getQuotes({
       shortInterest: null,
       news,
       newsAvailable: Boolean(apiKey),
+      candles: intraday,
     };
   });
 

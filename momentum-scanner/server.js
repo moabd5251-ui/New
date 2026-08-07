@@ -23,6 +23,9 @@ import { fileURLToPath } from 'node:url';
 import { scan, summarize, DEFAULT_CONFIG, normalizeConfig } from './lib/criteria.js';
 import { AlertTracker } from './lib/alerts.js';
 import { loadWatchlist, saveWatchlist } from './lib/watchlist.js';
+import { bestPattern } from './lib/patterns.js';
+import { planFor, DEFAULT_RISK_CONFIG, normalizeRiskConfig } from './lib/trade-plan.js';
+import { Journal, DEFAULT_SESSION_RULES, normalizeSessionRules } from './lib/journal.js';
 import * as mockProvider from './lib/providers/mock.js';
 import * as liveProvider from './lib/providers/live.js';
 
@@ -31,6 +34,8 @@ const PUBLIC_DIR = join(__dirname, 'public');
 const DATA_DIR = join(__dirname, 'data');
 const CONFIG_PATH = join(DATA_DIR, 'config.json');
 const WATCHLIST_PATH = join(DATA_DIR, 'watchlist.json');
+const RISK_PATH = join(DATA_DIR, 'risk.json');
+const JOURNAL_PATH = join(DATA_DIR, 'trades.json');
 
 const PORT = Number(process.env.PORT) || 4173;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -48,21 +53,29 @@ const MIME = {
 };
 
 const alerts = new AlertTracker();
+const journal = new Journal(JOURNAL_PATH);
 let config = { ...DEFAULT_CONFIG };
+let risk = { ...DEFAULT_RISK_CONFIG, ...DEFAULT_SESSION_RULES };
 let lastScan = null;
 
-async function loadConfig() {
+async function readJsonFile(path, fallback) {
   try {
-    const contents = await readFile(CONFIG_PATH, 'utf8');
-    config = normalizeConfig(JSON.parse(contents));
+    return JSON.parse(await readFile(path, 'utf8'));
   } catch {
-    config = { ...DEFAULT_CONFIG };
+    return fallback;
   }
 }
 
-async function persistConfig() {
+async function writeJsonFile(path, value) {
   await mkdir(DATA_DIR, { recursive: true });
-  await writeFile(CONFIG_PATH, `${JSON.stringify(config, null, 2)}\n`, 'utf8');
+  await writeFile(path, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+}
+
+async function loadConfig() {
+  config = normalizeConfig(await readJsonFile(CONFIG_PATH, {}));
+  const stored = await readJsonFile(RISK_PATH, {});
+  risk = { ...normalizeRiskConfig(stored), ...normalizeSessionRules(stored) };
+  await journal.load();
 }
 
 async function runScan() {
@@ -80,18 +93,40 @@ async function runScan() {
     payload = mockProvider.getQuotes({ now });
   }
 
-  const results = scan(payload.quotes, config, now);
-  const fired = alerts.ingest(results, now);
+  const scored = scan(payload.quotes, config, now);
+  const fired = alerts.ingest(scored, now);
+
+  // Only qualified names get a trade plan. Planning an entry on a stock that
+  // failed the selection criteria would be answering "when" for something that
+  // already failed "what".
+  const results = scored.map((result) => {
+    if (!result.qualified) {
+      // Candles are only useful where there is a chart to draw or a setup to
+      // find; dropping them elsewhere keeps the payload small.
+      const { candles, ...rest } = result;
+      return { ...rest, setup: null, plan: null };
+    }
+    const setup = bestPattern(result.candles);
+    return planFor(result, risk, setup);
+  });
+
+  const rules = journal.checkRules(risk.accountSize, risk, now);
 
   lastScan = {
     scannedAt: new Date(now).toISOString(),
     provider: payload.provider,
     session: payload.session,
     results,
-    summary: summarize(results),
+    summary: {
+      ...summarize(results),
+      withSetup: results.filter((r) => r.setup).length,
+      tradable: results.filter((r) => r.plan?.tradable).length,
+    },
     errors: payload.errors ?? [],
     newAlerts: fired,
     config,
+    risk,
+    rules,
   };
   return lastScan;
 }
@@ -168,8 +203,69 @@ const server = createServer(async (request, response) => {
     if (url.pathname === '/api/config' && request.method === 'POST') {
       const body = await readBody(request);
       config = normalizeConfig({ ...config, ...body });
-      await persistConfig();
+      await writeJsonFile(CONFIG_PATH, config);
       sendJson(response, 200, { config, defaults: DEFAULT_CONFIG });
+      return;
+    }
+
+    if (url.pathname === '/api/risk' && request.method === 'GET') {
+      sendJson(response, 200, {
+        risk,
+        defaults: { ...DEFAULT_RISK_CONFIG, ...DEFAULT_SESSION_RULES },
+      });
+      return;
+    }
+
+    if (url.pathname === '/api/risk' && request.method === 'POST') {
+      const body = await readBody(request);
+      const merged = { ...risk, ...body };
+      risk = { ...normalizeRiskConfig(merged), ...normalizeSessionRules(merged) };
+      await writeJsonFile(RISK_PATH, risk);
+      sendJson(response, 200, {
+        risk,
+        defaults: { ...DEFAULT_RISK_CONFIG, ...DEFAULT_SESSION_RULES },
+      });
+      return;
+    }
+
+    if (url.pathname === '/api/trades' && request.method === 'GET') {
+      sendJson(response, 200, {
+        trades: journal.trades.slice(0, 100),
+        stats: journal.stats(),
+        rules: journal.checkRules(risk.accountSize, risk),
+      });
+      return;
+    }
+
+    if (url.pathname === '/api/trades' && request.method === 'POST') {
+      const body = await readBody(request);
+      const check = journal.checkRules(risk.accountSize, risk);
+      // The daily rules are the point — a server that logs a trade after the
+      // loss limit is hit is a rule that does not exist.
+      if (!check.allowed && !body.override) {
+        sendJson(response, 409, { error: 'Blocked by session rules', blockers: check.blockers });
+        return;
+      }
+      const trade = await journal.record(body);
+      sendJson(response, 201, { trade, stats: journal.stats() });
+      return;
+    }
+
+    if (url.pathname === '/api/trades/close' && request.method === 'POST') {
+      const body = await readBody(request);
+      let trade;
+      try {
+        trade = await journal.close(body.id, body.exit);
+      } catch (error) {
+        // An implausible price is the caller's mistake, not a server fault.
+        sendJson(response, 400, { error: error.message });
+        return;
+      }
+      if (!trade) {
+        sendJson(response, 404, { error: 'No open trade with that id, or invalid exit price' });
+        return;
+      }
+      sendJson(response, 200, { trade, stats: journal.stats() });
       return;
     }
 

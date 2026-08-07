@@ -113,6 +113,87 @@ function buildNews(entry, now) {
   return headlines;
 }
 
+/**
+ * Build 1-minute candles ending at `now`.
+ *
+ * Momentum does not travel in a straight line: it moves in impulse legs
+ * separated by shallow pullbacks, which is exactly what the flag patterns look
+ * for. The path here is an impulse/pullback sawtooth riding the symbol's ramp,
+ * so the detectors have real structure to find rather than smooth drift.
+ */
+function buildCandles(entry, now, session) {
+  const seed = hash(entry.symbol);
+  const candles = [];
+
+  // Run from the opening bell to now, so candle[0] really is the 09:30 bar and
+  // the opening-range detector has a genuine opening range to measure.
+  const SESSION_MINUTES = 390;
+  const count = Math.min(Math.max(Math.round(session.fraction * SESSION_MINUTES), 20), 180);
+
+  // Each symbol runs its own leg length and starting phase, so the universe is
+  // not all pulling back on the same minute.
+  const cycle = 6 + Math.round(seed * 5); // minutes per impulse + pullback leg
+  const impulseShare = 0.62; // fraction of each leg spent driving up
+  const phaseOffset = seed * cycle;
+  // Legs have to be a real fraction of the day's move, or the "pullback" is
+  // just a slower advance and no flag ever forms.
+  const amplitude = 0.13 + seed * 0.07;
+
+  const startMinute = Math.floor(now / 60_000) - count;
+
+  // Raw 0..1-ish progress: a steady trend with an impulse/pullback sawtooth.
+  const rawPath = (i) => {
+    const trend = i / count;
+    const phase = (((i + phaseOffset) % cycle) + cycle) % cycle / cycle;
+    const leg =
+      phase < impulseShare
+        ? phase / impulseShare // driving up
+        : 1 - ((phase - impulseShare) / (1 - impulseShare)) * 0.45; // shallow pullback
+    return trend + (leg - 0.5) * amplitude + noise(seed, (startMinute + i) * 60, 900) * 0.004;
+  };
+
+  // Normalize so the first open and last close land exactly on the session's
+  // open and the quote's current price — the chart and the quote must agree.
+  const raw = Array.from({ length: count + 1 }, (_, i) => rawPath(i));
+  const rawStart = raw[0];
+  const rawEnd = raw[count];
+  const rawSpan = rawEnd - rawStart || 1;
+  const pathAt = (i) => (raw[i] - rawStart) / rawSpan;
+
+  const ramp = 0.35 + 0.65 * Math.sqrt(session.fraction);
+  const totalChange = entry.moveTarget * ramp;
+  const openPrice = entry.prevClose * (1 + entry.gap / 100);
+  const closePrice = entry.prevClose * (1 + totalChange / 100);
+  const span = closePrice - openPrice;
+
+  const perMinuteVolume = (entry.avgVolume * session.fraction * entry.relVolTarget) / count;
+
+  for (let i = 0; i < count; i += 1) {
+    const open = openPrice + span * pathAt(i);
+    const close = openPrice + span * pathAt(i + 1);
+    // Wick size scales with the bar's own range so quiet bars stay quiet.
+    const body = Math.abs(close - open);
+    const wick = Math.max(body * 0.45, Math.abs(open) * 0.0012);
+    const jitter = Math.abs(noise(seed + i * 0.017, (startMinute + i) * 60, 300));
+
+    candles.push({
+      time: new Date((startMinute + i) * 60_000).toISOString(),
+      open: round(Math.max(open, 0.01), 4),
+      high: round(Math.max(open, close) + wick * jitter, 4),
+      low: round(Math.max(Math.min(open, close) - wick * jitter, 0.005), 4),
+      close: round(Math.max(close, 0.01), 4),
+      // Volume surges on impulse bars, dries up in the pullback — the volume
+      // signature that separates a flag from a reversal.
+      volume: Math.max(
+        Math.round(perMinuteVolume * (close > open ? 1.45 : 0.55) * (0.7 + jitter * 0.6)),
+        1,
+      ),
+    });
+  }
+
+  return candles;
+}
+
 export function getQuotes({ now = Date.now() } = {}) {
   const session = sessionProgress(new Date(now));
   const tSeconds = now / 1000;
@@ -153,6 +234,7 @@ export function getQuotes({ now = Date.now() } = {}) {
       float: entry.float,
       shortInterest: entry.shortInterest,
       news: buildNews(entry, now),
+      candles: buildCandles(entry, now, session),
     };
   });
 

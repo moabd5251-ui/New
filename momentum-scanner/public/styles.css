@@ -182,6 +182,86 @@ select:focus-visible, input:focus-visible, button:focus-visible {
 
 .criteria__actions { display: flex; justify-content: flex-end; }
 
+/* ---------- risk panel ---------- */
+
+.risk { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 14px; }
+.risk__head { display: flex; align-items: center; justify-content: space-between; }
+.risk .field { justify-content: space-between; margin-top: 8px; }
+.risk .field label { margin: 0; font-weight: 500; color: var(--text-dim); font-size: 12px; flex: 1; }
+.risk .field input { width: 92px; }
+.risk__derived { display: block; color: var(--accent); font-size: 11px; margin-top: 2px; }
+
+.rule-state {
+  margin-top: 12px;
+  border-radius: 8px;
+  padding: 9px 11px;
+  font-size: 12px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+}
+.rule-state--ok { border-color: rgba(34, 197, 94, 0.35); background: rgba(34, 197, 94, 0.07); }
+.rule-state--warn { border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.08); }
+.rule-state--stop { border-color: rgba(239, 68, 68, 0.45); background: rgba(239, 68, 68, 0.1); }
+.rule-state__row { display: flex; justify-content: space-between; gap: 8px; font-weight: 600; }
+.rule-state__figs { font-family: var(--mono); font-weight: 400; color: var(--text-dim); }
+.rule-state__msg { margin-top: 5px; color: var(--text-dim); line-height: 1.4; }
+
+/* ---------- trade plan ---------- */
+
+.plan {
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  background: rgba(56, 189, 248, 0.06);
+  border-radius: 9px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+.plan--blocked { border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.06); }
+.plan--none { border-style: dashed; border-color: var(--line); background: var(--panel-2); color: var(--text-dim); font-size: 12.5px; }
+
+.plan__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.plan__pattern { font-weight: 700; font-size: 13.5px; }
+.plan__state { font-size: 11.5px; color: var(--text-dim); font-family: var(--mono); }
+.plan__live { color: #4ade80; font-weight: 700; text-transform: uppercase; font-size: 11px; }
+.plan__rationale { margin: 0 0 10px; font-size: 12px; color: var(--text-dim); line-height: 1.45; }
+
+.plan__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 10px; }
+.plan__grid > div { display: flex; justify-content: space-between; gap: 6px; padding: 4px 0; border-bottom: 1px solid rgba(34, 48, 77, 0.6); }
+.plan__grid .k { font-size: 11.5px; color: var(--text-faint); }
+.plan__grid .v { font-family: var(--mono); font-size: 12.5px; }
+.plan__win { color: #4ade80; }
+.plan__loss { color: #fca5a5; }
+
+.plan__targets { width: 100%; margin-top: 10px; border-collapse: collapse; font-size: 12px; }
+.plan__targets td { padding: 4px 6px; border-bottom: 1px solid rgba(34, 48, 77, 0.6); font-family: var(--mono); }
+.plan__targets td:first-child { color: var(--text-faint); font-family: inherit; }
+.plan__targets .num { text-align: right; }
+
+.plan__ratio { margin-top: 9px; font-size: 11.5px; color: var(--text-dim); }
+.plan__notes { margin-top: 9px; font-size: 11.5px; color: #fcd34d; }
+.plan__blockers { margin-top: 9px; font-size: 11.5px; color: #fca5a5; }
+.plan__log { margin-top: 12px; width: 100%; }
+.plan__log:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.spark { width: 100%; height: 96px; display: block; margin-bottom: 14px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; }
+
+.sym__setup {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(148, 163, 184, 0.16);
+  color: var(--text-dim);
+  border: 1px solid var(--line);
+}
+.sym__setup.is-tradable { background: rgba(56, 189, 248, 0.18); color: #7dd3fc; border-color: rgba(56, 189, 248, 0.45); }
+
+/* ---------- journal ---------- */
+
+.journal { display: flex; flex-direction: column; gap: 12px; }
+/* Same trap as the detail drawer: `display: flex` outranks the UA [hidden] rule. */
+.journal[hidden] { display: none; }
+.close-cell { display: inline-flex; gap: 5px; align-items: center; }
+.close-price { width: 72px; }
+
 /* ---------- alerts ---------- */
 
 .alerts { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 14px; }

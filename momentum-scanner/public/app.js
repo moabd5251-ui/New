@@ -96,6 +96,14 @@ function render() {
   renderStats();
   renderTable();
   renderCriteriaCounts();
+  renderRuleState();
+}
+
+function showBanner(message, isError = false) {
+  const banner = $('#banner');
+  banner.textContent = message;
+  banner.className = `banner ${isError ? 'banner--error' : ''}`;
+  banner.hidden = false;
 }
 
 function renderStatus() {
@@ -167,6 +175,7 @@ function visibleRows() {
   let rows = results;
   if (state.filter === 'qualified') rows = results.filter((r) => r.qualified);
   if (state.filter === 'near') rows = results.filter((r) => !r.qualified && r.score === 4);
+  if (state.filter === 'setups') rows = results.filter((r) => r.setup);
 
   const { key, dir } = state.sort;
   if (key) {
@@ -189,6 +198,16 @@ function renderTable() {
   $('#count-all').textContent = results.length;
   $('#count-qualified').textContent = results.filter((r) => r.qualified).length;
   $('#count-near').textContent = results.filter((r) => !r.qualified && r.score === 4).length;
+  $('#count-setups').textContent = results.filter((r) => r.setup).length;
+
+  // The journal is a different table entirely; swap the whole view.
+  const isJournal = state.filter === 'journal';
+  $('#journal-view').hidden = !isJournal;
+  $('.table-wrap').hidden = isJournal;
+  if (isJournal) {
+    renderJournal();
+    return;
+  }
 
   const rows = visibleRows();
   const body = $('#scanner-body');
@@ -197,7 +216,9 @@ function renderTable() {
     const message =
       state.filter === 'qualified'
         ? 'Nothing meets all five criteria right now. That is the normal state — most days have only a handful.'
-        : 'No rows to show.';
+        : state.filter === 'setups'
+          ? 'No entry patterns on the qualified names right now. Waiting is the position.'
+          : 'No rows to show.';
     body.innerHTML = `<tr class="empty"><td colspan="10">${message}</td></tr>`;
     return;
   }
@@ -223,6 +244,10 @@ function rowHtml(result) {
     ? `<span class="sym__news" title="${escapeAttr(result.catalysts[0].headline)}">🔥</span>`
     : '';
 
+  const setupBadge = result.setup
+    ? `<span class="sym__setup ${result.plan?.tradable ? 'is-tradable' : ''}" title="${escapeAttr(result.setup.rationale)}">${escapeHtml(result.setup.label)}</span>`
+    : '';
+
   return `
     <tr data-symbol="${escapeAttr(result.symbol)}" class="${state.selected === result.symbol ? 'is-selected' : ''}">
       <td class="num heat" style="${changeHeat(result.changeFromClosePct)}">${fmtNum(result.changeFromClosePct)}</td>
@@ -231,6 +256,7 @@ function rowHtml(result) {
           <span class="sym__ticker">${escapeHtml(result.symbol)}</span>
           ${newsIcon}
           <span class="sym__grade" data-grade="${result.grade}">${result.grade}</span>
+          ${setupBadge}
         </span>
       </td>
       <td class="num">${fmtNum(result.price)}</td>
@@ -250,6 +276,11 @@ function selectSymbol(symbol) {
   state.selected = symbol;
   renderTable();
   renderDetail();
+}
+
+function closeDetail() {
+  state.selected = null;
+  $('#detail').hidden = true;
 }
 
 function renderDetail() {
@@ -308,11 +339,170 @@ function renderDetail() {
     : '<li class="alert-list__empty">No fresh headlines in the lookback window.</li>';
 
   $('#detail-body').innerHTML = `
+    ${sparkline(result.candles, result.setup)}
     <div class="detail-quote">${quote}</div>
     <h3 class="section-title">Criteria — ${result.score}/5 passed · grade ${result.grade}</h3>
     <ul class="checklist">${checklist}</ul>
+    ${tradePlanHtml(result)}
     <h3 class="section-title">Catalyst</h3>
     <ul class="news-list">${news}</ul>`;
+
+  const logButton = $('#log-trade');
+  if (logButton) logButton.addEventListener('click', () => logTrade(result));
+}
+
+/**
+ * The trade plan: what to buy, where the stop goes, how many shares that risk
+ * allows, and where to take profit. Blocked plans show why — the reason is the
+ * useful part.
+ */
+function tradePlanHtml(result) {
+  const setup = result.setup;
+  if (!setup) {
+    return `
+      <h3 class="section-title">Trade plan</h3>
+      <div class="plan plan--none">
+        No entry pattern right now. The stock passes the selection criteria, but
+        there is no pause to buy the break of — waiting is the position.
+      </div>`;
+  }
+
+  const plan = result.plan ?? {};
+  const blocked = !plan.tradable;
+
+  const targets = (plan.targets ?? [])
+    .map(
+      (t) => `
+      <tr>
+        <td>${t.ratio}:1</td>
+        <td class="num">$${fmtNum(t.price)}</td>
+        <td class="num">${t.sharesOut?.toLocaleString('en-US') ?? '—'} sh</td>
+        <td class="num plan__win">+$${fmtNum(t.profit)}</td>
+      </tr>`,
+    )
+    .join('');
+
+  const notes = (plan.sizingNotes ?? []).length
+    ? `<div class="plan__notes">${plan.sizingNotes.map(escapeHtml).join('<br>')}</div>`
+    : '';
+
+  const blockers = (plan.blockers ?? []).length
+    ? `<div class="plan__blockers">${plan.blockers.map(escapeHtml).join('<br>')}</div>`
+    : '';
+
+  const rules = state.scan?.rules;
+  const ruleBlock = rules && !rules.allowed
+    ? `<div class="plan__blockers">${rules.blockers.map(escapeHtml).join('<br>')}</div>`
+    : '';
+
+  return `
+    <h3 class="section-title">Trade plan</h3>
+    <div class="plan ${blocked ? 'plan--blocked' : ''}">
+      <div class="plan__head">
+        <span class="plan__pattern">${escapeHtml(setup.label)}</span>
+        <span class="plan__state">${
+          setup.triggered
+            ? '<span class="plan__live">triggered</span>'
+            : `${fmtNum(setup.distanceToTriggerPct)}% below trigger`
+        }</span>
+      </div>
+      <p class="plan__rationale">${escapeHtml(setup.rationale)}</p>
+
+      <div class="plan__grid">
+        <div><span class="k">Entry over</span><span class="v">$${fmtNum(plan.entry)}</span></div>
+        <div><span class="k">Stop under</span><span class="v plan__loss">$${fmtNum(plan.stop)}</span></div>
+        <div><span class="k">Risk / share</span><span class="v">$${fmtNum(plan.riskPerShare)} (${fmtNum(plan.riskPerSharePct)}%)</span></div>
+        <div><span class="k">Shares</span><span class="v">${(plan.shares ?? 0).toLocaleString('en-US')}</span></div>
+        <div><span class="k">Position</span><span class="v">$${fmtNum(plan.positionCost)}</span></div>
+        <div><span class="k">Max loss</span><span class="v plan__loss">-$${fmtNum(plan.maxLoss)}</span></div>
+      </div>
+
+      ${targets ? `<table class="plan__targets"><tbody>${targets}</tbody></table>` : ''}
+      ${
+        plan.blendedRatio
+          ? `<div class="plan__ratio">Blended payoff <strong>${fmtNum(plan.blendedRatio)}:1</strong> · stop to breakeven at $${fmtNum(plan.stopAfterFirstTarget)} once the first target fills</div>`
+          : ''
+      }
+      ${notes}
+      ${blockers}
+      ${ruleBlock}
+      <button type="button" id="log-trade" class="btn btn--primary plan__log" ${
+        blocked || (rules && !rules.allowed) ? 'disabled' : ''
+      }>Log this trade</button>
+    </div>`;
+}
+
+/** Minimal inline candle chart, with the entry and stop drawn on it. */
+function sparkline(candles, setup) {
+  if (!Array.isArray(candles) || candles.length < 5) return '';
+
+  const width = 380;
+  const height = 96;
+  const slice = candles.slice(-45);
+  const highs = slice.map((c) => c.high);
+  const lows = slice.map((c) => c.low);
+  const top = Math.max(...highs, setup?.entry ?? -Infinity);
+  const bottom = Math.min(...lows, setup?.stop ?? Infinity);
+  const span = top - bottom || 1;
+
+  const x = (i) => (i / (slice.length - 1)) * width;
+  const y = (price) => height - ((price - bottom) / span) * height;
+  const barWidth = Math.max(width / slice.length - 1.2, 1);
+
+  const bars = slice
+    .map((c, i) => {
+      const up = c.close >= c.open;
+      const bodyTop = y(Math.max(c.open, c.close));
+      const bodyHeight = Math.max(Math.abs(y(c.open) - y(c.close)), 1);
+      const colour = up ? '#22c55e' : '#ef4444';
+      return `
+        <line x1="${x(i)}" x2="${x(i)}" y1="${y(c.high)}" y2="${y(c.low)}" stroke="${colour}" stroke-width="0.8" opacity="0.75" />
+        <rect x="${x(i) - barWidth / 2}" y="${bodyTop}" width="${barWidth}" height="${bodyHeight}" fill="${colour}" />`;
+    })
+    .join('');
+
+  // Entry and stop sit close together by design, so anchor their labels to
+  // opposite edges — otherwise the text overlaps on every tight setup.
+  const level = (price, colour, label, side) =>
+    Number.isFinite(price)
+      ? `<line x1="0" x2="${width}" y1="${y(price)}" y2="${y(price)}" stroke="${colour}" stroke-width="1" stroke-dasharray="4 3" opacity="0.9" />
+         <text x="${side === 'right' ? width - 2 : 2}" y="${Math.min(Math.max(y(price) - 3, 9), height - 2)}"
+               text-anchor="${side === 'right' ? 'end' : 'start'}"
+               fill="${colour}" font-size="9" font-family="monospace">${label} ${price.toFixed(2)}</text>`
+      : '';
+
+  return `
+    <svg class="spark" viewBox="0 0 ${width} ${height}" role="img"
+         aria-label="Recent one-minute candles with entry and stop levels">
+      ${bars}
+      ${level(setup?.entry, '#38bdf8', 'entry', 'left')}
+      ${level(setup?.stop, '#ef4444', 'stop', 'right')}
+    </svg>`;
+}
+
+async function logTrade(result) {
+  const plan = result.plan;
+  if (!plan?.tradable) return;
+
+  const response = await fetch('/api/trades', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      symbol: result.symbol,
+      pattern: result.setup?.label ?? null,
+      entry: plan.entry,
+      stop: plan.stop,
+      shares: plan.shares,
+    }),
+  });
+
+  if (response.status === 409) {
+    const payload = await response.json();
+    showBanner(`Trade blocked: ${payload.blockers.join(' ')}`, true);
+    return;
+  }
+  await fetchTrades();
+  await fetchScan();
 }
 
 /* ---------------- alerts ---------------- */
@@ -341,6 +531,107 @@ function renderAlerts() {
   for (const node of $$('#alert-list .alert')) {
     node.addEventListener('click', () => selectSymbol(node.dataset.symbol));
   }
+}
+
+/* ---------------- journal ---------------- */
+
+function renderJournal() {
+  const trades = state.trades ?? [];
+  const stats = state.tradeStats ?? {};
+  $('#count-trades').textContent = trades.length;
+
+  $('#journal-stats').innerHTML = [
+    { label: 'Net P&L', value: `${stats.netPnl >= 0 ? '' : '-'}$${fmtNum(Math.abs(stats.netPnl ?? 0))}`, good: (stats.netPnl ?? 0) > 0 },
+    { label: 'Win rate', value: stats.winRatePct == null ? '—' : `${fmtNum(stats.winRatePct, 1)}%` },
+    { label: 'Payoff', value: stats.profitLossRatio == null ? '—' : `${fmtNum(stats.profitLossRatio)}:1` },
+    { label: 'Total R', value: stats.totalR == null ? '—' : fmtNum(stats.totalR) },
+    { label: 'Expectancy', value: stats.expectancyR == null ? '—' : `${fmtNum(stats.expectancyR)}R` },
+  ]
+    .map(
+      (stat) => `
+      <div class="stat ${stat.good ? 'stat--good' : ''}">
+        <div class="stat__value">${stat.value}</div>
+        <div class="stat__label">${stat.label}</div>
+      </div>`,
+    )
+    .join('');
+
+  const body = $('#journal-body');
+  if (!trades.length) {
+    body.innerHTML = '<tr class="empty"><td colspan="10">No trades logged yet.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = trades
+    .map((trade) => {
+      const pnlClass = trade.pnl == null ? '' : trade.pnl >= 0 ? 'plan__win' : 'plan__loss';
+      return `
+      <tr>
+        <td><span class="sym__ticker">${escapeHtml(trade.symbol)}</span></td>
+        <td>${escapeHtml(trade.pattern ?? '—')}</td>
+        <td class="num">$${fmtNum(trade.entry)}</td>
+        <td class="num">$${fmtNum(trade.stop)}</td>
+        <td class="num">${trade.shares.toLocaleString('en-US')}</td>
+        <td class="num">${trade.exit == null ? '—' : `$${fmtNum(trade.exit)}`}</td>
+        <td class="num ${pnlClass}">${trade.pnl == null ? '—' : `$${fmtNum(trade.pnl)}`}</td>
+        <td class="num ${pnlClass}">${trade.rMultiple == null ? '—' : `${fmtNum(trade.rMultiple)}R`}</td>
+        <td>${fmtClock(trade.openedAt)}</td>
+        <td>${
+          trade.status === 'open'
+            ? `<span class="close-cell">
+                 <input type="number" step="0.01" class="close-price" data-id="${escapeAttr(trade.id)}" placeholder="exit" />
+                 <button type="button" class="btn btn--sm close-trade" data-id="${escapeAttr(trade.id)}">Close</button>
+               </span>`
+            : '<span class="badge badge--muted">closed</span>'
+        }</td>
+      </tr>`;
+    })
+    .join('');
+
+  for (const button of $$('.close-trade')) {
+    button.addEventListener('click', async () => {
+      const id = button.dataset.id;
+      const input = document.querySelector(`.close-price[data-id="${CSS.escape(id)}"]`);
+      const exit = Number(input?.value);
+      if (!Number.isFinite(exit) || exit <= 0) {
+        showBanner('Enter the exit price before closing the trade.', true);
+        return;
+      }
+      const response = await fetch('/api/trades/close', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, exit }),
+      });
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        showBanner(payload.error ?? 'Could not close that trade.', true);
+        return;
+      }
+      await fetchTrades();
+      await fetchScan();
+    });
+  }
+}
+
+/** The day's standing: how much room is left before the rules stop trading. */
+function renderRuleState() {
+  const rules = state.scan?.rules;
+  const node = $('#rule-state');
+  if (!rules) return;
+
+  const { state: s } = rules;
+  const messages = [...rules.blockers, ...rules.warnings];
+  const tone = rules.blockers.length ? 'rule-state--stop' : messages.length ? 'rule-state--warn' : 'rule-state--ok';
+
+  node.className = `rule-state ${tone}`;
+  node.innerHTML = `
+    <div class="rule-state__row">
+      <span>${rules.allowed ? 'Clear to trade' : 'Trading stopped'}</span>
+      <span class="rule-state__figs">${s.tradesToday}/${s.maxTradesPerDay} trades · ${
+        s.netPnl >= 0 ? '' : '-'
+      }$${fmtNum(Math.abs(s.netPnl))} of $${fmtNum(Math.abs(s.maxDailyLoss))}</span>
+    </div>
+    ${messages.length ? `<div class="rule-state__msg">${messages.map(escapeHtml).join('<br>')}</div>` : ''}`;
 }
 
 /* ---------------- data ---------------- */
@@ -375,6 +666,60 @@ async function fetchConfig() {
   state.config = payload.config;
   state.defaults = payload.defaults;
   fillForm(payload.config);
+}
+
+async function fetchRisk() {
+  const response = await fetch('/api/risk');
+  const payload = await response.json();
+  state.risk = payload.risk;
+  state.riskDefaults = payload.defaults;
+  fillRiskForm(payload.risk);
+}
+
+async function saveRisk(patch) {
+  const response = await fetch('/api/risk', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(patch),
+  });
+  const payload = await response.json();
+  state.risk = payload.risk;
+  fillRiskForm(payload.risk);
+  await fetchScan();
+}
+
+async function fetchTrades() {
+  const response = await fetch('/api/trades');
+  if (!response.ok) return;
+  const payload = await response.json();
+  state.trades = payload.trades ?? [];
+  state.tradeStats = payload.stats ?? {};
+  if (state.filter === 'journal') renderJournal();
+  $('#count-trades').textContent = state.trades.length;
+}
+
+function fillRiskForm(risk) {
+  const form = $('#risk-form');
+  form.accountSize.value = risk.accountSize;
+  form.maxRiskPerTradePct.value = risk.maxRiskPerTradePct;
+  form.maxDailyLossPct.value = risk.maxDailyLossPct;
+  form.maxTradesPerDay.value = risk.maxTradesPerDay;
+  form.minProfitLossRatio.value = risk.minProfitLossRatio;
+  // Spell out what the percentage actually costs — percentages are easy to
+  // set carelessly, dollars are not.
+  $('#risk-dollars').textContent =
+    `≈ $${fmtNum((risk.accountSize * risk.maxRiskPerTradePct) / 100)} per trade`;
+}
+
+function readRiskForm() {
+  const form = $('#risk-form');
+  return {
+    accountSize: Number(form.accountSize.value),
+    maxRiskPerTradePct: Number(form.maxRiskPerTradePct.value),
+    maxDailyLossPct: Number(form.maxDailyLossPct.value),
+    maxTradesPerDay: Number(form.maxTradesPerDay.value),
+    minProfitLossRatio: Number(form.minProfitLossRatio.value),
+  };
 }
 
 async function saveConfig(patch) {
@@ -447,6 +792,13 @@ function init() {
 
   $('#reset-criteria').addEventListener('click', () => saveConfig(state.defaults));
 
+  let riskDebounce;
+  $('#risk-form').addEventListener('input', () => {
+    clearTimeout(riskDebounce);
+    riskDebounce = setTimeout(() => saveRisk(readRiskForm()), 400);
+  });
+  $('#reset-risk').addEventListener('click', () => saveRisk(state.riskDefaults));
+
   $('#clear-alerts').addEventListener('click', async () => {
     await fetch('/api/alerts', { method: 'DELETE' });
     state.alerts = [];
@@ -457,6 +809,9 @@ function init() {
   for (const tab of $$('.tab')) {
     tab.addEventListener('click', () => {
       state.filter = tab.dataset.filter;
+      // The drawer belongs to a row in the previous view; leaving it open would
+      // cover the table the user just switched to.
+      closeDetail();
       for (const other of $$('.tab')) {
         const active = other === tab;
         other.classList.toggle('is-active', active);
@@ -477,20 +832,18 @@ function init() {
   }
 
   $('#detail-close').addEventListener('click', () => {
-    state.selected = null;
-    $('#detail').hidden = true;
+    closeDetail();
     renderTable();
   });
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && state.selected) {
-      state.selected = null;
-      $('#detail').hidden = true;
+      closeDetail();
       renderTable();
     }
   });
 
-  fetchConfig().then(fetchScan).then(restartTimer);
+  Promise.all([fetchConfig(), fetchRisk(), fetchTrades()]).then(fetchScan).then(restartTimer);
 }
 
 init();

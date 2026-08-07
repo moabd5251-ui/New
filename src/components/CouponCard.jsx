@@ -20,7 +20,13 @@ export default function CouponCard({ coupon, onClip, onUnclip, onMarkAsUsed, act
       <div className="p-4">
         <div className="mb-3">
           <h3 className="font-bold text-lg leading-tight mb-1">{coupon.title}</h3>
-          <p className="text-sm text-gray-600">{coupon.description}</p>
+          <p className="text-sm text-gray-600 mb-2">{coupon.description}</p>
+          {coupon.couponCode && (
+            <div className="bg-gray-50 p-2 rounded border border-gray-200 mb-2">
+              <p className="text-xs text-gray-500 mb-1">Code:</p>
+              <p className="font-mono font-bold text-sm text-gray-800">{coupon.couponCode}</p>
+            </div>
+          )}
         </div>
 
         <div className="flex justify-between items-center mb-3">

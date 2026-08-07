@@ -34,6 +34,7 @@ db.serialize(() => {
       description TEXT,
       image TEXT,
       source TEXT,
+      couponCode TEXT,
       createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
       UNIQUE(title, store, discount)
     )
@@ -64,7 +65,8 @@ const couponSources = {
           expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
           description: "Organic milk, any brand",
           image: "🥛",
-          source: "Safeway Weekly Ad"
+          source: "Safeway Weekly Ad",
+          couponCode: "SF-MILK-150"
         },
         {
           title: "Buy 2 Get 1 Free - Select Cereals",
@@ -74,7 +76,8 @@ const couponSources = {
           expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
           description: "Participating cereals only",
           image: "🥣",
-          source: "Fred Meyer Deals"
+          source: "Fred Meyer Deals",
+          couponCode: "FM-CEREAL-B2G1"
         },
         {
           title: "Save $2 on Rotisserie Chicken",
@@ -84,7 +87,8 @@ const couponSources = {
           expiresAt: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
           description: "Member price",
           image: "🍗",
-          source: "Costco Weekly"
+          source: "Costco Weekly",
+          couponCode: "CK-CHICKEN-200"
         },
         {
           title: "50% Off Fresh Salmon",
@@ -94,7 +98,8 @@ const couponSources = {
           expiresAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
           description: "Wild caught, per lb",
           image: "🐟",
-          source: "QFC Sale"
+          source: "QFC Sale",
+          couponCode: "QFC-SALMON-50"
         },
         {
           title: "Save $1.50 on Ground Beef (2lb+)",
@@ -104,7 +109,8 @@ const couponSources = {
           expiresAt: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString(),
           description: "Fresh ground beef",
           image: "🥩",
-          source: "Walmart Rollback"
+          source: "Walmart Rollback",
+          couponCode: "WM-BEEF-150"
         },
         {
           title: "Buy 1 Get 1 50% Off Vegetables",
@@ -114,7 +120,8 @@ const couponSources = {
           expiresAt: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString(),
           description: "Fresh produce",
           image: "🥦",
-          source: "Target Deal Days"
+          source: "Target Deal Days",
+          couponCode: "TGT-VEG-50"
         }
       ]
       return coupons
@@ -134,7 +141,8 @@ const couponSources = {
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
         description: "Fresh wild caught",
         image: "🐟",
-        source: "QFC Weekly Ad"
+        source: "QFC Weekly Ad",
+        couponCode: "QFC-SALMON-WILD"
       }
     ]
     return coupons
@@ -156,9 +164,9 @@ async function syncCoupons() {
           const coupons = await fetcher()
           for (const coupon of coupons) {
             db.run(
-              `INSERT OR IGNORE INTO coupons (title, store, discount, category, expiresAt, description, image, source)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-              [coupon.title, coupon.store, coupon.discount, coupon.category, coupon.expiresAt, coupon.description, coupon.image, coupon.source],
+              `INSERT OR IGNORE INTO coupons (title, store, discount, category, expiresAt, description, image, source, couponCode)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              [coupon.title, coupon.store, coupon.discount, coupon.category, coupon.expiresAt, coupon.description, coupon.image, coupon.source, coupon.couponCode],
               (err) => {
                 if (!err) totalAdded++
               }

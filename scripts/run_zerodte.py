@@ -28,7 +28,7 @@ STATE = ROOT / "data" / "zerodte.json"
 
 
 def session_bar(symbol):
-    """Today's open/high/low/close from daily bars, or None if today has not printed."""
+    """Today's forming bar — open/high/low/last. Fine for recording, NOT for scoring."""
     try:
         df = feed.bars(symbol, "1d", "5d")
         if df is None or not len(df):
@@ -37,6 +37,32 @@ def session_bar(symbol):
         return dict(date=df.index[-1].strftime("%Y-%m-%d"),
                     open=float(last["Open"]), high=float(last["High"]),
                     low=float(last["Low"]), close=float(last["Close"]))
+    except Exception:
+        return None
+
+
+def settled_bar(symbol, date):
+    """The bar for `date`, returned ONLY once a LATER session has printed.
+
+    A bar dated today is still forming: at 18:30 UTC its "close" is just the last
+    trade, ninety minutes early. Scoring against that measured a partial day and
+    reported it as a full one — SPY came back at 0.049% against a 0.28% expected move,
+    which is not a quiet day, it is half a day. Requiring a strictly later session is
+    the only cheap proof that the one being scored is finished.
+    """
+    try:
+        df = feed.bars(symbol, "1d", "1mo")
+        if df is None or len(df) < 2:
+            return None
+        dates = [d.strftime("%Y-%m-%d") for d in df.index]
+        if date not in dates:
+            return None
+        i = dates.index(date)
+        if i >= len(dates) - 1:
+            return None                     # nothing after it — not settled yet
+        row = df.iloc[i]
+        return dict(date=date, open=float(row["Open"]), high=float(row["High"]),
+                    low=float(row["Low"]), close=float(row["Close"]))
     except Exception:
         return None
 
@@ -63,9 +89,9 @@ def main():
     for r in L.load():
         if r.get("scored"):
             continue
-        bar = session_bar(r["symbol"])
-        if not bar or bar["date"] < r["expiry"]:
-            continue                       # that session has not closed yet
+        bar = settled_bar(r["symbol"], r["expiry"])
+        if not bar:
+            continue                       # that session has not settled yet
         s = L.score(r["symbol"], r["expiry"], bar["close"],
                     bar["open"], bar["high"], bar["low"])
         if s:

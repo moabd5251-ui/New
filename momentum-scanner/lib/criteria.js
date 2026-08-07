@@ -158,16 +158,35 @@ export function evaluate(quote, config = {}, now = Date.now()) {
   const qualified = score === pillars.length;
   const gappingUp = Number.isFinite(gap) && gap >= cfg.minGapPct;
 
+  // A pillar the feed cannot supply is unknown, not failed. Without a news or
+  // float source nothing could ever qualify, which would make the whole
+  // strategy layer unreachable on an otherwise good price feed. So track a
+  // weaker standard too: passes everything that *could* be judged. It is
+  // always reported alongside what went unchecked — never silently upgraded.
+  const unverified = pillars.filter((p) => p.unavailable).map((p) => p.id);
+  const judgeable = pillars.filter((p) => !p.unavailable);
+  const provisionallyQualified =
+    !qualified && judgeable.length > 0 && judgeable.every((p) => p.passed);
+
   return {
     ...quote,
     catalysts,
     pillars,
     score,
     qualified,
+    provisionallyQualified,
+    selectionComplete: unverified.length === 0,
+    unverifiedPillars: unverified,
     gappingUp,
     grade: grade(score, gappingUp),
-    // Qualified names first, then by how hard the demand side is firing.
-    rank: (qualified ? 1e9 : 0) + score * 1e6 + (gappingUp ? 5e5 : 0) + demandHeat(change, relVol),
+    // Fully qualified names first, then provisional ones, then by how hard the
+    // demand side is firing.
+    rank:
+      (qualified ? 1e9 : 0) +
+      (provisionallyQualified ? 5e8 : 0) +
+      score * 1e6 +
+      (gappingUp ? 5e5 : 0) +
+      demandHeat(change, relVol),
   };
 }
 

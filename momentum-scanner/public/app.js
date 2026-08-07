@@ -156,6 +156,7 @@ function renderStats() {
   $('#stats').innerHTML = [
     { label: 'Scanned', value: summary.scanned },
     { label: 'Qualified', value: summary.qualified, good: true },
+    { label: 'Partial', value: summary.provisional ?? 0 },
     { label: 'Gapping up', value: summary.gappingUp },
     { label: 'Alerts', value: state.alerts?.length ?? 0 },
   ]
@@ -259,6 +260,11 @@ function rowHtml(result) {
     ? `<span class="sym__setup ${result.plan?.tradable ? 'is-tradable' : ''}" title="${escapeAttr(result.setup.rationale)}">${escapeHtml(result.setup.label)}</span>`
     : '';
 
+  // A provisional pass is not a pass; mark it so the two are never confused.
+  const provisionalBadge = result.provisionallyQualified
+    ? '<span class="sym__provisional" title="Passes every criterion this feed can judge; some could not be checked">partial</span>'
+    : '';
+
   return `
     <tr data-symbol="${escapeAttr(result.symbol)}" class="${state.selected === result.symbol ? 'is-selected' : ''}">
       <td class="num heat" style="${changeHeat(result.changeFromClosePct)}">${fmtNum(result.changeFromClosePct)}</td>
@@ -267,6 +273,7 @@ function rowHtml(result) {
           <span class="sym__ticker">${escapeHtml(result.symbol)}</span>
           ${newsIcon}
           <span class="sym__grade" data-grade="${result.grade}">${result.grade}</span>
+          ${provisionalBadge}
           ${setupBadge}
         </span>
       </td>
@@ -380,7 +387,9 @@ function tradePlanHtml(result) {
     // would be plainly false.
     const reason = result.qualified
       ? 'It clears all five criteria, but there is no pause to buy the break of right now — waiting is the position.'
-      : `It fails ${5 - result.score} of the five criteria, so no entry is planned. Selection comes first.`;
+      : result.provisionallyQualified
+        ? 'It passes every criterion this feed can judge, but there is no pause to buy the break of right now.'
+        : `It fails ${5 - result.score} of the five criteria, so no entry is planned. Selection comes first.`;
     return `
       <h3 class="section-title">Trade plan</h3>
       <div class="plan plan--none">No entry pattern. ${escapeHtml(reason)}</div>`;
@@ -414,9 +423,21 @@ function tradePlanHtml(result) {
     ? `<div class="plan__blockers">${rules.blockers.map(escapeHtml).join('<br>')}</div>`
     : '';
 
+  // Selection is the first half of the strategy. If part of it could not be
+  // checked, say so at the top of the plan rather than at the bottom.
+  const unverified = result.unverifiedPillars ?? [];
+  const names = { news: 'news catalyst', float: 'float', change: '% change', relativeVolume: 'relative volume', price: 'price' };
+  const unverifiedBand = unverified.length
+    ? `<div class="plan__unverified">
+         Selection incomplete — ${unverified.map((id) => escapeHtml(names[id] ?? id)).join(' and ')}
+         could not be checked with this feed. Verify before trading.
+       </div>`
+    : '';
+
   return `
     <h3 class="section-title">Trade plan</h3>
     <div class="plan ${blocked ? 'plan--blocked' : ''}">
+      ${unverifiedBand}
       <div class="plan__head">
         <span class="plan__pattern">${escapeHtml(setup.label)}</span>
         <span class="plan__state">${

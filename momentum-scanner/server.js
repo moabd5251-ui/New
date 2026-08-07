@@ -117,7 +117,10 @@ async function runScan() {
   // failed the selection criteria would be answering "when" for something that
   // already failed "what".
   const results = scored.map((result) => {
-    if (!result.qualified) {
+    // Plan entries for names that pass selection — including ones that pass
+    // everything the feed could actually judge. Those carry
+    // selectionComplete: false and the UI says which pillars went unchecked.
+    if (!result.qualified && !result.provisionallyQualified) {
       // Candles are only useful where there is a chart to draw or a setup to
       // find; dropping them elsewhere keeps the payload small.
       const { candles, ...rest } = result;
@@ -136,6 +139,7 @@ async function runScan() {
     results,
     summary: {
       ...summarize(results),
+      provisional: results.filter((r) => r.provisionallyQualified).length,
       withSetup: results.filter((r) => r.setup).length,
       tradable: results.filter((r) => r.plan?.tradable).length,
     },

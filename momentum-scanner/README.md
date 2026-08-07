@@ -26,7 +26,7 @@ No dependencies, no build step. Node 18+ is all you need.
 ```bash
 cd momentum-scanner
 npm start           # http://localhost:4173
-npm test            # 90 tests, no network required
+npm test            # 94 tests, no network required
 ```
 
 `npm run verify:live` exercises the paths that only exist while the market is
@@ -75,6 +75,16 @@ come from Finnhub:
 SCANNER_PROVIDER=live TRADIER_TOKEN=your_token FINNHUB_API_KEY=your_key npm start
 ```
 
+### Partial selection
+
+A pillar the feed cannot supply is *unknown*, not failed — so without a news or
+float source nothing would ever qualify, and the whole strategy layer would be
+unreachable on an otherwise excellent price feed. Stocks that pass everything
+the feed **can** judge are therefore marked **partial**: they get setups and
+trade plans, ranked below fully qualified names, and every one carries a banner
+naming the criteria that went unchecked. A partial pass is never silently
+upgraded to a real one.
+
 Two limits the app reports rather than papers over:
 
 - **Without a Finnhub key there is no news feed.** The news pillar is shown as
@@ -102,8 +112,8 @@ or edit `data/watchlist.json`, or POST to `/api/watchlist`.
   without reading a single number. Sort by any column.
 - **Criteria panel** — all five thresholds, live-editable, each showing how many
   of the scanned names currently pass it.
-- **Three tabs** — *Qualified* (all five), *Near miss* (exactly four, the ones
-  worth watching), *All scanned*.
+- **Five tabs** — *Qualified* (all five), *Near miss* (exactly four), *All
+  scanned*, *Setups* (an entry pattern is live), *Journal*.
 - **Detail drawer** — click any row for the full quote, a per-criterion checklist
   explaining precisely why the stock passed or failed each one, and the
   headlines driving it.
@@ -228,7 +238,7 @@ lib/providers/tradier.js  Tradier quotes/timesales/clock + optional Finnhub
 lib/providers/live.js     Yahoo fallback + optional Finnhub
 public/                   single-page UI, no build step
 server.js                 dependency-free HTTP server
-test/                     node:test suite (90 tests)
+test/                     node:test suite (94 tests)
 ```
 
 ## Notes on the numbers

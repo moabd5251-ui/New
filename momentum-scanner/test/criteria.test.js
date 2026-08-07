@@ -127,6 +127,48 @@ test('an inverted price range is corrected rather than rejecting everything', ()
   assert.equal(result.pillars.find((p) => p.id === 'price').passed, true);
 });
 
+test('a stock passing everything judgeable is provisional, not qualified', () => {
+  // No news feed configured: the news pillar cannot be judged. The stock passes
+  // the other four, so it is provisional — never silently upgraded to qualified.
+  const result = evaluate(baseQuote({ news: [], newsAvailable: false }), {}, NOW);
+  assert.equal(result.qualified, false, 'must not count as fully qualified');
+  assert.equal(result.provisionallyQualified, true);
+  assert.equal(result.selectionComplete, false);
+  assert.deepEqual(result.unverifiedPillars, ['news']);
+});
+
+test('a real failure is not provisional, however much else is unknown', () => {
+  const result = evaluate(
+    baseQuote({ price: 45, news: [], newsAvailable: false, float: null }),
+    {},
+    NOW,
+  );
+  assert.equal(result.qualified, false);
+  assert.equal(result.provisionallyQualified, false, 'price genuinely failed');
+  assert.deepEqual(result.unverifiedPillars.sort(), ['float', 'news']);
+});
+
+test('a fully qualified stock is complete and not flagged provisional', () => {
+  const result = evaluate(baseQuote(), {}, NOW);
+  assert.equal(result.qualified, true);
+  assert.equal(result.provisionallyQualified, false);
+  assert.equal(result.selectionComplete, true);
+  assert.deepEqual(result.unverifiedPillars, []);
+});
+
+test('provisional stocks rank below qualified ones but above the rest', () => {
+  const results = scan(
+    [
+      baseQuote({ symbol: 'PART', news: [], newsAvailable: false }),
+      baseQuote({ symbol: 'FULL' }),
+      baseQuote({ symbol: 'FAIL', price: 90 }),
+    ],
+    {},
+    NOW,
+  );
+  assert.deepEqual(results.map((r) => r.symbol), ['FULL', 'PART', 'FAIL']);
+});
+
 test('scan ranks qualified stocks above everything else', () => {
   const results = scan(
     [

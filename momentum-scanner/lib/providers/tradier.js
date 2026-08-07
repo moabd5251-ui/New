@@ -18,6 +18,8 @@
  * real-time requires a funded brokerage account.
  */
 
+import { relativeVolume as relativeVolumeFor, expectedVolumeFraction, minutesIntoSession } from '../session-volume.js';
+
 const PRODUCTION = 'https://api.tradier.com/v1';
 const SANDBOX = 'https://sandbox.tradier.com/v1';
 const FINNHUB = 'https://finnhub.io/api/v1';
@@ -27,6 +29,10 @@ const FINNHUB = 'https://finnhub.io/api/v1';
 const QUOTE_CHUNK = 50;
 
 export function baseUrl({ sandbox = false } = {}) {
+  // An explicit override exists so the provider can be pointed at a stub during
+  // testing — the session-only code paths are otherwise unreachable outside
+  // market hours.
+  if (process.env.TRADIER_BASE_URL) return process.env.TRADIER_BASE_URL.replace(/\/$/, '');
   return sandbox ? SANDBOX : PRODUCTION;
 }
 
@@ -116,21 +122,22 @@ export function parseClock(payload, now = new Date()) {
   const state = payload?.clock?.state ?? null; // premarket | open | postmarket | closed
   const description = payload?.clock?.description ?? null;
 
-  const et = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
-  const minutes = et.getHours() * 60 + et.getMinutes();
-  const open = 9 * 60 + 30;
-  const close = 16 * 60;
-
   const live = state === 'open';
-  const fraction = live
-    ? Math.min(Math.max((minutes - open) / (close - open), 0.02), 1)
-    : 1; // outside the session, reported volume is a completed day
+  const elapsed = minutesIntoSession(now);
+
+  // `fraction` is the share of a typical day's VOLUME expected by now, not the
+  // share of the clock elapsed — that is what relative volume divides by.
+  const fraction = live ? expectedVolumeFraction(elapsed) : 1;
 
   return {
     fraction,
+    elapsedMinutes: live ? Math.max(Math.round(elapsed), 0) : null,
     live,
     state,
-    label: description ?? (live ? `Session ${(fraction * 100).toFixed(0)}% elapsed` : 'Market closed'),
+    now,
+    label:
+      description ??
+      (live ? `${Math.max(Math.round(elapsed), 0)} min into the session` : 'Market closed'),
   };
 }
 
@@ -159,11 +166,13 @@ export function normalizeQuote(quote, session) {
       ? ((open - prevClose) / prevClose) * 100
       : null;
 
-  // Only pro-rate the baseline while the session is actually running; outside
-  // it, today's volume is a completed day and belongs against the full average.
-  const expectedByNow = Number.isFinite(avgVolume) ? avgVolume * session.fraction : null;
-  const relativeVolume =
-    expectedByNow && expectedByNow > 0 && Number.isFinite(volume) ? volume / expectedByNow : null;
+  // The baseline follows the U-shaped intraday volume curve, not a flat
+  // pro-rate — see session-volume.js. Outside the session it is a whole
+  // average day, since today's volume is then a completed one.
+  const relVol = relativeVolumeFor(volume, avgVolume, {
+    live: session.live,
+    now: session.now ?? new Date(),
+  });
 
   // Outside regular hours `volume` is extended-hours activity measured against a
   // whole average day, so it reads near zero even for a stock going wild
@@ -189,7 +198,7 @@ export function normalizeQuote(quote, session) {
     gapPct: round(gapPct),
     // Keep more precision than the display needs: premarket ratios live in the
     // third decimal, and rounding to 2 turns a real reading into a flat zero.
-    relativeVolume: round(relativeVolume, 4),
+    relativeVolume: round(relVol, 4),
     extendedHours,
     volumePctOfAvgDay,
     marketState: session.state,

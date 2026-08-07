@@ -200,21 +200,23 @@ test('mock prices drift smoothly rather than jumping between scans', () => {
   assert.ok(driftPct < 0.05, `price jumped ${(driftPct * 100).toFixed(1)}% in 5 seconds`);
 });
 
-test('live metrics: relative volume is pro-rated only during the session', () => {
-  // Half a normal day's volume, half way through the session, is exactly 1x.
+test('live metrics: relative volume follows the intraday volume curve', () => {
+  // 12:30 ET is 180 minutes in, by which a typical stock has done 45% of its
+  // daily volume. So 450k against a 1M average day is exactly 1x.
+  const noon = new Date('2026-08-07T16:30:00Z');
   const midSession = deriveMetrics(
-    { price: 10, prevClose: 10, open: 10, volume: 500_000, avgVolume: 1_000_000 },
-    { fraction: 0.5, live: true },
+    { price: 10, prevClose: 10, open: 10, volume: 450_000, avgVolume: 1_000_000 },
+    { live: true, now: noon },
   );
   assert.equal(midSession.relativeVolume, 1);
 
   // The same volume outside regular hours is a *completed* session, so it must
-  // compare against the full average — 0.5x, not 1x.
+  // compare against the full average — 0.45x, not 1x.
   const afterHours = deriveMetrics(
-    { price: 10, prevClose: 10, open: 10, volume: 500_000, avgVolume: 1_000_000 },
-    { fraction: 1, live: false },
+    { price: 10, prevClose: 10, open: 10, volume: 450_000, avgVolume: 1_000_000 },
+    { live: false, now: noon },
   );
-  assert.equal(afterHours.relativeVolume, 0.5);
+  assert.equal(afterHours.relativeVolume, 0.45);
 });
 
 test('live metrics: change and gap are measured against the prior close', () => {

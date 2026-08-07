@@ -26,7 +26,7 @@ No dependencies, no build step. Node 18+ is all you need.
 ```bash
 cd momentum-scanner
 npm start           # http://localhost:4173
-npm test            # 79 tests, no network required
+npm test            # 90 tests, no network required
 ```
 
 `npm run verify:live` exercises the paths that only exist while the market is
@@ -216,27 +216,43 @@ Tokens are read from the environment only — nothing writes them to disk, and
 ## Layout
 
 ```
-lib/criteria.js         the five pillars, scoring, ranking
-lib/patterns.js         entry pattern detection on 1-minute candles
-lib/trade-plan.js       risk-based sizing, stops and R targets
-lib/journal.js          trade log, daily rules, performance stats
-lib/alerts.js           qualify-transition tracking
-lib/watchlist.js        symbol list loading and validation
+lib/criteria.js           the five pillars, scoring, ranking
+lib/patterns.js           entry pattern detection on 1-minute candles
+lib/trade-plan.js         risk-based sizing, stops and R targets
+lib/journal.js            trade log, daily rules, performance stats
+lib/alerts.js             qualify-transition tracking
+lib/watchlist.js          symbol list loading and validation
+lib/session-volume.js     intraday volume curve behind relative volume
 lib/providers/mock.js     simulated market (default)
 lib/providers/tradier.js  Tradier quotes/timesales/clock + optional Finnhub
 lib/providers/live.js     Yahoo fallback + optional Finnhub
-public/                 single-page UI, no build step
-server.js               dependency-free HTTP server
-test/                   node:test suite (54 tests)
+public/                   single-page UI, no build step
+server.js                 dependency-free HTTP server
+test/                     node:test suite (90 tests)
 ```
 
 ## Notes on the numbers
 
-**Relative volume** compares today's volume against the average pace *to this
-point in the session* — not against a whole average day. Without that, the same
-stock reads as weak at 09:35 and strong at 15:55 purely from the clock. Outside
-regular hours the reported volume is a completed session, so it is compared
-against the full daily average instead.
+**Relative volume** compares today's volume against what this stock would
+normally have traded *by this point in the session* — not against a whole
+average day. Without that, the same stock reads as weak at 09:35 and strong at
+15:55 purely from the clock.
+
+Crucially, "by this point" is **not** a flat pro-rate of the clock. US equity
+volume is strongly U-shaped: roughly 15% of a typical day trades in the first
+half hour and 23% in the last, against ~4% per half hour at lunch. Pro-rating
+linearly breaks the opening badly in both directions — a naive elapsed fraction
+expects 0.26% of the day's volume one minute in, when a typical stock has
+already done ~1.5%, so everything looks like a 6x runner; clamping that fraction
+to a floor overshoots the other way and divides by a baseline ~8x too large, so
+a real 8x runner reads as 1x. Either way the scanner is wrong during the exact
+minutes this strategy trades. `lib/session-volume.js` models the curve instead.
+It is an approximation of a typical liquid US equity, not a per-symbol profile.
+
+Outside regular hours the reported volume is a completed session, so it is
+compared against the full daily average instead. If a feed ever reports the
+session open while the clock disagrees, the baseline falls back to a full day —
+under-reporting, which is the safe direction for a signal that gates trades.
 
 **Outside regular hours** the volume a feed reports is extended-hours activity,
 but the only baseline available is a whole average day — so relative volume

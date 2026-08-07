@@ -16,8 +16,10 @@ import {
 import { detectPatterns } from '../lib/patterns.js';
 import { evaluate } from '../lib/criteria.js';
 
-const OPEN_SESSION = { fraction: 0.5, live: true, state: 'open' };
-const CLOSED_SESSION = { fraction: 1, live: false, state: 'closed' };
+// 12:30 ET — 180 minutes into the session, where the volume curve reaches 45%.
+const NOON_ET = new Date('2026-08-07T16:30:00Z');
+const OPEN_SESSION = { fraction: 0.45, live: true, state: 'open', now: NOON_ET };
+const CLOSED_SESSION = { fraction: 1, live: false, state: 'closed', now: NOON_ET };
 
 /* ------------------------------------------------------------------ */
 /* the single-vs-array trap                                            */
@@ -107,12 +109,22 @@ test('change is derived when the feed omits the percentage', () => {
   assert.equal(quote.changeFromClosePct, 20);
 });
 
-test('relative volume is pro-rated only while the session is running', () => {
-  const raw = { symbol: 'X', last: 5, prevclose: 5, volume: 500_000, average_volume: 1_000_000 };
-  // Half a normal day's volume, half way through the session, is 1x.
+test('relative volume follows the volume curve while the session is running', () => {
+  // 45% of an average day traded, at the point 45% is normal, is exactly 1x.
+  const raw = { symbol: 'X', last: 5, prevclose: 5, volume: 450_000, average_volume: 1_000_000 };
   assert.equal(normalizeQuote(raw, OPEN_SESSION).relativeVolume, 1);
-  // The same volume after the close is a completed day: 0.5x.
-  assert.equal(normalizeQuote(raw, CLOSED_SESSION).relativeVolume, 0.5);
+  // The same volume after the close is a completed day: 0.45x.
+  assert.equal(normalizeQuote(raw, CLOSED_SESSION).relativeVolume, 0.45);
+});
+
+test('the clock reports expected VOLUME share, not clock elapsed', () => {
+  // 09:45 ET is 15 minutes in — 3.8% of the clock, but ~7.8% of a typical
+  // day's volume, because the opening half hour is the heaviest of the day.
+  const clock = parseClock({ clock: { state: 'open' } }, new Date('2026-08-07T13:45:00Z'));
+  assert.equal(clock.live, true);
+  assert.equal(clock.elapsedMinutes, 15);
+  assert.ok(clock.fraction > 0.06 && clock.fraction < 0.09, `fraction=${clock.fraction}`);
+  assert.ok(clock.fraction > 15 / 390, 'must exceed the naive clock fraction');
 });
 
 test('extended-hours volume is flagged, with the % of an average day traded', () => {

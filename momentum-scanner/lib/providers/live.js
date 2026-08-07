@@ -13,6 +13,8 @@
  *    float, so the pillar errs toward rejecting, never toward a false positive.
  */
 
+import { relativeVolume as relativeVolumeFor, expectedVolumeFraction } from '../session-volume.js';
+
 const YAHOO_CHART = 'https://query1.finance.yahoo.com/v8/finance/chart';
 const FINNHUB = 'https://finnhub.io/api/v1';
 const USER_AGENT = 'momentum-scanner/1.0 (+https://github.com)';
@@ -70,13 +72,16 @@ export function sessionProgress(now = new Date()) {
   const open = 9 * 60 + 30;
   const close = 16 * 60;
   const isWeekend = et.getDay() === 0 || et.getDay() === 6;
-  if (isWeekend) return { fraction: 1, live: false, label: 'Market closed (weekend)' };
-  if (minutes < open) return { fraction: 0.05, live: false, label: 'Pre-market' };
-  if (minutes > close) return { fraction: 1, live: false, label: 'After hours' };
+  if (isWeekend) return { fraction: 1, live: false, now, label: 'Market closed (weekend)' };
+  if (minutes < open) return { fraction: 1, live: false, now, label: 'Pre-market' };
+  if (minutes > close) return { fraction: 1, live: false, now, label: 'After hours' };
   return {
-    fraction: Math.min(Math.max((minutes - open) / (close - open), 0.02), 1),
+    // Share of a typical day's VOLUME expected by now, not clock elapsed.
+    fraction: expectedVolumeFraction(minutes - open),
+    elapsedMinutes: minutes - open,
     live: true,
-    label: `Session ${(((minutes - open) / (close - open)) * 100).toFixed(0)}% elapsed`,
+    now,
+    label: `${minutes - open} min into the session`,
   };
 }
 
@@ -203,20 +208,18 @@ export function deriveMetrics(base, session) {
       ? ((open - prevClose) / prevClose) * 100
       : null;
 
-  // Only pro-rate the average when the session is actually mid-flight. Outside
-  // regular hours the reported volume is a *completed* session, so scaling it
-  // by a fraction of a day would multiply relative volume by ~20x.
-  const volumeFraction = session.live ? session.fraction : 1;
-  const expectedByNow = Number.isFinite(avgVolume) ? avgVolume * volumeFraction : null;
-  const relativeVolume =
-    expectedByNow && expectedByNow > 0 && Number.isFinite(volume)
-      ? volume / expectedByNow
-      : null;
+  // Baseline follows the U-shaped intraday volume curve rather than a flat
+  // pro-rate; outside regular hours the reported volume is a *completed*
+  // session, so it belongs against a whole average day. See session-volume.js.
+  const relVol = relativeVolumeFor(volume, avgVolume, {
+    live: session.live,
+    now: session.now ?? new Date(),
+  });
 
   return {
     changeFromClosePct: round(changeFromClosePct, 2),
     gapPct: round(gapPct, 2),
-    relativeVolume: round(relativeVolume, 2),
+    relativeVolume: round(relVol, 4),
   };
 }
 

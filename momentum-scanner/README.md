@@ -26,8 +26,14 @@ No dependencies, no build step. Node 18+ is all you need.
 ```bash
 cd momentum-scanner
 npm start           # http://localhost:4173
-npm test            # 24 tests, no network required
+npm test            # 79 tests, no network required
 ```
+
+`npm run verify:live` exercises the paths that only exist while the market is
+open — the clock reporting `open`, relative volume pro-rated against the pace so
+far rather than a whole day, real `timesales` bars feeding pattern detection, and
+5-minute relative volume. It needs `TRADIER_TOKEN` and exits 3 if the market is
+closed.
 
 That runs on **simulated market data** so the scanner is usable immediately. The
 tickers in simulation are fictional on purpose — the numbers are generated, and

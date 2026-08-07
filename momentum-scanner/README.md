@@ -39,11 +39,34 @@ attaching them to real companies would misrepresent them.
 SCANNER_PROVIDER=live npm start
 ```
 
-Price, volume and the 50-day average volume come from Yahoo's public chart
-endpoint, which needs no key. Float and headlines need Finnhub:
+`live` picks the best feed available: **Tradier** when `TRADIER_TOKEN` is set,
+Yahoo otherwise. Force one with `SCANNER_PROVIDER=tradier` or `=yahoo`.
+
+### Tradier (recommended)
 
 ```bash
-SCANNER_PROVIDER=live FINNHUB_API_KEY=your_key npm start
+SCANNER_PROVIDER=live TRADIER_TOKEN=your_token npm start
+```
+
+Better than the Yahoo fallback in four ways that matter to a scanner:
+
+| | Tradier | Yahoo fallback |
+|---|---|---|
+| Quotes | **Batched** — one request per 50 symbols | One request per symbol |
+| Average volume | **Served directly** (`average_volume`) | Averaged from 50 daily bars |
+| Intraday bars | **True 1-minute OHLCV** via `timesales`, with VWAP | 1-minute chart series |
+| Session state | **`/markets/clock`** — knows half-days and holidays | Timezone arithmetic |
+| 5-min relative volume | **Computed from real bars** | Unavailable |
+
+Add `TRADIER_SANDBOX=true` to use the sandbox host. Sandbox tokens are free but
+the data is delayed — the UI labels it so a delayed quote is never mistaken for
+a live one.
+
+Tradier does not carry **float**, **news** or **short interest**, so those still
+come from Finnhub:
+
+```bash
+SCANNER_PROVIDER=live TRADIER_TOKEN=your_token FINNHUB_API_KEY=your_key npm start
 ```
 
 Two limits the app reports rather than papers over:
@@ -162,9 +185,14 @@ statistic downstream.
 |----------|---------|---------|
 | `PORT` | `4173` | HTTP port |
 | `HOST` | `0.0.0.0` | Bind address |
-| `SCANNER_PROVIDER` | `mock` | `mock` or `live` |
+| `SCANNER_PROVIDER` | `mock` | `mock`, `live` (auto-picks), `tradier`, or `yahoo` |
 | `SCANNER_SYMBOLS` | — | Comma/space separated watchlist for live mode |
+| `TRADIER_TOKEN` | — | Bearer token; selects Tradier under `live` |
+| `TRADIER_SANDBOX` | `false` | Use the delayed sandbox host |
 | `FINNHUB_API_KEY` | — | Enables float and news in live mode |
+
+Tokens are read from the environment only — nothing writes them to disk, and
+`data/` is gitignored.
 
 ## API
 
@@ -188,8 +216,9 @@ lib/trade-plan.js       risk-based sizing, stops and R targets
 lib/journal.js          trade log, daily rules, performance stats
 lib/alerts.js           qualify-transition tracking
 lib/watchlist.js        symbol list loading and validation
-lib/providers/mock.js   simulated market (default)
-lib/providers/live.js   Yahoo chart + optional Finnhub
+lib/providers/mock.js     simulated market (default)
+lib/providers/tradier.js  Tradier quotes/timesales/clock + optional Finnhub
+lib/providers/live.js     Yahoo fallback + optional Finnhub
 public/                 single-page UI, no build step
 server.js               dependency-free HTTP server
 test/                   node:test suite (54 tests)
@@ -202,6 +231,13 @@ point in the session* — not against a whole average day. Without that, the sam
 stock reads as weak at 09:35 and strong at 15:55 purely from the clock. Outside
 regular hours the reported volume is a completed session, so it is compared
 against the full daily average instead.
+
+**Outside regular hours** the volume a feed reports is extended-hours activity,
+but the only baseline available is a whole average day — so relative volume
+reads near zero for everything, even a stock going wild premarket. Tradier does
+not publish a premarket baseline, so rather than invent one the scanner flags
+the reading as extended-hours and shows the figure traders actually use before
+the open: what percentage of an average day has already traded.
 
 **Float**, not shares outstanding, is the supply side of the setup: it is the
 number of shares that can actually change hands. A stock that has traded several

@@ -111,8 +111,9 @@ function renderStatus() {
   const badge = $('#provider-badge');
   if (!scan) return;
 
-  const isLive = scan.provider === 'live';
-  badge.textContent = isLive ? 'Live data' : 'Simulated data';
+  const isLive = scan.provider !== 'mock';
+  const providerName = { tradier: 'Tradier', live: 'Yahoo', mock: 'Simulated data' }[scan.provider];
+  badge.textContent = isLive ? `Live · ${providerName}` : 'Simulated data';
   badge.className = `badge ${isLive ? 'badge--live' : 'badge--sim'}`;
   $('#session-label').textContent = scan.session?.label ?? '';
   $('#scan-time').textContent = `Scanned ${fmtClock(scan.scannedAt)}`;
@@ -128,6 +129,16 @@ function renderStatus() {
   if (!isLive) {
     problems.push(
       'Running on simulated data with fictional tickers. Set SCANNER_PROVIDER=live for real quotes.',
+    );
+  }
+  if (scan.sandbox) {
+    problems.push('Tradier sandbox — quotes are delayed, not real time.');
+  }
+  // Extended-hours volume is measured against a whole average day, so it reads
+  // near zero for everything. Say so, rather than let it look like weak demand.
+  if (scan.results?.some((r) => r.extendedHours)) {
+    problems.push(
+      'Market is closed — relative volume compares extended-hours activity against a full average day, so it reads low for every stock.',
     );
   }
   if (problems.length) {
@@ -300,7 +311,12 @@ function renderDetail() {
     ['Prior close', `$${fmtNum(result.prevClose)}`],
     ['Open / gap', `$${fmtNum(result.open)} (${fmtNum(result.gapPct)}%)`],
     ['Volume', fmtBig(result.volume)],
-    ['Rel. volume', `${fmtBig(result.relativeVolume)}x`],
+    [
+      result.extendedHours ? 'Rel. vol (ext hrs)' : 'Rel. volume',
+      result.extendedHours && result.volumePctOfAvgDay != null
+        ? `${fmtNum(result.volumePctOfAvgDay)}% of avg day`
+        : `${fmtBig(result.relativeVolume)}x`,
+    ],
     ['Float', fmtShares(result.float)],
     ['Short interest', fmtBig(result.shortInterest)],
   ]
@@ -359,12 +375,15 @@ function renderDetail() {
 function tradePlanHtml(result) {
   const setup = result.setup;
   if (!setup) {
+    // Setups are only computed for qualified names, so the reason there is no
+    // plan differs — and saying "it passes the criteria" about a 1/5 stock
+    // would be plainly false.
+    const reason = result.qualified
+      ? 'It clears all five criteria, but there is no pause to buy the break of right now — waiting is the position.'
+      : `It fails ${5 - result.score} of the five criteria, so no entry is planned. Selection comes first.`;
     return `
       <h3 class="section-title">Trade plan</h3>
-      <div class="plan plan--none">
-        No entry pattern right now. The stock passes the selection criteria, but
-        there is no pause to buy the break of — waiting is the position.
-      </div>`;
+      <div class="plan plan--none">No entry pattern. ${escapeHtml(reason)}</div>`;
   }
 
   const plan = result.plan ?? {};

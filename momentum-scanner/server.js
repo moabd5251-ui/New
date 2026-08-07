@@ -28,6 +28,7 @@ import { planFor, DEFAULT_RISK_CONFIG, normalizeRiskConfig } from './lib/trade-p
 import { Journal, DEFAULT_SESSION_RULES, normalizeSessionRules } from './lib/journal.js';
 import * as mockProvider from './lib/providers/mock.js';
 import * as liveProvider from './lib/providers/live.js';
+import * as tradierProvider from './lib/providers/tradier.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(__dirname, 'public');
@@ -41,7 +42,22 @@ const PORT = Number(process.env.PORT) || 4173;
 const HOST = process.env.HOST || '0.0.0.0';
 // Live mode needs a working network; mock is the default so the app is useful
 // immediately and never silently degrades to an empty table.
-const PROVIDER = (process.env.SCANNER_PROVIDER || 'mock').toLowerCase();
+const REQUESTED_PROVIDER = (process.env.SCANNER_PROVIDER || 'mock').toLowerCase();
+
+/**
+ * `live` picks the best feed available: Tradier when a token is set (batched
+ * quotes, real per-minute bars, an authoritative market clock), Yahoo otherwise.
+ * `tradier` and `yahoo` force one explicitly.
+ */
+function resolveProvider(requested) {
+  if (requested === 'tradier') return 'tradier';
+  if (requested === 'yahoo') return 'yahoo';
+  if (requested === 'live') return process.env.TRADIER_TOKEN ? 'tradier' : 'yahoo';
+  return 'mock';
+}
+
+const PROVIDER = resolveProvider(REQUESTED_PROVIDER);
+const IS_LIVE = PROVIDER !== 'mock';
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -82,9 +98,10 @@ async function runScan() {
   const now = Date.now();
 
   let payload;
-  if (PROVIDER === 'live') {
+  if (IS_LIVE) {
     const { symbols } = await loadWatchlist(WATCHLIST_PATH);
-    payload = await liveProvider.getQuotes({
+    const provider = PROVIDER === 'tradier' ? tradierProvider : liveProvider;
+    payload = await provider.getQuotes({
       symbols,
       newsLookbackHours: config.newsLookbackHours,
       now,
@@ -285,9 +302,12 @@ const server = createServer(async (request, response) => {
       sendJson(response, 200, {
         status: 'ok',
         provider: PROVIDER,
+        requestedProvider: REQUESTED_PROVIDER,
         newsFeedConfigured: Boolean(process.env.FINNHUB_API_KEY),
+        tradierTokenConfigured: Boolean(process.env.TRADIER_TOKEN),
+        tradierSandbox: String(process.env.TRADIER_SANDBOX || '').toLowerCase() === 'true',
         lastScannedAt: lastScan?.scannedAt ?? null,
-        universeSize: PROVIDER === 'live' ? null : mockProvider.universeSize,
+        universeSize: IS_LIVE ? null : mockProvider.universeSize,
       });
       return;
     }
@@ -305,10 +325,24 @@ const server = createServer(async (request, response) => {
 
 await loadConfig();
 
+const PROVIDER_LABELS = {
+  mock: 'simulated market data',
+  yahoo: 'LIVE market data via Yahoo',
+  tradier: 'LIVE market data via Tradier',
+};
+
 server.listen(PORT, HOST, () => {
-  const mode = PROVIDER === 'live' ? 'LIVE market data' : 'simulated market data';
-  console.log(`Momentum scanner running at http://localhost:${PORT}  (${mode})`);
-  if (PROVIDER === 'live' && !process.env.FINNHUB_API_KEY) {
+  console.log(
+    `Momentum scanner running at http://localhost:${PORT}  (${PROVIDER_LABELS[PROVIDER]})`,
+  );
+  if (REQUESTED_PROVIDER === 'live' && PROVIDER === 'yahoo') {
+    console.log('No TRADIER_TOKEN set — falling back to Yahoo. Tradier gives batched quotes,');
+    console.log('real per-minute bars and an authoritative market clock.');
+  }
+  if (PROVIDER === 'tradier' && String(process.env.TRADIER_SANDBOX).toLowerCase() === 'true') {
+    console.log('Using the Tradier sandbox — quotes are delayed, not real time.');
+  }
+  if (IS_LIVE && !process.env.FINNHUB_API_KEY) {
     console.log('No FINNHUB_API_KEY set — float and news pillars will report as unavailable.');
   }
 });

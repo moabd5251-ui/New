@@ -11,7 +11,9 @@ same-session read influence how the previous one is judged.
 import json
 import sys
 import traceback
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
@@ -41,26 +43,43 @@ def session_bar(symbol):
         return None
 
 
-def settled_bar(symbol, date):
-    """The bar for `date`, returned ONLY once a LATER session has printed.
+def session_is_over(date):
+    """Has the regular session for `date` finished?
 
-    A bar dated today is still forming: at 18:30 UTC its "close" is just the last
-    trade, ninety minutes early. Scoring against that measured a partial day and
-    reported it as a full one — SPY came back at 0.049% against a 0.28% expected move,
-    which is not a quiet day, it is half a day. Requiring a strictly later session is
-    the only cheap proof that the one being scored is finished.
+    A bar dated today is still forming while the market is open: at 18:30 UTC its
+    "close" is just the last trade, ninety minutes early. Scoring against that measured
+    a partial day and reported it as a full one — SPY came back at 0.049% against a
+    0.28% expected move, which is not a quiet day, it is half a day.
+
+    The first fix demanded a strictly LATER session bar as proof the day was done. That
+    is sound but too blunt: on a Friday the next bar is Monday's, so three calls made on
+    Friday would sit unscored all weekend for no reason other than the calendar. The
+    real question is simply whether that session's close has happened.
+
+    Any date before today is finished by definition. Today is finished once the exchange
+    clock leaves REGULAR. When the clock is unreachable the answer is no — refusing to
+    score costs a day, scoring a half-formed bar corrupts the log permanently.
     """
+    today = datetime.now(ZoneInfo("America/New_York")).strftime("%Y-%m-%d")
+    if date < today:
+        return True
+    if date > today:
+        return False
+    return feed.market_state() in ("POST", "CLOSED")
+
+
+def settled_bar(symbol, date):
+    """The bar for `date`, returned only once that session has actually closed."""
+    if not session_is_over(date):
+        return None
     try:
         df = feed.bars(symbol, "1d", "1mo")
-        if df is None or len(df) < 2:
+        if df is None or not len(df):
             return None
         dates = [d.strftime("%Y-%m-%d") for d in df.index]
         if date not in dates:
             return None
-        i = dates.index(date)
-        if i >= len(dates) - 1:
-            return None                     # nothing after it — not settled yet
-        row = df.iloc[i]
+        row = df.iloc[dates.index(date)]
         return dict(date=date, open=float(row["Open"]), high=float(row["High"]),
                     low=float(row["Low"]), close=float(row["Close"]))
     except Exception:

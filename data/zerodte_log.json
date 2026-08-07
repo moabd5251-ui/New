@@ -105,7 +105,19 @@
     "expected_move_pct": 0.28,
     "flow_bias": "PUTS \u2014 downside flow dominates",
     "flow_ratio": 2.26,
-    "scored": false
+    "scored": true,
+    "close": 773.22,
+    "day_open": 771.02,
+    "day_high": 773.915,
+    "day_low": 769.61,
+    "maxpain_moved_toward": false,
+    "maxpain_dist_open": 6.02,
+    "maxpain_dist_close": 8.22,
+    "magnet_moved_toward": false,
+    "magnet_dist_close": 3.22,
+    "realised_move_pct": 0.285,
+    "realised_range_pct": 0.558,
+    "inside_expected": false
   },
   {
     "symbol": "QQQ",
@@ -123,7 +135,19 @@
     "expected_move_pct": 0.43,
     "flow_bias": "PUTS \u2014 downside flow dominates",
     "flow_ratio": 2.3,
-    "scored": false
+    "scored": true,
+    "close": 723.03,
+    "day_open": 720.15,
+    "day_high": 723.63,
+    "day_low": 716.51,
+    "maxpain_moved_toward": false,
+    "maxpain_dist_open": 6.15,
+    "maxpain_dist_close": 9.03,
+    "magnet_moved_toward": false,
+    "magnet_dist_close": 3.03,
+    "realised_move_pct": 0.4,
+    "realised_range_pct": 0.989,
+    "inside_expected": true
   },
   {
     "symbol": "IWM",
@@ -141,6 +165,18 @@
     "expected_move_pct": 0.33,
     "flow_bias": "PUTS \u2014 downside flow dominates",
     "flow_ratio": 2.68,
-    "scored": false
+    "scored": true,
+    "close": 301.56,
+    "day_open": 300.46,
+    "day_high": 302.03,
+    "day_low": 299.795,
+    "maxpain_moved_toward": false,
+    "maxpain_dist_open": 2.96,
+    "maxpain_dist_close": 4.06,
+    "magnet_moved_toward": false,
+    "magnet_dist_close": 2.56,
+    "realised_move_pct": 0.366,
+    "realised_range_pct": 0.744,
+    "inside_expected": false
   }
 ]

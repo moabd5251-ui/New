@@ -154,7 +154,7 @@ def main():
         return
 
     reads = {s: Z.read(a) for s, a in results.items()}
-    ZD.build_interactive(results, str(OUT_HTML), reads)
+    ZD.build_interactive(results, str(OUT_HTML), reads, state=state)
     STATE.write_text(json.dumps(
         {k: {kk: vv for kk, vv in v.items() if kk != "rows"} for k, v in results.items()},
         indent=2, default=str))

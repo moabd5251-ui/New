@@ -175,6 +175,10 @@ Educational tooling only — no orders are placed and nothing here is financial 
 # interactive build — many symbols in one page, chosen by a search box
 # ---------------------------------------------------------------------------
 INTERACTIVE_CSS = """
+.stamp-warn{margin-top:5px;padding:4px 7px;border-radius:2px;max-width:250px;
+  font-family:var(--mono);font-size:10px;line-height:1.45;letter-spacing:.02em;
+  color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 45%,transparent);
+  background:color-mix(in srgb,var(--warn) 12%,transparent)}
 .search{position:relative;margin-bottom:18px}
 .search input{width:100%;padding:13px 15px;font-family:var(--mono);font-size:16px;
   background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:3px;
@@ -219,9 +223,18 @@ def _slim(a):
                    cv=int(r["call_vol"]), pv=int(r["put_vol"])) for r in a["rows"]])
 
 
-def build_interactive(results, out_path, reads=None):
+def build_interactive(results, out_path, reads=None, state=None):
     import json as _json
     gen = datetime.datetime.now(datetime.timezone.utc).strftime("%d %b %Y %H:%M UTC")
+    # A capture taken outside REGULAR must say so on the page. Outside the session the
+    # book empties and implied vols are recomputed off stale last trades, which moves
+    # gamma and the flip level by real amounts — SPY's flip printed 771.08 at 18:30 and
+    # 763.0 at 20:09 on the same day, from the recompute alone. A timestamp does not
+    # convey that; a reader seeing only "20:09 UTC" has no way to know the greeks behind
+    # the numbers are not the ones the market traded.
+    warn = ("" if state in (None, "REGULAR") else
+            f'<div class="stamp-warn">{html.escape(str(state))} session — '
+            f'greeks recomputed off stale trades, treat levels as indicative</div>')
     data = {s: _slim(a) for s, a in results.items()}
     for s in data:
         data[s]["read"] = (reads or {}).get(s, [])
@@ -235,7 +248,7 @@ def build_interactive(results, out_path, reads=None):
   <div><h1>Zero-DTE Positioning</h1>
     <div class="sub">{len(data)} tickers · {n0} with a true zero-DTE expiry ·
       dealer gamma, magnets and pin levels</div></div>
-  <div class="stamp">Captured {gen}</div>
+  <div class="stamp">Captured {gen}{warn}</div>
 </header>
 
 <div class="search">

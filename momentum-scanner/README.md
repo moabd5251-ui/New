@@ -129,8 +129,9 @@ says when to stop for the day.
 
 ### 1. Entry patterns
 
-Only qualified stocks are scanned for setups — answering "when" for a stock that
-already failed "what" is wasted work. Each detector looks for the same thing: a
+Only stocks that pass selection are scanned for setups — fully qualified ones,
+and *partial* ones that cleared everything the feed could judge. Answering
+"when" for a stock that failed "what" is wasted work. Each detector looks for the same thing: a
 pause in the buying where sellers have *not* taken control, so the break of the
 pause high is a cheap entry with a nearby stop.
 

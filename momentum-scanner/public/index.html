@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Momentum Scanner — 5 Criteria of Stock Selection</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>📈</text></svg>" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar__title">
+        <h1>Momentum Scanner</h1>
+        <p>High demand, low supply — the 5 criteria of stock selection</p>
+      </div>
+      <div class="topbar__status">
+        <span id="provider-badge" class="badge badge--muted">connecting…</span>
+        <span id="session-label" class="status-text">—</span>
+        <span id="scan-time" class="status-text">—</span>
+        <label class="toggle">
+          <input type="checkbox" id="auto-refresh" checked />
+          <span>Auto-refresh</span>
+        </label>
+        <select id="refresh-interval" aria-label="Refresh interval">
+          <option value="5000">5s</option>
+          <option value="15000" selected>15s</option>
+          <option value="30000">30s</option>
+          <option value="60000">60s</option>
+        </select>
+        <button id="scan-now" class="btn btn--primary" type="button">Scan now</button>
+      </div>
+    </header>
+
+    <div id="banner" class="banner" hidden></div>
+
+    <main class="layout">
+      <section class="panel panel--criteria" aria-labelledby="criteria-heading">
+        <h2 id="criteria-heading">The 5 criteria</h2>
+        <p class="panel__hint">
+          Four measure <strong>demand</strong>. One measures <strong>supply</strong>.
+          A stock has to clear all five.
+        </p>
+
+        <form id="criteria-form" class="criteria">
+          <div class="criterion" data-pillar="change">
+            <div class="criterion__head">
+              <span class="tag tag--demand">Demand</span>
+              <span class="criterion__count" data-count="change">—</span>
+            </div>
+            <label for="minChangeFromClosePct">Already up on the day</label>
+            <div class="field">
+              <input type="number" id="minChangeFromClosePct" name="minChangeFromClosePct" min="0" max="500" step="1" />
+              <span class="unit">% or more</span>
+            </div>
+          </div>
+
+          <div class="criterion" data-pillar="relativeVolume">
+            <div class="criterion__head">
+              <span class="tag tag--demand">Demand</span>
+              <span class="criterion__count" data-count="relativeVolume">—</span>
+            </div>
+            <label for="minRelativeVolume">Relative volume</label>
+            <div class="field">
+              <input type="number" id="minRelativeVolume" name="minRelativeVolume" min="0" max="1000" step="0.5" />
+              <span class="unit">x average, or more</span>
+            </div>
+          </div>
+
+          <div class="criterion" data-pillar="news">
+            <div class="criterion__head">
+              <span class="tag tag--demand">Demand</span>
+              <span class="criterion__count" data-count="news">—</span>
+            </div>
+            <label for="requireNews">News catalyst</label>
+            <div class="field">
+              <label class="toggle toggle--inline">
+                <input type="checkbox" id="requireNews" name="requireNews" />
+                <span>Require a headline</span>
+              </label>
+            </div>
+            <div class="field">
+              <input type="number" id="newsLookbackHours" name="newsLookbackHours" min="1" max="168" step="1" />
+              <span class="unit">hours fresh</span>
+            </div>
+          </div>
+
+          <div class="criterion" data-pillar="price">
+            <div class="criterion__head">
+              <span class="tag tag--demand">Demand</span>
+              <span class="criterion__count" data-count="price">—</span>
+            </div>
+            <label for="minPrice">Price range</label>
+            <div class="field field--range">
+              <span class="unit">$</span>
+              <input type="number" id="minPrice" name="minPrice" min="0" max="1000" step="0.5" />
+              <span class="unit">to $</span>
+              <input type="number" id="maxPrice" name="maxPrice" min="0" max="1000" step="0.5" />
+            </div>
+          </div>
+
+          <div class="criterion" data-pillar="float">
+            <div class="criterion__head">
+              <span class="tag tag--supply">Supply</span>
+              <span class="criterion__count" data-count="float">—</span>
+            </div>
+            <label for="maxFloatMillions">Float available to trade</label>
+            <div class="field">
+              <span class="unit">under</span>
+              <input type="number" id="maxFloatMillions" name="maxFloatMillions" min="0.1" max="500" step="0.5" />
+              <span class="unit">M shares</span>
+            </div>
+          </div>
+
+          <div class="criterion criterion--bonus" data-pillar="gap">
+            <div class="criterion__head">
+              <span class="tag tag--bonus">Bonus</span>
+              <span class="criterion__count" data-count="gap">—</span>
+            </div>
+            <label for="minGapPct">Opening gap up</label>
+            <div class="field">
+              <input type="number" id="minGapPct" name="minGapPct" min="0" max="200" step="0.5" />
+              <span class="unit">% or more</span>
+            </div>
+          </div>
+
+          <div class="criteria__actions">
+            <button type="button" id="reset-criteria" class="btn btn--ghost">Reset to defaults</button>
+          </div>
+        </form>
+
+        <div class="alerts">
+          <div class="alerts__head">
+            <h2>Alerts</h2>
+            <button type="button" id="clear-alerts" class="btn btn--ghost btn--sm">Clear</button>
+          </div>
+          <p class="panel__hint">Fires when a stock <em>starts</em> meeting all five.</p>
+          <ul id="alert-list" class="alert-list">
+            <li class="alert-list__empty">No alerts yet.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="panel panel--results" aria-labelledby="results-heading">
+        <div class="results__head">
+          <h2 id="results-heading">Scanner</h2>
+          <div class="stats" id="stats"></div>
+          <div class="tabs" role="tablist">
+            <button class="tab is-active" role="tab" data-filter="qualified" aria-selected="true">
+              Qualified <span class="tab__count" id="count-qualified">0</span>
+            </button>
+            <button class="tab" role="tab" data-filter="near" aria-selected="false">
+              Near miss <span class="tab__count" id="count-near">0</span>
+            </button>
+            <button class="tab" role="tab" data-filter="all" aria-selected="false">
+              All scanned <span class="tab__count" id="count-all">0</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="scanner" id="scanner-table">
+            <thead>
+              <tr>
+                <th class="num" data-sort="changeFromClosePct">Change From Close (%)</th>
+                <th data-sort="symbol">Symbol / News</th>
+                <th class="num" data-sort="price">Price</th>
+                <th class="num" data-sort="volume">Volume</th>
+                <th class="num" data-sort="float">Float</th>
+                <th class="num" data-sort="relativeVolume">Rel Volume (Daily Rate)</th>
+                <th class="num" data-sort="relVol5min">Rel Volume (5 min %)</th>
+                <th class="num" data-sort="gapPct">Gap (%)</th>
+                <th class="num" data-sort="shortInterest">Short Interest</th>
+                <th class="pillars-col">5 Criteria</th>
+              </tr>
+            </thead>
+            <tbody id="scanner-body">
+              <tr class="empty"><td colspan="10">Loading market data…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <aside id="detail" class="detail" hidden aria-label="Stock detail">
+      <div class="detail__head">
+        <div>
+          <h2 id="detail-symbol"></h2>
+          <p id="detail-name"></p>
+        </div>
+        <button type="button" id="detail-close" class="btn btn--ghost" aria-label="Close detail">✕</button>
+      </div>
+      <div id="detail-body" class="detail__body"></div>
+    </aside>
+
+    <footer class="footer">
+      <p>
+        Screening tool for research and education. It reports what the data says about the
+        five criteria — it does not give investment advice or place trades.
+      </p>
+    </footer>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

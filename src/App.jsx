@@ -4,6 +4,7 @@ import ClippedCoupons from './components/ClippedCoupons'
 import SearchBar from './components/SearchBar'
 import SavingsCalculator from './components/SavingsCalculator'
 import PriceAlerts from './components/PriceAlerts'
+import NotificationBanner from './components/NotificationBanner'
 
 export default function App() {
   const [coupons, setCoupons] = useState([])
@@ -16,6 +17,8 @@ export default function App() {
   const [categories, setCategories] = useState([])
   const [stores, setStores] = useState([])
   const [loading, setLoading] = useState(true)
+  const [notifications, setNotifications] = useState([])
+  const [previousCouponCount, setPreviousCouponCount] = useState(0)
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
@@ -24,6 +27,10 @@ export default function App() {
     fetchCoupons()
     fetchStores()
     fetchCategories()
+
+    // Check for new coupons every minute
+    const interval = setInterval(fetchCoupons, 60000)
+    return () => clearInterval(interval)
   }, [])
 
   const fetchCoupons = async () => {
@@ -32,6 +39,19 @@ export default function App() {
       const response = await fetch(`${API_URL}/api/coupons`)
       const data = await response.json()
       setCoupons(data)
+
+      // Check if there are new coupons
+      if (previousCouponCount > 0 && data.length > previousCouponCount) {
+        const newCount = data.length - previousCouponCount
+        addNotification(
+          'New Coupons! 🎉',
+          `${newCount} new coupon${newCount > 1 ? 's' : ''} just arrived!`
+        )
+      }
+
+      if (previousCouponCount === 0 && data.length > 0) {
+        setPreviousCouponCount(data.length)
+      }
     } catch (err) {
       console.error('Failed to fetch coupons:', err)
       // Fallback to empty if API unavailable
@@ -102,11 +122,27 @@ export default function App() {
     }
   }
 
+  const addNotification = (title, message) => {
+    const id = Date.now()
+    const notif = { id, title, message }
+    setNotifications(prev => [...prev, notif])
+
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(n => n.id !== id))
+    }, 5000)
+  }
+
+  const dismissNotification = (id) => {
+    setNotifications(prev => prev.filter(n => n.id !== id))
+  }
+
   const totalSavings = used.reduce((sum, c) => sum + c.discount, 0)
   const potentialSavings = clipped.reduce((sum, c) => sum + c.discount, 0)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <NotificationBanner notifications={notifications} onDismiss={dismissNotification} />
       <nav className="bg-white shadow-md">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <h1 className="text-3xl font-bold text-indigo-600">💰 Coupon Clipper</h1>

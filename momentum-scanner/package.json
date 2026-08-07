@@ -1,0 +1,16 @@
+{
+  "name": "momentum-scanner",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Day-trading momentum scanner built on the 5 criteria of stock selection: high demand, low supply",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test \"test/**/*.test.js\"",
+    "verify:live": "node scripts/verify-live.mjs"
+  }
+}

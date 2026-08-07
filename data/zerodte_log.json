@@ -75,7 +75,18 @@
     "expected_move_pct": 0.46,
     "flow_bias": "PUTS \u2014 downside flow dominates",
     "flow_ratio": 1.2,
-    "close": null,
-    "scored": false
+    "close": 298.25,
+    "scored": true,
+    "day_open": 299.6,
+    "day_high": 301.38,
+    "day_low": 297.95,
+    "maxpain_moved_toward": true,
+    "maxpain_dist_open": 1.6,
+    "maxpain_dist_close": 0.25,
+    "magnet_moved_toward": false,
+    "magnet_dist_close": 0.75,
+    "realised_move_pct": 0.451,
+    "realised_range_pct": 1.145,
+    "inside_expected": true
   }
 ]

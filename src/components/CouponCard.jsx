@@ -1,5 +1,4 @@
 import { Trash2, CheckCircle } from 'lucide-react'
-import QRCode from 'qrcode.react'
 
 export default function CouponCard({ coupon, onClip, onUnclip, onMarkAsUsed, action = 'clip' }) {
   const daysUntilExpiry = Math.ceil(
@@ -26,11 +25,15 @@ export default function CouponCard({ coupon, onClip, onUnclip, onMarkAsUsed, act
 
         {coupon.couponCode && (
           <div className="mb-4 flex flex-col items-center gap-2">
-            <div className="bg-white p-2 rounded border-2 border-indigo-300">
-              <QRCode value={coupon.couponCode} size={120} level="H" includeMargin={true} />
+            <div className="bg-white p-3 rounded border-2 border-indigo-300">
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(coupon.couponCode)}`}
+                alt="QR Code"
+                className="w-32 h-32"
+              />
             </div>
             <div className="bg-gray-50 p-2 rounded border border-gray-200 w-full text-center">
-              <p className="text-xs text-gray-500 mb-1">Code:</p>
+              <p className="text-xs text-gray-500 mb-1">Scan or enter code:</p>
               <p className="font-mono font-bold text-sm text-gray-800">{coupon.couponCode}</p>
             </div>
           </div>

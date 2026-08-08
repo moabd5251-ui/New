@@ -10,6 +10,9 @@
  *   GET  /api/alerts      rolling feed of stocks that just started qualifying
  *   GET  /api/config      current thresholds
  *   POST /api/config      update thresholds (partial updates allowed)
+ *   GET  /api/trend       multi-timeframe read, one symbol or the whole list
+ *   GET  /api/trend/config  thresholds for the trend strategy
+ *   POST /api/trend/config  update them
  *   GET  /api/watchlist   symbols used in live mode
  *   POST /api/watchlist   replace those symbols
  *   GET  /api/health      provider status
@@ -24,7 +27,9 @@ import { scan, summarize, DEFAULT_CONFIG, normalizeConfig } from './lib/criteria
 import { AlertTracker } from './lib/alerts.js';
 import { loadWatchlist, saveWatchlist } from './lib/watchlist.js';
 import { bestPattern } from './lib/patterns.js';
-import { planFor, DEFAULT_RISK_CONFIG, normalizeRiskConfig } from './lib/trade-plan.js';
+import { buildStack } from './lib/timeframes.js';
+import { analyzeStack, DEFAULT_TREND_CONFIG, normalizeTrendConfig } from './lib/trend.js';
+import { planFor, buildTradePlan, DEFAULT_RISK_CONFIG, normalizeRiskConfig } from './lib/trade-plan.js';
 import { Journal, DEFAULT_SESSION_RULES, normalizeSessionRules } from './lib/journal.js';
 import * as mockProvider from './lib/providers/mock.js';
 import * as liveProvider from './lib/providers/live.js';
@@ -36,6 +41,7 @@ const DATA_DIR = join(__dirname, 'data');
 const CONFIG_PATH = join(DATA_DIR, 'config.json');
 const WATCHLIST_PATH = join(DATA_DIR, 'watchlist.json');
 const RISK_PATH = join(DATA_DIR, 'risk.json');
+const TREND_PATH = join(DATA_DIR, 'trend.json');
 const JOURNAL_PATH = join(DATA_DIR, 'trades.json');
 
 const PORT = Number(process.env.PORT) || 4173;
@@ -72,6 +78,7 @@ const alerts = new AlertTracker();
 const journal = new Journal(JOURNAL_PATH);
 let config = { ...DEFAULT_CONFIG };
 let risk = { ...DEFAULT_RISK_CONFIG, ...DEFAULT_SESSION_RULES };
+let trendConfig = { ...DEFAULT_TREND_CONFIG };
 let lastScan = null;
 
 async function readJsonFile(path, fallback) {
@@ -91,6 +98,7 @@ async function loadConfig() {
   config = normalizeConfig(await readJsonFile(CONFIG_PATH, {}));
   const stored = await readJsonFile(RISK_PATH, {});
   risk = { ...normalizeRiskConfig(stored), ...normalizeSessionRules(stored) };
+  trendConfig = normalizeTrendConfig(await readJsonFile(TREND_PATH, {}));
   await journal.load();
 }
 
@@ -150,6 +158,106 @@ async function runScan() {
     rules,
   };
   return lastScan;
+}
+
+/* ------------------------------------------------------------------ */
+/* multi-timeframe trend                                               */
+/* ------------------------------------------------------------------ */
+
+// Weeks of bars per symbol is a much heavier request than a quote, and the
+// answer barely moves between them: the 5-minute series gains one bar every
+// five minutes, and the daily series one per day. Caching for a minute means a
+// user clicking through a watchlist pays for the data once.
+const HISTORY_TTL_MS = 60_000;
+const historyCache = new Map();
+
+async function fetchHistory(symbol, now) {
+  const key = String(symbol).toUpperCase();
+  const hit = historyCache.get(key);
+  if (hit && now - hit.at < HISTORY_TTL_MS) return hit.payload;
+
+  let payload;
+  if (PROVIDER === 'tradier') payload = await tradierProvider.getHistory({ symbol: key, now });
+  else if (PROVIDER === 'yahoo') payload = await liveProvider.getHistory({ symbol: key });
+  else payload = mockProvider.getHistory({ symbol: key, now });
+
+  // Drop stale entries on write rather than on a timer: the map only ever
+  // holds symbols someone has actually asked about, so it stays small.
+  for (const [cached, entry] of historyCache) {
+    if (now - entry.at >= HISTORY_TTL_MS) historyCache.delete(cached);
+  }
+  historyCache.set(key, { at: now, payload });
+  return payload;
+}
+
+/** States worth a trader's attention first, most actionable last-in-first-out. */
+const STATE_PRIORITY = {
+  triggered: 6,
+  armed: 5,
+  pullback_forming: 4,
+  extended: 3,
+  no_entry: 2.5,
+  too_deep: 2,
+  invalidated: 1,
+  not_aligned: 0,
+  unreadable: -1,
+};
+
+async function analyzeSymbol(symbol, now) {
+  const history = await fetchHistory(symbol, now);
+  const stack = buildStack({ intraday: history.intraday, daily: history.daily, now });
+  const analysis = analyzeStack(stack, trendConfig);
+
+  // The liquidity cap in trade-plan.js is expressed per *minute* of volume,
+  // because it was written against 1-minute bars. These are 5-minute bars, so
+  // dividing keeps the cap meaning the same thing rather than quietly
+  // permitting five times the size.
+  const recent = stack.fiveMin.slice(-5).map((c) => c.volume).filter((v) => Number.isFinite(v) && v > 0);
+  const perMinuteVolume = recent.length
+    ? recent.reduce((a, b) => a + b, 0) / recent.length / 5
+    : null;
+
+  return {
+    symbol: String(symbol).toUpperCase(),
+    name: history.name ?? null,
+    ...analysis,
+    plan: analysis.setup
+      ? buildTradePlan(analysis.setup, risk, { recentCandleVolume: perMinuteVolume })
+      : null,
+    bars: {
+      fiveMin: stack.fiveMin.length,
+      hourly: stack.hourly.length,
+      daily: stack.daily.length,
+    },
+    errors: history.errors ?? [],
+    rank: (STATE_PRIORITY[analysis.state] ?? 0) * 100 + (analysis.setup?.quality ?? 0),
+  };
+}
+
+/** Run with a small concurrency cap so a watchlist cannot flood the feed. */
+async function mapLimit(items, limit, worker) {
+  const results = new Array(items.length);
+  let cursor = 0;
+  await Promise.all(
+    Array.from({ length: Math.min(limit, items.length) }, async () => {
+      while (cursor < items.length) {
+        const index = cursor;
+        cursor += 1;
+        try {
+          results[index] = await worker(items[index]);
+        } catch (error) {
+          results[index] = { symbol: items[index], error: error.message };
+        }
+      }
+    }),
+  );
+  return results;
+}
+
+async function trendUniverse() {
+  if (!IS_LIVE) return mockProvider.symbols;
+  const { symbols } = await loadWatchlist(WATCHLIST_PATH);
+  return symbols;
 }
 
 function sendJson(response, status, body) {
@@ -226,6 +334,46 @@ const server = createServer(async (request, response) => {
       config = normalizeConfig({ ...config, ...body });
       await writeJsonFile(CONFIG_PATH, config);
       sendJson(response, 200, { config, defaults: DEFAULT_CONFIG });
+      return;
+    }
+
+    if (url.pathname === '/api/trend/config' && request.method === 'GET') {
+      sendJson(response, 200, { config: trendConfig, defaults: DEFAULT_TREND_CONFIG });
+      return;
+    }
+
+    if (url.pathname === '/api/trend/config' && request.method === 'POST') {
+      const body = await readBody(request);
+      trendConfig = normalizeTrendConfig({ ...trendConfig, ...body });
+      await writeJsonFile(TREND_PATH, trendConfig);
+      sendJson(response, 200, { config: trendConfig, defaults: DEFAULT_TREND_CONFIG });
+      return;
+    }
+
+    if (url.pathname === '/api/trend' && request.method === 'GET') {
+      const now = Date.now();
+      const requested = url.searchParams.get('symbol');
+      const symbols = requested
+        ? [requested.trim().toUpperCase()]
+        : (await trendUniverse()).slice(0, 40);
+
+      const results = (await mapLimit(symbols, 4, (symbol) => analyzeSymbol(symbol, now)))
+        .filter(Boolean)
+        .sort((a, b) => (b.rank ?? -1) - (a.rank ?? -1));
+
+      sendJson(response, 200, {
+        scannedAt: new Date(now).toISOString(),
+        provider: PROVIDER,
+        results,
+        summary: {
+          scanned: results.length,
+          aligned: results.filter((r) => r.contextAligned).length,
+          actionable: results.filter((r) => r.setup).length,
+          tradable: results.filter((r) => r.plan?.tradable).length,
+        },
+        config: trendConfig,
+        risk,
+      });
       return;
     }
 

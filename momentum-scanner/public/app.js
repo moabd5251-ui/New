@@ -21,6 +21,27 @@ const state = {
   sort: { key: null, dir: -1 },
   selected: null,
   timer: null,
+  // The multi-timeframe read is a separate, much heavier request — weeks of
+  // bars per symbol rather than one quote — so it is fetched on demand when
+  // its tab is opened, not on every scan tick.
+  trend: null,
+  trendConfig: null,
+  trendDefaults: null,
+  trendFetchedAt: 0,
+  trendLoading: false,
+};
+
+/** How the strategy's states read to a trader, in plain words. */
+const TREND_STATE_LABELS = {
+  triggered: 'Triggered',
+  armed: 'Armed',
+  pullback_forming: 'Pulling back',
+  extended: 'Extended',
+  no_entry: 'No usable entry',
+  too_deep: 'Too deep',
+  invalidated: 'Invalidated',
+  not_aligned: 'Not aligned',
+  unreadable: 'No data',
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -212,12 +233,19 @@ function renderTable() {
   $('#count-near').textContent = results.filter((r) => !r.qualified && r.score === 4).length;
   $('#count-setups').textContent = results.filter((r) => r.setup).length;
 
-  // The journal is a different table entirely; swap the whole view.
+  // The journal and the trend stack are different tables entirely; swap the
+  // whole view rather than trying to reuse the scanner's columns.
   const isJournal = state.filter === 'journal';
+  const isTrend = state.filter === 'trend';
   $('#journal-view').hidden = !isJournal;
-  $('.table-wrap').hidden = isJournal;
+  $('#trend-view').hidden = !isTrend;
+  $('#scanner-view').hidden = isJournal || isTrend;
   if (isJournal) {
     renderJournal();
+    return;
+  }
+  if (isTrend) {
+    renderTrend();
     return;
   }
 
@@ -293,7 +321,10 @@ function rowHtml(result) {
 function selectSymbol(symbol) {
   state.selected = symbol;
   renderTable();
-  renderDetail();
+  // The two views answer different questions about the same ticker, so the
+  // drawer follows the tab rather than showing one of them everywhere.
+  if (state.filter === 'trend') renderTrendDetail();
+  else renderDetail();
 }
 
 function closeDetail() {
@@ -530,6 +561,9 @@ async function logTrade(result) {
     body: JSON.stringify({
       symbol: result.symbol,
       pattern: result.setup?.label ?? null,
+      // Without this a short would be journalled as a long and every statistic
+      // derived from it — P&L, R, win rate — would come out backwards.
+      direction: plan.direction ?? result.setup?.direction ?? 'long',
       entry: plan.entry,
       stop: plan.stop,
       shares: plan.shares,
@@ -543,6 +577,206 @@ async function logTrade(result) {
   }
   await fetchTrades();
   await fetchScan();
+}
+
+/* ---------------- trend stack ---------------- */
+
+/** An arrow that says direction and, by opacity, how convinced the read is. */
+function trendArrow(tf) {
+  if (!tf?.usable) return '<span class="tfx tfx--none" title="Not enough bars">·</span>';
+  const glyph = tf.direction === 'up' ? '▲' : tf.direction === 'down' ? '▼' : '—';
+  const cls = tf.direction === 'up' ? 'tfx--up' : tf.direction === 'down' ? 'tfx--down' : 'tfx--none';
+  const opacity = tf.direction === 'none' ? 1 : 0.45 + (tf.strength ?? 0) * 0.55;
+  return `<span class="tfx ${cls}" style="opacity:${opacity.toFixed(2)}" title="${escapeAttr(tf.detail ?? '')}">${glyph}</span>`;
+}
+
+function renderTrend() {
+  const payload = state.trend;
+  const body = $('#trend-body');
+
+  if (state.trendLoading && !payload) {
+    body.innerHTML = '<tr class="empty"><td colspan="10">Loading weeks of bars for each symbol…</td></tr>';
+    return;
+  }
+  if (payload?.error) {
+    body.innerHTML = `<tr class="empty"><td colspan="10">${escapeHtml(payload.error)}</td></tr>`;
+    return;
+  }
+
+  const results = payload?.results ?? [];
+  const summary = payload?.summary ?? {};
+  $('#trend-stats').innerHTML = [
+    ['Scanned', summary.scanned ?? 0],
+    ['Daily + hourly agree', summary.aligned ?? 0],
+    ['With an entry', summary.actionable ?? 0],
+    ['Sized and tradable', summary.tradable ?? 0],
+  ]
+    .map(
+      ([label, value]) =>
+        `<div class="stat"><div class="stat__value">${value}</div><div class="stat__label">${label}</div></div>`,
+    )
+    .join('');
+
+  if (!results.length) {
+    body.innerHTML = '<tr class="empty"><td colspan="10">No symbols to read.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = results
+    .map((r) => {
+      const setup = r.setup;
+      const plan = r.plan;
+      const side = setup ? (setup.direction === 'short' ? 'short' : 'long') : null;
+      return `
+        <tr data-symbol="${escapeAttr(r.symbol)}" class="${state.selected === r.symbol ? 'is-selected' : ''}">
+          <td>
+            <span class="sym">
+              <span class="sym__ticker">${escapeHtml(r.symbol)}</span>
+              ${side ? `<span class="side side--${side}">${side}</span>` : ''}
+            </span>
+          </td>
+          <td class="trend__tf">${trendArrow(r.timeframes?.daily)}</td>
+          <td class="trend__tf">${trendArrow(r.timeframes?.hourly)}</td>
+          <td class="trend__tf">${trendArrow(r.timeframes?.fiveMin)}</td>
+          <td><span class="tstate tstate--${r.state}" title="${escapeAttr(r.detail ?? '')}">${TREND_STATE_LABELS[r.state] ?? r.state}</span></td>
+          <td class="num">${r.correction?.active ? `${fmtNum(r.correction.retracePct, 0)}% · ${r.correction.bars}b` : '—'}</td>
+          <td class="num">${setup ? `$${fmtNum(setup.entry)}` : '—'}</td>
+          <td class="num plan__loss">${setup ? `$${fmtNum(setup.stop)}` : '—'}</td>
+          <td class="num">${Number.isFinite(r.invalidation) ? `$${fmtNum(r.invalidation)}` : '—'}</td>
+          <td class="num">${plan?.tradable ? plan.shares.toLocaleString('en-US') : '—'}</td>
+        </tr>`;
+    })
+    .join('');
+
+  for (const tr of $$('#trend-body tr[data-symbol]')) {
+    tr.addEventListener('click', () => selectSymbol(tr.dataset.symbol));
+  }
+}
+
+/**
+ * The drawer for a trend row.
+ *
+ * Laid out in the order the strategy actually decides things: permission from
+ * the higher timeframes first, then the level that would withdraw it, then the
+ * pause, and only then an entry. Reading it top to bottom is the argument for
+ * the trade — or, more often, the argument against one.
+ */
+function renderTrendDetail() {
+  const result = state.trend?.results?.find((r) => r.symbol === state.selected);
+  const panel = $('#detail');
+  if (!result) {
+    panel.hidden = true;
+    return;
+  }
+  panel.hidden = false;
+  $('#detail-symbol').textContent = result.symbol;
+  $('#detail-name').textContent = result.name ?? '—';
+
+  const rows = [
+    ['daily', 'Daily — permission'],
+    ['hourly', 'Hourly — structure'],
+    ['fiveMin', '5-minute — timing'],
+  ]
+    .map(([key, label]) => {
+      const tf = result.timeframes?.[key];
+      return `
+        <li class="check ${tf?.direction === result.direction && result.direction ? 'check--pass' : ''}">
+          <span class="check__icon">${trendArrow(tf)}</span>
+          <span>
+            <div class="check__label">${label}</div>
+            <div class="check__detail">${escapeHtml(tf?.detail ?? 'No read')}</div>
+          </span>
+        </li>`;
+    })
+    .join('');
+
+  const setup = result.setup;
+  const plan = result.plan ?? {};
+  const cautions = (setup?.cautions ?? []).length
+    ? `<div class="plan__notes">${setup.cautions.map(escapeHtml).join('<br>')}</div>`
+    : '';
+
+  const targets = (plan.targets ?? [])
+    .map(
+      (t) => `<tr><td>${t.ratio}:1</td><td class="num">$${fmtNum(t.price)}</td>
+              <td class="num">${t.sharesOut?.toLocaleString('en-US') ?? '—'} sh</td>
+              <td class="num plan__win">+$${fmtNum(t.profit)}</td></tr>`,
+    )
+    .join('');
+
+  const planBlock = setup
+    ? `
+      <div class="plan ${plan.tradable ? '' : 'plan--blocked'}">
+        <div class="plan__head">
+          <span class="plan__pattern">${escapeHtml(setup.label)} · ${setup.direction}</span>
+          <span class="plan__state">${
+            setup.triggered
+              ? '<span class="plan__live">triggered</span>'
+              : `${fmtNum(setup.distanceToTriggerPct)}% from trigger`
+          }</span>
+        </div>
+        <p class="plan__rationale">${escapeHtml(setup.rationale)}</p>
+        <div class="plan__grid">
+          <div><span class="k">Entry</span><span class="v">$${fmtNum(setup.entry)}</span></div>
+          <div><span class="k">Stop</span><span class="v plan__loss">$${fmtNum(setup.stop)}</span></div>
+          <div><span class="k">Structural stop</span><span class="v">$${fmtNum(setup.structuralStop)}</span></div>
+          <div><span class="k">Measured move</span><span class="v">$${fmtNum(setup.measuredTarget)} (${fmtNum(setup.measuredR, 1)}R)</span></div>
+          <div><span class="k">Risk / share</span><span class="v">$${fmtNum(plan.riskPerShare)} (${fmtNum(plan.riskPerSharePct)}%)</span></div>
+          <div><span class="k">Shares</span><span class="v">${(plan.shares ?? 0).toLocaleString('en-US')}</span></div>
+        </div>
+        ${targets ? `<table class="plan__targets"><tbody>${targets}</tbody></table>` : ''}
+        ${cautions}
+        ${(plan.sizingNotes ?? []).length ? `<div class="plan__notes">${plan.sizingNotes.map(escapeHtml).join('<br>')}</div>` : ''}
+        ${(plan.blockers ?? []).length ? `<div class="plan__blockers">${plan.blockers.map(escapeHtml).join('<br>')}</div>` : ''}
+        <button type="button" id="log-trend-trade" class="btn btn--primary plan__log" ${plan.tradable ? '' : 'disabled'}>
+          Log this trade
+        </button>
+      </div>`
+    : `<div class="plan plan--none">No entry right now. ${escapeHtml(result.detail ?? '')}</div>`;
+
+  $('#detail-body').innerHTML = `
+    <div class="tstate-band tstate--${result.state}">
+      <strong>${TREND_STATE_LABELS[result.state] ?? result.state}</strong>
+      <span>${escapeHtml(result.detail ?? '')}</span>
+    </div>
+    <h3 class="section-title">The three timeframes</h3>
+    <ul class="checklist">${rows}</ul>
+    ${
+      Number.isFinite(result.invalidation)
+        ? `<div class="invalidation">
+             Hourly ${result.direction === 'down' ? 'lower high' : 'higher low'} at
+             <strong>$${fmtNum(result.invalidation)}</strong> — the price that decides whether this
+             dip is a pause or a reversal.
+           </div>`
+        : ''
+    }
+    <h3 class="section-title">Entry</h3>
+    ${planBlock}
+    <div class="trend__bars">Read from ${result.bars?.daily ?? 0} daily, ${result.bars?.hourly ?? 0} hourly and ${result.bars?.fiveMin ?? 0} five-minute bars.</div>`;
+
+  const button = $('#log-trend-trade');
+  if (button) button.addEventListener('click', () => logTrade(result));
+}
+
+async function fetchTrend({ force = false } = {}) {
+  // The endpoint caches history for a minute; asking more often than that only
+  // re-runs arithmetic over identical bars.
+  if (!force && state.trend && Date.now() - state.trendFetchedAt < 60_000) return;
+  state.trendLoading = true;
+  renderTrend();
+  try {
+    const response = await fetch('/api/trend');
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    state.trend = await response.json();
+    state.trendFetchedAt = Date.now();
+  } catch (error) {
+    state.trend = { error: `Could not load the trend read: ${error.message}`, results: [] };
+  } finally {
+    state.trendLoading = false;
+  }
+  $('#count-trend').textContent = (state.trend.results ?? []).filter((r) => r.setup).length;
+  if (state.filter === 'trend') renderTrend();
+  if (state.filter === 'trend' && state.selected) renderTrendDetail();
 }
 
 /* ---------------- alerts ---------------- */
@@ -728,6 +962,36 @@ async function saveRisk(patch) {
   await fetchScan();
 }
 
+async function fetchTrendConfig() {
+  const response = await fetch('/api/trend/config');
+  if (!response.ok) return;
+  const payload = await response.json();
+  state.trendConfig = payload.config;
+  state.trendDefaults = payload.defaults;
+  fillTrendForm(payload.config);
+}
+
+async function saveTrendConfig(patch) {
+  const response = await fetch('/api/trend/config', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(patch),
+  });
+  const payload = await response.json();
+  state.trendConfig = payload.config;
+  fillTrendForm(payload.config);
+  // Changing what counts as a pause changes every verdict, so re-read rather
+  // than leaving stale states on screen under new thresholds.
+  await fetchTrend({ force: true });
+}
+
+function fillTrendForm(config) {
+  const form = $('#trend-form');
+  form.maxRetracePct.value = config.maxRetracePct;
+  form.maxPullbackBars.value = config.maxPullbackBars;
+  form.minMeasuredR.value = config.minMeasuredR;
+}
+
 async function fetchTrades() {
   const response = await fetch('/api/trades');
   if (!response.ok) return;
@@ -839,6 +1103,20 @@ function init() {
   });
   $('#reset-risk').addEventListener('click', () => saveRisk(state.riskDefaults));
 
+  let trendDebounce;
+  $('#trend-form').addEventListener('input', () => {
+    clearTimeout(trendDebounce);
+    trendDebounce = setTimeout(() => {
+      const form = $('#trend-form');
+      saveTrendConfig({
+        maxRetracePct: Number(form.maxRetracePct.value),
+        maxPullbackBars: Number(form.maxPullbackBars.value),
+        minMeasuredR: Number(form.minMeasuredR.value),
+      });
+    }, 400);
+  });
+  $('#reset-trend').addEventListener('click', () => saveTrendConfig(state.trendDefaults));
+
   $('#clear-alerts').addEventListener('click', async () => {
     await fetch('/api/alerts', { method: 'DELETE' });
     state.alerts = [];
@@ -858,6 +1136,7 @@ function init() {
         other.setAttribute('aria-selected', String(active));
       }
       renderTable();
+      if (state.filter === 'trend') fetchTrend();
     });
   }
 
@@ -883,7 +1162,9 @@ function init() {
     }
   });
 
-  Promise.all([fetchConfig(), fetchRisk(), fetchTrades()]).then(fetchScan).then(restartTimer);
+  Promise.all([fetchConfig(), fetchRisk(), fetchTrendConfig(), fetchTrades()])
+    .then(fetchScan)
+    .then(restartTimer);
 }
 
 init();

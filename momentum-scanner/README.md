@@ -19,6 +19,11 @@ an `A+`. Every threshold is editable in the UI and persists to `data/config.json
 Selection answers *what* to trade. The strategy layer answers *when*, *how much*,
 and *when to stop* — see [The trade strategy](#the-trade-strategy) below.
 
+A second, independent strategy runs over the same feeds:
+[multi-timeframe trend continuation](#multi-timeframe-trend-continuation) —
+daily, hourly and 5-minute agreement, entering on a pullback that holds the
+hourly structure rather than on a fresh breakout.
+
 ## Quick start
 
 No dependencies, no build step. Node 18+ is all you need.
@@ -26,7 +31,7 @@ No dependencies, no build step. Node 18+ is all you need.
 ```bash
 cd momentum-scanner
 npm start           # http://localhost:4173
-npm test            # 94 tests, no network required
+npm test            # 131 tests, no network required
 ```
 
 `npm run verify:live` exercises the paths that only exist while the market is
@@ -112,14 +117,18 @@ or edit `data/watchlist.json`, or POST to `/api/watchlist`.
   without reading a single number. Sort by any column.
 - **Criteria panel** — all five thresholds, live-editable, each showing how many
   of the scanned names currently pass it.
-- **Five tabs** — *Qualified* (all five), *Near miss* (exactly four), *All
-  scanned*, *Setups* (an entry pattern is live), *Journal*.
+- **Six tabs** — *Qualified* (all five), *Near miss* (exactly four), *All
+  scanned*, *Setups* (an entry pattern is live), *Trend stack* (the
+  multi-timeframe read), *Journal*.
 - **Detail drawer** — click any row for the full quote, a per-criterion checklist
   explaining precisely why the stock passed or failed each one, and the
   headlines driving it.
 - **Alerts** — fires when a stock *starts* meeting all five, not on every scan
   while it continues to. Re-arms after 10 minutes so a name hovering on the
   threshold cannot spam the feed.
+- **Trend stack** — the multi-timeframe read, described in
+  [Multi-timeframe trend continuation](#multi-timeframe-trend-continuation)
+  below. A different strategy on the same data, in its own tab.
 
 ## The trade strategy
 
@@ -196,6 +205,141 @@ shares and a 2R win on 2,000 compare directly. Exits more than 5× away from the
 entry are refused as fat-finger typos, since one bad number poisons every
 statistic downstream.
 
+## Multi-timeframe trend continuation
+
+A second strategy over the same feeds, in the **Trend stack** tab. Where the
+five criteria hunt for one violent day, this one looks for a trend that is
+already running and waits for it to pause.
+
+It reads three timeframes and gives each exactly one job:
+
+| Timeframe | Question | Job |
+|---|---|---|
+| **Daily** | Which way is this going at all? | permission |
+| **Hourly** | Is the current leg still intact? | structure |
+| **5-minute** | Has it paused, and has the pause ended? | timing |
+
+The daily and hourly have to agree before anything else is considered. If they
+do not, there is no trade in either direction — that is not a weaker signal,
+it is a different market.
+
+### Correction or reversal — the level that decides
+
+Every pullback looks like the start of a reversal while it is happening. The
+strategy does not judge that by how deep or how frightening the dip is; it
+judges it against **one specific price**.
+
+In an uptrend the hourly chart is a sequence of higher highs and higher lows.
+The most recent *confirmed hourly swing low* is the price that sequence rests
+on. A 5-minute sell-off that stays above it has taken nothing away from the
+hourly trend, however bad it looks on a 5-minute chart. One that trades through
+it has ended the sequence — what looked like a dip to buy is now a lower low to
+stand aside from.
+
+That level is `invalidation` throughout the code, and it is the whole strategy:
+it decides whether a dip is an entry or an exit, it sets the structural stop,
+and it is why the 5-minute chart is only ever allowed to answer *when*, never
+*whether*.
+
+### The states
+
+Each symbol lands in exactly one, and every one of them explains itself in a
+sentence:
+
+| State | Meaning |
+|---|---|
+| `not_aligned` | Daily and hourly disagree. Nothing to do. |
+| `extended` | Aligned and still driving — no pause to enter on yet |
+| `pullback_forming` | Correcting, hourly structure intact, still making new extremes |
+| `armed` | The correction has stalled; the trigger is live |
+| `triggered` | Price has broken back in the trend's direction |
+| `too_deep` | Structure holds, but the pause has gone too far or lasted too long |
+| `invalidated` | The pullback broke the hourly structure — it was a reversal |
+| `unreadable` | Not enough history on some timeframe to judge |
+
+"Nothing to do" is the common answer, and the tab says so rather than
+manufacturing a setup.
+
+### The entry
+
+A break of the pullback's extreme in the direction of the higher timeframes.
+Two stops are reported, because which one to use is a real choice:
+
+- **Trade stop** — just beyond the pullback, padded by a fraction of the
+  5-minute ATR so ordinary noise does not take it out. This is what the
+  position is sized against.
+- **Structural stop** — beyond the hourly invalidation. Wider, but the price at
+  which the *reason* for the trade is gone.
+
+Targets come from the same risk engine as the momentum setups — 2R and 3R, with
+the stop to breakeven after the first fills. Alongside them the setup reports a
+**measured move**: the leg that just ran, projected again from where the
+pullback ended, expressed in R.
+
+That number is worth reading, because pullback depth costs twice. The entry
+sits near the top of the leg and the stop sits below the pullback, so a deeper
+pullback buys a *wider stop* and leaves *less of the projection above the
+entry*. A 25% pullback projects to roughly 2R; a 60% one to well under 1R. When
+the projection cannot reach the configured minimum the setup carries a caution
+saying so, rather than being quietly presented as equivalent to a shallow one.
+
+Setups more than 1% through their trigger are dropped rather than chased, for
+the same reason as in the momentum patterns.
+
+### Short setups
+
+This strategy fires in both directions, which the momentum patterns do not.
+`buildTradePlan` and the journal are direction-aware: a short is sized off the
+same risk budget, its targets run down from the entry, and its P&L and R are
+measured against the direction of the trade rather than the direction of the
+chart. Setups without a `direction` are treated as long, so every trade logged
+before this existed still reads correctly.
+
+### Where the bars come from
+
+| | Source |
+|---|---|
+| 5-minute | The provider's finest intraday series |
+| Hourly | **Resampled** from the same 5-minute bars |
+| Daily | The provider's daily history, with today re-derived from the intraday bars |
+
+Hourly is resampled rather than fetched: one request fewer, and the two
+intraday timeframes cannot then disagree about a bar they share. Buckets are
+anchored to the **09:30 ET bell**, not the wall clock — a clock-anchored hour
+would end the first bar at 10:00, which is a 30-minute bar wearing an hourly
+label, and every bar after it would be offset from what a charting platform
+shows.
+
+Tradier serves about 20 days of 5-minute bars, which is the binding constraint
+on how far back the hourly chart can be read (roughly ninety hourly bars).
+Yahoo caps 5-minute history at 60 days. Both are ample for a swing sequence.
+
+In simulated mode each symbol is assigned a regime — trending up, trending
+down, or swinging without trending — so the strategy has something to find and,
+just as importantly, something to correctly refuse. The choppy symbols are the
+useful ones: a strategy that never says "stand aside" in simulation is not
+being tested.
+
+### Configuration
+
+Three thresholds are editable in the UI and persist to `data/trend.json`; the
+rest are defaults in `lib/trend.js`.
+
+| Setting | Default | Meaning |
+|---|---|---|
+| `maxRetracePct` | 61.8 | Deeper into the leg than this is a reversal, not a pause |
+| `minRetracePct` | 15 | Shallower than this has not paused yet, it is still driving |
+| `maxPullbackBars` | 12 | Longer than this and the move is stalling, not pausing |
+| `minMeasuredR` | 2 | Below this the setup carries a caution |
+| `swingSpan` | 2 | Bars either side of a pivot before it counts as one |
+| `fastPeriod` / `slowPeriod` | 9 / 21 | Moving averages, used only to *confirm* structure |
+
+Structure decides direction; the moving averages only say whether the recent
+path agrees. They can withdraw a direction — structure pointing up while price
+sits under a falling average is reported as unclear — but they can never create
+one, because a moving average is a lagging summary of the same prices the
+swings are made of, and treating it as independent evidence double-counts them.
+
 ## Configuration
 
 | Variable | Default | Purpose |
@@ -216,6 +360,8 @@ Tokens are read from the environment only — nothing writes them to disk, and
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/api/scan` | GET | Run a scan; ranked results, per-pillar verdicts, summary |
+| `/api/trend` | GET | Multi-timeframe read; `?symbol=X` for one, omit for the whole list |
+| `/api/trend/config` | GET / POST | Thresholds for the trend strategy |
 | `/api/alerts` | GET / DELETE | Rolling alert feed, or clear it |
 | `/api/config` | GET / POST | Read or update thresholds (partial updates allowed) |
 | `/api/watchlist` | GET / POST | Symbols used in live mode |
@@ -229,7 +375,9 @@ Tokens are read from the environment only — nothing writes them to disk, and
 ```
 lib/criteria.js           the five pillars, scoring, ranking
 lib/patterns.js           entry pattern detection on 1-minute candles
-lib/trade-plan.js         risk-based sizing, stops and R targets
+lib/timeframes.js         resampling: 5-minute, hourly and daily from one feed
+lib/trend.js              multi-timeframe trend alignment and continuation entries
+lib/trade-plan.js         risk-based sizing, stops and R targets (long and short)
 lib/journal.js            trade log, daily rules, performance stats
 lib/alerts.js             qualify-transition tracking
 lib/watchlist.js          symbol list loading and validation
@@ -239,7 +387,7 @@ lib/providers/tradier.js  Tradier quotes/timesales/clock + optional Finnhub
 lib/providers/live.js     Yahoo fallback + optional Finnhub
 public/                   single-page UI, no build step
 server.js                 dependency-free HTTP server
-test/                     node:test suite (94 tests)
+test/                     node:test suite (131 tests)
 ```
 
 ## Notes on the numbers
@@ -291,5 +439,10 @@ illustrative results are not a guide to what any strategy will do next.
 The five selection criteria are transcribed directly from the source material.
 The strategy layer — the four entry patterns, risk-based sizing, 2:1 minimum
 targets, and the daily loss / trade-count limits — is the standard published
-form of this methodology, with the specific defaults listed above. Every one of
-those numbers is a configurable default, not a claim about what is optimal.
+form of this methodology, with the specific defaults listed above.
+
+The multi-timeframe strategy is the conventional trend-continuation form:
+swing-structure trend definition, higher-timeframe alignment, and entries on
+the resumption of a pullback that held structure. Nothing about it is novel and
+nothing about it is backtested here. Every threshold in both strategies is a
+configurable default, not a claim about what is optimal.

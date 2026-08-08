@@ -241,9 +241,289 @@ export function getQuotes({ now = Date.now() } = {}) {
   return { quotes, session, provider: 'mock' };
 }
 
+/* ------------------------------------------------------------------ */
+/* multi-day history for the trend strategy                            */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The trend regime each symbol is simulated in.
+ *
+ * The five-criteria scanner only ever needs today, so the intraday generator
+ * above starts at the opening bell. A multi-timeframe read needs weeks, and it
+ * needs them to contain something worth reading — a universe of random walks
+ * would produce `not_aligned` for every symbol and prove nothing.
+ *
+ * So each symbol is assigned a regime from its name hash, and the assignment
+ * is deliberately spread: roughly half trend up, a fifth trend down, and the
+ * rest chop. The choppy ones matter as much as the trending ones — a strategy
+ * that never says "stand aside" in simulation is not being tested.
+ */
+export function regimeFor(symbol) {
+  const seed = hash(symbol);
+  if (seed < 0.48) return 'up';
+  if (seed < 0.68) return 'down';
+  return 'chop';
+}
+
+const SESSION_BARS_5M = 78; // 09:30-16:00 in 5-minute bars
+const SESSION_OPEN_MINUTES = 9 * 60 + 30;
+
+/** Minutes past ET midnight, and the ET weekday, for a timestamp. */
+function easternClock(ms) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    hour: '2-digit',
+    minute: '2-digit',
+    weekday: 'short',
+    hour12: false,
+  }).formatToParts(new Date(ms));
+  const get = (type) => parts.find((p) => p.type === type)?.value ?? '00';
+  const hour = get('hour') === '24' ? '00' : get('hour');
+  return { minutes: Number(hour) * 60 + Number(get('minute')), weekday: get('weekday') };
+}
+
+/**
+ * Timestamps of the 09:30 ET bell for the last `count` weekdays, oldest first.
+ *
+ * Each day's midnight is recomputed from that day's own clock rather than by
+ * subtracting 24h repeatedly — an hour of drift creeps in across a DST change
+ * otherwise, and every bar after it lands in the wrong bucket.
+ */
+export function sessionOpens(now, count) {
+  const opens = [];
+  let cursor = now;
+  // Guard the walk so a pathological count cannot spin: 5 calendar days per
+  // trading day is far more slack than weekends need.
+  for (let step = 0; opens.length < count && step < count * 5 + 10; step += 1) {
+    const clock = easternClock(cursor);
+    const midnight = cursor - clock.minutes * 60_000 - (((cursor % 60_000) + 60_000) % 60_000);
+    if (clock.weekday !== 'Sat' && clock.weekday !== 'Sun') {
+      opens.push(midnight + SESSION_OPEN_MINUTES * 60_000);
+    }
+    cursor = midnight - 60_000; // 23:59 the previous day
+  }
+  return opens.reverse();
+}
+
+/**
+ * A trend as the strategy defines one: drives that each give part of
+ * themselves back, and whose net progress accumulates.
+ *
+ * The obvious construction — a straight ramp plus an oscillation — does not
+ * work here, and the reason is the whole point of the strategy. An
+ * oscillation returns to where it started, so whether each swing low comes in
+ * above the last depends entirely on whether the ramp out-runs the
+ * oscillation's amplitude; get that balance slightly wrong and the simulated
+ * "uptrend" has no higher lows in it at all, which is exactly the structure
+ * the strategy refuses to trade.
+ *
+ * So progress is accumulated per cycle instead. Each cycle rises by
+ * `amplitude` and gives back `giveBack` of it, carrying the remainder forward.
+ * Higher highs and higher lows are then guaranteed by construction for any
+ * giveBack below 1 — and `giveBack: 1` gives a market that swings without
+ * trending, which is what the choppy symbols need.
+ */
+function cumulativeSaw(position, { cycle, amplitude, impulseShare = 0.6, giveBack = 0.5 }) {
+  const cycles = Math.floor(position / cycle);
+  const phase = (((position % cycle) + cycle) % cycle) / cycle;
+  const within =
+    phase < impulseShare
+      ? phase / impulseShare // driving: 0 -> 1
+      : 1 - ((phase - impulseShare) / (1 - impulseShare)) * giveBack; // pausing: 1 -> 1-giveBack
+  return (cycles * (1 - giveBack) + within) * amplitude;
+}
+
+/**
+ * The amplitude that makes `bars` worth of cycles cover `totalPct` of drift.
+ * Solving for it here is what keeps a symbol's simulated move roughly the size
+ * its universe entry advertises, whatever cycle length it was given.
+ */
+function amplitudeFor(totalPct, bars, cycle, giveBack) {
+  const cycles = Math.max(bars / cycle, 1);
+  return totalPct / 100 / (cycles * (1 - giveBack));
+}
+
+/**
+ * Simulated 5-minute bars and daily bars for one symbol.
+ *
+ * The two series are consistent by construction: the recent daily bars are
+ * aggregated from the same 5-minute path the strategy reads, and the older
+ * daily bars are generated backwards from where that path begins. A daily
+ * chart that disagreed with the intraday chart it was built from would make
+ * every alignment verdict meaningless.
+ */
+export function getHistory({ symbol, now = Date.now(), sessions = 12, dailyBars = 120 } = {}) {
+  const entry = UNIVERSE.find((u) => u.symbol === String(symbol).toUpperCase());
+  if (!entry) {
+    return { symbol, intraday: [], daily: [], provider: 'mock', regime: null };
+  }
+
+  const seed = hash(entry.symbol);
+  const regime = regimeFor(entry.symbol);
+  const sign = regime === 'down' ? -1 : 1;
+
+  const opens = sessionOpens(now, sessions);
+  const session = sessionProgress(new Date(now));
+  const lastSessionBars = Math.max(Math.round(session.fraction * SESSION_BARS_5M), 24);
+  const totalBars = (opens.length - 1) * SESSION_BARS_5M + lastSessionBars;
+
+  // Two scales, because the strategy reads two. The swing layer is what the
+  // hourly chart sees — legs of roughly ten hourly bars, so `swingSpan` pivots
+  // can actually form on them. The leg layer is what the 5-minute chart sees,
+  // and it is deliberately small enough that its pullbacks never threaten a
+  // swing low: on this data a 5-minute correction is supposed to be a pause,
+  // and the strategy is supposed to say so.
+  const swingCycle = 110 + Math.round(seed * 50); // ~9-13 hourly bars
+  const legCycle = 14 + Math.round(seed * 8); // ~1-2 hours
+  const totalDriftPct = regime === 'chop' ? 0 : sign * (16 + seed * 14);
+
+  const swingGiveBack = regime === 'chop' ? 1 : 0.5;
+  const swingAmplitude =
+    regime === 'chop'
+      ? 0.05 // swings of a fixed size that go nowhere
+      : amplitudeFor(Math.abs(totalDriftPct), totalBars, swingCycle, swingGiveBack);
+
+  // A phase offset keyed to the wall clock, so repeated calls walk through the
+  // strategy's states rather than freezing on one. Without it a symbol scanned
+  // on a closed market would show the same pullback at the same depth forever.
+  const legPhase = (now / 600_000) % legCycle;
+
+  const startPrice = entry.prevClose * (1 - totalDriftPct / 200);
+
+  const pathAt = (i) => {
+    const swing =
+      sign *
+      cumulativeSaw(i + seed * swingCycle, {
+        cycle: swingCycle,
+        amplitude: swingAmplitude,
+        giveBack: swingGiveBack,
+      });
+    // The 5-minute layer oscillates rather than accumulating: it is the pause
+    // inside the drive, not a second trend.
+    const leg =
+      sign *
+      (cumulativeSaw(i + legPhase, { cycle: legCycle, amplitude: swingAmplitude * 0.22, giveBack: 1 }) -
+        swingAmplitude * 0.11);
+    // Two noise scales. The slow one wanders the path off its ideal shape; the
+    // fast one keeps consecutive bars from marching monotonically, which is
+    // what a purely analytic path does and what real bars never do. Without
+    // the fast term the last bar is almost always the extreme of its leg, and
+    // the strategy reports "no pause yet" for nearly every symbol — an
+    // artefact of the generator, not a market condition.
+    return (
+      swing +
+      leg +
+      noise(seed, i * 300, 4000) * 0.002 +
+      noise(seed * 1.7 + 0.31, i * 300, 700) * 0.0016
+    );
+  };
+
+  const intraday = [];
+  let barIndex = 0;
+  for (let s = 0; s < opens.length; s += 1) {
+    const isLast = s === opens.length - 1;
+    const bars = isLast ? lastSessionBars : SESSION_BARS_5M;
+    for (let b = 0; b < bars; b += 1) {
+      const open = startPrice * (1 + pathAt(barIndex));
+      const close = startPrice * (1 + pathAt(barIndex + 1));
+      const body = Math.abs(close - open);
+      const wick = Math.max(body * 0.5, open * 0.0008);
+      const jitter = Math.abs(noise(seed + barIndex * 0.013, barIndex * 300, 1700));
+
+      intraday.push({
+        time: new Date(opens[s] + b * 5 * 60_000).toISOString(),
+        open: round(Math.max(open, 0.01), 4),
+        high: round(Math.max(open, close) + wick * jitter, 4),
+        low: round(Math.max(Math.min(open, close) - wick * jitter, 0.005), 4),
+        close: round(Math.max(close, 0.01), 4),
+        // Volume expands into the drive and dries up in the pullback, which is
+        // the signature that separates a pause from distribution.
+        volume: Math.max(
+          Math.round(
+            ((entry.avgVolume / SESSION_BARS_5M) *
+              (sign * (close - open) > 0 ? 1.5 : 0.6) *
+              (0.7 + jitter * 0.6)),
+          ),
+          1,
+        ),
+      });
+      barIndex += 1;
+    }
+  }
+
+  // Older daily bars, generated backwards from where the intraday path starts,
+  // continuing the same regime at daily scale.
+  const olderCount = Math.max(dailyBars - opens.length, 0);
+  const olderOpens = sessionOpens(opens[0] - 24 * 3600_000, olderCount);
+  const dailyDriftPct = regime === 'chop' ? 0 : sign * (45 + seed * 35);
+  const dailySwingCycle = 8 + Math.round(seed * 6);
+  const dailyGiveBack = regime === 'chop' ? 1 : 0.45;
+  const dailyAmplitude =
+    regime === 'chop'
+      ? 0.07
+      : amplitudeFor(Math.abs(dailyDriftPct), olderCount, dailySwingCycle, dailyGiveBack);
+
+  const older = olderOpens.map((openMs, i) => {
+    // Runs from -olderCount to 0 so the series ends where the intraday path
+    // begins: one continuous history, not two that happen to sit next to each
+    // other with a gap between them.
+    const dayPath = (k) =>
+      sign *
+      cumulativeSaw(k - olderCount + seed * dailySwingCycle, {
+        cycle: dailySwingCycle,
+        amplitude: dailyAmplitude,
+        giveBack: dailyGiveBack,
+      });
+
+    const open = startPrice * (1 + dayPath(i));
+    const close = startPrice * (1 + dayPath(i + 1));
+    const body = Math.abs(close - open);
+    const wick = Math.max(body * 0.6, open * 0.004);
+    const jitter = Math.abs(noise(seed + i * 0.031, i * 86_400, 900_000));
+
+    return {
+      time: new Date(openMs).toISOString(),
+      open: round(Math.max(open, 0.01), 4),
+      high: round(Math.max(open, close) + wick * jitter, 4),
+      low: round(Math.max(Math.min(open, close) - wick * jitter, 0.005), 4),
+      close: round(Math.max(close, 0.01), 4),
+      volume: Math.round(entry.avgVolume * (0.8 + jitter * 0.5)),
+    };
+  });
+
+  // The recent days come from the intraday path itself rather than being
+  // generated again — two generators would drift apart, and the daily trend
+  // would then contradict the 5-minute bars it is supposed to govern.
+  const recent = [];
+  for (let s = 0; s < opens.length; s += 1) {
+    const from = s * SESSION_BARS_5M;
+    const slice = intraday.slice(from, from + (s === opens.length - 1 ? lastSessionBars : SESSION_BARS_5M));
+    if (!slice.length) continue;
+    recent.push({
+      time: new Date(opens[s]).toISOString(),
+      open: slice[0].open,
+      high: Math.max(...slice.map((c) => c.high)),
+      low: Math.min(...slice.map((c) => c.low)),
+      close: slice.at(-1).close,
+      volume: slice.reduce((sum, c) => sum + c.volume, 0),
+    });
+  }
+
+  return {
+    symbol: entry.symbol,
+    name: entry.name,
+    intraday,
+    daily: [...older, ...recent],
+    provider: 'mock',
+    regime,
+    interval: '5m',
+  };
+}
+
 function round(value, digits) {
   const factor = 10 ** digits;
   return Math.round(value * factor) / factor;
 }
 
 export const universeSize = UNIVERSE.length;
+export const symbols = UNIVERSE.map((entry) => entry.symbol);

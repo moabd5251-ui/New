@@ -115,6 +115,28 @@ export function parseTimesales(payload) {
 }
 
 /**
+ * Daily bars from `/markets/history`.
+ *
+ * The endpoint dates a bar `YYYY-MM-DD` with no time at all, so a timestamp
+ * has to be invented for it. Noon UTC is used rather than midnight: midnight
+ * UTC is the *previous* evening in New York, which would file every daily bar
+ * under the day before once anything downstream bucketed it in Eastern time.
+ */
+export function parseHistory(payload) {
+  return toArray(payload?.history?.day)
+    .map((bar) => ({
+      time: bar.date ? `${bar.date}T12:00:00.000Z` : null,
+      open: num(bar.open),
+      high: num(bar.high),
+      low: num(bar.low),
+      close: num(bar.close),
+      volume: num(bar.volume),
+    }))
+    .filter((bar) => bar.time && [bar.open, bar.high, bar.low, bar.close].every(Number.isFinite))
+    .sort((a, b) => new Date(a.time) - new Date(b.time));
+}
+
+/**
  * Session state from `/markets/clock`. Tradier's `state` is the authority on
  * whether the market is open; the fraction is still needed to pro-rate volume.
  */
@@ -258,6 +280,12 @@ export function tradierTimestamp(date, { hour, minute } = {}) {
   return `${p.year}-${p.month}-${p.day} ${hour ?? p.hour}:${minute ?? p.minute}`;
 }
 
+/** `YYYY-MM-DD` in ET, the format the history endpoint expects. */
+export function tradierDate(date) {
+  const p = easternParts(date);
+  return `${p.year}-${p.month}-${p.day}`;
+}
+
 /* ------------------------------------------------------------------ */
 /* network calls                                                       */
 /* ------------------------------------------------------------------ */
@@ -303,6 +331,68 @@ async function fetchIntraday(base, token, symbol, now) {
     `&interval=1min&start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}` +
     `&session_filter=open`;
   return parseTimesales(await fetchJson(url, token));
+}
+
+/**
+ * Multi-day history for the multi-timeframe strategy.
+ *
+ * Two requests, not three: the hourly series is resampled from these
+ * 5-minute bars rather than fetched, so the two timeframes cannot disagree
+ * with each other about a bar they share.
+ *
+ * Tradier serves roughly 20 days of 5-minute `timesales`, which is the
+ * binding constraint on how far back the hourly chart can be read — about
+ * ninety hourly bars. That is comfortably enough for a swing sequence and
+ * nowhere near enough for a long-run study, so the daily series is fetched
+ * separately and covers a year.
+ */
+export async function getHistory({
+  symbol,
+  token = process.env.TRADIER_TOKEN || '',
+  sandbox = String(process.env.TRADIER_SANDBOX || '').toLowerCase() === 'true',
+  intradayDays = 20,
+  dailyDays = 365,
+  now = Date.now(),
+} = {}) {
+  if (!token) {
+    throw new Error('TRADIER_TOKEN is not set — the Tradier provider needs a bearer token');
+  }
+  if (!symbol) throw new Error('getHistory needs a symbol');
+
+  const base = baseUrl({ sandbox });
+  const ticker = String(symbol).toUpperCase();
+  const day = 24 * 3600 * 1000;
+
+  const intradayUrl =
+    `${base}/markets/timesales?symbol=${encodeURIComponent(ticker)}&interval=5min` +
+    `&start=${encodeURIComponent(tradierTimestamp(new Date(now - intradayDays * day), { hour: '09', minute: '30' }))}` +
+    `&end=${encodeURIComponent(tradierTimestamp(new Date(now)))}&session_filter=open`;
+
+  const dailyUrl =
+    `${base}/markets/history?symbol=${encodeURIComponent(ticker)}&interval=daily` +
+    `&start=${encodeURIComponent(tradierDate(new Date(now - dailyDays * day)))}` +
+    `&end=${encodeURIComponent(tradierDate(new Date(now)))}`;
+
+  // One failing series is reported rather than thrown: a daily history with no
+  // intraday bars still answers "which way is this going", and saying so beats
+  // failing the whole request.
+  const errors = [];
+  const [intraday, daily] = await Promise.all([
+    fetchJson(intradayUrl, token, { timeoutMs: 12_000 })
+      .then(parseTimesales)
+      .catch((error) => {
+        errors.push({ series: 'intraday', message: error.message });
+        return [];
+      }),
+    fetchJson(dailyUrl, token, { timeoutMs: 12_000 })
+      .then(parseHistory)
+      .catch((error) => {
+        errors.push({ series: 'daily', message: error.message });
+        return [];
+      }),
+  ]);
+
+  return { symbol: ticker, intraday, daily, interval: '5m', provider: 'tradier', errors };
 }
 
 async function fetchFinnhubProfile(symbol, apiKey) {

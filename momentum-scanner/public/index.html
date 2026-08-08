@@ -164,6 +164,33 @@
           </div>
         </form>
 
+        <form id="trend-form" class="risk">
+          <div class="risk__head">
+            <h2>Trend continuation</h2>
+            <button type="button" id="reset-trend" class="btn btn--ghost btn--sm">Reset</button>
+          </div>
+          <p class="panel__hint">
+            How much of a pause the strategy will still call a pause. Past either
+            limit it is treated as a reversal, whatever the higher timeframes say.
+          </p>
+
+          <div class="field">
+            <label for="maxRetracePct">Max retracement</label>
+            <input type="number" id="maxRetracePct" name="maxRetracePct" min="10" max="95" step="0.1" />
+            <span class="unit">% of leg</span>
+          </div>
+          <div class="field">
+            <label for="maxPullbackBars">Max pullback length</label>
+            <input type="number" id="maxPullbackBars" name="maxPullbackBars" min="2" max="40" step="1" />
+            <span class="unit">bars</span>
+          </div>
+          <div class="field">
+            <label for="minMeasuredR">Min measured move</label>
+            <input type="number" id="minMeasuredR" name="minMeasuredR" min="0.5" max="10" step="0.5" />
+            <span class="unit">R</span>
+          </div>
+        </form>
+
         <div id="rule-state" class="rule-state"></div>
 
         <div class="alerts">
@@ -195,13 +222,16 @@
             <button class="tab" role="tab" data-filter="setups" aria-selected="false">
               Setups <span class="tab__count" id="count-setups">0</span>
             </button>
+            <button class="tab" role="tab" data-filter="trend" aria-selected="false">
+              Trend stack <span class="tab__count" id="count-trend">0</span>
+            </button>
             <button class="tab" role="tab" data-filter="journal" aria-selected="false">
               Journal <span class="tab__count" id="count-trades">0</span>
             </button>
           </div>
         </div>
 
-        <div class="table-wrap">
+        <div class="table-wrap" id="scanner-view">
           <table class="scanner" id="scanner-table">
             <thead>
               <tr>
@@ -221,6 +251,36 @@
               <tr class="empty"><td colspan="10">Loading market data…</td></tr>
             </tbody>
           </table>
+        </div>
+
+        <div id="trend-view" class="trend" hidden>
+          <p class="panel__hint trend__hint">
+            Daily and hourly decide <strong>whether</strong>; the 5-minute decides
+            <strong>when</strong>. A pullback that holds the last hourly swing is a pause to
+            enter on — one that trades through it is a reversal to stand aside from.
+          </p>
+          <div id="trend-stats" class="stats"></div>
+          <div class="table-wrap">
+            <table class="scanner">
+              <thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th class="trend__tf">Daily</th>
+                  <th class="trend__tf">Hourly</th>
+                  <th class="trend__tf">5-min</th>
+                  <th>State</th>
+                  <th class="num">Pullback</th>
+                  <th class="num">Entry</th>
+                  <th class="num">Stop</th>
+                  <th class="num">Hourly invalidation</th>
+                  <th class="num">Shares</th>
+                </tr>
+              </thead>
+              <tbody id="trend-body">
+                <tr class="empty"><td colspan="10">Loading multi-timeframe read…</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div id="journal-view" class="journal" hidden>

@@ -156,6 +156,74 @@ async function fetchIntraday(symbol) {
   return candles.slice(-120);
 }
 
+/**
+ * Turn one Yahoo chart payload into bars.
+ *
+ * Yahoo returns parallel arrays — timestamps in one, each OHLCV field in
+ * another — and pads every one of them with nulls for periods that had no
+ * trades. A bar missing any leg of its OHLC is dropped rather than repaired:
+ * an invented high is indistinguishable from a real one downstream, and swing
+ * detection would treat it as a pivot.
+ */
+export function parseChartBars(payload) {
+  const result = payload?.chart?.result?.[0];
+  const stamps = result?.timestamp ?? [];
+  const fields = result?.indicators?.quote?.[0] ?? {};
+  const bars = [];
+
+  for (let i = 0; i < stamps.length; i += 1) {
+    const open = fields.open?.[i];
+    const high = fields.high?.[i];
+    const low = fields.low?.[i];
+    const close = fields.close?.[i];
+    if (![open, high, low, close].every(Number.isFinite)) continue;
+    bars.push({
+      time: new Date(stamps[i] * 1000).toISOString(),
+      open,
+      high,
+      low,
+      close,
+      volume: Number.isFinite(fields.volume?.[i]) ? fields.volume[i] : null,
+    });
+  }
+  return bars;
+}
+
+/**
+ * Multi-day history for the multi-timeframe strategy.
+ *
+ * Yahoo caps 5-minute history at 60 days, which is more than the strategy
+ * reads. The hourly series is resampled from these bars rather than requested
+ * as `interval=1h`, so the two timeframes are guaranteed to be made of the
+ * same trades.
+ */
+export async function getHistory({ symbol, intradayRange = '1mo', dailyRange = '1y' } = {}) {
+  if (!symbol) throw new Error('getHistory needs a symbol');
+  const ticker = String(symbol).toUpperCase();
+  const chart = (range, interval) =>
+    `${YAHOO_CHART}/${encodeURIComponent(ticker)}?range=${range}&interval=${interval}`;
+
+  // One series failing is reported, not thrown: a daily history alone still
+  // answers which way the instrument is going.
+  const errors = [];
+  const [intraday, daily] = await Promise.all([
+    fetchJson(chart(intradayRange, '5m'), { timeoutMs: 12_000 })
+      .then(parseChartBars)
+      .catch((error) => {
+        errors.push({ series: 'intraday', message: error.message });
+        return [];
+      }),
+    fetchJson(chart(dailyRange, '1d'), { timeoutMs: 12_000 })
+      .then(parseChartBars)
+      .catch((error) => {
+        errors.push({ series: 'daily', message: error.message });
+        return [];
+      }),
+  ]);
+
+  return { symbol: ticker, intraday, daily, interval: '5m', provider: 'yahoo', errors };
+}
+
 async function fetchFinnhubProfile(symbol, apiKey) {
   const url = `${FINNHUB}/stock/profile2?symbol=${encodeURIComponent(symbol)}&token=${apiKey}`;
   const profile = await fetchJson(url);

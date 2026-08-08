@@ -78,15 +78,22 @@ export class Journal {
   /** Record a planned entry. Returns the stored trade. */
   async record(entry, now = Date.now()) {
     const et = easternMinutes(new Date(now));
+    // Long unless told otherwise. Trades logged before the multi-timeframe
+    // strategy existed carry no direction, and every one of them was a long —
+    // defaulting keeps their stats correct without rewriting the file.
+    const direction = entry.direction === 'short' ? 'short' : 'long';
+    const shares = Math.max(Math.floor(Number(entry.shares) || 0), 0);
+    const riskPerShare = round(Math.abs(Number(entry.entry) - Number(entry.stop)));
     const trade = {
       id: `${entry.symbol}-${now}`,
       symbol: String(entry.symbol ?? '').toUpperCase(),
       pattern: entry.pattern ?? null,
+      direction,
       entry: Number(entry.entry),
       stop: Number(entry.stop),
-      shares: Math.max(Math.floor(Number(entry.shares) || 0), 0),
-      riskPerShare: round(Number(entry.entry) - Number(entry.stop)),
-      plannedRisk: round((Number(entry.entry) - Number(entry.stop)) * (Number(entry.shares) || 0)),
+      shares,
+      riskPerShare,
+      plannedRisk: round((riskPerShare ?? 0) * shares),
       openedAt: new Date(now).toISOString(),
       tradingDay: et.date,
       status: 'open',
@@ -119,12 +126,17 @@ export class Journal {
       );
     }
 
+    // A short makes money as the price falls, so the move is measured against
+    // the direction of the trade, not the direction of the chart.
+    const sign = trade.direction === 'short' ? -1 : 1;
+    const move = (exit - trade.entry) * sign;
+
     trade.exit = round(exit);
     trade.closedAt = new Date(now).toISOString();
     trade.status = 'closed';
-    trade.pnl = round((exit - trade.entry) * trade.shares);
+    trade.pnl = round(move * trade.shares);
     // R is the only cross-trade comparable unit: it normalizes away size.
-    trade.rMultiple = trade.riskPerShare > 0 ? round((exit - trade.entry) / trade.riskPerShare) : null;
+    trade.rMultiple = trade.riskPerShare > 0 ? round(move / trade.riskPerShare) : null;
 
     await this.persist();
     return trade;

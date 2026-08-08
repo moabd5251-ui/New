@@ -10,6 +10,11 @@
  * Targets are expressed in R — multiples of the per-share risk. A 2:1 target is
  * the floor: at 2:1 a strategy can be wrong more often than right and still
  * make money, which is what makes the losses survivable.
+ *
+ * Setups carry a `direction`. The momentum patterns are all long, so that is
+ * the default and nothing about them changes; the multi-timeframe strategy in
+ * trend.js also fires short, where the stop sits above the entry and the
+ * targets run down. Only the sign differs — the risk arithmetic is identical.
  */
 
 export const DEFAULT_RISK_CONFIG = {
@@ -54,17 +59,23 @@ export function buildTradePlan(setup, riskConfig = {}, context = {}) {
   const cfg = normalize(riskConfig);
   const blockers = [];
 
+  // Long unless the setup says otherwise: every pattern in patterns.js is a
+  // break to the upside, and a missing field must not silently invert a plan.
+  const direction = setup?.direction === 'short' ? 'short' : 'long';
+  const sign = direction === 'short' ? -1 : 1;
+
   const entry = Number(setup?.entry);
   const stop = Number(setup?.stop);
-  if (!Number.isFinite(entry) || !Number.isFinite(stop) || entry <= stop) {
+  if (!Number.isFinite(entry) || !Number.isFinite(stop) || sign * (entry - stop) <= 0) {
     return {
       tradable: false,
-      blockers: ['Setup has no valid entry above its stop'],
+      direction,
+      blockers: [`Setup has no valid entry ${direction === 'short' ? 'below' : 'above'} its stop`],
       setup: setup ?? null,
     };
   }
 
-  const riskPerShare = entry - stop;
+  const riskPerShare = Math.abs(entry - stop);
   const riskPerSharePct = (riskPerShare / entry) * 100;
   const maxRiskDollars = (cfg.accountSize * cfg.maxRiskPerTradePct) / 100;
 
@@ -108,7 +119,7 @@ export function buildTradePlan(setup, riskConfig = {}, context = {}) {
 
   const targets = cfg.targetRatios.map((ratio) => ({
     ratio,
-    price: round(entry + riskPerShare * ratio),
+    price: round(entry + sign * riskPerShare * ratio),
     gainPerShare: round(riskPerShare * ratio),
     // The first target takes scaleOutPct off; the rest rides to the next one.
     sharesOut:
@@ -133,6 +144,7 @@ export function buildTradePlan(setup, riskConfig = {}, context = {}) {
 
   return {
     tradable: blockers.length === 0 && shares > 0,
+    direction,
     blockers,
     sizingNotes,
     setup: setup ?? null,

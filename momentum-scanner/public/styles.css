@@ -466,3 +466,74 @@ table.scanner { width: 100%; border-collapse: collapse; font-size: 12.5px; }
   border: 1px solid rgba(245, 158, 11, 0.4);
   color: #fcd34d;
 }
+
+/* ---------------- multi-timeframe trend ---------------- */
+
+.trend__hint { margin: 0 0 12px; max-width: 70ch; line-height: 1.5; }
+.trend__tf { text-align: center; width: 62px; }
+
+/* Direction glyphs. Opacity carries the strength of the read, so a barely
+   trending timeframe never looks as convincing as a strongly trending one. */
+.tfx { font-size: 13px; font-family: var(--mono); }
+.tfx--up { color: #4ade80; }
+.tfx--down { color: #f87171; }
+.tfx--none { color: var(--text-faint); }
+
+.tstate {
+  display: inline-block;
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(148, 163, 184, 0.1);
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+/* Only the two states that are actually a call to action get colour; the rest
+   stay grey on purpose, because "nothing to do" is the usual answer. */
+.tstate--triggered { background: rgba(34, 197, 94, 0.18); color: #4ade80; border-color: rgba(34, 197, 94, 0.45); }
+.tstate--armed { background: rgba(56, 189, 248, 0.16); color: #7dd3fc; border-color: rgba(56, 189, 248, 0.45); }
+.tstate--pullback_forming { background: rgba(56, 189, 248, 0.08); color: #7dd3fc; border-color: rgba(56, 189, 248, 0.25); }
+.tstate--invalidated { background: rgba(239, 68, 68, 0.14); color: #fca5a5; border-color: rgba(239, 68, 68, 0.4); }
+.tstate--too_deep { background: rgba(245, 158, 11, 0.13); color: #fcd34d; border-color: rgba(245, 158, 11, 0.35); }
+
+.tstate-band {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 9px 11px;
+  border-radius: 7px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-dim);
+  margin-bottom: 14px;
+}
+.tstate-band strong { color: var(--text); font-size: 12.5px; }
+
+/* The level the whole strategy turns on, given its own block so it cannot be
+   skimmed past. */
+.invalidation {
+  margin: 12px 0 4px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  border: 1px dashed rgba(56, 189, 248, 0.4);
+  background: rgba(56, 189, 248, 0.06);
+  color: var(--text-dim);
+}
+.invalidation strong { font-family: var(--mono); color: #7dd3fc; }
+
+.side {
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.side--long { background: rgba(34, 197, 94, 0.16); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); }
+.side--short { background: rgba(239, 68, 68, 0.14); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+.trend__bars { margin-top: 12px; font-size: 11px; color: var(--text-faint); }

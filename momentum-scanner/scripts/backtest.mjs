@@ -234,7 +234,8 @@ console.log('');
 if (portfolio.stats.trades) {
   console.log(`  Average winner  ${signed(portfolio.stats.avgWinR)}R`);
   console.log(`  Average loser   ${signed(-portfolio.stats.avgLossR)}R`);
-  console.log(`  Bars held       ${portfolio.stats.avgBarsHeld} (5-minute bars)`);
+  // The unit is the timing rung's bar, which is not always five minutes.
+  console.log(`  Bars held       ${portfolio.stats.avgBarsHeld} (${ladder.at(-1)} bars)`);
   console.log(`  Exits           ${Object.entries(portfolio.stats.byReason).map(([k, v]) => `${k} ${v}`).join(', ')}`);
   console.log('');
 

@@ -33,7 +33,7 @@ No dependencies, no build step. Node 18+ is all you need.
 ```bash
 cd momentum-scanner
 npm start           # http://localhost:4173
-npm test            # 166 tests, no network required
+npm test            # 172 tests, no network required
 ```
 
 `npm run verify:live` exercises the paths that only exist while the market is
@@ -412,6 +412,16 @@ not a gap through the stop. The bar's low is still honoured.
 `--optimistic` flips the ambiguous-bar rule, which is a quick way to see how
 much of any result is real and how much is that single assumption.
 
+The replay sizes itself to its ladder. How much history it hands the strategy
+each step is derived from the slowest rung measured in units of the fastest —
+the scalp ladder's 15-minute rung wants the same number of *bars* as the swing
+ladder's hourly rung, but built from 1-minute data that is three times as many
+of them, so a fixed number would quietly starve the fast ladders. Warmup is
+separate and much shorter: it is the point at which every rung becomes readable
+at all, not the point at which its window is full, because waiting for a full
+window would be stricter than the live scanner and would cost decisions for
+nothing.
+
 #### Proving there is no lookahead
 
 `hasLookahead()` runs the replay's own view of one bar twice — the second time
@@ -544,7 +554,7 @@ lib/providers/live.js     Yahoo fallback + optional Finnhub
 public/                   single-page UI, no build step
 server.js                 dependency-free HTTP server
 scripts/backtest.mjs      backtest runner
-test/                     node:test suite (166 tests)
+test/                     node:test suite (172 tests)
 ```
 
 ## Notes on the numbers

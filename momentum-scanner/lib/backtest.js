@@ -38,14 +38,22 @@
  */
 
 import { buildLadder, easternParts } from './timeframes.js';
-import { analyzeLadder, LADDERS, DEFAULT_LADDER } from './trend.js';
+import {
+  analyzeLadder,
+  readWindow,
+  LADDERS,
+  DEFAULT_LADDER,
+  DEFAULT_TREND_CONFIG,
+} from './trend.js';
 
 export const DEFAULT_BACKTEST_CONFIG = {
   // Enough bars for the hourly series to reach the moving-average minimum:
   // ~21 hourly bars is 252 five-minute bars.
   warmupBars: 300,
   ladder: DEFAULT_LADDER, // a name from LADDERS, or an explicit array of intervals
-  maxIntradayLookback: 1200, // bars handed to the strategy; bounds the work per step
+  // Bars handed to the strategy each step. Null derives it from the ladder,
+  // which is almost always what you want — see lookbackFor.
+  maxIntradayLookback: null,
   orderLifeBars: 6, // a resting trigger that has not filled is cancelled
   maxHoldBars: 78, // one session; a continuation that has not worked by then has not worked
   targetRatios: [2, 3],
@@ -64,6 +72,57 @@ export function resolveLadder(ladder) {
   return LADDERS[DEFAULT_LADDER];
 }
 
+const INTERVAL_MINUTES = { '1m': 1, '5m': 5, '15m': 15, '30m': 30, '1h': 60, '4h': 240 };
+
+/**
+ * How many of the finest bars the slowest intraday rung needs.
+ *
+ * A fixed number cannot serve every ladder. The swing ladder's hourly rung
+ * wants 90 bars, which is 1,080 five-minute bars; the scalp ladder's
+ * 15-minute rung wants 90 bars, which is 1,350 *one*-minute bars. Handing over
+ * a flat 1,200 quietly starves the slowest rung on the fast ladders — it still
+ * produces a verdict, from a shorter history than the live scanner would use,
+ * so the backtest measures something subtly different from what it is meant to.
+ *
+ * The slack covers session gaps: a rung's window is in bars, and bars only
+ * accrue during the session, so the wall-clock span they cover is longer than
+ * the arithmetic suggests.
+ */
+export function lookbackFor(ladder, trendConfig = {}) {
+  const intraday = ladder.filter((key) => INTERVAL_MINUTES[key]);
+  if (!intraday.length) return 400;
+
+  const finest = Math.min(...intraday.map((key) => INTERVAL_MINUTES[key]));
+  const needed = Math.max(
+    ...intraday.map((key) => readWindow(key, trendConfig) * (INTERVAL_MINUTES[key] / finest)),
+  );
+  return Math.ceil(needed * 1.2) + 60;
+}
+
+/**
+ * The first bar at which every rung is readable at all.
+ *
+ * Not the same as the lookback, and deliberately much smaller. The lookback is
+ * how much history the strategy gets to *see*; this is the point before which
+ * it would refuse to look, because a rung with fewer bars than `minBars` or
+ * the slow moving-average period comes back `unusable` rather than wrong.
+ *
+ * Waiting for the full window instead would be stricter than the live scanner
+ * — which reads whatever it has, subject to those same guards — and on a
+ * finite series it costs decisions for nothing: the guards already prevent a
+ * thin rung from producing a verdict.
+ */
+export function warmupFor(ladder, trendConfig = {}) {
+  const intraday = ladder.filter((key) => INTERVAL_MINUTES[key]);
+  if (!intraday.length) return 60;
+
+  const finest = Math.min(...intraday.map((key) => INTERVAL_MINUTES[key]));
+  const cfg = { ...DEFAULT_TREND_CONFIG, ...trendConfig };
+  const readable = Math.max(cfg.minBars, cfg.slowPeriod) + cfg.swingSpan * 2;
+  const needed = Math.max(...intraday.map((key) => readable * (INTERVAL_MINUTES[key] / finest)));
+  return Math.ceil(needed * 1.15) + 30;
+}
+
 function normalizeConfig(config = {}) {
   const merged = { ...DEFAULT_BACKTEST_CONFIG, ...config };
   for (const [key, fallback] of Object.entries(DEFAULT_BACKTEST_CONFIG)) {
@@ -71,6 +130,7 @@ function normalizeConfig(config = {}) {
       merged.ladder = resolveLadder(merged.ladder);
       continue;
     }
+    if (key === 'maxIntradayLookback') continue; // derived below, once the ladder is known
     if (typeof fallback === 'boolean') {
       merged[key] = Boolean(merged[key]);
       continue;
@@ -84,6 +144,15 @@ function normalizeConfig(config = {}) {
     // Zero is meaningful for costs, so only reject negatives and nonsense.
     merged[key] = Number.isFinite(value) && value >= 0 ? value : fallback;
   }
+
+  const explicit = Number(config.maxIntradayLookback);
+  merged.maxIntradayLookback =
+    Number.isFinite(explicit) && explicit > 0 ? explicit : lookbackFor(merged.ladder, config.trend);
+
+  // Raise the warmup only when the ladder genuinely needs it — a 1-minute
+  // ladder reaching a 15-minute rung needs three times the bars a 5-minute one
+  // does before that rung says anything at all.
+  merged.warmupBars = Math.max(merged.warmupBars, warmupFor(merged.ladder, config.trend));
   return merged;
 }
 

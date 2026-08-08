@@ -7,8 +7,12 @@ import {
   combine,
   summarize,
   hasLookahead,
+  lookbackFor,
+  warmupFor,
+  resolveLadder,
   DEFAULT_BACKTEST_CONFIG,
 } from '../lib/backtest.js';
+import { LADDERS, readWindow } from '../lib/trend.js';
 import { buildStack } from '../lib/timeframes.js';
 import { analyzeStack } from '../lib/trend.js';
 import { getHistory, symbols } from '../lib/providers/mock.js';
@@ -340,4 +344,69 @@ test('the default config is the one the CLI and the tests actually share', () =>
   assert.equal(DEFAULT_BACKTEST_CONFIG.pessimisticBars, true);
   assert.ok(DEFAULT_BACKTEST_CONFIG.slippagePct > 0, 'a zero-cost default would flatter every run');
   assert.deepEqual(DEFAULT_BACKTEST_CONFIG.targetRatios, [2, 3]);
+});
+
+/* ------------------------------------------------------------------ */
+/* sizing the replay to its ladder                                     */
+/* ------------------------------------------------------------------ */
+
+test('the lookback covers the slowest rung, in units of the fastest', () => {
+  // The scalp ladder's 15-minute rung wants the same number of *bars* as the
+  // swing ladder's hourly rung, but those bars are built from 1-minute data,
+  // so it takes three times as many of them. A flat number cannot serve both.
+  const swing = lookbackFor(LADDERS.swing);
+  const scalp = lookbackFor(LADDERS.scalp);
+
+  assert.ok(swing >= readWindow('1h') * 12, `swing lookback ${swing} starves the hourly rung`);
+  assert.ok(scalp >= readWindow('15m') * 15, `scalp lookback ${scalp} starves the 15-minute rung`);
+  assert.ok(scalp > swing);
+
+  // A two-rung ladder reaching only 5 minutes needs far less than either.
+  assert.ok(lookbackFor(LADDERS.micro) < swing);
+});
+
+test('a narrower window asks for less history', () => {
+  const wide = lookbackFor(LADDERS.scalp);
+  const narrow = lookbackFor(LADDERS.scalp, { windows: { '15m': 30 } });
+  assert.ok(narrow < wide, 'the lookback follows the configured window, not a constant');
+});
+
+test('warmup is when the rungs become readable, not when the window is full', () => {
+  for (const ladder of Object.values(LADDERS)) {
+    const warmup = warmupFor(ladder);
+    const lookback = lookbackFor(ladder);
+    assert.ok(
+      warmup < lookback,
+      'waiting for a full window would be stricter than the live scanner and cost decisions for nothing',
+    );
+    assert.ok(warmup > 0);
+  }
+  assert.ok(warmupFor(LADDERS.scalp) > warmupFor(LADDERS.swing), 'a 1-minute ladder needs more bars');
+});
+
+test('an explicit lookback still wins over the derived one', () => {
+  const now = Date.parse('2026-07-08T17:00:00Z');
+  const run = backtest(getHistory({ symbol: 'TRAQ', now }), {
+    backtest: { maxIntradayLookback: 400, warmupBars: 420 },
+  });
+  assert.ok(run.decisions > 0);
+});
+
+test('resolveLadder takes a name, a list, or falls back', () => {
+  assert.deepEqual(resolveLadder('scalp'), LADDERS.scalp);
+  assert.deepEqual(resolveLadder(['1h', '15m', '5m']), ['1h', '15m', '5m']);
+  assert.deepEqual(resolveLadder('nonsense'), LADDERS.swing);
+  assert.deepEqual(resolveLadder(['5m']), LADDERS.swing, 'one rung is not a ladder');
+});
+
+test('a fast ladder replays without lookahead, same as a slow one', () => {
+  const now = Date.parse('2026-07-08T17:00:00Z');
+  const history = getHistory({ symbol: 'TRAQ', now, interval: '1m', sessions: 4 });
+  const check = hasLookahead(history, { backtest: { ladder: 'scalp' } });
+  assert.equal(check.leaks, false);
+
+  const run = backtest(history, { backtest: { ladder: 'scalp' } });
+  assert.deepEqual(run.ladder, LADDERS.scalp);
+  assert.ok(run.decisions > 100);
+  for (const trade of run.trades) assert.ok(Number.isFinite(trade.r));
 });

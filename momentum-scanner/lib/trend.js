@@ -620,6 +620,10 @@ export const DEFAULT_WINDOWS = {
   '1d': 140, // ~7 months
 };
 
+export function readWindow(key, config = {}) {
+  return windowFor(key, normalizeConfig(config));
+}
+
 function windowFor(key, cfg) {
   if (cfg.windows && Number.isFinite(Number(cfg.windows[key]))) return Number(cfg.windows[key]);
   // The original single-purpose knobs still work, so a stored data/trend.json

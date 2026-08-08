@@ -1,6 +1,8 @@
 """Render the post-earnings drift dashboard."""
 import json, datetime
 
+import stale
+
 CSS = """
 :root{
   --ground:#F6F8F7; --surface:#FFFFFF; --surface-2:#EAEEEC; --line:#D7DEDA;
@@ -272,6 +274,7 @@ BODY = """
       <div class="sub">Trade with the gap, after the report &middot; low-vega structures only</div></div>
     <div class="stamp">Updated __STAMP__</div>
   </header>
+  __STALE__
   <div class="thesis"><strong>The premise:</strong> a stock that gaps on an earnings surprise tends to keep
   travelling that way for days to weeks rather than repricing instantly. The effect is strongest in the first
   week, fades over a couple of months, and is far more reliable when heavy volume confirmed the gap. What
@@ -303,14 +306,22 @@ BODY = """
 """
 
 
-def build(rows, out_path, backtest=None):
+def build(rows, out_path, backtest=None, built=None):
+    """Render the page. `built` is when the DATA was captured, defaulting to now.
+
+    It is a parameter rather than always `now` because the staleness banner measures the
+    age of the numbers, not the age of the HTML. Re-rendering an old payload with a fresh
+    timestamp would produce a page that looks current and is not.
+    """
     payload = json.dumps({"rows": rows, "backtest": backtest},
                          separators=(",", ":"), default=str)
-    stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%d %b %Y, %H:%M UTC")
+    now = built or datetime.datetime.now(datetime.timezone.utc)
+    stamp = now.strftime("%d %b %Y, %H:%M UTC")
+    body = BODY.replace('__STAMP__', stamp).replace('__STALE__', stale.DIV)
     html = ("<title>Earnings Drift — Trade With the Gap</title>\n"
-            f"<style>{CSS}</style>\n"
-            f"{BODY.replace('__STAMP__', stamp)}\n"
-            f"<script>\nconst DATA = {payload};\n{JS}\n</script>\n")
+            f"<style>{CSS}{stale.CSS}</style>\n"
+            f"{body}\n"
+            f"<script>\nconst DATA = {payload};\n{JS}\n{stale.js(now)}\n</script>\n")
     with open(out_path, "w") as f:
         f.write(html)
     return out_path

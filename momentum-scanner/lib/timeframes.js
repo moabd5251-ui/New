@@ -39,6 +39,24 @@ const ET_FORMATTER = new Intl.DateTimeFormat('en-US', {
 });
 
 /**
+ * Memo for the Eastern-time conversion.
+ *
+ * `formatToParts` is the single most expensive thing in this file and it is
+ * called once per bar per resample. That is unnoticeable when a scan resamples
+ * one series, and it dominates everything when a backtest replays fifteen
+ * thousand decision bars over the same timestamps — the same few thousand
+ * instants get converted millions of times.
+ *
+ * The cap exists because the server is long-lived: without it a process
+ * running for weeks accumulates an entry per minute per symbol. Clearing
+ * wholesale rather than evicting cleverly is deliberate — the access pattern
+ * is a moving window, so the entries about to be dropped are the old ones
+ * anyway, and a plain Map is faster than anything that tracks recency.
+ */
+const ET_CACHE = new Map();
+const ET_CACHE_LIMIT = 250_000;
+
+/**
  * Date and clock parts in New York.
  *
  * The session boundary is an Eastern-time concept, so bucketing has to happen
@@ -48,17 +66,25 @@ const ET_FORMATTER = new Intl.DateTimeFormat('en-US', {
  */
 export function easternParts(value) {
   const date = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
+  const ms = date.getTime();
+  if (Number.isNaN(ms)) return null;
+
+  const cached = ET_CACHE.get(ms);
+  if (cached) return cached;
 
   const parts = ET_FORMATTER.formatToParts(date);
   const get = (type) => parts.find((p) => p.type === type)?.value ?? '00';
   // Some ICU versions render midnight as hour "24"; normalize it to 00.
   const hour = get('hour') === '24' ? '00' : get('hour');
 
-  return {
+  const result = {
     date: `${get('year')}-${get('month')}-${get('day')}`,
     minutes: Number(hour) * 60 + Number(get('minute')),
   };
+
+  if (ET_CACHE.size >= ET_CACHE_LIMIT) ET_CACHE.clear();
+  ET_CACHE.set(ms, result);
+  return result;
 }
 
 /** Signed minutes from the 09:30 ET bell — negative before the open. */

@@ -836,3 +836,54 @@ test('each rung reads a window sized to its own interval', () => {
   const narrower = analyzeLadder(rungs, { windows: { '1m': 60 } });
   assert.equal(narrower.rungs.find((r) => r.key === '1m').bars, 60);
 });
+
+test('the leg filter is measured in bar ranges, so it survives a change of scale', () => {
+  // The same market sampled twice: once as-is, once with every price scaled and
+  // the bars a fifth the size. A percent-of-price floor would admit the first
+  // and reject the second; a bar-range floor treats them alike.
+  const stack = consistentStack('up', { legPct: 3, retracePct: 40, pullbackBars: 3 });
+  const coarse = analyzeStack(stack);
+  assert.ok(coarse.setup, `expected a setup, got ${coarse.state}`);
+  assert.ok(coarse.correction.legAtr >= DEFAULT_TREND_CONFIG.minLegAtr);
+
+  // Shrink every move to a fifth without changing the shape: prices stay put,
+  // the distances between them compress. Percent-wise every leg is now five
+  // times smaller; in bar ranges nothing has changed at all.
+  const compress = (bars) => {
+    const base = bars[0].close;
+    return bars.map((b) => ({
+      ...b,
+      open: base + (b.open - base) / 5,
+      high: base + (b.high - base) / 5,
+      low: base + (b.low - base) / 5,
+      close: base + (b.close - base) / 5,
+    }));
+  };
+
+  const fine = analyzeStack({
+    daily: compress(stack.daily),
+    hourly: compress(stack.hourly),
+    fiveMin: compress(stack.fiveMin),
+  });
+
+  assert.equal(fine.state, coarse.state, 'the verdict must not depend on the size of the moves');
+  assert.ok(fine.setup, 'a fifth-sized version of the same structure is still the same setup');
+  assert.ok(
+    Math.abs(fine.correction.legAtr - coarse.correction.legAtr) < 0.2,
+    `leg was ${coarse.correction.legAtr} ATR coarse and ${fine.correction.legAtr} ATR fine`,
+  );
+  assert.ok(
+    fine.correction.legPct < coarse.correction.legPct / 4,
+    'and the percent measure really did collapse, which is what used to break it',
+  );
+});
+
+test('a drive smaller than a couple of bar ranges is not a leg', () => {
+  const stack = consistentStack('up', { legPct: 3, retracePct: 40, pullbackBars: 3 });
+  // Demanding a 50-ATR drive is a floor nothing realistic clears.
+  const result = analyzeStack(stack, { minLegAtr: 50 });
+
+  assert.equal(result.setup, null);
+  assert.equal(result.state, 'extended');
+  assert.match(result.detail, /No drive of at least 50 bar ranges/);
+});

@@ -74,6 +74,7 @@ const backtestConfig = {
   ...(args.commission !== undefined ? { commissionPerShare: Number(args.commission) } : {}),
   ...(args.warmup !== undefined ? { warmupBars: Number(args.warmup) } : {}),
   ...(args.optimistic ? { pessimisticBars: false } : {}),
+  ...(args.overnight ? { flattenAtSessionEnd: false } : {}),
   ...(args.ladder && args.ladder !== true
     ? { ladder: LADDERS[args.ladder] ?? String(args.ladder).split(/[\s,]+/).filter(Boolean) }
     : {}),

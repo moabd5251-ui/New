@@ -294,7 +294,7 @@ test('a full replay produces coherent trades and never double-books a bar', () =
   });
 
   assert.ok(run.decisions > 100);
-  const reasons = new Set(['stop', 'breakeven_stop', 'target', 'time', 'end_of_data']);
+  const reasons = new Set(['stop', 'breakeven_stop', 'target', 'time', 'session_end', 'end_of_data']);
 
   let previousClose = 0;
   for (const trade of run.trades) {
@@ -409,4 +409,38 @@ test('a fast ladder replays without lookahead, same as a slow one', () => {
   assert.deepEqual(run.ladder, LADDERS.scalp);
   assert.ok(run.decisions > 100);
   for (const trade of run.trades) assert.ok(Number.isFinite(trade.r));
+});
+
+test('a position is flattened at the closing bell, not carried through the gap', () => {
+  // Two sessions. The trade fills late on day one and the stop is never hit;
+  // day two opens far below it.
+  const DAY1 = Date.parse('2026-07-06T19:40:00Z'); // 15:40 ET
+  const DAY2 = Date.parse('2026-07-07T13:30:00Z'); // 09:30 ET next day
+  const at = (ms, o, h, l, c) => ({ time: new Date(ms).toISOString(), open: o, high: h, low: l, close: c, volume: 1000 });
+
+  const bars = [
+    at(DAY1, 99.3, 100.2, 99.2, 100), // fills at 100
+    at(DAY1 + 5 * 60_000, 100, 100.6, 99.8, 100.4), // last bar of the session
+    at(DAY2, 90, 90.5, 89, 89.5), // gapped down overnight, straight through 99
+  ];
+
+  const flat = simulateTrade(LONG, bars, 0, { ...FREE }).trade;
+  assert.equal(flat.reason, 'session_end');
+  assert.ok(Math.abs(flat.r - 0.4) < 0.01, 'closed at the bell for a small gain');
+
+  const carried = simulateTrade(LONG, bars, 0, { ...FREE, flattenAtSessionEnd: false }).trade;
+  assert.equal(carried.reason, 'stop');
+  assert.ok(carried.r < -9, `carrying it overnight cost ${carried.r}R — the gap, not the stop`);
+});
+
+test('flattening does not fire mid-session', () => {
+  const START2 = Date.parse('2026-07-06T14:00:00Z');
+  const at = (i, o, h, l, c) => ({
+    time: new Date(START2 + i * 5 * 60_000).toISOString(),
+    open: o, high: h, low: l, close: c, volume: 1000,
+  });
+  const bars = [at(0, 99.3, 100.2, 99.2, 100), at(1, 100, 102.2, 99.9, 102), at(2, 102, 103.5, 101.9, 103.4)];
+
+  const { trade } = simulateTrade(LONG, bars, 0, FREE);
+  assert.equal(trade.reason, 'target', 'same session throughout — the bell rule must not interfere');
 });

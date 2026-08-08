@@ -60,7 +60,17 @@ export const DEFAULT_TREND_CONFIG = {
   maxPullbackBars: 12, // longer than this and the move has stalled, not paused
   maxRetracePct: 61.8, // deeper than this into the leg is a reversal, not a pause
   minRetracePct: 15, // shallower than this has not paused yet, it is still driving
-  minLegPct: 0.4, // the leg being continued has to have gone somewhere
+  // The leg being continued has to be a real drive rather than noise, measured
+  // in ATRs of the timing rung so it means the same thing at every scale.
+  //
+  // It used to be a percent of price, which quietly made the strategy pickier
+  // the faster the ladder ran: a 0.4% floor admits ~86% of legs on a 5-minute
+  // chart and ~36% on a 1-minute one, because a 1-minute leg is a fifth the
+  // size. A fast ladder was therefore not the same strategy run faster, it was
+  // a much more selective one — and its flattering win rate was that selection
+  // showing up in the results. Bar range is the natural unit here: it scales
+  // with the timeframe by construction.
+  minLegAtr: 2,
   stopAtrMultiple: 0.25, // room beyond the pullback extreme, in 5-minute ATRs
   atrPeriod: 14,
   triggerBufferPct: 0.03, // trigger sits this far beyond the pullback extreme
@@ -489,6 +499,10 @@ function readCorrection(candles, direction, cfg) {
     return { active: false, bars: 0, detail: 'Too few bars on the fast timeframe to measure a pullback' };
   }
 
+  // The timing rung's own bar range, which is what "big enough to matter" is
+  // measured against.
+  const noise = atr(bars, cfg.atrPeriod) ?? 0;
+
   const pivots = swingPoints(bars, cfg.swingSpan);
   const anchors = (up ? pivots.lows : pivots.highs).slice();
   // Last resort when the window holds no confirmed swing yet: the window's own
@@ -513,7 +527,9 @@ function readCorrection(candles, direction, cfg) {
     const extreme = extremeOf(after);
     const legSize = Math.abs(extreme - anchor.price);
     const legPct = (legSize / anchor.price) * 100;
-    if (legPct < cfg.minLegPct) continue; // a wiggle inside the pause, not the leg
+    // A drive smaller than a couple of bar ranges is a wiggle inside the
+    // pause, not the leg the pause belongs to.
+    if (noise > 0 && legSize < noise * cfg.minLegAtr) continue;
 
     // The most recent bar to reach the extreme — a level revisited twice is
     // still the same leg, and the pullback starts from the later touch.
@@ -533,7 +549,9 @@ function readCorrection(candles, direction, cfg) {
     return {
       active: false,
       bars: 0,
-      detail: `No drive of at least ${cfg.minLegPct}% off a confirmed swing — there is no leg to continue`,
+      detail:
+        `No drive of at least ${cfg.minLegAtr} bar ranges off a confirmed swing — there is no leg ` +
+        'to continue',
     };
   }
 
@@ -583,6 +601,8 @@ function readCorrection(candles, direction, cfg) {
     origin: round(leg.origin, 4),
     legSize: round(leg.legSize, 4),
     legPct: round(leg.legPct),
+    // The same leg in the unit the filter actually uses.
+    legAtr: noise > 0 ? round(leg.legSize / noise) : null,
     pullbackExtreme: round(pullbackExtreme, 4),
     // The price a break of the pause would have to clear.
     trigger: up
@@ -832,16 +852,6 @@ export function analyzeLadder(rungs = [], config = {}) {
           `${direction === 'up' ? 'highs' : 'lows'}. Nothing to do but wait for the pause — ` +
           'entering an extended leg puts the stop too far away to be worth it.'
         : correction.detail,
-    };
-  }
-
-  if (correction.legPct < cfg.minLegPct) {
-    return {
-      ...context,
-      state: 'extended',
-      detail:
-        `The ${timing.label} leg is only ${correction.legPct.toFixed(1)}% — too small to be a leg ` +
-        `worth continuing (needs ${cfg.minLegPct}%).`,
     };
   }
 

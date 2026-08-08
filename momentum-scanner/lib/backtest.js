@@ -55,7 +55,17 @@ export const DEFAULT_BACKTEST_CONFIG = {
   // which is almost always what you want — see lookbackFor.
   maxIntradayLookback: null,
   orderLifeBars: 6, // a resting trigger that has not filled is cancelled
-  maxHoldBars: 78, // one session; a continuation that has not worked by then has not worked
+  maxHoldBars: 78, // a continuation that has not worked in this many bars has not worked
+  // Flatten at the closing bell rather than carrying the position overnight.
+  //
+  // `maxHoldBars` alone does not do this, and the difference is expensive:
+  // bars only accrue while the market is open, so 78 five-minute bars from a
+  // 15:00 entry expires at 15:00 *the next day*. On real data the eleven
+  // trades that were carried overnight averaged -2.36R against -0.50R for the
+  // ones closed the same session, because an overnight gap goes straight
+  // through a stop that is a few tenths of a percent wide. A strategy timed
+  // on 5-minute bars is not being paid to take that risk.
+  flattenAtSessionEnd: true,
   targetRatios: [2, 3],
   scaleOutPct: 50, // share of the position taken off at the first target
   breakevenAfterFirstTarget: true,
@@ -340,6 +350,11 @@ export function simulateTrade(order, bars, startIndex, config = {}) {
 
     const closed = stepPosition(position, bar, i, cfg);
     if (closed) return { trade: closed, endIndex: i };
+
+    // Last bar of its session: flatten at the close rather than carry the gap.
+    if (cfg.flattenAtSessionEnd && isSessionEnd(bars, i)) {
+      return { trade: closeOut(position, bar.close, i, bar.time, 'session_end', cfg), endIndex: i };
+    }
   }
 
   // An open position at the end of the data is marked to the last close rather
@@ -353,6 +368,13 @@ export function simulateTrade(order, bars, startIndex, config = {}) {
     };
   }
   return { trade: null, endIndex: last };
+}
+
+/** True when the next bar starts a different Eastern trading day. */
+function isSessionEnd(bars, index) {
+  const next = bars[index + 1];
+  if (!next) return false; // end of data is handled separately
+  return easternParts(bars[index].time)?.date !== easternParts(next.time)?.date;
 }
 
 /**

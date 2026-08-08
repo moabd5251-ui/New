@@ -33,7 +33,7 @@ No dependencies, no build step. Node 18+ is all you need.
 ```bash
 cd momentum-scanner
 npm start           # http://localhost:4173
-npm test            # 172 tests, no network required
+npm test            # 176 tests, no network required
 ```
 
 `npm run verify:live` exercises the paths that only exist while the market is
@@ -404,6 +404,7 @@ direction that flatters it:
 | Price gaps through an order | Fills at the open | Filling at the trigger hands the run free money on exactly the bars a real account loses most on |
 | A gapped entry then stops out | Costs more than 1R | Size was fixed by the *planned* entry-to-stop distance, so R is measured against that. Measuring against the actual fill would relabel every gap as a tidy -1R |
 | A position is open when the data ends | Marked to the last close | Dropping it silently discards whichever trades were going worst when the data ran out |
+| The session ends with a position open | Flattened at the bell | `maxHoldBars` cannot do this on its own — bars only accrue while the market is open, so 78 five-minute bars from a 15:00 entry expires at 15:00 *the next day*. On real bars the eleven trades carried overnight averaged -2.36R against -0.50R for those closed the same session: an overnight gap goes straight through a stop a few tenths of a percent wide. `--overnight` restores the old behaviour |
 
 The one place the engine is *not* pessimistic is the bar a trade fills on: the
 position did not exist when that bar opened, so an open below a long's stop is
@@ -456,24 +457,41 @@ Two hundred trades cannot distinguish a strategy that makes 0.15R a trade from
 one that loses 0.09R a trade. That is the honest width of a result this size,
 and it is why no single figure from this tool should be quoted on its own.
 
-#### The one finding that held up
+#### What it does on real bars
 
-Across every sample, the strategy's own **measured-move caution** separated the
-trades cleanly:
+This is the part that matters, and it is not good.
 
-| | trades | win rate | per trade |
-|---|---|---|---|
-| No caution | ~50 | 58-66% | **+0.4 to +0.9R** |
-| Cautioned | ~180 | 33-36% | **-0.1 to +0.2R** |
+```
+npm run backtest -- --provider yahoo \
+  --symbols AAPL,MSFT,NVDA,TSLA,AMD,META,GOOGL,AMZN,SPY,QQQ
+```
 
-That is the arithmetic from
-[the entry section](#the-entry) showing up in the results: a deep pullback buys
-a wider stop *and* leaves less projected move above the trigger, so it is
-penalised twice. It is a geometric property of the entry, not a feature of this
-data, which is why it survives resampling when nothing else does — but it rests
-on ~50 trades per sample, so treat it as a reason to look, not a rule to trade.
-Raising `minMeasuredR` or lowering `maxRetracePct` is the lever if you want to
-act on it.
+One month of real 5-minute bars, ten large caps, 12,754 decisions:
+
+| slippage/side | trades | win rate | total | per trade | profit factor |
+|---|---|---|---|---|---|
+| 0.00% | 73 | 19.2% | **-40.2R** | -0.550R | 0.36 |
+| 0.05% | 73 | 19.2% | **-59.9R** | -0.820R | 0.24 |
+| 0.20% | 71 | 12.7% | **-114.2R** | -1.609R | 0.11 |
+
+**It loses badly, and it loses before costs.** A 2R/3R target scheme needs
+roughly a 35% win rate to break even; this gets 19%. Six of 73 trades reached
+the first target, 54 stopped out.
+
+Two things the real data says that the simulated data did not:
+
+- **The ladder almost never agrees.** 91% of decision bars came back
+  `not_aligned` — on real large caps a strict higher-highs-*and*-higher-lows
+  sequence on the daily and the hourly at once is rare. The strategy is
+  trading the ~9% of the time it thinks it sees one, and being wrong.
+- **The measured-move caution is backwards here.** On simulated bars the
+  uncautioned trades looked like the one robust edge (+0.4 to +0.9R against
+  roughly zero). On real bars they are the *worst* slice: -1.22R a trade at 12%
+  win, against -0.61R for the cautioned ones. A finding that survived six
+  resamples of synthetic data did not survive first contact with a real one.
+
+Take that as the honest verdict on the strategy as configured, and as a
+demonstration of why the simulated numbers below carry the warning they do.
 
 #### On sweeps
 
@@ -493,11 +511,25 @@ rest are defaults in `lib/trend.js`.
 | `maxRetracePct` | 61.8 | Deeper into the leg than this is a reversal, not a pause |
 | `minRetracePct` | 15 | Shallower than this has not paused yet, it is still driving |
 | `maxPullbackBars` | 12 | Longer than this and the move is stalling, not pausing |
+| `minLegAtr` | 2 | How big the leg has to be, in bar ranges of the timing rung |
 | `minMeasuredR` | 2 | Below this the setup carries a caution |
 | `swingSpan` | 2 | Bars either side of a pivot before it counts as one |
 | `ladder` | `swing` | Which run of timeframes to read |
 | `windows` | per interval | How many bars of each rung to read — see `DEFAULT_WINDOWS` |
 | `fastPeriod` / `slowPeriod` | 9 / 21 | Moving averages, used only to *confirm* structure |
+
+**Thresholds have to be in the right units.** `minLegAtr` is measured in bar
+ranges of the timing rung, not in percent of price, and that is not a detail.
+It used to be `minLegPct: 0.4`, which on real bars admits 43% of 5-minute legs
+and **0%** of 1-minute ones — the `scalp` and `micro` ladders could not have
+taken a single trade on a real large cap. A percent floor silently turns a
+faster ladder into a pickier strategy rather than the same one run faster. In
+bar ranges the same floor admits 67% and 20%: still not equal, because a
+`swingSpan` of 2 picks up noise-scale pivots on a 1-minute chart, but the fast
+ladders at least function.
+
+`maxChasePct` and `triggerBufferPct` are still percentages and have the same
+shape of problem, unaddressed.
 
 Structure decides direction; the moving averages only say whether the recent
 path agrees. They can withdraw a direction — structure pointing up while price
@@ -554,7 +586,7 @@ lib/providers/live.js     Yahoo fallback + optional Finnhub
 public/                   single-page UI, no build step
 server.js                 dependency-free HTTP server
 scripts/backtest.mjs      backtest runner
-test/                     node:test suite (172 tests)
+test/                     node:test suite (176 tests)
 ```
 
 ## Notes on the numbers

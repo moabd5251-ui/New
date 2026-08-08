@@ -28,6 +28,7 @@ import {
   DEFAULT_BACKTEST_CONFIG,
 } from '../lib/backtest.js';
 import { DEFAULT_TREND_CONFIG, LADDERS } from '../lib/trend.js';
+import { DEFAULT_CONFIG } from '../lib/criteria.js';
 import * as mockProvider from '../lib/providers/mock.js';
 import * as tradierProvider from '../lib/providers/tradier.js';
 import * as liveProvider from '../lib/providers/live.js';
@@ -49,6 +50,32 @@ function parseArgs(argv) {
     }
   }
   return args;
+}
+
+/**
+ * `--screen` on its own applies the scanner's own thresholds for the three
+ * pillars that can be reconstructed from history; `--screen change=3,relvol=2`
+ * overrides them. News and float are not offered — see screenAt.
+ */
+function parseScreen(value) {
+  const screen = {
+    minChangeFromClosePct: DEFAULT_CONFIG.minChangeFromClosePct,
+    minRelativeVolume: DEFAULT_CONFIG.minRelativeVolume,
+    minPrice: DEFAULT_CONFIG.minPrice,
+    maxPrice: DEFAULT_CONFIG.maxPrice,
+  };
+  if (value === true) return screen;
+
+  for (const part of String(value).split(/[\s,]+/).filter(Boolean)) {
+    const [key, raw] = part.split('=');
+    const n = Number(raw);
+    if (key === 'change') screen.minChangeFromClosePct = n;
+    else if (key === 'relvol') screen.minRelativeVolume = n;
+    else if (key === 'min') screen.minPrice = n;
+    else if (key === 'max') screen.maxPrice = n;
+    else if (key === 'off') return null;
+  }
+  return screen;
 }
 
 const args = parseArgs(process.argv.slice(2));
@@ -75,6 +102,7 @@ const backtestConfig = {
   ...(args.warmup !== undefined ? { warmupBars: Number(args.warmup) } : {}),
   ...(args.optimistic ? { pessimisticBars: false } : {}),
   ...(args.overnight ? { flattenAtSessionEnd: false } : {}),
+  ...(args.screen ? { screen: parseScreen(args.screen) } : {}),
   ...(args.ladder && args.ladder !== true
     ? { ladder: LADDERS[args.ladder] ?? String(args.ladder).split(/[\s,]+/).filter(Boolean) }
     : {}),
@@ -197,6 +225,13 @@ if (leaky.length) {
 }
 console.log(`Lookahead check: clean across ${histories.length} symbols.`);
 console.log(`Ladder: ${ladder.join(' → ')}  (${finest} bars from the feed, coarser rungs resampled)`);
+if (backtestConfig.screen) {
+  const s = backtestConfig.screen;
+  console.log(
+    `Screen: change >= ${s.minChangeFromClosePct}%, relative volume >= ${s.minRelativeVolume}x, ` +
+      `price $${s.minPrice}-${s.maxPrice} — three of the five criteria, the only three history can rebuild`,
+  );
+}
 
 const started = Date.now();
 const runs = histories.map((history) => backtest(history, { backtest: backtestConfig, trend: {} }));

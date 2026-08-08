@@ -33,7 +33,7 @@ No dependencies, no build step. Node 18+ is all you need.
 ```bash
 cd momentum-scanner
 npm start           # http://localhost:4173
-npm test            # 176 tests, no network required
+npm test            # 179 tests, no network required
 ```
 
 `npm run verify:live` exercises the paths that only exist while the market is
@@ -493,6 +493,50 @@ Two things the real data says that the simulated data did not:
 Take that as the honest verdict on the strategy as configured, and as a
 demonstration of why the simulated numbers below carry the warning they do.
 
+#### Does the five-criteria screen help?
+
+`--screen` gates entries on the selection criteria before any setup is taken.
+Only **three of the five** can be applied to history: change-on-the-day,
+relative volume and price all fall out of OHLCV, but news has no archive and
+float is published as a current figure that has since changed — using today's
+float to judge a stock three weeks ago is a quiet form of lookahead, so neither
+is offered rather than approximated.
+
+One month of real 5-minute bars, 0.05% slippage per side:
+
+| Universe | Screen | Trades | Win | Total | Per trade |
+|---|---|---|---|---|---|
+| Small caps | none | 77 | 37.7% | -10.6R | -0.137R |
+| Small caps | change ≥2%, rvol ≥1.2x | **12** | 66.7% | **+6.6R** | +0.547R |
+| Small caps | change ≥5%, rvol ≥2x | 2 | 100% | +3.0R | +1.49R |
+| Small caps | scanner strength (10%, 5x) | **1** | 100% | +2.0R | +2.01R |
+| Large caps | none | 73 | 19.2% | -59.9R | -0.820R |
+| Large caps | any of the above | **0** | — | — | — |
+
+Three things fall out, in decreasing order of confidence.
+
+**The universe matters more than the screen.** Same rules, same month: -0.137R
+a trade on volatile small caps against -0.820R on large caps. That is the
+largest single effect measured anywhere in this project, and it needs no
+screen at all — a strategy entering on a pullback needs the instrument to
+actually move, and a stop a few tenths of a percent wide needs the move to be
+large relative to the spread.
+
+**At real scanner strength there is nothing to trade.** One trade in a month
+across fifteen symbols. The five criteria are built to surface a handful of
+names a day for a strategy that trades them *immediately*; ANDing that with
+"and the daily and hourly must agree, and the fast rung must be pulling back
+without breaking structure" leaves an empty set. Two rare conditions
+intersected are not a rarer condition, they are no condition.
+
+**The loose screen looks good and the evidence is weak.** Against 20,000 random
+12-trade subsets of the same 77, the screened twelve beat 96% of them
+(p ≈ 0.038, median random subset -1.86R). That is nominally significant and it
+is not enough: four screen settings were tried and the best reported, on twelve
+trades in one month, with thresholds chosen by hand. Multiple comparisons alone
+put the real false-positive rate near 15%. Treat it as a reason to run the
+experiment properly on more history, not as a finding.
+
 #### On sweeps
 
 `--sweep` varies one threshold and prints the results side by side. Use it to
@@ -586,7 +630,7 @@ lib/providers/live.js     Yahoo fallback + optional Finnhub
 public/                   single-page UI, no build step
 server.js                 dependency-free HTTP server
 scripts/backtest.mjs      backtest runner
-test/                     node:test suite (176 tests)
+test/                     node:test suite (179 tests)
 ```
 
 ## Notes on the numbers

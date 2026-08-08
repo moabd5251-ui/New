@@ -37,7 +37,8 @@
  * a winner, which is the single easiest way to make a backtest lie.
  */
 
-import { buildLadder, easternParts } from './timeframes.js';
+import { buildLadder, easternParts, toDaily } from './timeframes.js';
+import { expectedVolumeFraction } from './session-volume.js';
 import {
   analyzeLadder,
   readWindow,
@@ -51,6 +52,11 @@ export const DEFAULT_BACKTEST_CONFIG = {
   // ~21 hourly bars is 252 five-minute bars.
   warmupBars: 300,
   ladder: DEFAULT_LADDER, // a name from LADDERS, or an explicit array of intervals
+  // An optional selection screen applied before any setup is taken — see
+  // screenAt. Null means take every setup the strategy finds, which is the
+  // behaviour the trend strategy has always had.
+  screen: null,
+
   // Bars handed to the strategy each step. Null derives it from the ladder,
   // which is almost always what you want — see lookbackFor.
   maxIntradayLookback: null,
@@ -141,6 +147,10 @@ function normalizeConfig(config = {}) {
       continue;
     }
     if (key === 'maxIntradayLookback') continue; // derived below, once the ladder is known
+    if (key === 'screen') {
+      merged.screen = merged.screen && typeof merged.screen === 'object' ? merged.screen : null;
+      continue;
+    }
     if (typeof fallback === 'boolean') {
       merged[key] = Boolean(merged[key]);
       continue;
@@ -280,6 +290,17 @@ export function backtest(history, options = {}) {
     states[analysis.state] = (states[analysis.state] ?? 0) + 1;
     if (!analysis.setup) continue;
 
+    // Selection before timing: a setup on a stock the screen rejects is not a
+    // trade. Counted separately so the run shows how much the screen removed.
+    let screened = null;
+    if (cfg.screen) {
+      screened = screenAt(intraday, daily, i, cfg.screen);
+      if (!screened.passed) {
+        states.screened_out = (states.screened_out ?? 0) + 1;
+        continue;
+      }
+    }
+
     const outcome = simulateTrade(
       {
         direction: analysis.setup.direction,
@@ -290,6 +311,7 @@ export function backtest(history, options = {}) {
         legPct: analysis.setup.impulsePct,
         measuredR: analysis.setup.measuredR,
         cautioned: (analysis.setup.cautions ?? []).length > 0,
+        screen: screened,
         placedAt: intraday[i].time,
       },
       intraday,
@@ -368,6 +390,75 @@ export function simulateTrade(order, bars, startIndex, config = {}) {
     };
   }
   return { trade: null, endIndex: last };
+}
+
+/**
+ * The three selection criteria that can be reconstructed from price history.
+ *
+ * The scanner's screen has five pillars; only three survive a trip into the
+ * past. Change-on-the-day, relative volume and price all fall out of OHLCV.
+ * **News and float do not**: Finnhub serves recent headlines rather than an
+ * archive, and float is published as a current figure that has since changed —
+ * using today's float to judge a stock three weeks ago is a quiet form of
+ * lookahead, so neither is offered here rather than approximated.
+ *
+ * So a screened backtest tests *three* of the five, and any result has to be
+ * read as such. It is a weaker filter than the live scanner's, not a
+ * reconstruction of it.
+ *
+ * Everything is measured from bars up to `index` only. The day-so-far volume
+ * is compared against the share of a normal day that has usually traded by
+ * this time — the same U-shaped curve the live scanner uses — because
+ * comparing a half-day's volume to a full day's average calls every stock
+ * quiet at lunchtime.
+ */
+export function screenAt(intraday, daily, index, screen) {
+  const cutoff = new Date(intraday[index].time).getTime();
+  const visibleDaily = daily.filter((d) => new Date(d.time).getTime() <= cutoff);
+  const et = easternParts(cutoff);
+
+  // Today's bar so far, rebuilt from the intraday bars rather than taken from
+  // the feed's daily series, which carries the *finished* day.
+  const sessionBars = intraday
+    .slice(0, index + 1)
+    .filter((bar) => easternParts(bar.time)?.date === et?.date);
+  const today = toDaily(sessionBars, { now: cutoff }).at(-1);
+  if (!today) return { passed: false, reason: 'no session data' };
+
+  const completed = visibleDaily.filter((d) => easternParts(d.time)?.date !== et?.date);
+  const priorClose = completed.at(-1)?.close ?? null;
+  const volumes = completed.slice(-50).map((d) => d.volume).filter((v) => Number.isFinite(v) && v > 0);
+  const avgVolume = volumes.length ? volumes.reduce((a, b) => a + b, 0) / volumes.length : null;
+
+  const price = today.close;
+  const changePct =
+    Number.isFinite(priorClose) && priorClose > 0 ? ((price - priorClose) / priorClose) * 100 : null;
+
+  const minutesIn = Math.max((et?.minutes ?? 0) - (9 * 60 + 30), 1);
+  const expected = avgVolume ? avgVolume * expectedVolumeFraction(minutesIn) : null;
+  const relVol = expected && Number.isFinite(today.volume) ? today.volume / expected : null;
+
+  const failures = [];
+  if (Number.isFinite(screen.minChangeFromClosePct)) {
+    // Absolute, so a short setup is screened on the size of the move rather
+    // than its direction — the criteria were written for long-only momentum.
+    if (!Number.isFinite(changePct) || Math.abs(changePct) < screen.minChangeFromClosePct) {
+      failures.push('change');
+    }
+  }
+  if (Number.isFinite(screen.minRelativeVolume)) {
+    if (!Number.isFinite(relVol) || relVol < screen.minRelativeVolume) failures.push('relativeVolume');
+  }
+  if (Number.isFinite(screen.minPrice) && !(price >= screen.minPrice)) failures.push('price');
+  if (Number.isFinite(screen.maxPrice) && !(price <= screen.maxPrice)) failures.push('price');
+
+  return {
+    passed: failures.length === 0,
+    failures,
+    changePct: changePct === null ? null : round(changePct),
+    relativeVolume: relVol === null ? null : round(relVol),
+    price: round(price),
+  };
 }
 
 /** True when the next bar starts a different Eastern trading day. */
@@ -505,6 +596,7 @@ function finish(position, index, time, reason, cfg) {
     // Carried through from the setup so results can be sliced by what the
     // strategy actually saw when it took the trade.
     setupState: position.state,
+    screen: position.screen ?? null,
     retracePct: position.retracePct,
     legPct: position.legPct,
     measuredR: position.measuredR,

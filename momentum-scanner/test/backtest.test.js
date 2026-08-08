@@ -13,6 +13,7 @@ import {
   DEFAULT_BACKTEST_CONFIG,
 } from '../lib/backtest.js';
 import { LADDERS, readWindow } from '../lib/trend.js';
+import { screenAt } from '../lib/backtest.js';
 import { buildStack } from '../lib/timeframes.js';
 import { analyzeStack } from '../lib/trend.js';
 import { getHistory, symbols } from '../lib/providers/mock.js';
@@ -443,4 +444,57 @@ test('flattening does not fire mid-session', () => {
 
   const { trade } = simulateTrade(LONG, bars, 0, FREE);
   assert.equal(trade.reason, 'target', 'same session throughout — the bell rule must not interfere');
+});
+
+/* ------------------------------------------------------------------ */
+/* the selection screen                                                */
+/* ------------------------------------------------------------------ */
+
+test('the screen reads the day so far, not the finished day', () => {
+  const now = Date.parse('2026-07-08T17:00:00Z');
+  const history = getHistory({ symbol: 'TRAQ', now });
+  const mid = Math.floor(history.intraday.length * 0.8);
+
+  const read = screenAt(history.intraday, history.daily, mid, { minPrice: 0 });
+  assert.ok(Number.isFinite(read.price));
+  assert.ok(Number.isFinite(read.changePct), 'change needs a prior close from the completed days');
+  assert.ok(Number.isFinite(read.relativeVolume));
+
+  // A provider's daily bar for today carries the whole session; the screen must
+  // not see the part that has not happened. Poison it and nothing may move.
+  const poisoned = history.daily.map((d, i) =>
+    i === history.daily.length - 1 ? { ...d, close: d.close * 5, volume: d.volume * 100 } : d,
+  );
+  const again = screenAt(history.intraday, poisoned, mid, { minPrice: 0 });
+  assert.equal(again.changePct, read.changePct);
+  assert.equal(again.relativeVolume, read.relativeVolume);
+});
+
+test('the screen reports which pillar rejected a symbol', () => {
+  const now = Date.parse('2026-07-08T17:00:00Z');
+  const history = getHistory({ symbol: 'TRAQ', now });
+  const mid = Math.floor(history.intraday.length * 0.8);
+
+  const impossible = screenAt(history.intraday, history.daily, mid, {
+    minChangeFromClosePct: 500,
+    minRelativeVolume: 1000,
+    minPrice: 2,
+    maxPrice: 20,
+  });
+  assert.equal(impossible.passed, false);
+  assert.ok(impossible.failures.includes('change'));
+  assert.ok(impossible.failures.includes('relativeVolume'));
+});
+
+test('a screen nothing can pass removes every trade; no screen removes none', () => {
+  const now = Date.parse('2026-07-08T17:00:00Z');
+  const history = getHistory({ symbol: 'TRAQ', now });
+
+  const open = backtest(history, {});
+  const shut = backtest(history, { backtest: { screen: { minChangeFromClosePct: 10_000 } } });
+
+  assert.ok(open.trades.length > 0);
+  assert.equal(shut.trades.length, 0);
+  assert.ok(shut.states.screened_out > 0, 'and the run says how many setups the screen removed');
+  assert.equal(open.states.screened_out, undefined);
 });

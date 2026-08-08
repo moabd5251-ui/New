@@ -265,8 +265,11 @@ export function regimeFor(symbol) {
   return 'chop';
 }
 
-const SESSION_BARS_5M = 78; // 09:30-16:00 in 5-minute bars
+const SESSION_MINUTES_RTH = 390; // 09:30-16:00
 const SESSION_OPEN_MINUTES = 9 * 60 + 30;
+
+/** Intraday resolutions the simulator can generate natively. */
+const BAR_MINUTES = { '1m': 1, '5m': 5, '15m': 15 };
 
 /** Minutes past ET midnight, and the ET weekday, for a timestamp. */
 function easternClock(ms) {
@@ -352,11 +355,34 @@ function amplitudeFor(totalPct, bars, cycle, giveBack) {
  * chart that disagreed with the intraday chart it was built from would make
  * every alignment verdict meaningless.
  */
-export function getHistory({ symbol, now = Date.now(), sessions = 12, dailyBars = 120 } = {}) {
+export function getHistory({
+  symbol,
+  now = Date.now(),
+  sessions = 12,
+  dailyBars = 120,
+  interval = '5m',
+} = {}) {
   const entry = UNIVERSE.find((u) => u.symbol === String(symbol).toUpperCase());
   if (!entry) {
-    return { symbol, intraday: [], daily: [], provider: 'mock', regime: null };
+    return { symbol, intraday: [], daily: [], provider: 'mock', regime: null, interval };
   }
+
+  // The simulator generates whichever resolution is asked for rather than
+  // handing back 5-minute bars with a 1-minute label. Everything coarser is
+  // then resampled from it, which is the only direction that direction works.
+  const barMinutes = BAR_MINUTES[interval];
+  if (!barMinutes) {
+    return {
+      symbol: entry.symbol,
+      intraday: [],
+      daily: [],
+      provider: 'mock',
+      regime: null,
+      interval,
+      errors: [{ series: 'intraday', message: `The simulator does not generate ${interval} bars` }],
+    };
+  }
+  const sessionBars = Math.round(SESSION_MINUTES_RTH / barMinutes);
 
   const seed = hash(entry.symbol);
   const regime = regimeFor(entry.symbol);
@@ -364,17 +390,25 @@ export function getHistory({ symbol, now = Date.now(), sessions = 12, dailyBars 
 
   const opens = sessionOpens(now, sessions);
   const session = sessionProgress(new Date(now));
-  const lastSessionBars = Math.max(Math.round(session.fraction * SESSION_BARS_5M), 24);
-  const totalBars = (opens.length - 1) * SESSION_BARS_5M + lastSessionBars;
+  const lastSessionBars = Math.max(Math.round(session.fraction * sessionBars), Math.round(120 / barMinutes));
+  const totalBars = (opens.length - 1) * sessionBars + lastSessionBars;
 
-  // Two scales, because the strategy reads two. The swing layer is what the
-  // hourly chart sees — legs of roughly ten hourly bars, so `swingSpan` pivots
-  // can actually form on them. The leg layer is what the 5-minute chart sees,
-  // and it is deliberately small enough that its pullbacks never threaten a
-  // swing low: on this data a 5-minute correction is supposed to be a pause,
-  // and the strategy is supposed to say so.
-  const swingCycle = 110 + Math.round(seed * 50); // ~9-13 hourly bars
-  const legCycle = 14 + Math.round(seed * 8); // ~1-2 hours
+  // Two scales, because the strategy reads at least two. The swing layer is
+  // what the hourly chart sees — legs of roughly ten hourly bars, so
+  // `swingSpan` pivots can actually form on them. The leg layer is the pause
+  // inside each of those, and it is deliberately small enough never to
+  // threaten a swing low: on this data a fast-timeframe correction is supposed
+  // to be a pause, and the strategy is supposed to say so.
+  //
+  // Both are defined in *minutes* and converted, so the generated market has
+  // the same shape whatever resolution it is sampled at. Defining them in bars
+  // would make a 1-minute chart's swings five times shorter in wall-clock
+  // terms than the same symbol's 5-minute chart, which is not a finer view of
+  // one market but a different one.
+  const swingCycleMinutes = (110 + Math.round(seed * 50)) * 5; // ~9-13 hours
+  const legCycleMinutes = (14 + Math.round(seed * 8)) * 5; // ~1-2 hours
+  const swingCycle = swingCycleMinutes / barMinutes;
+  const legCycle = legCycleMinutes / barMinutes;
   const totalDriftPct = regime === 'chop' ? 0 : sign * (16 + seed * 14);
 
   const swingGiveBack = regime === 'chop' ? 1 : 0.5;
@@ -386,7 +420,7 @@ export function getHistory({ symbol, now = Date.now(), sessions = 12, dailyBars 
   // A phase offset keyed to the wall clock, so repeated calls walk through the
   // strategy's states rather than freezing on one. Without it a symbol scanned
   // on a closed market would show the same pullback at the same depth forever.
-  const legPhase = (now / 600_000) % legCycle;
+  const legPhase = ((now / 600_000) * (5 / barMinutes)) % legCycle;
 
   const startPrice = entry.prevClose * (1 - totalDriftPct / 200);
 
@@ -413,8 +447,8 @@ export function getHistory({ symbol, now = Date.now(), sessions = 12, dailyBars 
     return (
       swing +
       leg +
-      noise(seed, i * 300, 4000) * 0.002 +
-      noise(seed * 1.7 + 0.31, i * 300, 700) * 0.0016
+      noise(seed, i * barMinutes * 60, 4000 * barMinutes) * 0.002 +
+      noise(seed * 1.7 + 0.31, i * barMinutes * 60, 700 * barMinutes) * 0.0016
     );
   };
 
@@ -422,16 +456,16 @@ export function getHistory({ symbol, now = Date.now(), sessions = 12, dailyBars 
   let barIndex = 0;
   for (let s = 0; s < opens.length; s += 1) {
     const isLast = s === opens.length - 1;
-    const bars = isLast ? lastSessionBars : SESSION_BARS_5M;
+    const bars = isLast ? lastSessionBars : sessionBars;
     for (let b = 0; b < bars; b += 1) {
       const open = startPrice * (1 + pathAt(barIndex));
       const close = startPrice * (1 + pathAt(barIndex + 1));
       const body = Math.abs(close - open);
       const wick = Math.max(body * 0.5, open * 0.0008);
-      const jitter = Math.abs(noise(seed + barIndex * 0.013, barIndex * 300, 1700));
+      const jitter = Math.abs(noise(seed + barIndex * 0.013, barIndex * barMinutes * 60, 1700 * barMinutes));
 
       intraday.push({
-        time: new Date(opens[s] + b * 5 * 60_000).toISOString(),
+        time: new Date(opens[s] + b * barMinutes * 60_000).toISOString(),
         open: round(Math.max(open, 0.01), 4),
         high: round(Math.max(open, close) + wick * jitter, 4),
         low: round(Math.max(Math.min(open, close) - wick * jitter, 0.005), 4),
@@ -440,7 +474,7 @@ export function getHistory({ symbol, now = Date.now(), sessions = 12, dailyBars 
         // the signature that separates a pause from distribution.
         volume: Math.max(
           Math.round(
-            ((entry.avgVolume / SESSION_BARS_5M) *
+            ((entry.avgVolume / sessionBars) *
               (sign * (close - open) > 0 ? 1.5 : 0.6) *
               (0.7 + jitter * 0.6)),
           ),
@@ -496,8 +530,8 @@ export function getHistory({ symbol, now = Date.now(), sessions = 12, dailyBars 
   // would then contradict the 5-minute bars it is supposed to govern.
   const recent = [];
   for (let s = 0; s < opens.length; s += 1) {
-    const from = s * SESSION_BARS_5M;
-    const slice = intraday.slice(from, from + (s === opens.length - 1 ? lastSessionBars : SESSION_BARS_5M));
+    const from = s * sessionBars;
+    const slice = intraday.slice(from, from + (s === opens.length - 1 ? lastSessionBars : sessionBars));
     if (!slice.length) continue;
     recent.push({
       time: new Date(opens[s]).toISOString(),
@@ -516,7 +550,7 @@ export function getHistory({ symbol, now = Date.now(), sessions = 12, dailyBars 
     daily: [...older, ...recent],
     provider: 'mock',
     regime,
-    interval: '5m',
+    interval,
   };
 }
 

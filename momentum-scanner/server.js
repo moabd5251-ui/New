@@ -27,8 +27,14 @@ import { scan, summarize, DEFAULT_CONFIG, normalizeConfig } from './lib/criteria
 import { AlertTracker } from './lib/alerts.js';
 import { loadWatchlist, saveWatchlist } from './lib/watchlist.js';
 import { bestPattern } from './lib/patterns.js';
-import { buildStack } from './lib/timeframes.js';
-import { analyzeStack, DEFAULT_TREND_CONFIG, normalizeTrendConfig } from './lib/trend.js';
+import { buildLadder } from './lib/timeframes.js';
+import {
+  analyzeLadder,
+  LADDERS,
+  DEFAULT_LADDER,
+  DEFAULT_TREND_CONFIG,
+  normalizeTrendConfig,
+} from './lib/trend.js';
 import { planFor, buildTradePlan, DEFAULT_RISK_CONFIG, normalizeRiskConfig } from './lib/trade-plan.js';
 import { Journal, DEFAULT_SESSION_RULES, normalizeSessionRules } from './lib/journal.js';
 import * as mockProvider from './lib/providers/mock.js';
@@ -171,15 +177,29 @@ async function runScan() {
 const HISTORY_TTL_MS = 60_000;
 const historyCache = new Map();
 
-async function fetchHistory(symbol, now) {
-  const key = String(symbol).toUpperCase();
+/**
+ * The finest interval a ladder needs. Bars can be combined but never split, so
+ * the fetch has to be at least as fine as the fastest rung — asking for
+ * 5-minute bars and then building a 1-minute rung from them is not possible,
+ * and buildLadder refuses rather than inventing them.
+ */
+function finestInterval(ladder) {
+  const order = ['1m', '5m', '15m', '30m', '1h', '4h', '1d'];
+  const intraday = ladder.filter((key) => key !== '1d');
+  if (!intraday.length) return '1h';
+  return intraday.sort((a, b) => order.indexOf(a) - order.indexOf(b))[0];
+}
+
+async function fetchHistory(symbol, now, interval) {
+  const key = `${String(symbol).toUpperCase()}@${interval}`;
   const hit = historyCache.get(key);
   if (hit && now - hit.at < HISTORY_TTL_MS) return hit.payload;
 
+  const symbolUpper = String(symbol).toUpperCase();
   let payload;
-  if (PROVIDER === 'tradier') payload = await tradierProvider.getHistory({ symbol: key, now });
-  else if (PROVIDER === 'yahoo') payload = await liveProvider.getHistory({ symbol: key });
-  else payload = mockProvider.getHistory({ symbol: key, now });
+  if (PROVIDER === 'tradier') payload = await tradierProvider.getHistory({ symbol: symbolUpper, interval, now });
+  else if (PROVIDER === 'yahoo') payload = await liveProvider.getHistory({ symbol: symbolUpper, interval });
+  else payload = mockProvider.getHistory({ symbol: symbolUpper, interval, now, sessions: interval === '1m' ? 6 : 12 });
 
   // Drop stale entries on write rather than on a timer: the map only ever
   // holds symbols someone has actually asked about, so it stays small.
@@ -193,28 +213,31 @@ async function fetchHistory(symbol, now) {
 /** States worth a trader's attention first, most actionable last-in-first-out. */
 const STATE_PRIORITY = {
   triggered: 6,
+  no_entry: 2.5,
   armed: 5,
   pullback_forming: 4,
   extended: 3,
-  no_entry: 2.5,
   too_deep: 2,
   invalidated: 1,
   not_aligned: 0,
   unreadable: -1,
 };
 
-async function analyzeSymbol(symbol, now) {
-  const history = await fetchHistory(symbol, now);
-  const stack = buildStack({ intraday: history.intraday, daily: history.daily, now });
-  const analysis = analyzeStack(stack, trendConfig);
+async function analyzeSymbol(symbol, now, ladder) {
+  const interval = finestInterval(ladder);
+  const history = await fetchHistory(symbol, now, interval);
+  const rungs = buildLadder({ ladder, intraday: history.intraday, daily: history.daily, now });
+  const analysis = analyzeLadder(rungs, trendConfig);
 
   // The liquidity cap in trade-plan.js is expressed per *minute* of volume,
-  // because it was written against 1-minute bars. These are 5-minute bars, so
-  // dividing keeps the cap meaning the same thing rather than quietly
-  // permitting five times the size.
-  const recent = stack.fiveMin.slice(-5).map((c) => c.volume).filter((v) => Number.isFinite(v) && v > 0);
+  // because it was written against 1-minute bars. The timing rung's bars are
+  // usually wider than that, so dividing by its width keeps the cap meaning
+  // the same thing rather than quietly permitting several times the size.
+  const timing = rungs.at(-1);
+  const timingMinutes = TIMING_MINUTES[timing.key] ?? 5;
+  const recent = timing.bars.slice(-5).map((c) => c.volume).filter((v) => Number.isFinite(v) && v > 0);
   const perMinuteVolume = recent.length
-    ? recent.reduce((a, b) => a + b, 0) / recent.length / 5
+    ? recent.reduce((a, b) => a + b, 0) / recent.length / timingMinutes
     : null;
 
   return {
@@ -224,14 +247,22 @@ async function analyzeSymbol(symbol, now) {
     plan: analysis.setup
       ? buildTradePlan(analysis.setup, risk, { recentCandleVolume: perMinuteVolume })
       : null,
-    bars: {
-      fiveMin: stack.fiveMin.length,
-      hourly: stack.hourly.length,
-      daily: stack.daily.length,
-    },
+    bars: Object.fromEntries(rungs.map((rung) => [rung.key, rung.bars.length])),
     errors: history.errors ?? [],
     rank: (STATE_PRIORITY[analysis.state] ?? 0) * 100 + (analysis.setup?.quality ?? 0),
   };
+}
+
+const TIMING_MINUTES = { '1m': 1, '5m': 5, '15m': 15, '30m': 30, '1h': 60, '4h': 240, '1d': 390 };
+
+/** Resolve a ladder name or an explicit comma-separated list of intervals. */
+function resolveLadder(requested) {
+  if (!requested) return { name: trendConfig.ladder ?? DEFAULT_LADDER, ladder: LADDERS[trendConfig.ladder ?? DEFAULT_LADDER] };
+  const name = String(requested).trim();
+  if (LADDERS[name]) return { name, ladder: LADDERS[name] };
+  const custom = name.split(/[\s,]+/).filter(Boolean);
+  if (custom.length >= 2) return { name: 'custom', ladder: custom };
+  return { name: DEFAULT_LADDER, ladder: LADDERS[DEFAULT_LADDER] };
 }
 
 /** Run with a small concurrency cap so a watchlist cannot flood the feed. */
@@ -353,17 +384,21 @@ const server = createServer(async (request, response) => {
     if (url.pathname === '/api/trend' && request.method === 'GET') {
       const now = Date.now();
       const requested = url.searchParams.get('symbol');
+      const { name: ladderName, ladder } = resolveLadder(url.searchParams.get('ladder'));
       const symbols = requested
         ? [requested.trim().toUpperCase()]
         : (await trendUniverse()).slice(0, 40);
 
-      const results = (await mapLimit(symbols, 4, (symbol) => analyzeSymbol(symbol, now)))
+      const results = (await mapLimit(symbols, 4, (symbol) => analyzeSymbol(symbol, now, ladder)))
         .filter(Boolean)
         .sort((a, b) => (b.rank ?? -1) - (a.rank ?? -1));
 
       sendJson(response, 200, {
         scannedAt: new Date(now).toISOString(),
         provider: PROVIDER,
+        ladder,
+        ladderName,
+        ladders: LADDERS,
         results,
         summary: {
           scanned: results.length,

@@ -11,12 +11,15 @@ import {
 } from '../lib/timeframes.js';
 import {
   analyzeStack,
+  analyzeLadder,
   trendOf,
   swingPoints,
   ema,
   atr,
+  LADDERS,
   DEFAULT_TREND_CONFIG,
 } from '../lib/trend.js';
+import { buildLadder, detectInterval } from '../lib/timeframes.js';
 import { buildTradePlan } from '../lib/trade-plan.js';
 import { parseHistory } from '../lib/providers/tradier.js';
 import { parseChartBars } from '../lib/providers/live.js';
@@ -288,7 +291,7 @@ test('daily and hourly disagreeing is the end of it', () => {
   assert.equal(result.state, 'not_aligned');
   assert.equal(result.setup, null);
   assert.equal(result.direction, null);
-  assert.match(result.detail, /no agreement/);
+  assert.match(result.detail, /does not agree/);
 });
 
 test('aligned but still driving is "extended" — there is nothing to enter on', () => {
@@ -344,7 +347,7 @@ test('THE rule: a pullback through the hourly swing low is a reversal, not a pau
 
   assert.equal(result.state, 'invalidated');
   assert.equal(result.setup, null, 'no entry survives a broken hourly sequence');
-  assert.match(result.detail, /break of hourly structure/);
+  assert.match(result.detail, /break of \w+ structure/i);
   assert.ok(result.correction.pullbackExtreme < result.invalidation);
 });
 
@@ -596,4 +599,240 @@ test('an unknown simulated symbol returns empty series rather than inventing the
   assert.deepEqual(history.intraday, []);
   assert.deepEqual(history.daily, []);
   assert.equal(history.regime, null);
+});
+
+/* ------------------------------------------------------------------ */
+/* the ladder is scale-invariant                                       */
+/* ------------------------------------------------------------------ */
+
+test('analyzeStack is the swing ladder, nothing more', () => {
+  const stack = consistentStack('up', { legPct: 3, retracePct: 40, pullbackBars: 3 });
+  const viaStack = analyzeStack(stack);
+  const viaLadder = analyzeLadder([
+    { key: '1d', bars: stack.daily },
+    { key: '1h', bars: stack.hourly },
+    { key: '5m', bars: stack.fiveMin },
+  ]);
+
+  assert.equal(viaStack.state, viaLadder.state);
+  assert.equal(viaStack.detail, viaLadder.detail);
+  assert.deepEqual(viaStack.setup, viaLadder.setup);
+  assert.deepEqual(viaLadder.ladder, LADDERS.swing);
+});
+
+test('the same rules run on a fast ladder, with the fast labels', () => {
+  // 15m -> 5m -> 1m is the same relationship as 1d -> 1h -> 5m. Feed the
+  // identical fixtures in under fast keys and the verdict must be identical
+  // apart from what the sentences call the timeframes.
+  const stack = consistentStack('up', { legPct: 3, retracePct: 40, pullbackBars: 3 });
+  const slow = analyzeStack(stack);
+  const fast = analyzeLadder([
+    { key: '15m', bars: stack.daily },
+    { key: '5m', bars: stack.hourly },
+    { key: '1m', bars: stack.fiveMin },
+  ]);
+
+  assert.equal(fast.state, slow.state);
+  assert.equal(fast.direction, slow.direction);
+  assert.equal(fast.setup?.entry, slow.setup?.entry);
+  assert.equal(fast.setup?.stop, slow.setup?.stop);
+
+  assert.match(slow.setup.rationale, /Hourly/);
+  assert.match(fast.setup.rationale, /5-minute/);
+  assert.ok(!/Hourly|Daily/.test(fast.setup.rationale), 'a fast ladder must not talk about the daily');
+  assert.equal(fast.setup.timingTimeframe, '1m');
+  assert.equal(fast.setup.structureTimeframe, '5m');
+});
+
+test('two rungs is a real ladder: structure and timing, no permission layer', () => {
+  const stack = consistentStack('up', { legPct: 3, retracePct: 40, pullbackBars: 3 });
+  const result = analyzeLadder([
+    { key: '5m', bars: stack.hourly },
+    { key: '1m', bars: stack.fiveMin },
+  ]);
+
+  assert.equal(result.contextAligned, true);
+  assert.ok(result.setup, `expected a setup, got ${result.state}`);
+  assert.equal(result.rungs.length, 2);
+  assert.deepEqual(result.rungs.map((r) => r.role), ['structure', 'timing']);
+  // "5-minute agree" is not a sentence; the phrasing has to follow the shape.
+  assert.ok(!/5-minute agree|5-minute all/.test(result.setup.rationale), result.setup.rationale);
+});
+
+test('one rung cannot tell a pause from a reversal, and says so', () => {
+  const result = analyzeLadder([{ key: '5m', bars: barsFrom(upTrendCloses()) }]);
+  assert.equal(result.state, 'unreadable');
+  assert.match(result.detail, /at least two timeframes/);
+});
+
+test('every rung above the timing one has to agree, not just the nearest', () => {
+  const stack = consistentStack('up', { legPct: 3, retracePct: 40, pullbackBars: 3 });
+  // A four-rung ladder whose slowest rung is fighting the other three.
+  const result = analyzeLadder([
+    { key: '1d', bars: barsFrom(downTrendCloses()) },
+    { key: '1h', bars: stack.daily },
+    { key: '15m', bars: stack.hourly },
+    { key: '5m', bars: stack.fiveMin },
+  ]);
+
+  assert.equal(result.state, 'not_aligned');
+  assert.equal(result.setup, null);
+  assert.match(result.detail, /Daily is trending down/);
+});
+
+test('the invalidation ladder is nested, slowest first, with the decisive one marked', () => {
+  const stack = consistentStack('up', { legPct: 3, retracePct: 40, pullbackBars: 3 });
+  const result = analyzeLadder([
+    { key: '1d', bars: stack.daily },
+    { key: '1h', bars: stack.hourly },
+    { key: '5m', bars: stack.fiveMin },
+  ]);
+
+  const levels = result.invalidations;
+  assert.equal(levels.length, 3);
+  assert.deepEqual(levels.map((l) => l.key), ['1d', '1h', '5m']);
+
+  const decisive = levels.find((l) => l.role === 'structure');
+  assert.equal(decisive.key, '1h');
+  assert.equal(
+    decisive.level,
+    result.invalidation,
+    'the level the setup is built against is the structure rung, not the slowest',
+  );
+});
+
+test('the trade stop sits inside the structural stop', () => {
+  const stack = consistentStack('up', { legPct: 3, retracePct: 40, pullbackBars: 3 });
+  const result = analyzeStack(stack);
+  assert.ok(result.setup);
+  assert.ok(
+    result.setup.stop > result.setup.structuralStop,
+    'the sized stop is tighter than the one that says the reason is gone',
+  );
+});
+
+test('slower rungs sit further away, because their swings are older and wider', () => {
+  // A property of markets rather than of this code, so it is checked against
+  // generated bars rather than a hand-built fixture: the daily higher low is
+  // below the hourly one, which is below the 5-minute one. If it ever stops
+  // holding, the "nested levels" framing in the drawer is misleading.
+  const now = Date.parse('2026-07-08T17:00:00Z');
+  let checked = 0;
+
+  for (const symbol of symbols) {
+    const history = getHistory({ symbol, now });
+    const result = analyzeStack(
+      buildStack({ intraday: history.intraday, daily: history.daily, now }),
+    );
+    if (!result.contextAligned || result.invalidations.length < 3) continue;
+
+    const [slow, mid, fast] = result.invalidations.map((l) => l.level);
+    const ordered = result.direction === 'up' ? slow <= mid && mid <= fast : slow >= mid && mid >= fast;
+    assert.ok(ordered, `${symbol}: levels out of order — ${slow}, ${mid}, ${fast}`);
+    checked += 1;
+  }
+
+  assert.ok(checked >= 5, `only ${checked} symbols were aligned enough to check`);
+});
+
+/* ------------------------------------------------------------------ */
+/* building ladders from a feed                                        */
+/* ------------------------------------------------------------------ */
+
+test('detectInterval reads the bar width from the bars, ignoring session breaks', () => {
+  const day1 = barsFrom([10, 11, 12, 13], { start: Date.parse('2026-07-06T19:00:00Z'), stepMinutes: 5 });
+  const day2 = barsFrom([13, 14, 15, 16], { start: Date.parse('2026-07-07T13:30:00Z'), stepMinutes: 5 });
+  assert.equal(detectInterval([...day1, ...day2]), 5, 'the overnight gap is not the bar interval');
+
+  assert.equal(detectInterval(barsFrom([1, 2, 3, 4, 5], { stepMinutes: 1 })), 1);
+  assert.equal(detectInterval([]), null);
+});
+
+test('a ladder rung finer than the feed is refused, not fabricated', () => {
+  const now = Date.parse('2026-07-08T17:00:00Z');
+  const history = getHistory({ symbol: 'TRAQ', now, interval: '5m' });
+
+  const rungs = buildLadder({ ladder: LADDERS.scalp, intraday: history.intraday, daily: history.daily, now });
+  const oneMinute = rungs.find((r) => r.key === '1m');
+
+  assert.deepEqual(oneMinute.bars, [], 'no bars rather than five fabricated ones per real bar');
+  assert.match(oneMinute.problem, /combined but never split/);
+
+  const result = analyzeLadder(rungs);
+  assert.equal(result.state, 'unreadable');
+  assert.match(result.detail, /1-minute:.*cannot be built/);
+});
+
+test('the simulator generates the resolution asked for, not a relabelled one', () => {
+  const now = Date.parse('2026-07-08T17:00:00Z');
+  const fine = getHistory({ symbol: 'TRAQ', now, interval: '1m', sessions: 4 });
+  const coarse = getHistory({ symbol: 'TRAQ', now, interval: '5m', sessions: 4 });
+
+  assert.equal(detectInterval(fine.intraday), 1);
+  assert.equal(detectInterval(coarse.intraday), 5);
+  assert.ok(fine.intraday.length > coarse.intraday.length * 4);
+
+  // The finer feed has to be a closer look at the *same* market, not a
+  // different one that happens to share a ticker. Rolling the 1-minute bars up
+  // to 5 minutes should land on the natively generated 5-minute series.
+  const rolled = resample(fine.intraday, 5, { now });
+  assert.equal(rolled.length, coarse.intraday.length);
+
+  const drift = Math.abs(rolled.at(-1).close - coarse.intraday.at(-1).close) / coarse.intraday.at(-1).close;
+  assert.ok(drift < 0.01, `the two resolutions disagree by ${(drift * 100).toFixed(2)}% at the last bar`);
+  assert.equal(trendOf(rolled.slice(-120)).direction, trendOf(coarse.intraday.slice(-120)).direction);
+});
+
+test('every named ladder builds and reads, given a feed fine and long enough', () => {
+  const now = Date.parse('2026-07-08T17:00:00Z');
+
+  // Two constraints pull opposite ways: a ladder's fastest rung sets how fine
+  // the feed has to be, and its slowest sets how long. `wide` reaches 4-hour
+  // bars, so it needs months of intraday history — which is why it is only
+  // reachable on a feed that serves them (Yahoo's 2-year hourly series does).
+  const feeds = {
+    swing: { interval: '5m', sessions: 12 },
+    intraday: { interval: '5m', sessions: 12 },
+    scalp: { interval: '1m', sessions: 6 },
+    micro: { interval: '1m', sessions: 6 },
+    wide: { interval: '15m', sessions: 120 },
+  };
+
+  for (const [name, ladder] of Object.entries(LADDERS)) {
+    const history = getHistory({ symbol: 'TRAQ', now, ...feeds[name] });
+    const rungs = buildLadder({ ladder, intraday: history.intraday, daily: history.daily, now });
+
+    for (const rung of rungs) {
+      assert.equal(rung.problem, null, `${name}/${rung.key}: ${rung.problem}`);
+      assert.ok(rung.bars.length > 0, `${name}/${rung.key} produced no bars`);
+    }
+
+    const result = analyzeLadder(rungs);
+    assert.notEqual(result.state, 'unreadable', `${name} was unreadable: ${result.detail}`);
+    assert.deepEqual(result.rungs.map((r) => r.key), ladder);
+  }
+});
+
+test('an unknown interval is reported rather than silently skipped', () => {
+  const now = Date.parse('2026-07-08T17:00:00Z');
+  const history = getHistory({ symbol: 'TRAQ', now });
+  const [rung] = buildLadder({ ladder: ['3s'], intraday: history.intraday, daily: history.daily, now });
+  assert.match(rung.problem, /Unknown interval/);
+});
+
+test('each rung reads a window sized to its own interval', () => {
+  const now = Date.parse('2026-07-08T17:00:00Z');
+  const history = getHistory({ symbol: 'TRAQ', now, interval: '1m', sessions: 6 });
+  const rungs = buildLadder({ ladder: LADDERS.scalp, intraday: history.intraday, daily: history.daily, now });
+
+  // The 1-minute rung has thousands of bars available; the read is windowed.
+  const oneMinute = rungs.find((r) => r.key === '1m');
+  assert.ok(oneMinute.bars.length > 1000);
+
+  const result = analyzeLadder(rungs);
+  const read = result.rungs.find((r) => r.key === '1m');
+  assert.ok(read.bars <= 240, `read ${read.bars} bars, expected the 1m window of 240`);
+
+  const narrower = analyzeLadder(rungs, { windows: { '1m': 60 } });
+  assert.equal(narrower.rungs.find((r) => r.key === '1m').bars, 60);
 });

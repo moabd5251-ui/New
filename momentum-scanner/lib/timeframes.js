@@ -258,3 +258,78 @@ export function buildStack({ intraday = [], daily = [], now = null } = {}) {
     daily: mergeDaily(daily, intraday, { now }),
   };
 }
+
+/**
+ * The interval a series is actually made of, in minutes.
+ *
+ * Read from the data rather than trusted from a label: providers relabel,
+ * cache and backfill, and building a 1-minute ladder rung out of 5-minute bars
+ * because a field said `interval: '1m'` would produce a chart that looks
+ * plausible and is fiction. The median gap is used rather than the mean so a
+ * lunch-hour lull or an overnight break cannot drag the answer.
+ */
+export function detectInterval(bars) {
+  const times = (Array.isArray(bars) ? bars : [])
+    .map((bar) => new Date(bar?.time).getTime())
+    .filter((ms) => Number.isFinite(ms))
+    .sort((a, b) => a - b);
+  if (times.length < 3) return null;
+
+  const gaps = [];
+  for (let i = 1; i < times.length; i += 1) {
+    const minutes = (times[i] - times[i - 1]) / 60_000;
+    // Session breaks are not the bar interval; anything over four hours is one.
+    if (minutes > 0 && minutes <= 240) gaps.push(minutes);
+  }
+  if (!gaps.length) return null;
+
+  gaps.sort((a, b) => a - b);
+  return gaps[Math.floor(gaps.length / 2)];
+}
+
+/**
+ * Assemble the rungs of a ladder from whatever the provider supplied.
+ *
+ * `ladder` is a list of interval keys, slowest first — `['1h', '15m', '5m']`.
+ * Each rung is built by resampling the intraday series, except `1d`, which
+ * comes from the daily history spliced with today's intraday bars.
+ *
+ * The one thing this refuses to do is invent resolution. Bars can be combined,
+ * never split: a 1-minute rung cannot be built from 5-minute bars, and
+ * pretending otherwise would put four fabricated bars between every real pair
+ * and hand the swing detector pivots that never traded. A rung that cannot be
+ * built comes back with `bars: []` and a `problem` saying why, which surfaces
+ * as `unreadable` rather than as a confident wrong answer.
+ */
+export function buildLadder({ ladder = [], intraday = [], daily = [], now = null } = {}) {
+  const sourceMinutes = detectInterval(intraday);
+
+  return ladder.map((key) => {
+    if (key === '1d') {
+      const bars = mergeDaily(daily, intraday, { now });
+      return {
+        key,
+        bars,
+        problem: bars.length ? null : 'No daily history from this feed',
+      };
+    }
+
+    const minutes = INTERVAL_MINUTES[key];
+    if (!minutes) return { key, bars: [], problem: `Unknown interval "${key}"` };
+
+    if (sourceMinutes === null) {
+      return { key, bars: [], problem: 'No intraday history from this feed' };
+    }
+    if (minutes < sourceMinutes - 1e-9) {
+      return {
+        key,
+        bars: [],
+        problem:
+          `This feed serves ${sourceMinutes}-minute bars, so a ${key} rung cannot be built — ` +
+          'bars can be combined but never split',
+      };
+    }
+
+    return { key, bars: resample(intraday, minutes, { now }), problem: null };
+  });
+}

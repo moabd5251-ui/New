@@ -66,13 +66,48 @@ export const DEFAULT_TREND_CONFIG = {
   triggerBufferPct: 0.03, // trigger sits this far beyond the pullback extreme
   maxChasePct: 1.0, // past this much through the trigger, the entry is gone
   minMeasuredR: 2, // an equal-leg projection has to clear this to be worth it
+
+  // Which run of timeframes to read. A name from LADDERS below, which is
+  // declared after this object only because it reads better in that order.
+  ladder: 'swing',
 };
 
 export const TIMEFRAME_LABELS = {
+  '1m': '1-minute',
+  '5m': '5-minute',
+  '15m': '15-minute',
+  '30m': '30-minute',
+  '1h': 'Hourly',
+  '4h': '4-hour',
+  '1d': 'Daily',
+  // The names the original three-timeframe entry points still use.
   daily: 'Daily',
   hourly: 'Hourly',
   fiveMin: '5-minute',
 };
+
+/**
+ * Named ladders.
+ *
+ * The higher-high/higher-low relationship is scale-invariant: 1-minute pauses
+ * inside 5-minute structure exactly as 5-minute pauses inside hourly, and
+ * hourly inside daily. So the strategy is not really about the daily, the
+ * hourly and the 5-minute — it is about *any* run of adjacent timeframes, and
+ * which run you pick is a choice about holding period, not about the method.
+ *
+ * Slowest first. The last entry times the trade, the one before it supplies
+ * the structure that decides correction from reversal, and everything above
+ * grants permission.
+ */
+export const LADDERS = {
+  swing: ['1d', '1h', '5m'], // the original: days of context, minutes of timing
+  intraday: ['1h', '15m', '5m'],
+  scalp: ['15m', '5m', '1m'],
+  micro: ['5m', '1m'], // two rungs: structure and timing, no permission layer
+  wide: ['1d', '4h', '1h'], // multi-day holds
+};
+
+export const DEFAULT_LADDER = 'swing';
 
 /** Every state the stack can be in, in the order they occur. */
 export const STACK_STATES = [
@@ -92,11 +127,20 @@ const SIGN = { up: 1, down: -1 };
 function normalizeConfig(config = {}) {
   const merged = { ...DEFAULT_TREND_CONFIG, ...config };
   for (const [key, fallback] of Object.entries(DEFAULT_TREND_CONFIG)) {
+    // Not every setting is a number. Coercing the ladder name through Number()
+    // would turn 'scalp' into NaN and silently reset it to the default.
+    if (typeof fallback === 'string') {
+      merged[key] = typeof merged[key] === 'string' && merged[key] ? merged[key] : fallback;
+      continue;
+    }
     const value = Number(merged[key]);
     merged[key] = Number.isFinite(value) && value > 0 ? value : fallback;
   }
   merged.swingSpan = Math.max(1, Math.round(merged.swingSpan));
   merged.slowPeriod = Math.max(merged.slowPeriod, merged.fastPeriod + 1);
+  // A stored ladder naming something that no longer exists falls back rather
+  // than producing an empty run.
+  if (!LADDERS[merged.ladder]) merged.ladder = DEFAULT_LADDER;
   return merged;
 }
 
@@ -554,106 +598,210 @@ function readCorrection(candles, direction, cfg) {
 }
 
 /* ------------------------------------------------------------------ */
-/* the whole stack                                                     */
+/* the ladder                                                          */
 /* ------------------------------------------------------------------ */
 
 /**
- * Run the strategy over the three timeframes.
+ * How many bars of each interval are worth reading.
  *
- * `stack` is `{ fiveMin, hourly, daily }` — arrays of OHLCV bars, as built by
- * timeframes.js. The result always explains itself: there is a `state`, a
- * sentence of `detail`, and (only when the state warrants one) a `setup` that
- * trade-plan.js can size.
+ * "The current leg" means something different on each rung. On a 1-minute
+ * chart it is a question about the last couple of hours; on a daily chart it
+ * is a question about the last few months. Reading the whole series on the
+ * fast rungs would measure today's pullback against a high set last week and
+ * call every dip a 95% retracement.
  */
-export function analyzeStack(stack = {}, config = {}) {
+export const DEFAULT_WINDOWS = {
+  '1m': 240, // ~4 hours
+  '5m': 120, // ~1.5 sessions
+  '15m': 90, // ~3 sessions
+  '30m': 90,
+  '1h': 90, // ~2 weeks
+  '4h': 90,
+  '1d': 140, // ~7 months
+};
+
+function windowFor(key, cfg) {
+  if (cfg.windows && Number.isFinite(Number(cfg.windows[key]))) return Number(cfg.windows[key]);
+  // The original single-purpose knobs still work, so a stored data/trend.json
+  // written before ladders existed keeps meaning what it meant.
+  if (key === '5m' || key === 'fiveMin') return cfg.fiveMinWindow;
+  if (key === '1h' || key === 'hourly') return cfg.hourlyWindow;
+  if (key === '1d' || key === 'daily') return cfg.dailyWindow;
+  return DEFAULT_WINDOWS[key] ?? 120;
+}
+
+const labelFor = (key) => TIMEFRAME_LABELS[key] ?? key;
+
+/** "Daily and Hourly", "Daily, Hourly and 15-minute". */
+function joinLabels(list) {
+  if (!list.length) return '';
+  if (list.length === 1) return list[0];
+  return `${list.slice(0, -1).join(', ')} and ${list.at(-1)}`;
+}
+
+/**
+ * Run the strategy over a ladder of timeframes.
+ *
+ * `rungs` is `[{ key, bars }, ...]` ordered **slowest first**. The last rung
+ * times the trade, the one above it supplies the structure that separates a
+ * correction from a reversal, and every rung above that grants permission.
+ *
+ * Two rungs is the minimum and is a real configuration — structure and timing,
+ * no permission layer. Three is the usual shape. More is allowed and simply
+ * means more has to agree before anything is traded.
+ *
+ * The result always explains itself: a `state`, a sentence of `detail`, the
+ * nested `invalidations` ladder, and — only when the state warrants one — a
+ * `setup` that trade-plan.js can size.
+ */
+export function analyzeLadder(rungs = [], config = {}) {
   const cfg = normalizeConfig(config);
 
-  const tail = (series, count) =>
-    Array.isArray(series) ? series.slice(-Math.max(1, Math.round(count))) : [];
-  const series = {
-    daily: tail(stack.daily, cfg.dailyWindow),
-    hourly: tail(stack.hourly, cfg.hourlyWindow),
-    fiveMin: tail(stack.fiveMin, cfg.fiveMinWindow),
-  };
-
-  const timeframes = {
-    daily: trendOf(series.daily, cfg),
-    hourly: trendOf(series.hourly, cfg),
-    fiveMin: trendOf(series.fiveMin, cfg),
-  };
-
-  const unreadable = Object.entries(timeframes)
-    .filter(([, t]) => !t.usable)
-    .map(([key]) => TIMEFRAME_LABELS[key]);
+  const given = (Array.isArray(rungs) ? rungs : []).filter((rung) => rung && rung.key);
 
   const base = {
-    timeframes,
+    ladder: given.map((rung) => rung.key),
+    rungs: [],
+    timeframes: {},
     direction: null,
     contextAligned: false,
     stacked: false,
     agreement: 0,
     invalidation: null,
+    invalidations: [],
     correction: null,
     setup: null,
     notes: [],
   };
 
-  if (unreadable.length) {
+  if (given.length < 2) {
     return {
       ...base,
       state: 'unreadable',
-      detail: `Not enough history to judge the ${unreadable.join(' and ')} timeframe${unreadable.length > 1 ? 's' : ''}`,
+      detail:
+        'A ladder needs at least two timeframes: one to say whether the trend is intact and a ' +
+        'faster one to time the entry. One timeframe on its own cannot tell a pause from a reversal.',
     };
   }
 
-  const { daily, hourly, fiveMin } = timeframes;
+  const reads = given.map((rung, i) => {
+    const bars = Array.isArray(rung.bars)
+      ? rung.bars.slice(-Math.max(1, Math.round(windowFor(rung.key, cfg))))
+      : [];
+    return {
+      key: rung.key,
+      label: labelFor(rung.key),
+      role: i === given.length - 1 ? 'timing' : i === given.length - 2 ? 'structure' : 'permission',
+      // Why this rung could not be built at all, if it could not — set by
+      // buildLadder when a feed's bars are too coarse for the interval asked
+      // for. A rung that could not be built is a different failure from one
+      // that simply has too few bars, and the two should not read alike.
+      problem: rung.problem ?? null,
+      bars,
+      trend: trendOf(bars, cfg),
+    };
+  });
 
-  // The daily says whether to be involved and the hourly says whether the
-  // current leg is intact. Disagreement between them is not a weaker signal,
-  // it is a different market — there is nothing here to trade either way.
-  const contextAligned = daily.direction !== 'none' && daily.direction === hourly.direction;
-  const direction = contextAligned ? daily.direction : null;
-  // How many of the three point the same way. Two is the permission to look
-  // for a trade; three is the stack the strategy is named for, and it usually
-  // means the pullback has not started yet.
-  const agreement = contextAligned ? 2 + (fiveMin.direction === direction ? 1 : 0) : 0;
+  const timing = reads.at(-1);
+  const structure = reads.at(-2);
+  const higher = reads.slice(0, -1); // everything the timing rung must respect
+
+  // Keyed by interval, plus the three original names when those intervals are
+  // on the ladder, so callers written against the old shape keep working.
+  const timeframes = {};
+  for (const read of reads) {
+    timeframes[read.key] = read.trend;
+    if (read.key === '1d') timeframes.daily = read.trend;
+    if (read.key === '1h') timeframes.hourly = read.trend;
+    if (read.key === '5m') timeframes.fiveMin = read.trend;
+  }
+
+  const described = reads.map((read) => ({
+    key: read.key,
+    label: read.label,
+    role: read.role,
+    problem: read.problem,
+    direction: read.trend.direction,
+    strength: read.trend.strength,
+    usable: read.trend.usable,
+    bars: read.trend.bars,
+    invalidation: read.trend.invalidation,
+    detail: read.trend.detail,
+  }));
+
+  const withStructure = { ...base, rungs: described, timeframes };
+
+  const unreadable = reads.filter((read) => !read.trend.usable);
+  if (unreadable.length) {
+    const blocked = unreadable.filter((read) => read.problem);
+    return {
+      ...withStructure,
+      state: 'unreadable',
+      detail: blocked.length
+        ? blocked.map((read) => `${read.label}: ${read.problem}`).join('; ')
+        : `Not enough history to judge the ${joinLabels(unreadable.map((r) => r.label))} ` +
+          `timeframe${unreadable.length > 1 ? 's' : ''}`,
+    };
+  }
+
+  // Every rung above the timing one has to agree. Disagreement anywhere in the
+  // ladder is not a weaker signal, it is a different market at that scale —
+  // and a 5-minute entry justified by an hourly trend the daily is fighting is
+  // exactly the trade this whole structure exists to refuse.
+  const direction = structure.trend.direction;
+  const contextAligned = direction !== 'none' && higher.every((r) => r.trend.direction === direction);
 
   if (!contextAligned) {
     return {
-      ...base,
-      agreement: 0,
+      ...withStructure,
       state: 'not_aligned',
       detail:
-        `Daily is ${describe(daily.direction)} and hourly is ${describe(hourly.direction)} — ` +
-        'no agreement between them, so there is no trend to continue',
+        `${higher.map((r) => `${r.label} is ${describe(r.trend.direction)}`).join(', ')} — ` +
+        'the ladder does not agree, so there is no trend to continue',
     };
   }
 
-  const invalidation = hourly.invalidation;
-  const correction = readCorrection(series.fiveMin, direction, cfg);
+  const agreement = higher.length + (timing.trend.direction === direction ? 1 : 0);
+  const invalidation = structure.trend.invalidation;
+  const correction = readCorrection(timing.bars, direction, cfg);
   const sign = SIGN[direction];
-  const notes = [...daily.notes, ...hourly.notes, ...fiveMin.notes];
+  const swingWord = direction === 'up' ? 'higher low' : 'lower high';
+
+  // The nested ladder of levels. Losing the fastest one is a pause ending;
+  // losing the slowest is the whole thesis ending. Reporting all of them is
+  // the point of thinking about this fractally in the first place.
+  const invalidations = described
+    .filter((rung) => Number.isFinite(rung.invalidation))
+    .map((rung) => ({ key: rung.key, label: rung.label, level: round(rung.invalidation, 4), role: rung.role }));
 
   const context = {
-    ...base,
+    ...withStructure,
     direction,
     contextAligned: true,
-    stacked: fiveMin.direction === direction,
+    stacked: timing.trend.direction === direction,
     agreement,
     invalidation: round(invalidation, 4),
+    invalidations,
     correction,
-    notes,
+    notes: reads.flatMap((r) => r.trend.notes ?? []),
   };
 
+  const higherLabels = joinLabels(higher.map((r) => r.label));
+  // A two-rung ladder has exactly one rung above the timing one, and "5-minute
+  // agree" is not a sentence. The phrasing follows the ladder's shape rather
+  // than assuming the three-timeframe default.
+  const higherPhrase =
+    higher.length > 1 ? `${higherLabels} agree` : `${higherLabels} is ${describe(direction)}`;
+
   // The core rule, checked before anything else about the pullback: a
-  // correction that has traded through the hourly's last higher low is not a
-  // correction. The sequence the daily and hourly agreement rests on is over,
-  // and the setup died with it.
+  // correction that has traded through the structure rung's last swing is not
+  // a correction. The sequence the whole ladder rests on is over, and the
+  // setup died with it.
   //
-  // Strictly through, not down to. The hourly swing low is itself made of
-  // these same fast bars, so a pullback that ends exactly on it has usually
-  // *defined* that low rather than broken it — and a test that holds is the
-  // best version of this setup, not a disqualifying one.
+  // Strictly through, not down to. That swing low is itself made of these same
+  // fast bars, so a pullback ending exactly on it has usually *defined* the
+  // low rather than broken it — and a test that holds is the best version of
+  // this setup, not a disqualifying one.
   if (
     correction?.active &&
     Number.isFinite(invalidation) &&
@@ -665,9 +813,9 @@ export function analyzeStack(stack = {}, config = {}) {
       ...context,
       state: 'invalidated',
       detail:
-        `The 5-minute pullback traded to ${correction.pullbackExtreme.toFixed(2)}, through the hourly ` +
-        `${direction === 'up' ? 'higher low' : 'lower high'} at ${invalidation.toFixed(2)}. ` +
-        'That is a break of hourly structure, not a pause in it — stand aside.',
+        `The ${timing.label} pullback traded to ${fmt(correction.pullbackExtreme)}, through the ` +
+        `${structure.label} ${swingWord} at ${fmt(invalidation)}. That is a break of ` +
+        `${structure.label} structure, not a pause in it — stand aside.`,
     };
   }
 
@@ -676,7 +824,7 @@ export function analyzeStack(stack = {}, config = {}) {
       ...context,
       state: 'extended',
       detail: Number.isFinite(correction.legPct)
-        ? `Daily and hourly both ${describe(direction)} and the 5-minute is still making new ` +
+        ? `${higherPhrase} and the ${timing.label} is still making new ` +
           `${direction === 'up' ? 'highs' : 'lows'}. Nothing to do but wait for the pause — ` +
           'entering an extended leg puts the stop too far away to be worth it.'
         : correction.detail,
@@ -688,8 +836,8 @@ export function analyzeStack(stack = {}, config = {}) {
       ...context,
       state: 'extended',
       detail:
-        `The 5-minute leg is only ${correction.legPct.toFixed(1)}% — too small to be a leg worth ` +
-        `continuing (needs ${cfg.minLegPct}%).`,
+        `The ${timing.label} leg is only ${correction.legPct.toFixed(1)}% — too small to be a leg ` +
+        `worth continuing (needs ${cfg.minLegPct}%).`,
     };
   }
 
@@ -703,7 +851,7 @@ export function analyzeStack(stack = {}, config = {}) {
       state: 'extended',
       detail:
         `Only ${correction.retracePct.toFixed(0)}% of the leg has been given back, under the ` +
-        `${cfg.minRetracePct}% a pause has to reach to be one. Daily and hourly agree, so this is ` +
+        `${cfg.minRetracePct}% a pause has to reach to be one. ${higherPhrase}, so this is ` +
         'worth watching — but there is no correction to buy the end of yet.',
     };
   }
@@ -716,9 +864,10 @@ export function analyzeStack(stack = {}, config = {}) {
       ...context,
       state: 'too_deep',
       detail:
-        `${correction.bars} bars of pullback, past the ${cfg.maxPullbackBars}-bar limit. Hourly ` +
-        `structure is still intact at ${fmt(invalidation)}, but the move has stopped pausing and ` +
-        'started stalling — wait for a new leg rather than treating this as a pause in the old one.',
+        `${correction.bars} ${timing.label} bars of pullback, past the ${cfg.maxPullbackBars}-bar ` +
+        `limit. ${structure.label} structure is still intact at ${fmt(invalidation)}, but the move ` +
+        'has stopped pausing and started stalling — wait for a new leg rather than treating this ' +
+        'as a pause in the old one.',
     };
   }
 
@@ -732,19 +881,23 @@ export function analyzeStack(stack = {}, config = {}) {
             'through where it started. '
           : `The pullback has given back ${correction.retracePct.toFixed(0)}% of the leg, past the ` +
             `${cfg.maxRetracePct}% limit. `) +
-        `Hourly structure is still intact at ${fmt(invalidation)}, but a retracement that deep is ` +
-        'closer to a reversal than a pause.',
+        `${structure.label} structure is still intact at ${fmt(invalidation)}, but a retracement ` +
+        'that deep is closer to a reversal than a pause.',
     };
   }
 
   const setup = buildContinuationSetup({
-    series,
+    timingBars: timing.bars,
     direction,
     correction,
     invalidation,
-    hourly,
-    daily,
-    fiveMin,
+    higher,
+    timing,
+    structure,
+    higherPhrase:
+      higher.length > 1
+        ? `${higherLabels} all ${describe(direction)}`
+        : `${higherLabels} ${describe(direction)}`,
     cfg,
   });
 
@@ -756,13 +909,12 @@ export function analyzeStack(stack = {}, config = {}) {
       ...context,
       state: 'no_entry',
       detail:
-        'The pullback holds hourly structure, but no entry with a usable stop can be built from it ' +
-        '— the trigger and the stop are the same price.',
+        `The pullback holds ${structure.label} structure, but no entry with a usable stop can be ` +
+        'built from it — the trigger and the stop are the same price.',
     };
   }
 
-  const past = sign * (correction.lastClose - setup.entry);
-  const chasePct = (past / setup.entry) * 100;
+  const chasePct = ((sign * (correction.lastClose - setup.entry)) / setup.entry) * 100;
 
   if (chasePct > cfg.maxChasePct) {
     return {
@@ -782,46 +934,69 @@ export function analyzeStack(stack = {}, config = {}) {
     ...context,
     setup,
     state,
-    detail: stateSentence(state, direction, setup, correction, invalidation),
+    detail: stateSentence(state, direction, setup, correction, invalidation, timing, structure),
   };
+}
+
+/**
+ * The original three-timeframe entry point: daily, hourly, 5-minute.
+ *
+ * Kept because it is the ladder most callers want and because everything
+ * written before ladders existed calls it. It is now one preset among several
+ * — see LADDERS.
+ */
+export function analyzeStack(stack = {}, config = {}) {
+  return analyzeLadder(
+    [
+      { key: '1d', bars: stack.daily },
+      { key: '1h', bars: stack.hourly },
+      { key: '5m', bars: stack.fiveMin },
+    ],
+    config,
+  );
 }
 
 /**
  * Turn a validated correction into an entry, a stop and a target.
  *
  * Two stops come out of this. The **trade stop** sits just beyond the
- * pullback's extreme, padded by a fraction of the 5-minute ATR so ordinary
- * noise does not take it out; that is the one the position is sized against.
- * The **structural stop** sits beyond the hourly invalidation — wider, but the
- * price at which the reason for the trade is actually gone. Both are reported,
- * because which one a trader uses is a real choice and not one this code
- * should make silently.
+ * pullback's extreme, padded by a fraction of the timing timeframe's ATR so
+ * ordinary noise does not take it out; that is the one the position is sized
+ * against. The **structural stop** sits beyond the invalidation level — wider,
+ * but the price at which the reason for the trade is actually gone. Both are
+ * reported, because which one a trader uses is a real choice and not one this
+ * code should make silently.
  */
-function buildContinuationSetup({ series, direction, correction, invalidation, hourly, daily, fiveMin, cfg }) {
+function buildContinuationSetup({
+  timingBars,
+  direction,
+  correction,
+  invalidation,
+  higher,
+  timing,
+  structure,
+  higherPhrase,
+  cfg,
+}) {
   const sign = SIGN[direction];
-  const buffer = Math.max(
-    (correction.trigger * cfg.triggerBufferPct) / 100,
-    0.01,
-  );
+  const buffer = Math.max((correction.trigger * cfg.triggerBufferPct) / 100, 0.01);
   const entry = round(correction.trigger + sign * buffer);
 
-  const noise = atr(series.fiveMin, cfg.atrPeriod) ?? 0;
+  const noise = atr(timingBars, cfg.atrPeriod) ?? 0;
   const stopPad = Math.max(noise * cfg.stopAtrMultiple, buffer);
   const stop = round(correction.pullbackExtreme - sign * stopPad);
 
   if (!Number.isFinite(entry) || !Number.isFinite(stop)) return null;
   if (sign * (entry - stop) <= 0) return null;
 
-  const structuralStop = Number.isFinite(invalidation)
-    ? round(invalidation - sign * stopPad)
-    : null;
+  const structuralStop = Number.isFinite(invalidation) ? round(invalidation - sign * stopPad) : null;
 
   // Measured move: the leg that just ran, projected again from where the
   // pullback ended. A projection, not a prediction — its only job is to say
   // whether there is room above the entry for the R targets to work in.
   const measuredTarget = round(correction.pullbackExtreme + sign * correction.legSize);
   const riskPerShare = Math.abs(entry - stop);
-  const measuredR = riskPerShare > 0 ? sign * (measuredTarget - entry) / riskPerShare : null;
+  const measuredR = riskPerShare > 0 ? (sign * (measuredTarget - entry)) / riskPerShare : null;
 
   const lastClose = correction.lastClose;
 
@@ -840,14 +1015,15 @@ function buildContinuationSetup({ series, direction, correction, invalidation, h
     );
   }
 
-  // Grade the setup by the things that make it work: how strongly the two
-  // higher timeframes agree, how little of the leg the pause gave back, and
-  // whether there is room for the trade to pay.
+  // Grade the setup by the things that make it work: how strongly the higher
+  // rungs agree, how little of the leg the pause gave back, and whether there
+  // is room for the trade to pay.
+  const higherStrength = higher.reduce((total, r) => total + (r.trend.strength ?? 0), 0) / higher.length;
   const quality =
     1 +
-    (daily.strength + hourly.strength) +
+    higherStrength * 2 +
     (1 - correction.retracePct / 100) +
-    (fiveMin.direction === direction ? 0.3 : 0) -
+    (timing.trend.direction === direction ? 0.3 : 0) -
     (cautions.length ? 0.75 : 0);
 
   return {
@@ -855,13 +1031,18 @@ function buildContinuationSetup({ series, direction, correction, invalidation, h
     label: 'Trend continuation',
     direction: direction === 'up' ? 'long' : 'short',
     trendDirection: direction,
+    timingTimeframe: timing.key,
+    structureTimeframe: structure.key,
     entry,
     stop,
     structuralStop,
     measuredTarget,
     measuredR: round(measuredR),
     cautions,
+    // Kept under the original name as well: callers and stored journal entries
+    // refer to it, and on the default ladder it is exactly what it says.
     hourlyInvalidation: round(invalidation, 4),
+    invalidation: round(invalidation, 4),
     quality: round(quality, 3),
     candlesInPattern: correction.bars,
     impulsePct: correction.legPct,
@@ -872,37 +1053,36 @@ function buildContinuationSetup({ series, direction, correction, invalidation, h
     riskPerShare: round(riskPerShare),
     riskPct: round((riskPerShare / entry) * 100),
     rationale:
-      `Daily and hourly both ${describe(direction)}. The 5-minute gave back ` +
+      `${higherPhrase}. The ${timing.label} gave back ` +
       `${correction.retracePct.toFixed(0)}% of a ${correction.legPct.toFixed(1)}% leg over ` +
-      `${correction.bars} bar${correction.bars === 1 ? '' : 's'} and held the hourly ` +
+      `${correction.bars} bar${correction.bars === 1 ? '' : 's'} and held the ${structure.label} ` +
       `${direction === 'up' ? 'higher low' : 'lower high'} at ${fmt(invalidation)}. ` +
       `${direction === 'up' ? 'Long over' : 'Short under'} ${fmt(entry)}, out ` +
       `${direction === 'up' ? 'below' : 'above'} ${fmt(stop)}` +
-      (structuralStop === null
-        ? '.'
-        : ` (structural stop ${fmt(structuralStop)}).`),
+      (structuralStop === null ? '.' : ` (structural stop ${fmt(structuralStop)}).`),
   };
 }
 
-function stateSentence(state, direction, setup, correction, invalidation) {
-  const side = direction === 'up' ? 'long' : 'short';
+function stateSentence(state, direction, setup, correction, invalidation, timing, structure) {
+  const swingWord = direction === 'up' ? 'higher low' : 'lower high';
   if (state === 'triggered') {
     return (
-      `The 5-minute has broken back ${direction === 'up' ? 'up' : 'down'} through ${fmt(setup.entry)} ` +
-      `and the continuation is live. Stop ${fmt(setup.stop)}; hourly structure fails at ${fmt(invalidation)}.`
+      `The ${timing.label} has broken back ${direction === 'up' ? 'up' : 'down'} through ` +
+      `${fmt(setup.entry)} and the continuation is live. Stop ${fmt(setup.stop)}; ` +
+      `${structure.label} structure fails at ${fmt(invalidation)}.`
     );
   }
   if (state === 'armed') {
     return (
-      `The pullback has stalled ${correction.retracePct.toFixed(0)}% into the leg, above the hourly ` +
-      `${direction === 'up' ? 'higher low' : 'lower high'} at ${fmt(invalidation)}. ` +
-      `${side === 'long' ? 'Long' : 'Short'} triggers at ${fmt(setup.entry)}, stop ${fmt(setup.stop)}.`
+      `The pullback has stalled ${correction.retracePct.toFixed(0)}% into the leg, above the ` +
+      `${structure.label} ${swingWord} at ${fmt(invalidation)}. ` +
+      `${direction === 'up' ? 'Long' : 'Short'} triggers at ${fmt(setup.entry)}, stop ${fmt(setup.stop)}.`
     );
   }
   return (
-    `The 5-minute is still correcting — ${correction.bars} bars in, ${correction.retracePct.toFixed(0)}% of ` +
-    `the leg given back, hourly structure intact at ${fmt(invalidation)}. The trade is a break of ` +
-    `${fmt(setup.entry)}, not this dip.`
+    `The ${timing.label} is still correcting — ${correction.bars} bars in, ` +
+    `${correction.retracePct.toFixed(0)}% of the leg given back, ${structure.label} structure intact ` +
+    `at ${fmt(invalidation)}. The trade is a break of ${fmt(setup.entry)}, not this dip.`
   );
 }
 

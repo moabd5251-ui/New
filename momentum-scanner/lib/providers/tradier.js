@@ -333,6 +333,12 @@ async function fetchIntraday(base, token, symbol, now) {
   return parseTimesales(await fetchJson(url, token));
 }
 
+/** The interval names Tradier's timesales endpoint accepts. */
+const TIMESALES_INTERVALS = { '1m': '1min', '5m': '5min', '15m': '15min' };
+
+/** How far back to ask for each, given how fast the payload grows. */
+const DEFAULT_INTRADAY_DAYS = { '1m': 5, '5m': 20, '15m': 40 };
+
 /**
  * Multi-day history for the multi-timeframe strategy.
  *
@@ -350,7 +356,8 @@ export async function getHistory({
   symbol,
   token = process.env.TRADIER_TOKEN || '',
   sandbox = String(process.env.TRADIER_SANDBOX || '').toLowerCase() === 'true',
-  intradayDays = 20,
+  interval = '5m',
+  intradayDays = null,
   dailyDays = 365,
   now = Date.now(),
 } = {}) {
@@ -359,13 +366,21 @@ export async function getHistory({
   }
   if (!symbol) throw new Error('getHistory needs a symbol');
 
+  const tradierInterval = TIMESALES_INTERVALS[interval];
+  if (!tradierInterval) {
+    throw new Error(`Tradier timesales has no ${interval} interval (try 1m, 5m or 15m)`);
+  }
+
   const base = baseUrl({ sandbox });
   const ticker = String(symbol).toUpperCase();
   const day = 24 * 3600 * 1000;
+  // 1-minute bars are twenty times the payload of 5-minute ones for the same
+  // window, so the lookback shrinks with the resolution rather than timing out.
+  const lookbackDays = intradayDays ?? DEFAULT_INTRADAY_DAYS[interval];
 
   const intradayUrl =
-    `${base}/markets/timesales?symbol=${encodeURIComponent(ticker)}&interval=5min` +
-    `&start=${encodeURIComponent(tradierTimestamp(new Date(now - intradayDays * day), { hour: '09', minute: '30' }))}` +
+    `${base}/markets/timesales?symbol=${encodeURIComponent(ticker)}&interval=${tradierInterval}` +
+    `&start=${encodeURIComponent(tradierTimestamp(new Date(now - lookbackDays * day), { hour: '09', minute: '30' }))}` +
     `&end=${encodeURIComponent(tradierTimestamp(new Date(now)))}&session_filter=open`;
 
   const dailyUrl =
@@ -392,7 +407,7 @@ export async function getHistory({
       }),
   ]);
 
-  return { symbol: ticker, intraday, daily, interval: '5m', provider: 'tradier', errors };
+  return { symbol: ticker, intraday, daily, interval, provider: 'tradier', errors };
 }
 
 async function fetchFinnhubProfile(symbol, apiKey) {

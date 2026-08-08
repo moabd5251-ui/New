@@ -254,25 +254,39 @@
         </div>
 
         <div id="trend-view" class="trend" hidden>
-          <p class="panel__hint trend__hint">
-            Daily and hourly decide <strong>whether</strong>; the 5-minute decides
-            <strong>when</strong>. A pullback that holds the last hourly swing is a pause to
-            enter on — one that trades through it is a reversal to stand aside from.
-          </p>
+          <div class="trend__head">
+            <p class="panel__hint trend__hint">
+              The slow rungs decide <strong>whether</strong>; the fastest decides
+              <strong>when</strong>. A pullback that holds the last swing on the rung above
+              it is a pause to enter on — one that trades through it is a reversal to stand
+              aside from. The relationship is the same at every scale, so the ladder is a
+              choice about holding period, not about the method.
+            </p>
+            <label class="trend__ladder">
+              <span>Ladder</span>
+              <select id="ladder-select" aria-label="Timeframe ladder">
+                <option value="swing">Swing · 1d → 1h → 5m</option>
+                <option value="intraday">Intraday · 1h → 15m → 5m</option>
+                <option value="scalp">Scalp · 15m → 5m → 1m</option>
+                <option value="micro">Micro · 5m → 1m</option>
+                <option value="wide">Wide · 1d → 4h → 1h</option>
+              </select>
+            </label>
+          </div>
           <div id="trend-stats" class="stats"></div>
           <div class="table-wrap">
             <table class="scanner">
               <thead>
                 <tr>
                   <th>Symbol</th>
-                  <th class="trend__tf">Daily</th>
-                  <th class="trend__tf">Hourly</th>
-                  <th class="trend__tf">5-min</th>
+                  <th class="trend__tf" id="trend-col-0">—</th>
+                  <th class="trend__tf" id="trend-col-1">—</th>
+                  <th class="trend__tf" id="trend-col-2">—</th>
                   <th>State</th>
                   <th class="num">Pullback</th>
                   <th class="num">Entry</th>
                   <th class="num">Stop</th>
-                  <th class="num">Hourly invalidation</th>
+                  <th class="num">Invalidation</th>
                   <th class="num">Shares</th>
                 </tr>
               </thead>

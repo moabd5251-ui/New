@@ -20,9 +20,11 @@ Selection answers *what* to trade. The strategy layer answers *when*, *how much*
 and *when to stop* — see [The trade strategy](#the-trade-strategy) below.
 
 A second, independent strategy runs over the same feeds:
-[multi-timeframe trend continuation](#multi-timeframe-trend-continuation) —
-daily, hourly and 5-minute agreement, entering on a pullback that holds the
-hourly structure rather than on a fresh breakout.
+[multi-timeframe trend continuation](#multi-timeframe-trend-continuation) — a
+ladder of timeframes that have to agree, entering on a pullback that holds the
+structure of the rung above it rather than on a fresh breakout. The rule is the
+same at every scale, so the ladder runs from `1d → 1h → 5m` down to
+`15m → 5m → 1m`.
 
 ## Quick start
 
@@ -31,7 +33,7 @@ No dependencies, no build step. Node 18+ is all you need.
 ```bash
 cd momentum-scanner
 npm start           # http://localhost:4173
-npm test            # 152 tests, no network required
+npm test            # 166 tests, no network required
 ```
 
 `npm run verify:live` exercises the paths that only exist while the market is
@@ -211,17 +213,60 @@ A second strategy over the same feeds, in the **Trend stack** tab. Where the
 five criteria hunt for one violent day, this one looks for a trend that is
 already running and waits for it to pause.
 
-It reads three timeframes and gives each exactly one job:
+It reads a **ladder** of timeframes and gives each rung exactly one job:
 
-| Timeframe | Question | Job |
+| Rung | Question | Job |
 |---|---|---|
-| **Daily** | Which way is this going at all? | permission |
-| **Hourly** | Is the current leg still intact? | structure |
-| **5-minute** | Has it paused, and has the pause ended? | timing |
+| slowest… | Which way is this going at all? | permission |
+| second-from-last | Is the current leg still intact? | structure |
+| **fastest** | Has it paused, and has the pause ended? | timing |
 
-The daily and hourly have to agree before anything else is considered. If they
-do not, there is no trade in either direction — that is not a weaker signal,
-it is a different market.
+Every rung above the fastest has to agree before anything else is considered.
+If they do not, there is no trade in either direction — that is not a weaker
+signal, it is a different market at that scale.
+
+### The ladder is a choice about holding period, not about method
+
+The higher-high/higher-low relationship is **scale-invariant**. A 1-minute
+pullback sits inside 5-minute structure exactly as a 5-minute pullback sits
+inside hourly structure, and hourly inside daily. Nothing in the rule changes
+between them — only how long you are in the trade.
+
+So the timeframes are configurable, and `1d → 1h → 5m` is just the default:
+
+| Ladder | Rungs | Holding period |
+|---|---|---|
+| `swing` | `1d → 1h → 5m` | hours to days |
+| `intraday` | `1h → 15m → 5m` | one session |
+| `scalp` | `15m → 5m → 1m` | minutes |
+| `micro` | `5m → 1m` | minutes; structure and timing only, no permission layer |
+| `wide` | `1d → 4h → 1h` | days to weeks |
+
+Two rungs is the minimum and a real configuration. More than three is allowed
+and simply means more has to agree before anything trades. Pick one in the UI,
+pass `?ladder=scalp` to the API, or give an explicit list —
+`?ladder=1h,15m,5m`.
+
+**Bars can be combined, never split.** A 1-minute rung needs a feed serving
+1-minute bars; building one from 5-minute bars would put four fabricated bars
+between every real pair and hand the swing detector pivots that never traded.
+`buildLadder` refuses, and the rung comes back saying why rather than
+producing a confident wrong answer. `detectInterval` reads the bar width from
+the timestamps rather than trusting a provider's label.
+
+### Nested levels
+
+Because the relationship repeats at every scale, so do the levels that break
+it. The drawer lists all of them, nearest scale first:
+
+```
+5-minute higher low     $14.22    ← losing this ends the pause
+Hourly higher low       $13.63    ← losing this ends the setup   (decisive)
+Daily higher low        $11.70    ← losing this ends the thesis
+```
+
+The marked one is the structure rung's, and it is the one the setup is built
+against: the price that decides whether the current dip is an entry or an exit.
 
 ### Correction or reversal — the level that decides
 
@@ -229,12 +274,12 @@ Every pullback looks like the start of a reversal while it is happening. The
 strategy does not judge that by how deep or how frightening the dip is; it
 judges it against **one specific price**.
 
-In an uptrend the hourly chart is a sequence of higher highs and higher lows.
-The most recent *confirmed hourly swing low* is the price that sequence rests
-on. A 5-minute sell-off that stays above it has taken nothing away from the
-hourly trend, however bad it looks on a 5-minute chart. One that trades through
-it has ended the sequence — what looked like a dip to buy is now a lower low to
-stand aside from.
+In an uptrend the structure rung is a sequence of higher highs and higher lows.
+The most recent *confirmed swing low* on it is the price that sequence rests
+on. A sell-off on the timing rung that stays above it has taken nothing away
+from the structure, however bad it looks on the fast chart. One that trades
+through it has ended the sequence — what looked like a dip to buy is now a
+lower low to stand aside from.
 
 That level is `invalidation` throughout the code, and it is the whole strategy:
 it decides whether a dip is an entry or an exit, it sets the structural stop,
@@ -297,22 +342,27 @@ before this existed still reads correctly.
 
 ### Where the bars come from
 
-| | Source |
-|---|---|
-| 5-minute | The provider's finest intraday series |
-| Hourly | **Resampled** from the same 5-minute bars |
-| Daily | The provider's daily history, with today re-derived from the intraday bars |
+One intraday fetch, at the ladder's **fastest** interval; every coarser rung is
+resampled from it, so no two rungs can disagree about a bar they share. The
+daily rung comes from the provider's daily history with today re-derived from
+the intraday bars.
 
-Hourly is resampled rather than fetched: one request fewer, and the two
-intraday timeframes cannot then disagree about a bar they share. Buckets are
-anchored to the **09:30 ET bell**, not the wall clock — a clock-anchored hour
-would end the first bar at 10:00, which is a 30-minute bar wearing an hourly
-label, and every bar after it would be offset from what a charting platform
-shows.
+Buckets are anchored to the **09:30 ET bell**, not the wall clock — a
+clock-anchored hour would end the first bar at 10:00, which is a 30-minute bar
+wearing an hourly label, and every bar after it would be offset from what a
+charting platform shows.
 
-Tradier serves about 20 days of 5-minute bars, which is the binding constraint
-on how far back the hourly chart can be read (roughly ninety hourly bars).
-Yahoo caps 5-minute history at 60 days. Both are ample for a swing sequence.
+What each feed will serve bounds which ladders are reachable:
+
+| Feed | 1-minute | 5-minute | Hourly |
+|---|---|---|---|
+| Tradier | ~5 days | ~20 days | from 5-minute bars |
+| Yahoo | 7 days | 1 month | 2 years |
+| Simulated | generated natively at any of 1m / 5m / 15m | | |
+
+That makes `wide` (`1d → 4h → 1h`) reachable only on a feed with months of
+intraday history — Yahoo's two-year hourly series does it; twenty days of
+Tradier 5-minute bars does not, and the rung says so instead of guessing.
 
 In simulated mode each symbol is assigned a regime — trending up, trending
 down, or swinging without trending — so the strategy has something to find and,
@@ -329,6 +379,7 @@ npm run backtest -- --slippage 0.1 --commission 0.005
 npm run backtest -- --provider yahoo --symbols AAPL,MSFT
 npm run backtest -- --sweep retrace                 # vary one threshold
 npm run backtest -- --repeats 6                     # how noisy is one number?
+npm run backtest -- --ladder scalp                  # replay a different ladder
 ```
 
 The replay walks one 5-minute bar at a time, hands the strategy **only** the
@@ -434,6 +485,8 @@ rest are defaults in `lib/trend.js`.
 | `maxPullbackBars` | 12 | Longer than this and the move is stalling, not pausing |
 | `minMeasuredR` | 2 | Below this the setup carries a caution |
 | `swingSpan` | 2 | Bars either side of a pivot before it counts as one |
+| `ladder` | `swing` | Which run of timeframes to read |
+| `windows` | per interval | How many bars of each rung to read — see `DEFAULT_WINDOWS` |
 | `fastPeriod` / `slowPeriod` | 9 / 21 | Moving averages, used only to *confirm* structure |
 
 Structure decides direction; the moving averages only say whether the recent
@@ -462,7 +515,7 @@ Tokens are read from the environment only — nothing writes them to disk, and
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/api/scan` | GET | Run a scan; ranked results, per-pillar verdicts, summary |
-| `/api/trend` | GET | Multi-timeframe read; `?symbol=X` for one, omit for the whole list |
+| `/api/trend` | GET | Multi-timeframe read; `?symbol=X` for one, `?ladder=scalp` (or `?ladder=1h,15m,5m`) to pick the rungs |
 | `/api/trend/config` | GET / POST | Thresholds for the trend strategy |
 | `/api/alerts` | GET / DELETE | Rolling alert feed, or clear it |
 | `/api/config` | GET / POST | Read or update thresholds (partial updates allowed) |
@@ -477,8 +530,8 @@ Tokens are read from the environment only — nothing writes them to disk, and
 ```
 lib/criteria.js           the five pillars, scoring, ranking
 lib/patterns.js           entry pattern detection on 1-minute candles
-lib/timeframes.js         resampling: 5-minute, hourly and daily from one feed
-lib/trend.js              multi-timeframe trend alignment and continuation entries
+lib/timeframes.js         resampling and ladder assembly from one intraday feed
+lib/trend.js              timeframe ladders, trend alignment, continuation entries
 lib/backtest.js           walk-forward replay, fill modelling, lookahead check
 lib/trade-plan.js         risk-based sizing, stops and R targets (long and short)
 lib/journal.js            trade log, daily rules, performance stats
@@ -491,7 +544,7 @@ lib/providers/live.js     Yahoo fallback + optional Finnhub
 public/                   single-page UI, no build step
 server.js                 dependency-free HTTP server
 scripts/backtest.mjs      backtest runner
-test/                     node:test suite (152 tests)
+test/                     node:test suite (166 tests)
 ```
 
 ## Notes on the numbers

@@ -190,15 +190,27 @@ export function parseChartBars(payload) {
 }
 
 /**
+ * How far back Yahoo will serve each intraday resolution. These are the
+ * platform's limits, not a preference: asking for 1-minute bars over a month
+ * returns an error, not a month of bars.
+ */
+const INTRADAY_RANGES = { '1m': '7d', '5m': '1mo', '15m': '2mo', '30m': '2mo', '1h': '2y' };
+
+/**
  * Multi-day history for the multi-timeframe strategy.
  *
- * Yahoo caps 5-minute history at 60 days, which is more than the strategy
- * reads. The hourly series is resampled from these bars rather than requested
- * as `interval=1h`, so the two timeframes are guaranteed to be made of the
- * same trades.
+ * Fetches the finest resolution the ladder needs; every coarser rung is
+ * resampled from it rather than requested separately, so no two rungs can
+ * disagree about a bar they share.
+ *
+ * `interval` bounds which ladders are reachable: a 1-minute rung needs
+ * 1-minute bars here, and buildLadder refuses to fabricate them from anything
+ * coarser.
  */
-export async function getHistory({ symbol, intradayRange = '1mo', dailyRange = '1y' } = {}) {
+export async function getHistory({ symbol, interval = '5m', intradayRange = null, dailyRange = '1y' } = {}) {
   if (!symbol) throw new Error('getHistory needs a symbol');
+  const range = intradayRange ?? INTRADAY_RANGES[interval];
+  if (!range) throw new Error(`Yahoo has no ${interval} intraday series (try 1m, 5m, 15m, 30m or 1h)`);
   const ticker = String(symbol).toUpperCase();
   const chart = (range, interval) =>
     `${YAHOO_CHART}/${encodeURIComponent(ticker)}?range=${range}&interval=${interval}`;
@@ -207,7 +219,7 @@ export async function getHistory({ symbol, intradayRange = '1mo', dailyRange = '
   // answers which way the instrument is going.
   const errors = [];
   const [intraday, daily] = await Promise.all([
-    fetchJson(chart(intradayRange, '5m'), { timeoutMs: 12_000 })
+    fetchJson(chart(range, interval), { timeoutMs: 12_000 })
       .then(parseChartBars)
       .catch((error) => {
         errors.push({ series: 'intraday', message: error.message });
@@ -221,7 +233,7 @@ export async function getHistory({ symbol, intradayRange = '1mo', dailyRange = '
       }),
   ]);
 
-  return { symbol: ticker, intraday, daily, interval: '5m', provider: 'yahoo', errors };
+  return { symbol: ticker, intraday, daily, interval, provider: 'yahoo', errors };
 }
 
 async function fetchFinnhubProfile(symbol, apiKey) {

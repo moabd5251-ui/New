@@ -29,6 +29,7 @@ const state = {
   trendDefaults: null,
   trendFetchedAt: 0,
   trendLoading: false,
+  ladder: null,
 };
 
 /** How the strategy's states read to a trader, in plain words. */
@@ -594,6 +595,21 @@ function renderTrend() {
   const payload = state.trend;
   const body = $('#trend-body');
 
+  // The columns are the ladder, so they change with it. A fixed
+  // Daily/Hourly/5-minute header would be a lie on any other ladder.
+  const rungs = payload?.results?.[0]?.rungs ?? [];
+  const ladder = payload?.ladder ?? [];
+  for (let i = 0; i < 3; i += 1) {
+    const cell = $(`#trend-col-${i}`);
+    if (!cell) continue;
+    // Right-align the rungs so the timing column is always the last one, even
+    // when the ladder has only two.
+    const offset = 3 - Math.min(ladder.length, 3);
+    const rung = rungs[i - offset] ?? null;
+    cell.textContent = rung ? rung.label : ladder[i - offset] ?? '';
+    cell.title = rung ? `${rung.role} · ${rung.key}` : '';
+  }
+
   if (state.trendLoading && !payload) {
     body.innerHTML = '<tr class="empty"><td colspan="10">Loading weeks of bars for each symbol…</td></tr>';
     return;
@@ -605,9 +621,11 @@ function renderTrend() {
 
   const results = payload?.results ?? [];
   const summary = payload?.summary ?? {};
+  // The label follows the ladder: "daily + hourly agree" is wrong on any other.
+  const higherLabels = rungs.slice(0, -1).map((r) => r.label);
   $('#trend-stats').innerHTML = [
     ['Scanned', summary.scanned ?? 0],
-    ['Daily + hourly agree', summary.aligned ?? 0],
+    [higherLabels.length ? `${higherLabels.join(' + ')} agree` : 'Aligned', summary.aligned ?? 0],
     ['With an entry', summary.actionable ?? 0],
     ['Sized and tradable', summary.tradable ?? 0],
   ]
@@ -635,9 +653,11 @@ function renderTrend() {
               ${side ? `<span class="side side--${side}">${side}</span>` : ''}
             </span>
           </td>
-          <td class="trend__tf">${trendArrow(r.timeframes?.daily)}</td>
-          <td class="trend__tf">${trendArrow(r.timeframes?.hourly)}</td>
-          <td class="trend__tf">${trendArrow(r.timeframes?.fiveMin)}</td>
+          ${Array.from({ length: 3 }, (_, i) => {
+            const offset = 3 - Math.min((r.rungs ?? []).length, 3);
+            const rung = (r.rungs ?? [])[i - offset];
+            return `<td class="trend__tf">${rung ? trendArrow(rung) : ''}</td>`;
+          }).join('')}
           <td><span class="tstate tstate--${r.state}" title="${escapeAttr(r.detail ?? '')}">${TREND_STATE_LABELS[r.state] ?? r.state}</span></td>
           <td class="num">${r.correction?.active ? `${fmtNum(r.correction.retracePct, 0)}% · ${r.correction.bars}b` : '—'}</td>
           <td class="num">${setup ? `$${fmtNum(setup.entry)}` : '—'}</td>
@@ -672,22 +692,18 @@ function renderTrendDetail() {
   $('#detail-symbol').textContent = result.symbol;
   $('#detail-name').textContent = result.name ?? '—';
 
-  const rows = [
-    ['daily', 'Daily — permission'],
-    ['hourly', 'Hourly — structure'],
-    ['fiveMin', '5-minute — timing'],
-  ]
-    .map(([key, label]) => {
-      const tf = result.timeframes?.[key];
-      return `
-        <li class="check ${tf?.direction === result.direction && result.direction ? 'check--pass' : ''}">
-          <span class="check__icon">${trendArrow(tf)}</span>
+  const ROLE_WORDS = { permission: 'permission', structure: 'structure', timing: 'timing' };
+  const rows = (result.rungs ?? [])
+    .map(
+      (rung) => `
+        <li class="check ${rung.direction === result.direction && result.direction ? 'check--pass' : ''}">
+          <span class="check__icon">${trendArrow(rung)}</span>
           <span>
-            <div class="check__label">${label}</div>
-            <div class="check__detail">${escapeHtml(tf?.detail ?? 'No read')}</div>
+            <div class="check__label">${escapeHtml(rung.label)} — ${ROLE_WORDS[rung.role] ?? rung.role}</div>
+            <div class="check__detail">${escapeHtml(rung.problem ?? rung.detail ?? 'No read')}</div>
           </span>
-        </li>`;
-    })
+        </li>`,
+    )
     .join('');
 
   const setup = result.setup;
@@ -739,23 +755,49 @@ function renderTrendDetail() {
       <strong>${TREND_STATE_LABELS[result.state] ?? result.state}</strong>
       <span>${escapeHtml(result.detail ?? '')}</span>
     </div>
-    <h3 class="section-title">The three timeframes</h3>
+    <h3 class="section-title">The ladder — ${(result.rungs ?? []).map((r) => escapeHtml(r.key)).join(' → ')}</h3>
     <ul class="checklist">${rows}</ul>
-    ${
-      Number.isFinite(result.invalidation)
-        ? `<div class="invalidation">
-             Hourly ${result.direction === 'down' ? 'lower high' : 'higher low'} at
-             <strong>$${fmtNum(result.invalidation)}</strong> — the price that decides whether this
-             dip is a pause or a reversal.
-           </div>`
-        : ''
-    }
+    ${invalidationLadderHtml(result)}
     <h3 class="section-title">Entry</h3>
     ${planBlock}
-    <div class="trend__bars">Read from ${result.bars?.daily ?? 0} daily, ${result.bars?.hourly ?? 0} hourly and ${result.bars?.fiveMin ?? 0} five-minute bars.</div>`;
+    <div class="trend__bars">Read from ${Object.entries(result.bars ?? {})
+      .map(([key, count]) => `${count} ${key}`)
+      .join(', ')} bars.</div>`;
 
   const button = $('#log-trend-trade');
   if (button) button.addEventListener('click', () => logTrade(result));
+}
+
+/**
+ * Every rung's invalidation level, slowest first.
+ *
+ * The nesting is the point of reading this fractally: losing the fastest rung's
+ * swing ends the pause, losing the slowest ends the reason for the trade. The
+ * one the setup is built against is marked, since that is the one that decides
+ * whether the current dip is an entry or an exit.
+ */
+function invalidationLadderHtml(result) {
+  const levels = result.invalidations ?? [];
+  if (!levels.length) return '';
+  const swing = result.direction === 'down' ? 'lower high' : 'higher low';
+
+  const rows = levels
+    .map(
+      (level) => `
+      <li class="${level.role === 'structure' ? 'is-decisive' : ''}">
+        <span>${escapeHtml(level.label)} ${swing}</span>
+        <strong>$${fmtNum(level.level)}</strong>
+      </li>`,
+    )
+    .join('');
+
+  return `
+    <div class="invalidation">
+      <div class="invalidation__title">Levels that would end this, nearest scale first</div>
+      <ul class="invalidation__list">${rows}</ul>
+      <p>Losing the marked one turns the current dip from a pause into a reversal. The slower
+      ones below it end progressively more of the reason for the trade.</p>
+    </div>`;
 }
 
 async function fetchTrend({ force = false } = {}) {
@@ -765,7 +807,8 @@ async function fetchTrend({ force = false } = {}) {
   state.trendLoading = true;
   renderTrend();
   try {
-    const response = await fetch('/api/trend');
+    const query = state.ladder ? `?ladder=${encodeURIComponent(state.ladder)}` : '';
+    const response = await fetch(`/api/trend${query}`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     state.trend = await response.json();
     state.trendFetchedAt = Date.now();
@@ -968,6 +1011,9 @@ async function fetchTrendConfig() {
   const payload = await response.json();
   state.trendConfig = payload.config;
   state.trendDefaults = payload.defaults;
+  state.ladder = state.ladder ?? payload.config.ladder;
+  const select = $('#ladder-select');
+  if (select && state.ladder) select.value = state.ladder;
   fillTrendForm(payload.config);
 }
 
@@ -1116,6 +1162,12 @@ function init() {
     }, 400);
   });
   $('#reset-trend').addEventListener('click', () => saveTrendConfig(state.trendDefaults));
+
+  $('#ladder-select').addEventListener('change', (event) => {
+    state.ladder = event.target.value;
+    closeDetail();
+    fetchTrend({ force: true });
+  });
 
   $('#clear-alerts').addEventListener('click', async () => {
     await fetch('/api/alerts', { method: 'DELETE' });

@@ -19,8 +19,15 @@
  * the output says so every time.
  */
 
-import { backtest, combine, summarize, hasLookahead, DEFAULT_BACKTEST_CONFIG } from '../lib/backtest.js';
-import { DEFAULT_TREND_CONFIG } from '../lib/trend.js';
+import {
+  backtest,
+  combine,
+  summarize,
+  hasLookahead,
+  resolveLadder,
+  DEFAULT_BACKTEST_CONFIG,
+} from '../lib/backtest.js';
+import { DEFAULT_TREND_CONFIG, LADDERS } from '../lib/trend.js';
 import * as mockProvider from '../lib/providers/mock.js';
 import * as tradierProvider from '../lib/providers/tradier.js';
 import * as liveProvider from '../lib/providers/live.js';
@@ -67,7 +74,17 @@ const backtestConfig = {
   ...(args.commission !== undefined ? { commissionPerShare: Number(args.commission) } : {}),
   ...(args.warmup !== undefined ? { warmupBars: Number(args.warmup) } : {}),
   ...(args.optimistic ? { pessimisticBars: false } : {}),
+  ...(args.ladder && args.ladder !== true
+    ? { ladder: LADDERS[args.ladder] ?? String(args.ladder).split(/[\s,]+/).filter(Boolean) }
+    : {}),
 };
+
+const ladder = resolveLadder(backtestConfig.ladder);
+// Bars can be combined but never split, so the fetch has to be at least as
+// fine as the ladder's fastest rung.
+const ORDER = ['1m', '5m', '15m', '30m', '1h', '4h', '1d'];
+const finest =
+  ladder.filter((key) => key !== '1d').sort((a, b) => ORDER.indexOf(a) - ORDER.indexOf(b))[0] ?? '1h';
 
 /* ---------------- data ---------------- */
 
@@ -86,9 +103,16 @@ async function loadAll(at) {
 }
 
 async function loadHistory(symbol, now) {
-  if (provider === 'tradier') return tradierProvider.getHistory({ symbol, now });
-  if (provider === 'yahoo') return liveProvider.getHistory({ symbol });
-  return mockProvider.getHistory({ symbol, now, sessions: Number(args.sessions ?? 12) });
+  if (provider === 'tradier') return tradierProvider.getHistory({ symbol, interval: finest, now });
+  if (provider === 'yahoo') return liveProvider.getHistory({ symbol, interval: finest });
+  return mockProvider.getHistory({
+    symbol,
+    now,
+    interval: finest,
+    // A 1-minute replay is five times the bars of a 5-minute one, so the
+    // simulated window shortens to keep a full run inside a coffee break.
+    sessions: Number(args.sessions ?? (finest === '1m' ? 5 : 12)),
+  });
 }
 
 function universe() {
@@ -171,6 +195,7 @@ if (leaky.length) {
   process.exit(2);
 }
 console.log(`Lookahead check: clean across ${histories.length} symbols.`);
+console.log(`Ladder: ${ladder.join(' → ')}  (${finest} bars from the feed, coarser rungs resampled)`);
 
 const started = Date.now();
 const runs = histories.map((history) => backtest(history, { backtest: backtestConfig, trend: {} }));

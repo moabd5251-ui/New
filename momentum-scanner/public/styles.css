@@ -537,3 +537,26 @@ table.scanner { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 .side--short { background: rgba(239, 68, 68, 0.14); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
 
 .trend__bars { margin-top: 12px; font-size: 11px; color: var(--text-faint); }
+
+/* Ladder selector and the nested invalidation levels. */
+.trend__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.trend__hint { flex: 1; }
+.trend__ladder { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-dim); white-space: nowrap; }
+
+.invalidation__title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-faint); margin-bottom: 6px; }
+.invalidation__list { list-style: none; margin: 0 0 8px; padding: 0; }
+.invalidation__list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 3px 0;
+  font-size: 12px;
+  color: var(--text-faint);
+  border-bottom: 1px solid rgba(34, 48, 77, 0.6);
+}
+.invalidation__list strong { font-family: var(--mono); font-weight: 500; }
+/* The rung the setup is actually built against — the one that decides whether
+   the current dip is a pause or a reversal. */
+.invalidation__list li.is-decisive { color: var(--text); font-weight: 600; }
+.invalidation__list li.is-decisive strong { color: #7dd3fc; font-weight: 700; }
+.invalidation p { margin: 0; }

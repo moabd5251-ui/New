@@ -37,13 +37,14 @@
  * a winner, which is the single easiest way to make a backtest lie.
  */
 
-import { buildStack, easternParts } from './timeframes.js';
-import { analyzeStack } from './trend.js';
+import { buildLadder, easternParts } from './timeframes.js';
+import { analyzeLadder, LADDERS, DEFAULT_LADDER } from './trend.js';
 
 export const DEFAULT_BACKTEST_CONFIG = {
   // Enough bars for the hourly series to reach the moving-average minimum:
   // ~21 hourly bars is 252 five-minute bars.
   warmupBars: 300,
+  ladder: DEFAULT_LADDER, // a name from LADDERS, or an explicit array of intervals
   maxIntradayLookback: 1200, // bars handed to the strategy; bounds the work per step
   orderLifeBars: 6, // a resting trigger that has not filled is cancelled
   maxHoldBars: 78, // one session; a continuation that has not worked by then has not worked
@@ -56,9 +57,20 @@ export const DEFAULT_BACKTEST_CONFIG = {
   exitOnInvalidation: false, // also exit when hourly structure breaks while in a position
 };
 
+/** A ladder name, an explicit list of intervals, or the default. */
+export function resolveLadder(ladder) {
+  if (Array.isArray(ladder) && ladder.length >= 2) return ladder;
+  if (typeof ladder === 'string' && LADDERS[ladder]) return LADDERS[ladder];
+  return LADDERS[DEFAULT_LADDER];
+}
+
 function normalizeConfig(config = {}) {
   const merged = { ...DEFAULT_BACKTEST_CONFIG, ...config };
   for (const [key, fallback] of Object.entries(DEFAULT_BACKTEST_CONFIG)) {
+    if (key === 'ladder') {
+      merged.ladder = resolveLadder(merged.ladder);
+      continue;
+    }
     if (typeof fallback === 'boolean') {
       merged[key] = Boolean(merged[key]);
       continue;
@@ -146,8 +158,9 @@ function analysisAt(intraday, daily, index, cfg, trendConfig) {
   const cutoff = new Date(bar.time).getTime();
   const from = Math.max(0, index + 1 - cfg.maxIntradayLookback);
 
-  return analyzeStack(
-    buildStack({
+  return analyzeLadder(
+    buildLadder({
+      ladder: cfg.ladder,
       intraday: intraday.slice(from, index + 1),
       daily: daily.filter((d) => new Date(d.time).getTime() <= cutoff),
       now: cutoff,
@@ -213,6 +226,7 @@ export function backtest(history, options = {}) {
 
   return {
     symbol,
+    ladder: cfg.ladder,
     bars: intraday.length,
     decisions,
     states,

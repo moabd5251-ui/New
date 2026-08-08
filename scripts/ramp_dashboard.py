@@ -45,6 +45,10 @@ header.mast{border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom
 h1{font-family:var(--serif);font-weight:600;font-size:clamp(26px,4vw,38px);margin:0;
   letter-spacing:-.01em;text-wrap:balance}
 .sub{color:var(--ink-3);font-size:13px;margin-top:5px}
+.stale{padding:13px 17px;margin-bottom:20px;border-radius:0 2px 2px 0;font-size:13.5px;
+  color:var(--ink);background:color-mix(in srgb,var(--stop) 14%,transparent);
+  border-left:3px solid var(--stop)}
+.stale b{color:var(--stop)}
 .stamp{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);text-align:right;
   text-transform:uppercase;letter-spacing:.07em;white-space:nowrap}
 .thesis{background:var(--accent-soft);border-left:3px solid var(--accent);padding:14px 17px;
@@ -306,6 +310,7 @@ BODY = """
       <div class="sub">Buy vol into earnings &middot; close before the report &middot; never hold the event</div></div>
     <div class="stamp">Updated __STAMP__</div>
   </header>
+  <div class="stale" id="stale" hidden></div>
   <div class="thesis"><strong>The trade:</strong> implied volatility in the expiry containing earnings
   inflates as the announcement approaches. You buy that volatility while the term structure is still
   flat and you close the position the day <em>before</em> the report &mdash; so you collect the expansion
@@ -333,13 +338,52 @@ BODY = """
 """
 
 
-def build(rows, meta, out_path):
+# Staleness has to be judged when the page is READ, not when it is written — a generator
+# cannot know its output will still be on screen four days later. This is exactly how the
+# NVDA 205 calendar became misleading: the routine died, the page kept serving a strike
+# that was at-the-money the day it was built and 8% away by the time it was read, with
+# nothing on the page to say so. The banner below closes that gap by comparing the build
+# time against the clock in the reader's browser.
+#
+# Thresholds are in trading terms: options data more than a day old has usually moved
+# enough to matter, and past three days a strike is very likely no longer at the money.
+STALE_JS = """
+(function(){
+  var built = new Date(%BUILT%), now = new Date();
+  var hrs = (now - built) / 3600000;
+  if (hrs < 18) return;                       // same session, or the next morning
+  var el = document.getElementById('stale');
+  var days = Math.floor(hrs / 24);
+  var age = days >= 1 ? (days + (days === 1 ? ' day' : ' days')) : (Math.floor(hrs) + ' hours');
+  var msg = hrs >= 72
+    ? '<b>This page is ' + age + ' old and is not updating.</b> Strikes were chosen at the '
+      + 'money on the build date and the underlying has almost certainly moved away from '
+      + 'them since. Every price, expiry and structure below should be treated as a '
+      + 'historical snapshot, not a current trade.'
+    : '<b>This page is ' + age + ' old.</b> Option prices and implied vols move daily; '
+      + 'strikes shown were at the money when built. Re-check against a live book.';
+  el.innerHTML = msg;
+  el.hidden = false;
+})();
+"""
+
+
+def build(rows, meta, out_path, built=None):
+    """Render the page. `built` is when the DATA was captured, defaulting to now.
+
+    It is a parameter rather than always `now` because the banner measures the age of the
+    numbers, not the age of the HTML. Re-rendering an old payload with a fresh timestamp
+    would produce a page that looks current and is not — the precise failure the banner
+    exists to prevent.
+    """
     payload = json.dumps({"rows": rows, "meta": meta}, separators=(",", ":"), default=str)
-    stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%d %b %Y, %H:%M UTC")
+    now = built or datetime.datetime.now(datetime.timezone.utc)
+    stamp = now.strftime("%d %b %Y, %H:%M UTC")
+    stale = STALE_JS.replace("%BUILT%", json.dumps(now.strftime("%Y-%m-%dT%H:%M:%SZ")))
     html = ("<title>Volatility Ramp — Pre-Earnings Vol Expansion</title>\n"
             f"<style>{CSS}</style>\n"
             f"{BODY.replace('__STAMP__', stamp)}\n"
-            f"<script>\nconst DATA = {payload};\n{JS}\n</script>\n")
+            f"<script>\nconst DATA = {payload};\n{JS}\n{stale}\n</script>\n")
     with open(out_path, "w") as f:
         f.write(html)
     return out_path

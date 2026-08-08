@@ -43,6 +43,10 @@ header.mast{border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom
 h1{font-family:var(--serif);font-weight:600;font-size:clamp(26px,4vw,38px);margin:0;
   letter-spacing:-.01em;text-wrap:balance}
 .sub{color:var(--ink-3);font-size:13px;margin-top:5px}
+.stale{padding:13px 17px;margin-bottom:20px;border-radius:0 2px 2px 0;font-size:13.5px;
+  color:var(--ink);background:color-mix(in srgb,var(--stop) 14%,transparent);
+  border-left:3px solid var(--stop)}
+.stale b{color:var(--stop)}
 .stamp{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);text-align:right;
   text-transform:uppercase;letter-spacing:.07em;white-space:nowrap}
 .thesis{background:var(--accent-soft);border-left:3px solid var(--accent);padding:14px 17px;
@@ -152,6 +156,7 @@ h1{font-family:var(--serif);font-weight:600;font-size:clamp(26px,4vw,38px);margi
       <div class="sub">Buy vol into earnings &middot; close before the report &middot; never hold the event</div></div>
     <div class="stamp">Updated 04 Aug 2026, 12:33 UTC</div>
   </header>
+  <div class="stale" id="stale" hidden></div>
   <div class="thesis"><strong>The trade:</strong> implied volatility in the expiry containing earnings
   inflates as the announcement approaches. You buy that volatility while the term structure is still
   flat and you close the position the day <em>before</em> the report &mdash; so you collect the expansion
@@ -328,5 +333,24 @@ function render(){
   + chips(early,'na','TOO EARLY','Further out than the ramp reliably begins. Watch, do not buy.');
 }
 render();
+
+
+(function(){
+  var built = new Date("2026-08-04T12:33:00Z"), now = new Date();
+  var hrs = (now - built) / 3600000;
+  if (hrs < 18) return;                       // same session, or the next morning
+  var el = document.getElementById('stale');
+  var days = Math.floor(hrs / 24);
+  var age = days >= 1 ? (days + (days === 1 ? ' day' : ' days')) : (Math.floor(hrs) + ' hours');
+  var msg = hrs >= 72
+    ? '<b>This page is ' + age + ' old and is not updating.</b> Strikes were chosen at the '
+      + 'money on the build date and the underlying has almost certainly moved away from '
+      + 'them since. Every price, expiry and structure below should be treated as a '
+      + 'historical snapshot, not a current trade.'
+    : '<b>This page is ' + age + ' old.</b> Option prices and implied vols move daily; '
+      + 'strikes shown were at the money when built. Re-check against a live book.';
+  el.innerHTML = msg;
+  el.hidden = false;
+})();
 
 </script>

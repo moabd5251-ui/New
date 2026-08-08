@@ -1,13 +1,13 @@
 {
-  "asof": "2026-08-06",
-  "generated": "2026-08-07T06:14:04Z",
+  "asof": "2026-08-07",
+  "generated": "2026-08-08T00:17:48Z",
   "rows": [
     {
       "symbol": "SPY",
-      "price": 768.56,
-      "mom_63": 0.0473,
-      "mom_126": 0.12,
-      "asof": "2026-08-06",
+      "price": 773.26,
+      "mom_63": 0.057,
+      "mom_126": 0.1411,
+      "asof": "2026-08-07",
       "n_strategies": 10,
       "net": 10,
       "exposure_pct": 100,
@@ -70,16 +70,16 @@
       "group": "Equity",
       "direction": "LONG",
       "strength": "STRONG",
-      "prev_pct": 90,
-      "change_pct": 10,
-      "action": "ADD LONG EXPOSURE"
+      "prev_pct": 100,
+      "change_pct": 0,
+      "action": "NO CHANGE"
     },
     {
       "symbol": "DIA",
-      "price": 538.19,
-      "mom_63": 0.0784,
-      "mom_126": 0.0878,
-      "asof": "2026-08-06",
+      "price": 539.62,
+      "mom_63": 0.0881,
+      "mom_126": 0.1037,
+      "asof": "2026-08-07",
       "n_strategies": 10,
       "net": 10,
       "exposure_pct": 100,
@@ -148,10 +148,10 @@
     },
     {
       "symbol": "EFA",
-      "price": 107.36,
-      "mom_63": 0.0243,
-      "mom_126": 0.0548,
-      "asof": "2026-08-06",
+      "price": 108.55,
+      "mom_63": 0.055,
+      "mom_126": 0.0819,
+      "asof": "2026-08-07",
       "n_strategies": 10,
       "net": 10,
       "exposure_pct": 100,
@@ -219,17 +219,89 @@
       "action": "NO CHANGE"
     },
     {
-      "symbol": "TLT",
-      "price": 82.52,
-      "mom_63": -0.0414,
-      "mom_126": -0.0465,
-      "asof": "2026-08-06",
+      "symbol": "EWU",
+      "price": 48.64,
+      "mom_63": 0.0512,
+      "mom_126": 0.0588,
+      "asof": "2026-08-07",
       "n_strategies": 10,
-      "net": -10,
-      "exposure_pct": -100,
-      "longs": 0,
-      "shorts": 10,
+      "net": 10,
+      "exposure_pct": 100,
+      "longs": 10,
+      "shorts": 0,
       "neutrals": 0,
+      "strategies": [
+        {
+          "strategy": "MA 20/50",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "MA 50/200",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Donchian 20",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Donchian 55",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "MACD 12/26/9",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Momentum 63d",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Momentum 126d",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Keltner 20",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Slope 40d",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Close vs SMA100",
+          "signal": 1,
+          "label": "LONG"
+        }
+      ],
+      "market": "UK / FTSE 100",
+      "group": "Equity",
+      "direction": "LONG",
+      "strength": "STRONG",
+      "prev_pct": 80,
+      "change_pct": 20,
+      "action": "ADD LONG EXPOSURE"
+    },
+    {
+      "symbol": "TLT",
+      "price": 82.76,
+      "mom_63": -0.0337,
+      "mom_126": -0.054,
+      "asof": "2026-08-07",
+      "n_strategies": 10,
+      "net": -9,
+      "exposure_pct": -90,
+      "longs": 0,
+      "shorts": 9,
+      "neutrals": 1,
       "strategies": [
         {
           "strategy": "MA 20/50",
@@ -253,8 +325,8 @@
         },
         {
           "strategy": "MACD 12/26/9",
-          "signal": -1,
-          "label": "SHORT"
+          "signal": 0,
+          "label": "NEUTRAL"
         },
         {
           "strategy": "Momentum 63d",
@@ -287,15 +359,15 @@
       "direction": "SHORT",
       "strength": "STRONG",
       "prev_pct": -100,
-      "change_pct": 0,
-      "action": "NO CHANGE"
+      "change_pct": 10,
+      "action": "REDUCE SHORT EXPOSURE"
     },
     {
       "symbol": "IWM",
-      "price": 298.25,
-      "mom_63": 0.0399,
-      "mom_126": 0.1448,
-      "asof": "2026-08-06",
+      "price": 301.56,
+      "mom_63": 0.0684,
+      "mom_126": 0.1788,
+      "asof": "2026-08-07",
       "n_strategies": 10,
       "net": 8,
       "exposure_pct": 80,
@@ -358,160 +430,16 @@
       "group": "Equity",
       "direction": "LONG",
       "strength": "STRONG",
-      "prev_pct": 90,
-      "change_pct": -10,
-      "action": "REDUCE LONG EXPOSURE"
-    },
-    {
-      "symbol": "EWU",
-      "price": 48.3,
-      "mom_63": 0.0181,
-      "mom_126": 0.0266,
-      "asof": "2026-08-06",
-      "n_strategies": 10,
-      "net": 8,
-      "exposure_pct": 80,
-      "longs": 8,
-      "shorts": 0,
-      "neutrals": 2,
-      "strategies": [
-        {
-          "strategy": "MA 20/50",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "MA 50/200",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Donchian 20",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Donchian 55",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "MACD 12/26/9",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Momentum 63d",
-          "signal": 0,
-          "label": "NEUTRAL"
-        },
-        {
-          "strategy": "Momentum 126d",
-          "signal": 0,
-          "label": "NEUTRAL"
-        },
-        {
-          "strategy": "Keltner 20",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Slope 40d",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Close vs SMA100",
-          "signal": 1,
-          "label": "LONG"
-        }
-      ],
-      "market": "UK / FTSE 100",
-      "group": "Equity",
-      "direction": "LONG",
-      "strength": "STRONG",
-      "prev_pct": 100,
-      "change_pct": -20,
-      "action": "REDUCE LONG EXPOSURE"
-    },
-    {
-      "symbol": "IEF",
-      "price": 92.95,
-      "mom_63": -0.0216,
-      "mom_126": -0.0268,
-      "asof": "2026-08-06",
-      "n_strategies": 10,
-      "net": -8,
-      "exposure_pct": -80,
-      "longs": 0,
-      "shorts": 8,
-      "neutrals": 2,
-      "strategies": [
-        {
-          "strategy": "MA 20/50",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "MA 50/200",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "Donchian 20",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "Donchian 55",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "MACD 12/26/9",
-          "signal": 0,
-          "label": "NEUTRAL"
-        },
-        {
-          "strategy": "Momentum 63d",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "Momentum 126d",
-          "signal": 0,
-          "label": "NEUTRAL"
-        },
-        {
-          "strategy": "Keltner 20",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "Slope 40d",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "Close vs SMA100",
-          "signal": -1,
-          "label": "SHORT"
-        }
-      ],
-      "market": "US 10-Year Note",
-      "group": "Rates",
-      "direction": "SHORT",
-      "strength": "STRONG",
-      "prev_pct": -60,
-      "change_pct": -20,
-      "action": "ADD SHORT EXPOSURE"
+      "prev_pct": 80,
+      "change_pct": 0,
+      "action": "NO CHANGE"
     },
     {
       "symbol": "EWJ",
-      "price": 95.15,
-      "mom_63": 0.0378,
-      "mom_126": 0.0876,
-      "asof": "2026-08-06",
+      "price": 96.9,
+      "mom_63": 0.065,
+      "mom_126": 0.1254,
+      "asof": "2026-08-07",
       "n_strategies": 10,
       "net": 7,
       "exposure_pct": 70,
@@ -580,16 +508,16 @@
     },
     {
       "symbol": "EWG",
-      "price": 43.52,
-      "mom_63": 0.0012,
-      "mom_126": 0.0062,
-      "asof": "2026-08-06",
+      "price": 44.02,
+      "mom_63": 0.0358,
+      "mom_126": 0.0275,
+      "asof": "2026-08-07",
       "n_strategies": 10,
-      "net": 6,
-      "exposure_pct": 60,
-      "longs": 6,
+      "net": 7,
+      "exposure_pct": 70,
+      "longs": 7,
       "shorts": 0,
-      "neutrals": 4,
+      "neutrals": 3,
       "strategies": [
         {
           "strategy": "MA 20/50",
@@ -618,8 +546,8 @@
         },
         {
           "strategy": "Momentum 63d",
-          "signal": 0,
-          "label": "NEUTRAL"
+          "signal": 1,
+          "label": "LONG"
         },
         {
           "strategy": "Momentum 126d",
@@ -646,16 +574,88 @@
       "group": "Equity",
       "direction": "LONG",
       "strength": "MODERATE",
-      "prev_pct": 70,
-      "change_pct": -10,
-      "action": "REDUCE LONG EXPOSURE"
+      "prev_pct": 60,
+      "change_pct": 10,
+      "action": "ADD LONG EXPOSURE"
+    },
+    {
+      "symbol": "IEF",
+      "price": 93.17,
+      "mom_63": -0.0163,
+      "mom_126": -0.0302,
+      "asof": "2026-08-07",
+      "n_strategies": 10,
+      "net": -6,
+      "exposure_pct": -60,
+      "longs": 1,
+      "shorts": 7,
+      "neutrals": 2,
+      "strategies": [
+        {
+          "strategy": "MA 20/50",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "MA 50/200",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "Donchian 20",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "Donchian 55",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "MACD 12/26/9",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Momentum 63d",
+          "signal": 0,
+          "label": "NEUTRAL"
+        },
+        {
+          "strategy": "Momentum 126d",
+          "signal": 0,
+          "label": "NEUTRAL"
+        },
+        {
+          "strategy": "Keltner 20",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "Slope 40d",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "Close vs SMA100",
+          "signal": -1,
+          "label": "SHORT"
+        }
+      ],
+      "market": "US 10-Year Note",
+      "group": "Rates",
+      "direction": "SHORT",
+      "strength": "MODERATE",
+      "prev_pct": -80,
+      "change_pct": 20,
+      "action": "REDUCE SHORT EXPOSURE"
     },
     {
       "symbol": "SLV",
-      "price": 55.85,
-      "mom_63": -0.2036,
-      "mom_126": -0.2946,
-      "asof": "2026-08-06",
+      "price": 57.5,
+      "mom_63": -0.1969,
+      "mom_126": -0.1378,
+      "asof": "2026-08-07",
       "n_strategies": 10,
       "net": -6,
       "exposure_pct": -60,
@@ -723,11 +723,83 @@
       "action": "NO CHANGE"
     },
     {
+      "symbol": "FXY",
+      "price": 58.24,
+      "mom_63": -0.0055,
+      "mom_126": -0.0043,
+      "asof": "2026-08-07",
+      "n_strategies": 10,
+      "net": 5,
+      "exposure_pct": 50,
+      "longs": 6,
+      "shorts": 1,
+      "neutrals": 3,
+      "strategies": [
+        {
+          "strategy": "MA 20/50",
+          "signal": 0,
+          "label": "NEUTRAL"
+        },
+        {
+          "strategy": "MA 50/200",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "Donchian 20",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Donchian 55",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "MACD 12/26/9",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Momentum 63d",
+          "signal": 0,
+          "label": "NEUTRAL"
+        },
+        {
+          "strategy": "Momentum 126d",
+          "signal": 0,
+          "label": "NEUTRAL"
+        },
+        {
+          "strategy": "Keltner 20",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Slope 40d",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Close vs SMA100",
+          "signal": 1,
+          "label": "LONG"
+        }
+      ],
+      "market": "Japanese Yen",
+      "group": "FX",
+      "direction": "LONG",
+      "strength": "MODERATE",
+      "prev_pct": 30,
+      "change_pct": 20,
+      "action": "ADD LONG EXPOSURE"
+    },
+    {
       "symbol": "GLD",
-      "price": 389.67,
-      "mom_63": -0.0958,
-      "mom_126": -0.1416,
-      "asof": "2026-08-06",
+      "price": 398.47,
+      "mom_63": -0.0769,
+      "mom_126": -0.0982,
+      "asof": "2026-08-07",
       "n_strategies": 10,
       "net": -4,
       "exposure_pct": -40,
@@ -795,83 +867,11 @@
       "action": "NO CHANGE"
     },
     {
-      "symbol": "UUP",
-      "price": 28.19,
-      "mom_63": 0.0307,
-      "mom_126": 0.0437,
-      "asof": "2026-08-06",
-      "n_strategies": 10,
-      "net": 4,
-      "exposure_pct": 40,
-      "longs": 7,
-      "shorts": 3,
-      "neutrals": 0,
-      "strategies": [
-        {
-          "strategy": "MA 20/50",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "MA 50/200",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Donchian 20",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "Donchian 55",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "MACD 12/26/9",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "Momentum 63d",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Momentum 126d",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Keltner 20",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "Slope 40d",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Close vs SMA100",
-          "signal": 1,
-          "label": "LONG"
-        }
-      ],
-      "market": "US Dollar Index",
-      "group": "FX",
-      "direction": "LONG",
-      "strength": "WEAK",
-      "prev_pct": 40,
-      "change_pct": 0,
-      "action": "NO CHANGE"
-    },
-    {
       "symbol": "DBC",
-      "price": 28.86,
-      "mom_63": -0.0447,
-      "mom_126": 0.1931,
-      "asof": "2026-08-06",
+      "price": 28.91,
+      "mom_63": -0.0443,
+      "mom_126": 0.2168,
+      "asof": "2026-08-07",
       "n_strategies": 10,
       "net": 3,
       "exposure_pct": 30,
@@ -934,129 +934,57 @@
       "group": "Commodity",
       "direction": "LONG",
       "strength": "WEAK",
-      "prev_pct": 20,
-      "change_pct": 10,
-      "action": "ADD LONG EXPOSURE"
-    },
-    {
-      "symbol": "FXY",
-      "price": 57.89,
-      "mom_63": -0.0136,
-      "mom_126": -0.0119,
-      "asof": "2026-08-06",
-      "n_strategies": 10,
-      "net": 3,
-      "exposure_pct": 30,
-      "longs": 5,
-      "shorts": 2,
-      "neutrals": 3,
-      "strategies": [
-        {
-          "strategy": "MA 20/50",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "MA 50/200",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "Donchian 20",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Donchian 55",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "MACD 12/26/9",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Momentum 63d",
-          "signal": 0,
-          "label": "NEUTRAL"
-        },
-        {
-          "strategy": "Momentum 126d",
-          "signal": 0,
-          "label": "NEUTRAL"
-        },
-        {
-          "strategy": "Keltner 20",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Slope 40d",
-          "signal": 0,
-          "label": "NEUTRAL"
-        },
-        {
-          "strategy": "Close vs SMA100",
-          "signal": 1,
-          "label": "LONG"
-        }
-      ],
-      "market": "Japanese Yen",
-      "group": "FX",
-      "direction": "LONG",
-      "strength": "WEAK",
       "prev_pct": 30,
       "change_pct": 0,
       "action": "NO CHANGE"
     },
     {
-      "symbol": "IBIT",
-      "price": 36.49,
-      "mom_63": -0.21,
-      "mom_126": -0.1222,
-      "asof": "2026-08-06",
+      "symbol": "UUP",
+      "price": 28.07,
+      "mom_63": 0.0241,
+      "mom_126": 0.0362,
+      "asof": "2026-08-07",
       "n_strategies": 10,
-      "net": -3,
-      "exposure_pct": -30,
-      "longs": 3,
-      "shorts": 6,
-      "neutrals": 1,
+      "net": 2,
+      "exposure_pct": 20,
+      "longs": 5,
+      "shorts": 3,
+      "neutrals": 2,
       "strategies": [
         {
           "strategy": "MA 20/50",
-          "signal": 0,
-          "label": "NEUTRAL"
+          "signal": 1,
+          "label": "LONG"
         },
         {
           "strategy": "MA 50/200",
-          "signal": -1,
-          "label": "SHORT"
+          "signal": 1,
+          "label": "LONG"
         },
         {
           "strategy": "Donchian 20",
-          "signal": 1,
-          "label": "LONG"
+          "signal": -1,
+          "label": "SHORT"
         },
         {
           "strategy": "Donchian 55",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "MACD 12/26/9",
           "signal": 1,
           "label": "LONG"
         },
         {
-          "strategy": "Momentum 63d",
+          "strategy": "MACD 12/26/9",
           "signal": -1,
           "label": "SHORT"
         },
         {
+          "strategy": "Momentum 63d",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
           "strategy": "Momentum 126d",
-          "signal": -1,
-          "label": "SHORT"
+          "signal": 0,
+          "label": "NEUTRAL"
         },
         {
           "strategy": "Keltner 20",
@@ -1065,35 +993,35 @@
         },
         {
           "strategy": "Slope 40d",
-          "signal": 1,
-          "label": "LONG"
+          "signal": 0,
+          "label": "NEUTRAL"
         },
         {
           "strategy": "Close vs SMA100",
-          "signal": -1,
-          "label": "SHORT"
+          "signal": 1,
+          "label": "LONG"
         }
       ],
-      "market": "Bitcoin",
-      "group": "Crypto",
-      "direction": "SHORT",
+      "market": "US Dollar Index",
+      "group": "FX",
+      "direction": "LONG",
       "strength": "WEAK",
-      "prev_pct": -30,
-      "change_pct": 0,
-      "action": "NO CHANGE"
+      "prev_pct": 40,
+      "change_pct": -20,
+      "action": "REDUCE LONG EXPOSURE"
     },
     {
       "symbol": "EEM",
-      "price": 65.02,
-      "mom_63": -0.0366,
-      "mom_126": 0.1058,
-      "asof": "2026-08-06",
+      "price": 65.64,
+      "mom_63": -0.0143,
+      "mom_126": 0.1215,
+      "asof": "2026-08-07",
       "n_strategies": 10,
-      "net": -2,
-      "exposure_pct": -20,
+      "net": -1,
+      "exposure_pct": -10,
       "longs": 4,
-      "shorts": 6,
-      "neutrals": 0,
+      "shorts": 5,
+      "neutrals": 1,
       "strategies": [
         {
           "strategy": "MA 20/50",
@@ -1122,8 +1050,8 @@
         },
         {
           "strategy": "Momentum 63d",
-          "signal": -1,
-          "label": "SHORT"
+          "signal": 0,
+          "label": "NEUTRAL"
         },
         {
           "strategy": "Momentum 126d",
@@ -1149,28 +1077,28 @@
       "market": "Emerging Markets",
       "group": "Equity",
       "direction": "SHORT",
-      "strength": "WEAK",
-      "prev_pct": -10,
-      "change_pct": -10,
-      "action": "ADD SHORT EXPOSURE"
+      "strength": "NONE",
+      "prev_pct": -20,
+      "change_pct": 10,
+      "action": "REDUCE SHORT EXPOSURE"
     },
     {
-      "symbol": "FXE",
-      "price": 106.3,
-      "mom_63": -0.0194,
-      "mom_126": -0.0242,
-      "asof": "2026-08-06",
+      "symbol": "IBIT",
+      "price": 36.8,
+      "mom_63": -0.1894,
+      "mom_126": 0.0194,
+      "asof": "2026-08-07",
       "n_strategies": 10,
       "net": -1,
       "exposure_pct": -10,
-      "longs": 3,
-      "shorts": 4,
-      "neutrals": 3,
+      "longs": 4,
+      "shorts": 5,
+      "neutrals": 1,
       "strategies": [
         {
           "strategy": "MA 20/50",
-          "signal": -1,
-          "label": "SHORT"
+          "signal": 1,
+          "label": "LONG"
         },
         {
           "strategy": "MA 50/200",
@@ -1194,8 +1122,8 @@
         },
         {
           "strategy": "Momentum 63d",
-          "signal": 0,
-          "label": "NEUTRAL"
+          "signal": -1,
+          "label": "SHORT"
         },
         {
           "strategy": "Momentum 126d",
@@ -1204,13 +1132,13 @@
         },
         {
           "strategy": "Keltner 20",
-          "signal": 1,
-          "label": "LONG"
+          "signal": -1,
+          "label": "SHORT"
         },
         {
           "strategy": "Slope 40d",
-          "signal": 0,
-          "label": "NEUTRAL"
+          "signal": 1,
+          "label": "LONG"
         },
         {
           "strategy": "Close vs SMA100",
@@ -1218,20 +1146,20 @@
           "label": "SHORT"
         }
       ],
-      "market": "Euro",
-      "group": "FX",
+      "market": "Bitcoin",
+      "group": "Crypto",
       "direction": "SHORT",
       "strength": "NONE",
-      "prev_pct": -10,
-      "change_pct": 0,
-      "action": "NO CHANGE"
+      "prev_pct": -30,
+      "change_pct": 20,
+      "action": "REDUCE SHORT EXPOSURE"
     },
     {
       "symbol": "QQQ",
-      "price": 714.65,
-      "mom_63": 0.0271,
-      "mom_126": 0.1798,
-      "asof": "2026-08-06",
+      "price": 723.03,
+      "mom_63": 0.0404,
+      "mom_126": 0.211,
+      "asof": "2026-08-07",
       "n_strategies": 10,
       "net": 0,
       "exposure_pct": 0,
@@ -1297,6 +1225,78 @@
       "prev_pct": 0,
       "change_pct": 0,
       "action": "NO CHANGE"
+    },
+    {
+      "symbol": "FXE",
+      "price": 106.68,
+      "mom_63": -0.0147,
+      "mom_126": -0.0182,
+      "asof": "2026-08-07",
+      "n_strategies": 10,
+      "net": 0,
+      "exposure_pct": 0,
+      "longs": 3,
+      "shorts": 3,
+      "neutrals": 4,
+      "strategies": [
+        {
+          "strategy": "MA 20/50",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "MA 50/200",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "Donchian 20",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Donchian 55",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "MACD 12/26/9",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Momentum 63d",
+          "signal": 0,
+          "label": "NEUTRAL"
+        },
+        {
+          "strategy": "Momentum 126d",
+          "signal": 0,
+          "label": "NEUTRAL"
+        },
+        {
+          "strategy": "Keltner 20",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Slope 40d",
+          "signal": 0,
+          "label": "NEUTRAL"
+        },
+        {
+          "strategy": "Close vs SMA100",
+          "signal": 0,
+          "label": "NEUTRAL"
+        }
+      ],
+      "market": "Euro",
+      "group": "FX",
+      "direction": "FLAT",
+      "strength": "NONE",
+      "prev_pct": -10,
+      "change_pct": 10,
+      "action": "CLOSE \u2014 GO FLAT"
     }
   ],
   "errors": []

@@ -3,3 +3,6 @@ node_modules/
 out/
 .env
 .credentials.json
+.schedule.json
+schedule.log
+queue/

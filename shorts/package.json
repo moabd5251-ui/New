@@ -10,7 +10,8 @@
     "example": "node src/cli.js examples/seal-mimicry.json",
     "auth": "node src/auth-cli.js",
     "upload": "node src/upload-cli.js",
-    "test": "node test/smoke.js && node test/upload.js"
+    "schedule": "node src/schedule-cli.js",
+    "test": "node test/smoke.js && node test/upload.js && node test/schedule.js"
   },
   "dependencies": {
     "ffmpeg-static": "^5.2.0",

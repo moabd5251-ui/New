@@ -1,0 +1,55 @@
+{
+  "title": "Most of an octopus thinks without its brain",
+  "topic": "Why two thirds of an octopus's neurons sit in its arms rather than its head",
+  "voice_script": "Two thirds of an octopus is thinking without its brain. Each arm holds its own dense cluster of neurons. The arm tastes what it touches, decides, and acts, before the central brain is involved. Sever one, and it will still reach for food and pass it toward where a mouth used to be. The brain sets the goal. The arms work out the how. It isn't one animal solving a problem. It is nine of them, loosely agreeing.",
+  "segments": [
+    {
+      "start": 0,
+      "end": 4.2,
+      "text": "Two thirds of an octopus is thinking without its brain.",
+      "clip": "An octopus moves across a reef, arms spread wide.",
+      "stock_query": "octopus reef",
+      "source": "stock"
+    },
+    {
+      "start": 4.2,
+      "end": 8,
+      "text": "Each arm holds its own dense cluster of neurons.",
+      "clip": "Close up on a single octopus arm curling and uncurling.",
+      "stock_query": "octopus tentacle closeup",
+      "source": "stock"
+    },
+    {
+      "start": 8,
+      "end": 13.5,
+      "text": "The arm tastes what it touches, decides, and acts, before the central brain is involved.",
+      "clip": "Octopus suckers gripping and releasing a rock surface underwater.",
+      "stock_query": "octopus suckers",
+      "source": "stock"
+    },
+    {
+      "start": 13.5,
+      "end": 19.5,
+      "text": "Sever one, and it will still reach for food and pass it toward where a mouth used to be.",
+      "clip": "An octopus arm extends and coils around a small object on the seabed.",
+      "stock_query": "octopus arm reaching",
+      "source": "stock"
+    },
+    {
+      "start": 19.5,
+      "end": 23,
+      "text": "The brain sets the goal. The arms work out the how.",
+      "clip": "A whole octopus hovers in open water, arms trailing in different directions.",
+      "stock_query": "octopus swimming",
+      "source": "stock"
+    },
+    {
+      "start": 23,
+      "end": 27.5,
+      "text": "It isn't one animal solving a problem. It is nine of them, loosely agreeing.",
+      "clip": "An octopus squeezes its body through a narrow gap between rocks.",
+      "stock_query": "octopus squeezing rocks",
+      "source": "stock"
+    }
+  ]
+}

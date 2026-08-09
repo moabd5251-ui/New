@@ -57,6 +57,9 @@ JSON that this pipeline consumes directly.**
 
 **5 — Upload.** `npm run upload -- out/<slug>`. See [Uploading](#uploading).
 
+**6 — Repeat on a timetable.** `npm run schedule -- add <shot-list.json>` and
+let cron post it. See [Scheduling](#scheduling).
+
 **Branding**, separately and once: `prompts/04-branding.md`. Channel name, logo,
 banner, description — plus the mobile safe-area dimensions that AI-generated
 banners usually get wrong.
@@ -157,6 +160,70 @@ Console at no cost.
   anyway.** A label costs a little reach; an undisclosed-synthetic strike costs
   the channel. Override with `--no-synthetic` if you've made a different call.
 
+## Scheduling
+
+Posting daily is the part of the video's advice that's actually load-bearing,
+and it's the part that fails first when you're doing it by hand.
+
+```bash
+npm run schedule -- add examples/*.json    # queue shot lists
+npm run schedule -- plan                   # what posts when
+npm run schedule -- tick --dry-run         # preview, change nothing
+npm run schedule -- tick --yes             # do what's due
+```
+
+Then hand `tick` to cron and stop thinking about it:
+
+```
+*/15 * * * * cd /path/to/shorts && npm run schedule -- tick --yes >> schedule.log 2>&1
+```
+
+`npm run schedule -- watch` does the same in the foreground if you'd rather not
+touch crontab, but cron survives reboots and watch doesn't.
+
+### Two modes
+
+**`publish-at`** (default) uploads the video early as private with a `publishAt`
+timestamp, and YouTube flips it public at the slot. Nothing needs to be running
+at post time — a laptop that's closed at 09:00 still posts at 09:00.
+
+**`drip`** holds the upload until the slot arrives and posts it then, with
+whatever privacy you configured. Needs a live cron at that moment, but nothing
+is on YouTube's servers until you mean it.
+
+```bash
+SCHEDULE_SLOTS=09:00,18:00     # local times of day
+SCHEDULE_MAX_PER_DAY=2
+SCHEDULE_MODE=publish-at       # or drip
+SCHEDULE_PRIVACY=private       # drip only
+SCHEDULE_QUOTA_BUDGET=10000    # raise if Google granted you more
+SCHEDULE_YES=true              # standing consent, instead of --yes each run
+```
+
+### How tick behaves
+
+**Rendering always runs; uploading is gated.** Rendering costs nothing but CPU,
+so a queued video is built and inspectable well before its slot. Uploading is
+the irreversible half and needs `--yes` whenever the configuration ends up
+public.
+
+**Missed slots move forward.** If the machine was asleep or a run failed, jobs
+don't sit with a timestamp in the past — they're reassigned to the next free
+slot. In `publish-at` mode this is not cosmetic: the API rejects a `publishAt`
+in the past outright.
+
+**Quota is tracked against the Pacific day**, because that's when YouTube resets
+it — not local midnight. Bucketing by local date would let a run just after
+local midnight double-spend the same quota day. At 1600 units an upload, `tick`
+stops at six and picks up after the reset.
+
+**Failures retry three times, then stop.** A job that can't render or upload is
+marked `failed` and left alone rather than retried every 15 minutes forever.
+`npm run schedule -- retry <id>` puts it back.
+
+**Slots are never double-booked**, and a slot that passed unused doesn't eat
+that day's cap — a missed morning post doesn't cost you the evening one.
+
 ## Verification — read this before you rely on it
 
 **Videos uploaded through a Google Cloud project that has not passed YouTube's
@@ -210,7 +277,7 @@ to install system-wide.
 npm test
 ```
 
-18 tests, no network and no credentials needed.
+34 tests, no network and no credentials needed.
 
 `test/smoke.js` covers the real-footage paths the example run never touches:
 cropping landscape stock to vertical, looping a clip shorter than its segment,
@@ -220,6 +287,11 @@ concatenating mixed real/placeholder segments, timing rescale, caption tiling.
 ranges (inclusive `end`, exact tiling), `308` resume offsets, metadata limits,
 `publishAt` constraints, description assembly, and the synthetic-media
 decision.
+
+`test/schedule.js` covers slot assignment against fixed clocks — per-day caps,
+double-booking, missed slots, rescheduling the past — and quota accounting
+across the midnight-Pacific boundary. Every case pins an explicit time; a
+scheduler that only passes between 9am and 6pm isn't tested.
 
 ## Why not TikTok clips
 
@@ -276,7 +348,7 @@ doing.
 - **Uploads can't be public on an unaudited project.** See
   [Verification](#verification--read-this-before-you-rely-on-it). This is a
   YouTube policy, not something the code can work around.
-- **No scheduler.** `--publish-at` uses YouTube's own scheduling, but nothing
-  here runs on a timer. Cron plus `npm run upload` covers it.
+- **The scheduler needs something to run it.** `tick` is a single pass designed
+  for cron; it is not a daemon. `watch` is a convenience, not a service.
 - **Stock is shallow.** Expect some placeholder cards on unusual topics. They're
   listed in the run output and in `manifest.json` so you can swap footage in.

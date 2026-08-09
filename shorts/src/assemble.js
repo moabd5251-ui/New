@@ -74,11 +74,14 @@ export async function assemble({ segments, audioFile, assFile, outFile, musicFil
   const workDir = ensureDir(path.join(path.dirname(outFile), 'work'));
   const rendered = [];
 
+  // Carriage-return progress is for a terminal. Piped to a cron log it would
+  // just produce one enormous line, so it is suppressed when stdout is not a TTY.
+  const interactive = process.stdout.isTTY;
   for (let i = 0; i < segments.length; i += 1) {
-    process.stdout.write(`  segment ${i + 1}/${segments.length}\r`);
+    if (interactive) process.stdout.write(`  segment ${i + 1}/${segments.length}\r`);
     rendered.push(await renderSegment(segments[i], i, workDir));
   }
-  process.stdout.write('\n');
+  if (interactive) process.stdout.write('\n');
 
   const listFile = path.join(workDir, 'concat.txt');
   await fs.promises.writeFile(

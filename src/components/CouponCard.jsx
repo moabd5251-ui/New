@@ -35,20 +35,20 @@ export default function CouponCard({ coupon, onClip, onUnclip, onMarkAsUsed, act
           <div className="mb-4 flex flex-col items-center gap-3">
             <div className="bg-white p-4 rounded border-2 border-indigo-300">
               <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(coupon.couponCode)}`}
-                alt="QR Code"
-                className="w-40 h-40"
+                src={`https://barcode.tec-it.com/barcode.ashx?data=${encodeURIComponent(coupon.couponCode)}&code=Code128&unit=Px&dpi=96&height=80&width=300`}
+                alt="Barcode"
+                className="h-24"
               />
             </div>
             <div className="bg-gray-50 p-3 rounded border border-gray-200 w-full text-center">
               <p className="text-xs text-gray-500 mb-1">Code:</p>
-              <p className="font-mono font-bold text-sm text-gray-800 mb-2">{coupon.couponCode}</p>
+              <p className="font-mono font-bold text-lg text-gray-800">{coupon.couponCode}</p>
               <button
                 onClick={() => setShowQR(!showQR)}
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold py-1 rounded flex items-center justify-center gap-1"
+                className="w-full mt-2 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold py-1 rounded flex items-center justify-center gap-1"
               >
                 <Smartphone size={14} />
-                Scan QR
+                Scan Barcode
               </button>
             </div>
           </div>

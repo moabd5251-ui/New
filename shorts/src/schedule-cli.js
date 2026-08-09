@@ -38,14 +38,15 @@ function usage() {
   Configuration (.env):
     SCHEDULE_SLOTS=09:00,18:00     local times of day to post at
     SCHEDULE_MAX_PER_DAY=2         cap on posts per day
-    SCHEDULE_MODE=publish-at       publish-at | drip
+    SCHEDULE_MODE=drip             drip | publish-at
     SCHEDULE_PRIVACY=private       drip mode only
     SCHEDULE_CATEGORY=education
     SCHEDULE_QUOTA_BUDGET=10000    raise if Google granted you more
 
-  publish-at uploads early and lets YouTube flip the video public at its slot,
-  so nothing needs to be running at post time. drip holds the upload until the
-  slot arrives, which needs a live cron but keeps everything in your control.
+  drip holds the upload until the slot arrives, which needs a live cron but
+  keeps everything in your control. publish-at uploads early and lets YouTube
+  flip the video public at its slot, so nothing needs to be running at post
+  time — but it does nothing until your API project passes Google's audit.
 `);
 }
 

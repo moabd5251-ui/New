@@ -29,9 +29,13 @@ export function defaultConfig(env = process.env) {
     // Local times of day to post at.
     slots: parseSlotTimes(env.SCHEDULE_SLOTS || '09:00,18:00'),
     maxPerDay: Number.parseInt(env.SCHEDULE_MAX_PER_DAY || '2', 10),
-    // "publish-at" uploads early and lets YouTube publish at the slot.
     // "drip" holds the upload until the slot comes round.
-    mode: (env.SCHEDULE_MODE || 'publish-at').toLowerCase(),
+    // "publish-at" uploads early and lets YouTube publish at the slot.
+    //
+    // Defaults to drip because publish-at schedules a publish that never fires
+    // while the API project is unaudited — the video is locked to private the
+    // moment it arrives. Switch to publish-at once the audit clears.
+    mode: (env.SCHEDULE_MODE || 'drip').toLowerCase(),
     // Only used in drip mode; publish-at always ends up public.
     privacy: env.SCHEDULE_PRIVACY || 'private',
     quotaBudget: Number.parseInt(env.SCHEDULE_QUOTA_BUDGET || String(DEFAULT_DAILY_QUOTA), 10),

@@ -1,0 +1,17 @@
+{
+  "name": "shorts-pipeline",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Build faceless vertical Shorts from a Claude-generated shot list, using licensed stock footage",
+  "type": "module",
+  "main": "src/cli.js",
+  "scripts": {
+    "make": "node src/cli.js",
+    "example": "node src/cli.js examples/seal-mimicry.json",
+    "test": "node test/smoke.js"
+  },
+  "dependencies": {
+    "ffmpeg-static": "^5.2.0",
+    "ffprobe-static": "^3.1.0"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "title": "Seals mirror your body language",
+  "topic": "Why grey seals copy human posture on beaches, and what it actually means",
+  "voice_script": "A seal will copy your body language back at you. Marine biologists noticed it first on Norfolk's beaches. Lie down, and the seal lies down. Raise an arm, and a flipper comes up. It isn't friendliness. Seals read posture to work out whether you're a threat, and mirroring is how they test the answer. Get too close and the copying stops. Then they bolt for the water. The mimicry was never a game. It was a risk assessment.",
+  "segments": [
+    {
+      "start": 0,
+      "end": 3.8,
+      "text": "A seal will copy your body language back at you.",
+      "clip": "A grey seal rests on wet sand, facing the camera, head raised.",
+      "stock_query": "seal beach",
+      "source": "stock"
+    },
+    {
+      "start": 3.8,
+      "end": 7.5,
+      "text": "Marine biologists noticed it first on Norfolk's beaches.",
+      "clip": "Wide shot of a cold northern beach with seals scattered across the sand.",
+      "stock_query": "seal colony coast",
+      "source": "stock"
+    },
+    {
+      "start": 7.5,
+      "end": 10.8,
+      "text": "Lie down, and the seal lies down.",
+      "clip": "A seal lowers its head and body flat against the sand.",
+      "stock_query": "seal lying sand",
+      "source": "stock"
+    },
+    {
+      "start": 10.8,
+      "end": 14.5,
+      "text": "Raise an arm, and a flipper comes up.",
+      "clip": "A seal lifts one front flipper away from its body.",
+      "stock_query": "seal flipper",
+      "source": "stock"
+    },
+    {
+      "start": 14.5,
+      "end": 16.5,
+      "text": "It isn't friendliness.",
+      "clip": "Close up on a seal's face and dark round eyes, unblinking.",
+      "stock_query": "seal face closeup",
+      "source": "stock"
+    },
+    {
+      "start": 16.5,
+      "end": 22.5,
+      "text": "Seals read posture to work out whether you're a threat, and mirroring is how they test the answer.",
+      "clip": "A seal holds still on the sand, head turned toward something off camera.",
+      "stock_query": "grey seal watching",
+      "source": "stock"
+    },
+    {
+      "start": 22.5,
+      "end": 26.5,
+      "text": "Get too close and the copying stops. Then they bolt for the water.",
+      "clip": "A seal moves quickly across sand and pushes into the shallows.",
+      "stock_query": "seal entering water",
+      "source": "stock"
+    },
+    {
+      "start": 26.5,
+      "end": 30,
+      "text": "The mimicry was never a game. It was a risk assessment.",
+      "clip": "A seal's head surfaces among moving waves, then drops below.",
+      "stock_query": "seal swimming ocean",
+      "source": "stock"
+    }
+  ]
+}

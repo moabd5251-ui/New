@@ -191,6 +191,7 @@ async function main() {
       text: s.text,
       clip: s.clip,
       stock_query: s.stock_query,
+      source: s.source || 'stock',
       sourced: Boolean(s.clipFile),
     })),
     attributions,

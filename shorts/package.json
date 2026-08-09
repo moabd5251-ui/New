@@ -8,7 +8,9 @@
   "scripts": {
     "make": "node src/cli.js",
     "example": "node src/cli.js examples/seal-mimicry.json",
-    "test": "node test/smoke.js"
+    "auth": "node src/auth-cli.js",
+    "upload": "node src/upload-cli.js",
+    "test": "node test/smoke.js && node test/upload.js"
   },
   "dependencies": {
     "ffmpeg-static": "^5.2.0",

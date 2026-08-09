@@ -55,9 +55,11 @@ JSON that this pipeline consumes directly.**
 
 **4 — Render.** `npm run make -- shotlist.json`.
 
-**5 — Branding.** `prompts/04-branding.md`. Channel name, logo, banner,
-description — plus the mobile safe-area dimensions that AI-generated banners
-usually get wrong.
+**5 — Upload.** `npm run upload -- out/<slug>`. See [Uploading](#uploading).
+
+**Branding**, separately and once: `prompts/04-branding.md`. Channel name, logo,
+banner, description — plus the mobile safe-area dimensions that AI-generated
+banners usually get wrong.
 
 ## What the render actually does
 
@@ -86,6 +88,98 @@ npm run make -- shotlist.json --out final.mp4   # output path
 npm run make -- shotlist.json --no-stock        # placeholders only, fast
 ```
 
+## Uploading
+
+> **Read [Verification](#verification--read-this-before-you-rely-on-it) first.**
+> On a fresh Google Cloud project, everything you upload through this API is
+> permanently locked to private. That is not a bug in this tool and it cannot
+> be appealed.
+
+One-time setup:
+
+1. Google Cloud Console → new project → enable **YouTube Data API v3**.
+2. Credentials → Create credentials → OAuth client ID → **Desktop app**.
+3. Put the client ID and secret in `.env`.
+
+```bash
+npm run auth                                   # once per channel
+npm run upload -- out/my-video --dry-run       # see exactly what would be sent
+npm run upload -- out/my-video                 # uploads as private
+```
+
+Point it at a render directory and it reads `manifest.json` to fill in the
+title, the description with footage credits, and the synthetic-media
+disclosure. Explicit flags win over anything inferred.
+
+```bash
+npm run upload -- out/my-video \
+  --title "Why seals copy you" \
+  --description "New facts every day." \
+  --tags seals,animals,facts \
+  --privacy public --yes
+```
+
+| Flag | Effect |
+|---|---|
+| `--privacy` | `private` (default), `unlisted`, `public` |
+| `--yes` | required for anything other than private |
+| `--publish-at <iso>` | schedule; requires `--privacy private` |
+| `--category <name>` | `education` (default), `science`, `entertainment`, … |
+| `--synthetic` / `--no-synthetic` | force the AI-content disclosure on or off |
+| `--made-for-kids` | sets `selfDeclaredMadeForKids` |
+| `--no-credits` | omit the footage credits block |
+| `--dry-run` | print the exact API request body and stop |
+
+Uploads default to **private** and refuse to go public without `--yes`, because
+an upload is a publish — once it's indexed, deleting it doesn't fully undo it.
+
+Uploads are resumable and chunked, so a dropped connection resumes from the
+last confirmed byte instead of restarting and burning a second upload's worth of
+quota.
+
+### Quota
+
+`videos.insert` costs **1600 units** against a default **10,000/day** — about
+**six uploads per day**, resetting at midnight Pacific. The video's advice to
+post 1–2 per day fits inside that comfortably. You can request more in the Cloud
+Console at no cost.
+
+### Synthetic content disclosure
+
+`status.containsSyntheticMedia` is set automatically:
+
+- **AI-generated clips** — unambiguous. YouTube lists "generating realistic
+  scenes" as requiring disclosure.
+- **AI voiceover** — ambiguous. YouTube's example list includes "synthetically
+  generating a person's voice to narrate a video" under *using the likeness of a
+  realistic person*, which is commonly read as applying only to impersonating a
+  specific real person, not to a generic TTS narrator. **This tool discloses
+  anyway.** A label costs a little reach; an undisclosed-synthetic strike costs
+  the channel. Override with `--no-synthetic` if you've made a different call.
+
+## Verification — read this before you rely on it
+
+**Videos uploaded through a Google Cloud project that has not passed YouTube's
+API audit are locked to private. Permanently. There is no appeal, and the fix
+is to re-upload through a verified project or through the YouTube app.**
+
+This applies to every project created after 28 July 2020, which means every
+project you would create today. Nothing in this tool — or any other API
+uploader — changes it.
+
+Practical consequences:
+
+- The `--privacy public` flag will appear to work and the video will still come
+  back private. The CLI detects this and tells you.
+- Plan for one of two paths: **apply for the API audit** through the Cloud
+  Console and wait for approval, or **use this to stage private uploads** with
+  the metadata filled in and hit publish yourself in YouTube Studio.
+- The staging path is honestly fine for 1–2 videos a day. The audit is worth it
+  only once you're posting enough that manual publishing is the bottleneck.
+
+I'd rather you know this before building a posting habit around a pipeline that
+can't publish.
+
 ## Keys
 
 All optional; the pipeline degrades rather than fails.
@@ -97,6 +191,7 @@ All optional; the pipeline degrades rather than fails.
 | Voice | `ELEVENLABS_API_KEY` | paid, best quality |
 | Voice | `OPENAI_API_KEY` | paid, cheaper |
 | Voice | `PIPER_MODEL` | free, local, no account |
+| Upload | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | free |
 
 TTS providers are tried in order and the first one configured wins. With none,
 you get a silent track of the right length so the render still completes.
@@ -115,9 +210,16 @@ to install system-wide.
 npm test
 ```
 
-Covers the real-footage paths the example run never touches: cropping landscape
-stock to vertical, looping a clip shorter than its segment, concatenating mixed
-real/placeholder segments, timing rescale, and caption tiling.
+18 tests, no network and no credentials needed.
+
+`test/smoke.js` covers the real-footage paths the example run never touches:
+cropping landscape stock to vertical, looping a clip shorter than its segment,
+concatenating mixed real/placeholder segments, timing rescale, caption tiling.
+
+`test/upload.js` covers the uploader's arithmetic and rules: resumable chunk
+ranges (inclusive `end`, exact tiling), `308` resume offsets, metadata limits,
+`publishAt` constraints, description assembly, and the synthetic-media
+decision.
 
 ## Why not TikTok clips
 
@@ -171,6 +273,10 @@ doing.
   segment, not aligned to the audio waveform. Accurate at 2–3 words per chunk;
   it would drift on long single-shot segments. Forced alignment (whisper) would
   fix it.
-- **No uploader.** Rendering only. YouTube Data API upload is a separate piece.
+- **Uploads can't be public on an unaudited project.** See
+  [Verification](#verification--read-this-before-you-rely-on-it). This is a
+  YouTube policy, not something the code can work around.
+- **No scheduler.** `--publish-at` uses YouTube's own scheduling, but nothing
+  here runs on a timer. Cron plus `npm run upload` covers it.
 - **Stock is shallow.** Expect some placeholder cards on unusual topics. They're
   listed in the run output and in `manifest.json` so you can swap footage in.

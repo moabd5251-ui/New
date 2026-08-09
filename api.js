@@ -5,6 +5,8 @@ import cron from 'node-cron'
 import axios from 'axios'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
+import { registerRevenueRoutes } from './revenue-routes.js'
+import { resolveDestination } from './affiliate.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -13,7 +15,9 @@ const app = express()
 const PORT = process.env.PORT || 5000
 
 app.use(cors())
-app.use(express.json())
+// Stash the exact bytes we received — Stripe signs the raw payload, and a
+// re-serialized object will not byte-match it.
+app.use(express.json({ verify: (req, _res, buf) => { req.rawBody = buf } }))
 
 // Initialize SQLite database
 const db = new sqlite3.Database(join(__dirname, 'coupons.db'), (err) => {
@@ -498,7 +502,8 @@ async function syncCoupons() {
 app.get('/api/coupons', (req, res) => {
   const { store, category, search } = req.query
 
-  let query = 'SELECT * FROM coupons WHERE expiresAt > datetime("now") ORDER BY discount DESC'
+  // Filters have to be appended before ORDER BY, not after it.
+  let query = 'SELECT * FROM coupons WHERE expiresAt > datetime("now")'
   const params = []
 
   if (store && store !== 'All') {
@@ -517,11 +522,21 @@ app.get('/api/coupons', (req, res) => {
     params.push(searchTerm, searchTerm)
   }
 
+  // Paid placements sort first; everything else still ranks by savings.
+  query += ' ORDER BY COALESCE(sponsored, 0) DESC, discount DESC'
+
   db.all(query, params, (err, rows) => {
     if (err) {
       res.status(500).json({ error: err.message })
     } else {
-      res.json(rows || [])
+      // Tell the client which coupons have an online destination worth a
+      // click-out button, without leaking the affiliate URL itself.
+      res.json(
+        (rows || []).map(row => {
+          const { affiliateUrl, cpcRate, network, ...safe } = row
+          return { ...safe, hasOffer: Boolean(resolveDestination(row)) }
+        })
+      )
     }
   })
 })
@@ -556,6 +571,9 @@ app.post('/api/sync', (req, res) => {
   res.json({ status: 'Sync started' })
 })
 
+// Click tracking, affiliate redirects, sponsored slots, email capture, Pro billing
+registerRevenueRoutes(app, db)
+
 // Schedule daily sync at 2 AM
 cron.schedule('0 2 * * *', () => {
   console.log('⏰ Running scheduled coupon sync...')
@@ -584,4 +602,11 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`   GET /api/coupons/categories - Get all categories`)
   console.log(`   POST /api/sync - Manually trigger sync`)
   console.log(`   GET /api/health - Health check`)
+  console.log(`💸 Revenue endpoints:`)
+  console.log(`   GET  /api/go/:couponId - Tracked affiliate click-out`)
+  console.log(`   GET  /api/go/offer/:key - Tracked partner offer click-out`)
+  console.log(`   GET  /api/offers - Partner offer wall`)
+  console.log(`   POST /api/subscribe - Email list signup`)
+  console.log(`   POST /api/pro/checkout - Start Pro subscription`)
+  console.log(`   GET  /api/revenue - Owner dashboard (needs ADMIN_TOKEN)`)
 })

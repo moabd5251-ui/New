@@ -1,6 +1,7 @@
-import { Trash2, CheckCircle, Smartphone } from 'lucide-react'
+import { Trash2, CheckCircle, Smartphone, ExternalLink } from 'lucide-react'
 import { useState } from 'react'
 import QRScanner from './QRScanner'
+import { couponOfferUrl } from '../lib/api'
 
 export default function CouponCard({ coupon, onClip, onUnclip, onMarkAsUsed, action = 'clip' }) {
   const [showQR, setShowQR] = useState(false)
@@ -21,8 +22,14 @@ export default function CouponCard({ coupon, onClip, onUnclip, onMarkAsUsed, act
 
   return (
     <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition overflow-hidden">
-      <div className="bg-gradient-to-r from-indigo-400 to-indigo-600 p-6 flex items-center justify-center min-h-24">
+      <div className="bg-gradient-to-r from-indigo-400 to-indigo-600 p-6 flex items-center justify-center min-h-24 relative">
         <span className="text-6xl">{coupon.image}</span>
+        {coupon.sponsored ? (
+          // FTC requires paid placements be labelled clearly, not buried.
+          <span className="absolute top-2 right-2 text-[10px] font-bold uppercase tracking-wide bg-white/90 text-gray-700 px-2 py-1 rounded">
+            Sponsored
+          </span>
+        ) : null}
       </div>
 
       <div className="p-4">
@@ -107,6 +114,18 @@ export default function CouponCard({ coupon, onClip, onUnclip, onMarkAsUsed, act
             </>
           )}
         </div>
+
+        {coupon.hasOffer && (
+          <a
+            href={couponOfferUrl(coupon.id)}
+            target="_blank"
+            rel="sponsored noopener noreferrer"
+            className="mt-2 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition flex items-center justify-center gap-2"
+          >
+            Shop this deal
+            <ExternalLink size={15} />
+          </a>
+        )}
 
         <QRScanner isOpen={showQR} onClose={() => setShowQR(false)} onScan={handleScan} />
       </div>

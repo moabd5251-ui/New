@@ -128,6 +128,17 @@ This application is deployed and ready to use:
 
 For deployment instructions and environment setup, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
+## Monetization
+
+The app has a full revenue layer: tracked affiliate click-outs, a CPA partner
+offer wall, a Pro subscription, email capture, sponsored slots, and an
+owner-only revenue dashboard at `/?admin=1`.
+
+Nothing is switched on by default — every affiliate ID and API key is read from
+the server environment, so an unconfigured deploy behaves exactly like the free
+app. See **[MONETIZATION.md](./MONETIZATION.md)** for what's built, which
+programs to sign up for, and what it's realistically worth.
+
 ## Future Enhancements
 
 - Integration with store loyalty programs (Safeway, Kroger APIs)

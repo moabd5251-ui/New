@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { Bell, Plus, Trash2 } from 'lucide-react'
+import { FREE_LIMITS } from '../lib/pro'
+import { ProLimitNotice } from './ProUpgrade'
 
-export default function PriceAlerts() {
+export default function PriceAlerts({ isPro = false, onUpgrade = () => {} }) {
   const [alerts, setAlerts] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState({
@@ -10,8 +12,11 @@ export default function PriceAlerts() {
     store: '',
   })
 
+  const atLimit = !isPro && alerts.length >= FREE_LIMITS.alerts
+
   const handleSubmit = (e) => {
     e.preventDefault()
+    if (atLimit) return
     if (formData.product && formData.targetPrice && formData.store) {
       setAlerts([...alerts, {
         id: Date.now(),
@@ -35,7 +40,7 @@ export default function PriceAlerts() {
           Price Alerts
         </h2>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => (atLimit ? onUpgrade() : setShowForm(!showForm))}
           className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center gap-2"
         >
           <Plus size={20} />
@@ -43,7 +48,16 @@ export default function PriceAlerts() {
         </button>
       </div>
 
-      {showForm && (
+      {atLimit && (
+        <div className="mb-6">
+          <ProLimitNotice
+            message={`You've used all ${FREE_LIMITS.alerts} free price alerts. Pro tracks unlimited items.`}
+            onUpgrade={onUpgrade}
+          />
+        </div>
+      )}
+
+      {showForm && !atLimit && (
         <form onSubmit={handleSubmit} className="bg-gray-50 p-4 rounded-lg mb-6 space-y-4">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">

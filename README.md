@@ -80,22 +80,40 @@ npm preview
 - Enter product name, target price, and store
 - Get reminded when deals match your criteria
 
+## Architecture
+
+This is a full-stack application with separate frontend and backend:
+
+**Frontend** (React/Vite on Vercel)
+- Clipped coupons stored locally in browser
+- Used coupons history stored locally
+- Price alerts stored locally
+
+**Backend** (Node.js/Express on Railway)
+- SQLite database for coupon catalog
+- Automated coupon sync from external sources
+- REST API endpoints for coupon data
+
 ## Data Storage
 
-All your data is stored locally in your browser using localStorage:
-- Clipped coupons
-- Used coupons history
-- Price alerts
-
-No data is sent to external servers - your savings tracking stays private.
+- **Frontend Data**: Clipped coupons, used history, and alerts are stored locally in your browser's localStorage
+- **Backend Data**: Master coupon catalog is stored in Railway-hosted SQLite database
+- **Privacy**: Your personal data stays in your browser; only coupon data is shared with backend
 
 ## Tech Stack
 
-- **Frontend**: React 18
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS
-- **Icons**: Lucide React
-- **Storage**: Browser localStorage
+- **Frontend**: React 18, Vite, Tailwind CSS, Lucide React
+- **Backend**: Node.js, Express, SQLite
+- **Deployment**: Vercel (frontend), Railway (backend)
+
+## Deployment
+
+This application is deployed and ready to use:
+
+- **Frontend**: https://new-eight-ecru-84.vercel.app (Vercel)
+- **Backend**: https://web-production-2e894.up.railway.app (Railway)
+
+For deployment instructions and environment setup, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
 ## Future Enhancements
 

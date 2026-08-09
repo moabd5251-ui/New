@@ -1,0 +1,71 @@
+{
+  "title": "Vampire bats keep a ledger",
+  "topic": "Vampire bats regurgitate blood for starving roostmates, and they give most to the bats that fed them before",
+  "voice_script": "A vampire bat will starve in two nights. Miss two meals and it dies, so the colony runs a blood debt. A bat that fed tonight will bring some back up for one that did not. It is not simple kindness. They give most to the bats that gave to them before, and kinship matters less than that record. Newcomers are tested with grooming first, then small donations. The colony is not a family. It is a ledger.",
+  "segments": [
+    {
+      "start": 0,
+      "end": 3.1,
+      "text": "A vampire bat will starve in two nights.",
+      "clip": "Bats hanging upside down from a dark cave ceiling.",
+      "stock_query": "bats cave",
+      "source": "stock"
+    },
+    {
+      "start": 3.1,
+      "end": 8.1,
+      "text": "Miss two meals and it dies, so the colony runs a blood debt.",
+      "clip": "A bat flies across a night sky, wings fully spread.",
+      "stock_query": "bat flying night",
+      "source": "stock"
+    },
+    {
+      "start": 8.1,
+      "end": 13.9,
+      "text": "A bat that fed tonight will bring some back up for one that did not.",
+      "clip": "Close up of a bat's face, ears twitching.",
+      "stock_query": "bat closeup",
+      "source": "stock"
+    },
+    {
+      "start": 13.9,
+      "end": 16.4,
+      "text": "It is not simple kindness.",
+      "clip": "A tight cluster of bats packed together on a rock wall.",
+      "stock_query": "bats roosting",
+      "source": "stock"
+    },
+    {
+      "start": 16.4,
+      "end": 20.6,
+      "text": "They give most to the bats that gave to them before,",
+      "clip": "A bat stretches and folds one wing membrane.",
+      "stock_query": "bat wings",
+      "source": "stock"
+    },
+    {
+      "start": 20.6,
+      "end": 23.3,
+      "text": "and kinship matters less than that record.",
+      "clip": "Rows of bats hanging along a cave ceiling in low light.",
+      "stock_query": "bats hanging",
+      "source": "stock"
+    },
+    {
+      "start": 23.3,
+      "end": 26.8,
+      "text": "Newcomers are tested with grooming first, then small donations.",
+      "clip": "A bat crawls awkwardly across a rough surface on folded wings.",
+      "stock_query": "bat crawling",
+      "source": "stock"
+    },
+    {
+      "start": 26.8,
+      "end": 30,
+      "text": "The colony is not a family. It is a ledger.",
+      "clip": "A wide shot of a large bat colony filling a cave roof.",
+      "stock_query": "bat colony",
+      "source": "stock"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "title": "Sea otters keep a favorite rock",
+  "topic": "Sea otters store a preferred anvil stone in a loose skin pouch under the foreleg and reuse it for years",
+  "voice_script": "A sea otter keeps a favorite rock. Under each front leg there is a loose pouch of skin, and that is where the rock lives. It comes out when the otter finds something it cannot open. The otter floats on its back, balances the rock on its chest, and hammers the shell against it. Then the rock goes back in the pouch. Otters keep the same one for years. It is the only tool most of them will ever own.",
+  "segments": [
+    {
+      "start": 0,
+      "end": 2.6,
+      "text": "A sea otter keeps a favorite rock.",
+      "clip": "A sea otter floats on its back in calm water.",
+      "stock_query": "sea otter",
+      "source": "stock"
+    },
+    {
+      "start": 2.6,
+      "end": 6.7,
+      "text": "Under each front leg there is a loose pouch of skin,",
+      "clip": "Close up of an otter's forelimbs held against its chest.",
+      "stock_query": "otter closeup",
+      "source": "stock"
+    },
+    {
+      "start": 6.7,
+      "end": 9.3,
+      "text": "and that is where the rock lives.",
+      "clip": "An otter rolls in the water and rights itself.",
+      "stock_query": "otter water",
+      "source": "stock"
+    },
+    {
+      "start": 9.3,
+      "end": 13.4,
+      "text": "It comes out when the otter finds something it cannot open.",
+      "clip": "An otter dives below the surface and disappears.",
+      "stock_query": "otter swimming",
+      "source": "stock"
+    },
+    {
+      "start": 13.4,
+      "end": 17.9,
+      "text": "The otter floats on its back, balances the rock on its chest,",
+      "clip": "An otter lies on its back at the surface, paws on its chest.",
+      "stock_query": "otter floating",
+      "source": "stock"
+    },
+    {
+      "start": 17.9,
+      "end": 20.5,
+      "text": "and hammers the shell against it.",
+      "clip": "An otter works at something held in both paws while floating.",
+      "stock_query": "otter eating",
+      "source": "stock"
+    },
+    {
+      "start": 20.5,
+      "end": 23.5,
+      "text": "Then the rock goes back in the pouch.",
+      "clip": "An otter grooms its chest fur with both front paws.",
+      "stock_query": "otter grooming",
+      "source": "stock"
+    },
+    {
+      "start": 23.5,
+      "end": 26.1,
+      "text": "Otters keep the same one for years.",
+      "clip": "Two otters drift together among floating kelp.",
+      "stock_query": "otters kelp",
+      "source": "stock"
+    },
+    {
+      "start": 26.1,
+      "end": 30,
+      "text": "It is the only tool most of them will ever own.",
+      "clip": "A lone otter drifts away across open water.",
+      "stock_query": "otter ocean",
+      "source": "stock"
+    }
+  ]
+}

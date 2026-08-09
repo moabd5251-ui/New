@@ -1,0 +1,63 @@
+{
+  "title": "Ants keep livestock",
+  "topic": "Ants farm aphids for honeydew, defend them, move them between plants, and stop them leaving",
+  "voice_script": "Ants keep livestock, and the livestock is aphids. The ants stroke them with their antennae until the aphids release a drop of sugar. In return the ants drive off ladybugs and carry the herd to fresher stems. Some species go further. They chew the wings off aphids that try to leave, and their footprints carry a chemical that keeps the rest sluggish and close. It is not a partnership. The aphids are being farmed, and they cannot go.",
+  "segments": [
+    {
+      "start": 0,
+      "end": 3.1,
+      "text": "Ants keep livestock, and the livestock is aphids.",
+      "clip": "Ants moving in a line along a green plant stem.",
+      "stock_query": "ants stem",
+      "source": "stock"
+    },
+    {
+      "start": 3.1,
+      "end": 8.9,
+      "text": "The ants stroke them with their antennae until the aphids release a drop of sugar.",
+      "clip": "Extreme close up of an ant's head and moving antennae.",
+      "stock_query": "ant closeup",
+      "source": "stock"
+    },
+    {
+      "start": 8.9,
+      "end": 14.3,
+      "text": "In return the ants drive off ladybugs and carry the herd to fresher stems.",
+      "clip": "A ladybug walks along the edge of a green leaf.",
+      "stock_query": "ladybug leaf",
+      "source": "stock"
+    },
+    {
+      "start": 14.3,
+      "end": 16.8,
+      "text": "Some species go further.",
+      "clip": "Small insects clustered densely on a plant stalk.",
+      "stock_query": "aphids plant",
+      "source": "stock"
+    },
+    {
+      "start": 16.8,
+      "end": 20.7,
+      "text": "They chew the wings off aphids that try to leave,",
+      "clip": "An ant grips and manipulates something with its jaws.",
+      "stock_query": "ant macro",
+      "source": "stock"
+    },
+    {
+      "start": 20.7,
+      "end": 25.7,
+      "text": "and their footprints carry a chemical that keeps the rest sluggish and close.",
+      "clip": "A dense trail of ants streaming across a surface.",
+      "stock_query": "ants marching",
+      "source": "stock"
+    },
+    {
+      "start": 25.7,
+      "end": 30,
+      "text": "It is not a partnership. The aphids are being farmed, and they cannot go.",
+      "clip": "Ants swarming over a single leaf, covering it.",
+      "stock_query": "ants leaf",
+      "source": "stock"
+    }
+  ]
+}

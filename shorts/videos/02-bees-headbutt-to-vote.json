@@ -1,0 +1,71 @@
+{
+  "title": "Bees settle arguments by headbutting",
+  "topic": "How a honeybee swarm reaches a decision about a new nest site by silencing rival dancers rather than persuading them",
+  "voice_script": "Honeybees settle arguments by headbutting each other. When a swarm needs a new home, scouts fly out and come back dancing the directions to the sites they found. Rival scouts do not argue with them. They walk up and deliver a short vibrating headbutt. Each hit makes the dancer stop, and enough hits silence her completely. The bees are not voting for a winner. Nobody persuades anybody. They are switching off everyone else until only one dance is left.",
+  "segments": [
+    {
+      "start": 0,
+      "end": 2.7,
+      "text": "Honeybees settle arguments by headbutting each other.",
+      "clip": "Dense bees crowded across the surface of a honeycomb.",
+      "stock_query": "bees honeycomb",
+      "source": "stock"
+    },
+    {
+      "start": 2.7,
+      "end": 5.4,
+      "text": "When a swarm needs a new home,",
+      "clip": "A hanging cluster of swarming bees on a tree branch.",
+      "stock_query": "bee swarm",
+      "source": "stock"
+    },
+    {
+      "start": 5.4,
+      "end": 10.7,
+      "text": "scouts fly out and come back dancing the directions to the sites they found.",
+      "clip": "A single bee lands at the narrow entrance of a hive.",
+      "stock_query": "bee hive entrance",
+      "source": "stock"
+    },
+    {
+      "start": 10.7,
+      "end": 13.4,
+      "text": "Rival scouts do not argue with them.",
+      "clip": "Bees walking over one another across a comb face.",
+      "stock_query": "bees crawling",
+      "source": "stock"
+    },
+    {
+      "start": 13.4,
+      "end": 16.8,
+      "text": "They walk up and deliver a short vibrating headbutt.",
+      "clip": "Extreme close up of two bees meeting head to head.",
+      "stock_query": "bee closeup",
+      "source": "stock"
+    },
+    {
+      "start": 16.8,
+      "end": 21.4,
+      "text": "Each hit makes the dancer stop, and enough hits silence her completely.",
+      "clip": "A dense mass of bees shifting slowly across a hive frame.",
+      "stock_query": "beehive frame",
+      "source": "stock"
+    },
+    {
+      "start": 21.4,
+      "end": 24.4,
+      "text": "The bees are not voting for a winner.",
+      "clip": "A beekeeper lifts a frame thickly covered in bees.",
+      "stock_query": "beekeeper frame",
+      "source": "stock"
+    },
+    {
+      "start": 24.4,
+      "end": 30,
+      "text": "Nobody persuades anybody. They are switching off everyone else until only one dance is left.",
+      "clip": "Bees flying in a loose cloud around a tree in daylight.",
+      "stock_query": "bees flying",
+      "source": "stock"
+    }
+  ]
+}

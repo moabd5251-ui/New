@@ -1,0 +1,71 @@
+{
+  "title": "Pigeons can tell a Monet from a Picasso",
+  "topic": "Trained pigeons sorted paintings by artist, then generalised to painters they had never been shown",
+  "voice_script": "Pigeons can tell a Monet from a Picasso. Researchers in Tokyo trained them on paintings they had never seen, rewarding pecks at one artist and not the other. The birds learned it quickly. Then they were shown new paintings, and they still sorted them correctly. They also sorted painters they had never been trained on, putting the impressionists on one side and the cubists on the other. The pigeons were not recognizing paintings. They had learned a style.",
+  "segments": [
+    {
+      "start": 0,
+      "end": 3.1,
+      "text": "Pigeons can tell a Monet from a Picasso.",
+      "clip": "Close up of a pigeon's head, eye catching the light.",
+      "stock_query": "pigeon closeup",
+      "source": "stock"
+    },
+    {
+      "start": 3.1,
+      "end": 7.3,
+      "text": "Researchers in Tokyo trained them on paintings they had never seen,",
+      "clip": "Pigeons walking across paving stones in a city square.",
+      "stock_query": "pigeons square",
+      "source": "stock"
+    },
+    {
+      "start": 7.3,
+      "end": 10.8,
+      "text": "rewarding pecks at one artist and not the other.",
+      "clip": "A pigeon pecks repeatedly at the ground.",
+      "stock_query": "pigeon pecking",
+      "source": "stock"
+    },
+    {
+      "start": 10.8,
+      "end": 13.3,
+      "text": "The birds learned it quickly.",
+      "clip": "A quiet gallery wall hung with framed paintings.",
+      "stock_query": "art gallery",
+      "source": "stock"
+    },
+    {
+      "start": 13.3,
+      "end": 17.9,
+      "text": "Then they were shown new paintings, and they still sorted them correctly.",
+      "clip": "A person stands looking up at a large painting in a museum.",
+      "stock_query": "museum painting",
+      "source": "stock"
+    },
+    {
+      "start": 17.9,
+      "end": 21.8,
+      "text": "They also sorted painters they had never been trained on,",
+      "clip": "Thick brushstrokes of oil paint across a canvas surface.",
+      "stock_query": "paint brushstroke",
+      "source": "stock"
+    },
+    {
+      "start": 21.8,
+      "end": 26.4,
+      "text": "putting the impressionists on one side and the cubists on the other.",
+      "clip": "A pigeon turns its head sharply from side to side.",
+      "stock_query": "pigeon head",
+      "source": "stock"
+    },
+    {
+      "start": 26.4,
+      "end": 30,
+      "text": "The pigeons were not recognizing paintings. They had learned a style.",
+      "clip": "A pigeon takes off from the ground into open air.",
+      "stock_query": "pigeon flying",
+      "source": "stock"
+    }
+  ]
+}

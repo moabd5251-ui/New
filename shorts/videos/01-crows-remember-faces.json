@@ -1,0 +1,79 @@
+{
+  "title": "Crows remember your face for years",
+  "topic": "Crows recognise individual human faces, hold the grudge for years, and pass it to birds that were never there",
+  "voice_script": "A crow can remember your face for years. Researchers in Seattle wore a mask while trapping crows, then released them and walked the campus. Years later, crows still dive-bombed that mask on sight. So did birds that had never been trapped at all. The scolding spread outward through the population, year after year. Most of those crows had never seen the trapping. They learned the face secondhand, from other crows. The grudge outlived the birds that earned it.",
+  "segments": [
+    {
+      "start": 0,
+      "end": 3.2,
+      "text": "A crow can remember your face for years.",
+      "clip": "Close up of a crow's head turning sharply toward the camera.",
+      "stock_query": "crow closeup",
+      "source": "stock"
+    },
+    {
+      "start": 3.2,
+      "end": 6.5,
+      "text": "Researchers in Seattle wore a mask while trapping crows,",
+      "clip": "A person in a jacket walks alone along a tree-lined path.",
+      "stock_query": "person walking path",
+      "source": "stock"
+    },
+    {
+      "start": 6.5,
+      "end": 9.5,
+      "text": "then released them and walked the campus.",
+      "clip": "A crow launches off a branch and beats its wings.",
+      "stock_query": "crow flying",
+      "source": "stock"
+    },
+    {
+      "start": 9.5,
+      "end": 13,
+      "text": "Years later, crows still dive-bombed that mask on sight.",
+      "clip": "A black bird swoops low and fast across an open sky.",
+      "stock_query": "bird swooping",
+      "source": "stock"
+    },
+    {
+      "start": 13,
+      "end": 16.8,
+      "text": "So did birds that had never been trapped at all.",
+      "clip": "Several crows sit spaced along a wire against a pale sky.",
+      "stock_query": "crows perched",
+      "source": "stock"
+    },
+    {
+      "start": 16.8,
+      "end": 21,
+      "text": "The scolding spread outward through the population, year after year.",
+      "clip": "A large flock of dark birds lifts out of bare trees at once.",
+      "stock_query": "flock birds",
+      "source": "stock"
+    },
+    {
+      "start": 21,
+      "end": 24.5,
+      "text": "Most of those crows had never seen the trapping.",
+      "clip": "A crow walks across short grass, head bobbing.",
+      "stock_query": "crow grass",
+      "source": "stock"
+    },
+    {
+      "start": 24.5,
+      "end": 27.4,
+      "text": "They learned the face secondhand, from other crows.",
+      "clip": "Two crows sit close together on the same branch.",
+      "stock_query": "two crows",
+      "source": "stock"
+    },
+    {
+      "start": 27.4,
+      "end": 30,
+      "text": "The grudge outlived the birds that earned it.",
+      "clip": "A single crow watches from a rooftop edge, still.",
+      "stock_query": "crow rooftop",
+      "source": "stock"
+    }
+  ]
+}

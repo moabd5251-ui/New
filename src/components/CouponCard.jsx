@@ -54,12 +54,19 @@ export default function CouponCard({ coupon, onClip, onUnclip, onMarkAsUsed, act
           </div>
         )}
 
-        <div className="flex justify-between items-center mb-3">
+        <div className="flex justify-between items-center gap-2 mb-3 flex-wrap">
           <span className="text-xs font-semibold bg-indigo-100 text-indigo-800 px-2 py-1 rounded">
             {coupon.category}
           </span>
           <span className="text-xs font-semibold bg-gray-100 text-gray-800 px-2 py-1 rounded">
             {coupon.store}
+          </span>
+          <span className={`text-xs font-semibold px-2 py-1 rounded ${
+            coupon.couponType === 'manufacturer'
+              ? 'bg-purple-100 text-purple-800'
+              : 'bg-blue-100 text-blue-800'
+          }`}>
+            {coupon.couponType === 'manufacturer' ? '🏭 Manufacturer' : '🏪 Store Code'}
           </span>
         </div>
 

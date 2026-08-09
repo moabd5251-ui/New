@@ -34,6 +34,7 @@ db.serialize(() => {
       description TEXT,
       image TEXT,
       couponCode TEXT,
+      couponType TEXT DEFAULT 'store',
       source TEXT,
       createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
       UNIQUE(title, store, discount)
@@ -96,6 +97,7 @@ const couponSources = {
           discount: 1.00,
           category: "Breakfast",
           couponCode: "347334261",
+          couponType: "manufacturer",
           expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
           description: "General Mills - Valid at participating retailers",
           image: "🥣",
@@ -108,6 +110,7 @@ const couponSources = {
           discount: 12.00,
           category: "Pets",
           couponCode: "458923741",
+          couponType: "manufacturer",
           expiresAt: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString(),
           description: "Nestlé Purina - Select varieties",
           image: "🐕",
@@ -120,6 +123,7 @@ const couponSources = {
           discount: 1.50,
           category: "Condiments",
           couponCode: "576214385",
+          couponType: "manufacturer",
           expiresAt: new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toISOString(),
           description: "Kraft Heinz - 20oz+ bottle",
           image: "🍅",
@@ -132,6 +136,7 @@ const couponSources = {
           discount: 2.00,
           category: "Laundry",
           couponCode: "723456891",
+          couponType: "manufacturer",
           expiresAt: new Date(Date.now() + 35 * 24 * 60 * 60 * 1000).toISOString(),
           description: "Procter & Gamble - Select Tide products",
           image: "🧺",
@@ -144,6 +149,7 @@ const couponSources = {
           discount: 1.00,
           category: "Beverages",
           couponCode: "834567219",
+          couponType: "manufacturer",
           expiresAt: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString(),
           description: "PepsiCo - 64oz or larger",
           image: "🧃",
@@ -156,6 +162,7 @@ const couponSources = {
           discount: 0.50,
           category: "Canned Goods",
           couponCode: "945678302",
+          couponType: "manufacturer",
           expiresAt: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
           description: "Campbell - Condensed or Ready to Serve",
           image: "🍲",
@@ -168,6 +175,7 @@ const couponSources = {
           discount: 1.50,
           category: "Breakfast",
           couponCode: "156734829",
+          couponType: "manufacturer",
           expiresAt: new Date(Date.now() + 26 * 24 * 60 * 60 * 1000).toISOString(),
           description: "Kellogg's - 13.3oz or larger",
           image: "🐯",
@@ -180,6 +188,7 @@ const couponSources = {
           discount: 1.25,
           category: "Beverages",
           couponCode: "267845913",
+          couponType: "manufacturer",
           expiresAt: new Date(Date.now() + 22 * 24 * 60 * 60 * 1000).toISOString(),
           description: "The Coca-Cola Company - Multi-pack only",
           image: "🥤",
@@ -192,6 +201,7 @@ const couponSources = {
           discount: 3.00,
           category: "Condiments",
           couponCode: "378956124",
+          couponType: "manufacturer",
           expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
           description: "Unilever - 30oz+ jar",
           image: "🥚",
@@ -204,6 +214,7 @@ const couponSources = {
           discount: 1.00,
           category: "Snacks",
           couponCode: "489273156",
+          couponType: "manufacturer",
           expiresAt: new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toISOString(),
           description: "Mondelēz - Select packages",
           image: "🍪",
@@ -219,7 +230,7 @@ const couponSources = {
 
   async fetchSeafoodDeals() {
     try {
-      // Fetch from seafood promotion coupons
+      // Fetch from seafood promotion coupons (store-specific)
       const coupons = [
         {
           title: "Wild Alaska Salmon - $8.99/lb",
@@ -227,8 +238,9 @@ const couponSources = {
           discount: 3.50,
           category: "Seafood",
           couponCode: "500890123456",
+          couponType: "store",
           expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-          description: "Fresh wild caught salmon fillets",
+          description: "Fresh wild caught salmon fillets - QFC members only",
           image: "🐟",
           source: "QFC Digital Coupon"
         },
@@ -238,8 +250,9 @@ const couponSources = {
           discount: 4.00,
           category: "Seafood",
           couponCode: "500901234567",
+          couponType: "store",
           expiresAt: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString(),
-          description: "Any fresh or frozen seafood purchase of $10 or more",
+          description: "Any fresh or frozen seafood purchase of $10 or more - Safeway only",
           image: "🦐",
           source: "Safeway Digital Coupon"
         }
@@ -267,9 +280,9 @@ async function syncCoupons() {
           const coupons = await fetcher()
           for (const coupon of coupons) {
             db.run(
-              `INSERT OR IGNORE INTO coupons (title, store, discount, category, expiresAt, description, image, couponCode, source)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-              [coupon.title, coupon.store, coupon.discount, coupon.category, coupon.expiresAt, coupon.description, coupon.image, coupon.couponCode, coupon.source],
+              `INSERT OR IGNORE INTO coupons (title, store, discount, category, expiresAt, description, image, couponCode, couponType, source)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              [coupon.title, coupon.store, coupon.discount, coupon.category, coupon.expiresAt, coupon.description, coupon.image, coupon.couponCode, coupon.couponType || 'store', coupon.source],
               (err) => {
                 if (!err) totalAdded++
               }

@@ -34,10 +34,20 @@ A personal coupon clipping and tracking web application that helps you organize,
 
 ## Quick Start
 
-### Installation
+### Installation & Setup (Recommended)
 
 ```bash
+# macOS/Linux
+./setup-dev.sh
+
+# Windows
+setup-dev.bat
+```
+
+Or manually:
+```bash
 npm install
+echo "VITE_API_URL=http://localhost:5000" > .env
 ```
 
 ### Development
@@ -47,13 +57,16 @@ npm run dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173) in your browser.
+The backend API will run on [http://localhost:5000](http://localhost:5000).
 
 ### Build for Production
 
 ```bash
-npm build
+VITE_API_URL=https://web-production-2e894.up.railway.app npm run build
 npm preview
 ```
+
+**Note**: You must set `VITE_API_URL` before building. See [ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md) for details.
 
 ## How to Use
 

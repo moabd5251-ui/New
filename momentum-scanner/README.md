@@ -459,7 +459,11 @@ and it is why no single figure from this tool should be quoted on its own.
 
 #### What it does on real bars
 
-This is the part that matters, and it is not good.
+This is the part that matters, and it is not good. The fullest test is
+[the pre-registered two-year run](./docs/wide-ladder-results.md) on the `wide`
+ladder — 2,291 trades, negative in both the earlier and the held-out period,
+at every cost level including zero. The summary below is the shorter 5-minute
+test that came first.
 
 ```
 npm run backtest -- --provider yahoo \

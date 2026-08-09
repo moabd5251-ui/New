@@ -183,18 +183,22 @@ touch crontab, but cron survives reboots and watch doesn't.
 
 ### Two modes
 
-**`publish-at`** (default) uploads the video early as private with a `publishAt`
-timestamp, and YouTube flips it public at the slot. Nothing needs to be running
-at post time — a laptop that's closed at 09:00 still posts at 09:00.
-
 **`drip`** holds the upload until the slot arrives and posts it then, with
 whatever privacy you configured. Needs a live cron at that moment, but nothing
-is on YouTube's servers until you mean it.
+is on YouTube's servers until you mean it. This is what `.env.example` ships
+with, paired with `private` — see [Verification](#verification--read-this-before-you-rely-on-it)
+for why that's the honest setting until your API project is audited.
+
+**`publish-at`** uploads the video early as private with a `publishAt`
+timestamp, and YouTube flips it public at the slot. Nothing needs to be running
+at post time — a laptop that's closed at 09:00 still posts at 09:00. Worth
+switching to once the audit clears; before then it schedules a publish that
+never fires.
 
 ```bash
 SCHEDULE_SLOTS=09:00,18:00     # local times of day
 SCHEDULE_MAX_PER_DAY=2
-SCHEDULE_MODE=publish-at       # or drip
+SCHEDULE_MODE=drip             # or publish-at
 SCHEDULE_PRIVACY=private       # drip only
 SCHEDULE_QUOTA_BUDGET=10000    # raise if Google granted you more
 SCHEDULE_YES=true              # standing consent, instead of --yes each run

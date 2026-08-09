@@ -1,6 +1,14 @@
-import { Trash2, CheckCircle } from 'lucide-react'
+import { Trash2, CheckCircle, Smartphone } from 'lucide-react'
+import { useState } from 'react'
+import QRScanner from './QRScanner'
 
 export default function CouponCard({ coupon, onClip, onUnclip, onMarkAsUsed, action = 'clip' }) {
+  const [showQR, setShowQR] = useState(false)
+
+  const handleScan = (result) => {
+    console.log('Scanned:', result)
+    setShowQR(false)
+  }
   const daysUntilExpiry = Math.ceil(
     (new Date(coupon.expiresAt) - new Date()) / (1000 * 60 * 60 * 24)
   )
@@ -22,6 +30,29 @@ export default function CouponCard({ coupon, onClip, onUnclip, onMarkAsUsed, act
           <h3 className="font-bold text-lg leading-tight mb-1">{coupon.title}</h3>
           <p className="text-sm text-gray-600">{coupon.description}</p>
         </div>
+
+        {coupon.couponCode && (
+          <div className="mb-4 flex flex-col items-center gap-3">
+            <div className="bg-white p-4 rounded border-2 border-indigo-300">
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(coupon.couponCode)}`}
+                alt="QR Code"
+                className="w-40 h-40"
+              />
+            </div>
+            <div className="bg-gray-50 p-3 rounded border border-gray-200 w-full text-center">
+              <p className="text-xs text-gray-500 mb-1">Code:</p>
+              <p className="font-mono font-bold text-sm text-gray-800 mb-2">{coupon.couponCode}</p>
+              <button
+                onClick={() => setShowQR(!showQR)}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold py-1 rounded flex items-center justify-center gap-1"
+              >
+                <Smartphone size={14} />
+                Scan QR
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="flex justify-between items-center mb-3">
           <span className="text-xs font-semibold bg-indigo-100 text-indigo-800 px-2 py-1 rounded">
@@ -69,6 +100,8 @@ export default function CouponCard({ coupon, onClip, onUnclip, onMarkAsUsed, act
             </>
           )}
         </div>
+
+        <QRScanner isOpen={showQR} onClose={() => setShowQR(false)} onScan={handleScan} />
       </div>
     </div>
   )

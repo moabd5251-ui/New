@@ -203,6 +203,62 @@ export function riskCurve({ preset = '50K', edge, fractions = [0.02, 0.03, 0.05,
 }
 
 /**
+ * Is buying the evaluation worth the fee?
+ *
+ * EV = P(paid) × E[payout | paid] − fee, with the payout averaged over every
+ * run including the ones that breached. That is the only comparison that means
+ * anything: the fee is paid up front and unconditionally, the payout is not.
+ *
+ * Two readings of a withdrawal threshold are supported, because firms word this
+ * differently and the difference is large:
+ *   'full'   — pass, then withdraw the whole profit at the split.
+ *   'buffer' — only profit ABOVE the threshold is withdrawable; the buffer
+ *              stays in the account.
+ * If you are unsure which your agreement means, look at both.
+ *
+ * Not counted: the funded account you still hold after the first withdrawal.
+ * A passed account is an ongoing asset with further payouts available, so this
+ * is a floor on the value, not the whole of it.
+ */
+export function evaluationEV({
+  preset = 'LUCID-FLEX-50K',
+  riskFraction = 0.05,
+  edge,
+  fee = null,
+  payoutMode = 'full',
+  runs = 4000,
+  seed = 12345,
+  maxDays = 250,
+  overrides = {},
+}) {
+  const spec = accountSpec(preset) ?? {}
+  const cost = fee ?? spec.evaluationFee ?? 0
+  const threshold = spec.withdrawalThreshold ?? 0
+  const split = spec.payoutSplit ?? 1
+
+  const mc = monteCarlo({ preset, riskFraction, edge, runs, seed, maxDays, overrides })
+
+  // `expectedPayout` already applies the split to the whole profit. Under the
+  // buffer reading, only the excess above the threshold is withdrawable.
+  let expectedPayout = mc.expectedPayout
+  if (payoutMode === 'buffer' && mc.paidRate > 0) {
+    const avgProfitWhenPaid = mc.expectedPayout / mc.paidRate / split
+    const withdrawable = Math.max(0, avgProfitWhenPaid - threshold)
+    expectedPayout = mc.paidRate * withdrawable * split
+  }
+
+  return {
+    ...mc,
+    fee: cost,
+    payoutMode,
+    expectedPayout,
+    ev: expectedPayout - cost,
+    // How many times the fee you get back, on average, per attempt.
+    returnOnFee: cost > 0 ? expectedPayout / cost : Infinity,
+  }
+}
+
+/**
  * The minimum edge that gives a realistic chance, for a given sizing.
  *
  * Answers "what do I actually need to be able to do?" rather than "what would

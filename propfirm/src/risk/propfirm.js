@@ -91,10 +91,13 @@ export const USER_ACCOUNTS = {
     // 50% during the evaluation, and none at all once funded.
     consistencyPct: 0.5,
     consistencyAppliesAfterPass: false,
-    // Withdrawals unlock above $2k of profit, at a 90% split.
-    profitTarget: 2000,
-    profitTargetAssumed: true,
+    // Confirmed by the account holder: $3k target, 90% split, withdrawals
+    // unlock above $2k of profit, $150 evaluation fee.
+    profitTarget: 3000,
+    profitTargetAssumed: false,
     payoutSplit: 0.9,
+    withdrawalThreshold: 2000,
+    evaluationFee: 150,
     maxContracts: 10,
     maxMicros: 100,
   },

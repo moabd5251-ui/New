@@ -457,3 +457,29 @@ test('the payout split is applied once profit is spread across days', async () =
   const profit = r.balance - 50000
   assert.ok(Math.abs(r.payout - profit * 0.9) < 1e-6, 'payout must be net of the 90% split')
 })
+
+test('evaluation EV is negative below the edge that justifies the fee', async () => {
+  const { evaluationEV } = await import('../src/risk/survival.js')
+  const clustered = { badRunProb: 0.2, badRunDays: 5, badRunMultiplier: 0.45 }
+  const weak = evaluationEV({ riskFraction: 0.05, edge: { winRate: 0.3, payoffRatio: 2, ...clustered }, runs: 800 })
+  const strong = evaluationEV({ riskFraction: 0.05, edge: { winRate: 0.5, payoffRatio: 2, ...clustered }, runs: 800 })
+  assert.ok(weak.ev < 0, 'a losing edge cannot justify the fee')
+  assert.ok(strong.ev > 0, 'a solid edge should clear it comfortably')
+  assert.equal(weak.fee, 150, 'the fee should come from the account spec')
+})
+
+test('the buffer reading of the withdrawal threshold pays materially less', async () => {
+  const { evaluationEV } = await import('../src/risk/survival.js')
+  const edge = { winRate: 0.5, payoffRatio: 2 }
+  const full = evaluationEV({ riskFraction: 0.05, edge, payoutMode: 'full', runs: 800 })
+  const buffer = evaluationEV({ riskFraction: 0.05, edge, payoutMode: 'buffer', runs: 800 })
+  assert.ok(buffer.expectedPayout < full.expectedPayout, 'holding back a buffer must reduce the payout')
+  assert.ok(buffer.expectedPayout > 0)
+})
+
+test('EV never counts a payout on a breached run', async () => {
+  const { evaluationEV } = await import('../src/risk/survival.js')
+  const e = evaluationEV({ riskFraction: 0.05, edge: { winRate: 0.05, payoffRatio: 2 }, runs: 400 })
+  assert.equal(e.expectedPayout, 0)
+  assert.equal(e.ev, -150, 'with no chance of passing, EV is exactly the fee')
+})

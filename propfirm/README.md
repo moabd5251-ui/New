@@ -202,6 +202,16 @@ real order. If the forward mean holds up after 30+ nights, that is the moment
 an evaluation fee stops being a donation; if it collapses, the journal killed
 the hypothesis for the cost of nothing.
 
+### Monday day-session forward validation
+
+The sweep's one surviving *intraday* cell — long the Monday RTH session,
+09:30 → 16:00 (+33/+57 pt in the two halves, t ≈ 1.3–1.5) — gets the same
+frozen-spec treatment via `node src/cli.js monday --symbol NQ`, journaling to
+`data/NQ_F-monday.jsonl`. It was one cell of dozens tested and it contradicts
+the historical weekday literature, so the honest prior is that it dies in the
+forward sample. At one Monday a week, ~50 observations take a year: this
+hypothesis earns patience, not money.
+
 ### The execution bot (`bot/`)
 
 For when — and only when — the paper gate passes. A Tradovate execution bot

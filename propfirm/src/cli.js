@@ -25,6 +25,7 @@ import { PropAccount, INSTRUMENTS, ACCOUNT_PRESETS, equityInstrument } from './r
 import { sizePosition } from './risk/sizing.js'
 import { riskCurve, requiredEdge } from './risk/survival.js'
 import { recordOvernight, loadOvernight, overnightScorecard, OVERNIGHT_SPEC, BACKTEST_REFERENCE } from './research/overnight.js'
+import { recordMondays, mondayScorecard, MONDAY_RTH_SPEC, MONDAY_BACKTEST_REFERENCE } from './research/mondayrth.js'
 import { Journal } from './journal/journal.js'
 import { buildStats, recommendations } from './journal/stats.js'
 import { renderReport } from './report/html.js'
@@ -500,6 +501,34 @@ function cmdOvernight(args) {
   console.log(C.dim('\n  Paper only. No orders are placed by anything in this repository.\n'))
 }
 
+/* ── monday: forward-validate the Monday day-session cell, paper only ───── */
+
+function cmdMonday(args) {
+  const source = args.source ?? 'yahoo'
+  const symbol = source === 'yahoo' ? resolveYahooSymbol(args.symbol ?? 'NQ') : String(args.symbol ?? 'NQ').toUpperCase()
+  const root = args.store ?? DEFAULT_STORE
+
+  const { path, added, records, total } = recordMondays({ root, symbol })
+  section(`MONDAY RTH FORWARD — ${symbol} (spec v${MONDAY_RTH_SPEC.version}, registered ${MONDAY_RTH_SPEC.registered})`)
+  console.log(`  journal     ${C.cyan(path)}`)
+  console.log(`  new         ${added ? C.green(String(added)) : '0'} Monday(s)  (${total} total)`)
+  for (const r of records) {
+    console.log(`              ${r.monday}  9:30 ${r.entry.toFixed(2)} → 16:00 ${r.exit1600.toFixed(2)}  no-stop ${colourR(r.variants.none.pts)}pt`)
+  }
+
+  const all = loadOvernight(path)
+  if (!all.length) return console.log(C.dim('\n  Nothing recorded yet. Mondays accrue weekly — this one is slow by nature.\n'))
+  const card = mondayScorecard(all)
+  section('RUNNING SCORECARD (paper, 1 MNQ)')
+  for (const [key, v] of Object.entries(card.variants)) {
+    if (!v.n) continue
+    console.log(`  ${key.padEnd(6)} ${String(v.n).padStart(4)} Mondays  mean ${colourR(v.meanPts)}pt  total ${colourR(v.totalPts)}pt  win ${(v.winRate * 100).toFixed(0)}%  worst ${v.worstPts.toFixed(0)}  stops ${v.stops}`)
+  }
+  console.log(C.dim(`\n  Backtest reference: +${MONDAY_BACKTEST_REFERENCE.meanPtsInSample}/+${MONDAY_BACKTEST_REFERENCE.meanPtsOutOfSample}pt over ${MONDAY_BACKTEST_REFERENCE.window}.`))
+  console.log(C.yellow(`  Caution on the record: ${MONDAY_BACKTEST_REFERENCE.caution}.`))
+  console.log(C.dim('  ~50 Mondays is a year. This hypothesis earns patience, not money.\n'))
+}
+
 /* ── survival: what edge and what size actually pass an evaluation ──────── */
 
 function cmdSurvival(args) {
@@ -651,6 +680,7 @@ const commands = {
   collect: () => cmdCollect(args),
   forward: () => cmdForward(args),
   overnight: () => cmdOvernight(args),
+  monday: () => cmdMonday(args),
   analyze: () => cmdAnalyze(args),
   levels: () => cmdLevels(args),
   backtest: () => cmdBacktest(args),

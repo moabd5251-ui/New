@@ -105,6 +105,26 @@ test('pickExpiration stays inside the DTE window', () => {
   assert.equal(pickExpiration(['2026-08-14'], '2026-08-10'), null)
 })
 
+test('renderOptionsPage: shows open and resolved records in both states', async () => {
+  const { renderOptionsPage } = await import('../src/report/optionspage.js')
+  const open = {
+    symbol: 'AAPL', reactionDay: '2026-07-31', direction: 'down', gapPct: -8.6,
+    expiration: '2026-09-11', dte: 32, contracts: 1, riskUsd: 715,
+    spread: { type: 'put', longStrike: 315, shortStrike: 300, width: 15, debit: 7.15, maxGain: 7.85, breakeven: 307.85, rewardRisk: 1.1 },
+  }
+  const done = {
+    ...open, symbol: 'MSFT', reactionDay: '2026-06-01', expiration: '2026-07-10',
+    outcome: { resolvedAt: '2026-07-11', underlyingClose: 290, valuePerShare: 15, pnlUsd: 785, r: 1.1 },
+  }
+  const html = renderOptionsPage([open, done], { generatedAt: '2026-08-10T22:00:00Z' })
+  assert.match(html, /AAPL/)
+  assert.match(html, /MSFT/)
+  assert.match(html, /PUT spread/)
+  assert.doesNotMatch(html, /undefined|NaN/)
+  const empty = renderOptionsPage([], { generatedAt: '2026-08-10T22:00:00Z' })
+  assert.match(empty, /Nothing open/)
+})
+
 test('journal: one candidate per (symbol, reactionDay); expiry resolution', async () => {
   const record = {
     symbol: 'TEST', reactionDay: '2026-07-23', scanDate: '2026-07-24', direction: 'up',

@@ -27,6 +27,7 @@ import { riskCurve, requiredEdge } from './risk/survival.js'
 import { recordOvernight, loadOvernight, overnightScorecard, OVERNIGHT_SPEC, BACKTEST_REFERENCE } from './research/overnight.js'
 import { recordMondays, mondayScorecard, MONDAY_RTH_SPEC, MONDAY_BACKTEST_REFERENCE } from './research/mondayrth.js'
 import { OPTIONSCAN_SPEC, findReaction, buildVertical, pickExpiration, sizeContracts, loadJournal, saveJournal, appendCandidates, resolveExpired, scanScorecard } from './research/optionscan.js'
+import { renderOptionsPage } from './report/optionspage.js'
 import { Journal } from './journal/journal.js'
 import { buildStats, recommendations } from './journal/stats.js'
 import { renderReport } from './report/html.js'
@@ -605,6 +606,11 @@ async function cmdOptions(args) {
       `  ${C.bold(c.symbol.padEnd(6))} ${c.direction === 'up' ? C.green('CALL') : C.red('PUT ')} ${s.longStrike}/${s.shortStrike} ${c.expiration} (${c.dte}d)  ` +
         `debit $${(s.debit * 100).toFixed(0)} ×${c.contracts}  max +$${(s.maxGain * 100 * c.contracts).toFixed(0)}  RR ${s.rewardRisk.toFixed(2)}  ${C.dim(`gap ${c.gapPct}% on ${c.reactionDay}`)}`,
     )
+  }
+
+  if (args.html) {
+    writeFileSync(args.html, renderOptionsPage(updated))
+    console.log(`\n  page written to ${C.cyan(args.html)}`)
   }
 
   const card = scanScorecard(updated)

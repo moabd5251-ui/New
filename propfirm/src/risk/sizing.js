@@ -44,20 +44,28 @@ export function sizePosition({ account, signal, instrument = null, useMicros = '
   }
 
   let chosen = pick(inst)
-  // Fall back to micros when the budget cannot afford a single mini.
-  if (chosen.contracts < 1 && useMicros !== false) {
+  // Fall back to micros when the budget cannot afford a single mini. Equities
+  // have no micro equivalent — a share is already the smallest unit.
+  if (chosen.contracts < 1 && useMicros !== false && inst.kind !== 'equity') {
     const micro = microOf(inst)
     if (micro) chosen = pick(micro)
   }
 
   if (chosen.contracts < 1) {
     return deny(
-      `stop of ${stopPoints.toFixed(2)} pts risks $${chosen.riskPerContract.toFixed(2)} per contract, above the $${budget.toFixed(2)} budget — stop is too wide for this account`,
+      `stop of ${stopPoints.toFixed(2)} risks $${chosen.riskPerContract.toFixed(2)} per ${chosen.spec.kind === 'equity' ? 'share' : 'contract'}, above the $${budget.toFixed(2)} budget — stop is too wide for this account`,
     )
   }
 
-  const isMicroContract = chosen.spec.symbol.startsWith('M')
-  const cap = isMicroContract ? (account.maxMicros ?? account.maxContracts * 10) : account.maxContracts
+  const isEquity = chosen.spec.kind === 'equity'
+  const isMicroContract = !isEquity && chosen.spec.symbol.startsWith('M')
+  // Share counts are not bounded by a futures contract limit; the risk budget
+  // and available capital are the constraints.
+  const cap = isEquity
+    ? Math.floor(account.balance / Math.max(signal.entry, 1))
+    : isMicroContract
+      ? (account.maxMicros ?? account.maxContracts * 10)
+      : account.maxContracts
   const contracts = Math.min(chosen.contracts, cap)
   const riskDollars = contracts * chosen.riskPerContract
 
@@ -65,12 +73,13 @@ export function sizePosition({ account, signal, instrument = null, useMicros = '
     allowed: true,
     reason: null,
     contracts,
+    unit: chosen.spec.kind === 'equity' ? 'shares' : 'contracts',
     symbol: chosen.spec.symbol,
     instrument: chosen.spec,
     riskPerContract: chosen.riskPerContract,
     riskDollars,
     stopPoints,
-    limitedBy: contracts === cap ? 'firm contract limit' : limitedBy,
+    limitedBy: contracts === cap ? (isEquity ? 'available capital' : 'firm contract limit') : limitedBy,
     budget,
     targets: allocateTargets(signal.targets ?? [], contracts, signal.entry, chosen.spec),
   }

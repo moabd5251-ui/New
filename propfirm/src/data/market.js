@@ -65,7 +65,18 @@ export class Market {
     }
     const structure = analyzeStructure(candles, swing)
     const gaps = resolveFVGs(candles, findFVGs(candles))
-    const tolerance = this.instrument.tickSize * (isMicro ? 8 : 20)
+    const atrs = atr(candles, 14)
+
+    // How close two highs must be to count as the same level.
+    //
+    // This has to be volatility-relative, not tick-relative. A tick-scaled
+    // tolerance is really a tolerance tuned to whichever instrument it was
+    // written for: 2.0 points on NQ is about 0.4 of a 1-minute bar's range,
+    // but the same 8 ticks on QQQ is 1.25 bars — loose enough to merge levels
+    // that have nothing to do with each other. Expressing it as a fraction of
+    // ATR makes the same code correct on futures and on shares.
+    const typicalAtr = median(atrs.filter(Number.isFinite))
+    const tolerance = Math.max(this.instrument.tickSize * 2, typicalAtr * 0.4)
     const pools = mapLiquidity(candles, structure.swings, { tolerance })
     const apex = apexLevels(candles, structure.swings, { tolerance })
 
@@ -81,7 +92,8 @@ export class Market {
       displacement: displacement(candles),
       pools,
       apex,
-      atr: atr(candles, 14),
+      tolerance,
+      atr: atrs,
       volBase: volumeBaseline(candles, 20),
       swing,
       align: candles === this.base ? null : alignIndex(this.base, candles, seconds),
@@ -201,6 +213,12 @@ export class Market {
     const list = v[kind] ?? []
     return list.filter((e) => e.index <= k && k - e.index <= withinBars)
   }
+}
+
+function median(xs) {
+  if (!xs.length) return 0
+  const s = [...xs].sort((a, b) => a - b)
+  return s[Math.floor(s.length / 2)]
 }
 
 function inferBaseSeconds(base) {

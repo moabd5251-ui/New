@@ -16,12 +16,27 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-/** Contract specifications. Tick value in USD. */
+/**
+ * Instrument specifications. `pointValue` is the dollar move per 1.00 of price
+ * per unit held, so the same sizing maths covers futures contracts and shares.
+ *
+ * Equities are here because Tradier — a common data source for this — carries
+ * no futures at all. QQQ tracks the same index as NQ and has excellent volume
+ * data, but it is a different instrument: regular hours only, penny ticks, and
+ * roughly 1/40th the notional per unit.
+ */
 export const INSTRUMENTS = {
-  NQ: { symbol: 'NQ', name: 'E-mini Nasdaq-100', tickSize: 0.25, tickValue: 5, pointValue: 20 },
-  MNQ: { symbol: 'MNQ', name: 'Micro E-mini Nasdaq-100', tickSize: 0.25, tickValue: 0.5, pointValue: 2 },
-  ES: { symbol: 'ES', name: 'E-mini S&P 500', tickSize: 0.25, tickValue: 12.5, pointValue: 50 },
-  MES: { symbol: 'MES', name: 'Micro E-mini S&P 500', tickSize: 0.25, tickValue: 1.25, pointValue: 5 },
+  NQ: { symbol: 'NQ', name: 'E-mini Nasdaq-100', kind: 'future', tickSize: 0.25, tickValue: 5, pointValue: 20 },
+  MNQ: { symbol: 'MNQ', name: 'Micro E-mini Nasdaq-100', kind: 'future', tickSize: 0.25, tickValue: 0.5, pointValue: 2 },
+  ES: { symbol: 'ES', name: 'E-mini S&P 500', kind: 'future', tickSize: 0.25, tickValue: 12.5, pointValue: 50 },
+  MES: { symbol: 'MES', name: 'Micro E-mini S&P 500', kind: 'future', tickSize: 0.25, tickValue: 1.25, pointValue: 5 },
+  QQQ: { symbol: 'QQQ', name: 'Invesco QQQ Trust (NASDAQ-100 ETF)', kind: 'equity', tickSize: 0.01, tickValue: 0.01, pointValue: 1 },
+  SPY: { symbol: 'SPY', name: 'SPDR S&P 500 ETF', kind: 'equity', tickSize: 0.01, tickValue: 0.01, pointValue: 1 },
+}
+
+/** Build a spec for any equity ticker not listed above. */
+export function equityInstrument(symbol) {
+  return { symbol: symbol.toUpperCase(), name: symbol.toUpperCase(), kind: 'equity', tickSize: 0.01, tickValue: 0.01, pointValue: 1 }
 }
 
 /**

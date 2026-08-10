@@ -9,12 +9,17 @@ Zero dependencies. Node 20+. `node --test` for the suite.
 
 ```bash
 cd propfirm
-npm test                                   # 107 tests
+npm test                                   # 135 tests
 node src/cli.js demo                       # end-to-end run on generated data
 node src/cli.js analyze  --csv nq_1m.csv   # read the current setup, step by step
 node src/cli.js levels   --csv nq_1m.csv   # liquidity map + orderflow for the session
 node src/cli.js backtest --csv nq_1m.csv --account 50K --report out.html
 node src/cli.js stats    --journal journal.jsonl
+
+# live data
+node src/cli.js analyze  --source yahoo --symbol NQ --interval 1m --range 7d
+node src/cli.js backtest --source yahoo --symbol NQ --interval 5m --range 60d
+node src/cli.js fetch    --source tradier --symbol QQQ --days 15 --out qqq_1m.csv
 ```
 
 ---
@@ -30,20 +35,78 @@ range. That is a proxy. `FootprintOrderflow` implements the same interface and
 takes real bid/ask volume — wire your feed into it and nothing else changes.
 Every signal carries `orderflowIsProxy` so you always know which produced it.
 
-**2. Synthetic backtest numbers are meaningless as performance.** The generator
+**2. Neither Yahoo nor Tradier can properly validate this strategy.** See
+[Data sources](#data-sources) — the short version is that Yahoo caps 1-minute
+futures history at 7 days, and Tradier has no futures at all. On the data
+reachable from them, the system as written loses money. Those results are
+below, and they are not encouraging.
+
+**3. Synthetic backtest numbers are meaningless as performance.** The generator
 exists so the engine can be tested without a data subscription. It produces the
 *structures* the system looks for, which makes it useful for verifying code and
 useless for verifying edge. Run it on real NQ data with real volume before you
 believe any number.
 
-**3. The account presets are templates.** Firms change their rules. Confirm the
+**4. The account presets are templates.** Firms change their rules. Confirm the
 drawdown amount, drawdown model, contract limits, consistency requirement and
 payout terms against your own account agreement, and edit
 `ACCOUNT_PRESETS` in `src/risk/propfirm.js` to match.
 
-**4. Nothing here is financial advice**, and a mechanical implementation of a
+**5. Nothing here is financial advice**, and a mechanical implementation of a
 discretionary system is not the same system. The original relies on a human
 reading a live tape. This encodes the parts that can be encoded.
+
+---
+
+## Data sources
+
+| | Yahoo (`--source yahoo`) | Tradier (`--source tradier`) |
+|---|---|---|
+| Instrument | Real futures — `NQ=F`, `ES=F` | Equities and ETFs only. **No futures** — `NQ`, `/NQ`, `NQZ25` all return unmatched |
+| Session | Full 23 hours, so Asia and London killzones exist | 04:00–20:00 ET with `session_filter=all` |
+| Volume | Credible — daily totals match real NQ turnover, and 1m bars sum to the daily bar | Excellent: real consolidated tape, plus an exchange VWAP per bar |
+| 1-minute history | **7 days** | **~20 days** |
+| Longer history | 5m → 60 days, 1h → 730 days | 5min/15min only |
+| Bid/ask split | No | No |
+| Auth | None | `TRADIER_TOKEN` |
+
+`auditSeries()` runs automatically before anything else and refuses to proceed
+on data that cannot support the engine — no volume, constant volume, duplicate
+timestamps, or too few bars. It also detects a regular-hours instrument and
+tells you to restrict `allowedSessions`, because otherwise the overnight
+killzones silently discard nearly everything.
+
+Only read-only `/v1/markets/*` endpoints are used. Nothing here touches an
+account, a balance or an order.
+
+### What the real data actually says
+
+Run on live Yahoo NQ data, the system loses:
+
+| Data | Trades | Win rate | Expectancy | Net |
+|---|---|---|---|---|
+| NQ 5m, 60 days | 21 | 29% | **−0.45R** | −$1,736 |
+| NQ 1m, 7 days | 0–4 | — | — | — |
+
+Losses are dominated by full stop-outs after roughly four bars. Three things
+are worth separating before concluding the strategy does not work:
+
+1. **The sample is far too small.** 21 trades proves nothing in either
+   direction. Tuning against it would be curve-fitting, so nothing here has
+   been tuned to improve that number.
+2. **5-minute is the wrong timeframe for this system.** The original takes
+   30-second and 1-minute entries with structural stops a few points wide. On
+   5m bars the average stop is ~41 points and the entry precision is gone. It
+   is a different strategy wearing the same name. But 1m from Yahoo gives 7
+   days, which yields almost no trades — so the correct timeframe cannot be
+   tested with this data at all.
+3. **The orderflow gate — the system's core filter — is running on estimated
+   delta.** The source material is explicit that the IFVG model in particular
+   "tends to fail a lot" without real orderflow confirmation.
+
+The honest conclusion is not "the strategy is bad", it is **"this data cannot
+answer the question."** Answering it needs real 1-minute-or-finer CME futures
+data with genuine per-trade aggressor side, over months rather than days.
 
 ---
 
@@ -167,7 +230,11 @@ src/
   data/
     market.js       multi-timeframe model with as-of accessors
     csv.js          tolerant CSV ingestion + validation
+    quality.js      data audit — refuses data that cannot support the engine
     synthetic.js    deterministic generator (testing only)
+    providers/
+      yahoo.js      futures OHLCV, no key required
+      tradier.js    equities OHLCV + exchange VWAP, read-only endpoints
   engine/
     context.js confirmation.js trigger.js gate.js confluence.js system.js
   risk/

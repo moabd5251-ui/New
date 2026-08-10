@@ -21,6 +21,9 @@ export { BarOrderflow, FootprintOrderflow, volumeProfile, rollingPOC, vwap, cvd,
 export { Market } from './data/market.js'
 export { loadCandles, parseCSV, writeCandles } from './data/csv.js'
 export { generateSeries, generateFootprint } from './data/synthetic.js'
+export { fetchYahoo, parseYahooChart, YAHOO_SYMBOLS, YAHOO_LIMITS } from './data/providers/yahoo.js'
+export { fetchTradier, tradierQuote, TRADIER_INTERVALS } from './data/providers/tradier.js'
+export { auditSeries, formatAudit } from './data/quality.js'
 
 export { readContext } from './engine/context.js'
 export { readConfirmation } from './engine/confirmation.js'
@@ -29,7 +32,7 @@ export { orderflowGate } from './engine/gate.js'
 export { scoreSetup, withMeasuredExpectancy, GRADE_THRESHOLDS } from './engine/confluence.js'
 export { TradingSystem, DEFAULT_CONFIG, buildTargets } from './engine/system.js'
 
-export { PropAccount, INSTRUMENTS, ACCOUNT_PRESETS, DEFAULT_RULES } from './risk/propfirm.js'
+export { PropAccount, INSTRUMENTS, ACCOUNT_PRESETS, DEFAULT_RULES, equityInstrument } from './risk/propfirm.js'
 export { sizePosition, roundToTick, toTicks, dollarsFor } from './risk/sizing.js'
 export { PositionManager, DEFAULT_MANAGEMENT } from './risk/management.js'
 

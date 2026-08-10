@@ -10,12 +10,15 @@
  */
 
 import { writeFileSync } from 'node:fs'
-import { loadCandles } from './data/csv.js'
+import { loadCandles, writeCandles } from './data/csv.js'
+import { fetchYahoo, YAHOO_SYMBOLS, YAHOO_LIMITS } from './data/providers/yahoo.js'
+import { fetchTradier } from './data/providers/tradier.js'
+import { auditSeries, formatAudit } from './data/quality.js'
 import { generateSeries } from './data/synthetic.js'
 import { Market } from './data/market.js'
 import { TradingSystem } from './engine/system.js'
 import { backtest } from './backtest/backtest.js'
-import { PropAccount, INSTRUMENTS, ACCOUNT_PRESETS } from './risk/propfirm.js'
+import { PropAccount, INSTRUMENTS, ACCOUNT_PRESETS, equityInstrument } from './risk/propfirm.js'
 import { sizePosition } from './risk/sizing.js'
 import { Journal } from './journal/journal.js'
 import { buildStats, recommendations } from './journal/stats.js'
@@ -48,40 +51,95 @@ function parseArgs(argv) {
   return args
 }
 
-function getCandles(args) {
+/**
+ * Resolve the bar series from whichever source was asked for, then audit it.
+ * Nothing runs on data that cannot support the engine.
+ */
+async function getCandles(args, { audit = true } = {}) {
+  let candles
+  let label
+
   if (args.csv) {
-    const { candles, problems, gaps } = loadCandles(args.csv)
+    const { candles: loaded, problems } = loadCandles(args.csv)
     if (problems.length) {
       console.error(C.red(`Data problems in ${args.csv}:`))
       for (const p of problems) console.error(`  ${p}`)
       process.exit(1)
     }
-    if (gaps.length) {
-      console.error(C.yellow(`${gaps.length} gap(s) in the series — largest ${Math.max(...gaps.map((g) => g.bars))} bars. Analysis continues.`))
-    }
-    console.error(C.dim(`Loaded ${candles.length} bars from ${args.csv}`))
-    return candles
+    candles = loaded
+    label = args.csv
+  } else if (args.source === 'yahoo') {
+    const symbol = resolveYahooSymbol(args.symbol ?? 'NQ')
+    const interval = String(args.interval ?? '1m')
+    const range = String(args.range ?? '7d')
+    console.error(C.dim(`Fetching ${symbol} ${interval} (${range}) from Yahoo…`))
+    const out = await fetchYahoo({ symbol, interval, range })
+    candles = out.candles
+    label = `yahoo:${symbol} ${interval}/${range}`
+    if (out.meta.droppedUnclosedBar) console.error(C.dim(`  dropped in-progress bar at ${out.meta.droppedUnclosedBar}`))
+    if (out.meta.droppedNullRows) console.error(C.dim(`  dropped ${out.meta.droppedNullRows} empty row(s)`))
+  } else if (args.source === 'tradier') {
+    const symbol = String(args.symbol ?? 'QQQ').toUpperCase()
+    const { start, end } = dateWindow(args)
+    console.error(C.dim(`Fetching ${symbol} ${args.interval ?? '1min'} from Tradier, ${start} → ${end}…`))
+    const out = await fetchTradier({
+      symbol,
+      interval: String(args.interval ?? '1min'),
+      start,
+      end,
+      onProgress: ({ day, bars }) => process.stderr.write(C.dim(`  ${day}: ${bars} bars\n`)),
+    })
+    candles = out.candles
+    label = `tradier:${symbol}`
+    if (out.meta.note) console.error(C.yellow(`  ${out.meta.note}`))
+  } else {
+    const days = Number(args.days ?? 30)
+    console.error(C.yellow(`No data source given: using SYNTHETIC data (${days} days, seed ${args.seed ?? 42}).`))
+    console.error(C.yellow('Synthetic results measure whether the code works, never whether the strategy has an edge.'))
+    console.error(C.dim('Use --source yahoo (NQ futures) or --source tradier (equities), or --csv <file>.'))
+    candles = generateSeries({ days, seed: Number(args.seed ?? 42) })
+    label = 'synthetic'
   }
-  const days = Number(args.days ?? 30)
-  console.error(C.yellow(`No --csv given: using SYNTHETIC data (${days} days, seed ${args.seed ?? 42}).`))
-  console.error(C.yellow('Synthetic results measure whether the code works, never whether the strategy has an edge.'))
-  return generateSeries({ days, seed: Number(args.seed ?? 42) })
+
+  if (audit) {
+    const report = auditSeries(candles)
+    console.error(C.dim(`\n  DATA — ${label}`))
+    console.error(formatAudit(report))
+    console.error('')
+    if (!report.tradeable) {
+      console.error(C.red('  This data cannot support the system. Fix the problems above first.\n'))
+      process.exit(1)
+    }
+  }
+  return candles
+}
+
+function resolveYahooSymbol(sym) {
+  const upper = String(sym).toUpperCase()
+  return YAHOO_SYMBOLS[upper] ?? sym
+}
+
+/** Default to the last N calendar days when no explicit window is given. */
+function dateWindow(args) {
+  const days = Number(args.days ?? 15)
+  const end = args.end ?? new Date().toISOString().slice(0, 10)
+  const start = args.start ?? new Date(Date.parse(`${end}T00:00:00Z`) - days * 86400000).toISOString().slice(0, 10)
+  return { start, end }
 }
 
 function instrumentOf(args) {
-  const sym = String(args.symbol ?? 'NQ').toUpperCase()
-  const inst = INSTRUMENTS[sym]
-  if (!inst) {
-    console.error(C.red(`Unknown symbol ${sym}. Known: ${Object.keys(INSTRUMENTS).join(', ')}`))
-    process.exit(1)
-  }
-  return inst
+  const sym = String(args.symbol ?? (args.source === 'tradier' ? 'QQQ' : 'NQ')).toUpperCase()
+  if (INSTRUMENTS[sym]) return INSTRUMENTS[sym]
+  // Tradier is equities-only, so an unrecognised ticker there is a share.
+  if (args.source === 'tradier' || args.equity) return equityInstrument(sym)
+  console.error(C.red(`Unknown symbol ${sym}. Known: ${Object.keys(INSTRUMENTS).join(', ')} (or pass --equity for any ticker)`))
+  process.exit(1)
 }
 
 /* ── analyze: what is the system seeing right now? ──────────────────────── */
 
-function cmdAnalyze(args) {
-  const candles = getCandles(args)
+async function cmdAnalyze(args) {
+  const candles = await getCandles(args)
   const instrument = instrumentOf(args)
   const market = new Market(candles, { instrument })
   const system = new TradingSystem(configFrom(args))
@@ -134,7 +192,7 @@ function cmdAnalyze(args) {
   for (const t of signal.targets) console.log(`  target    ${t.price.toFixed(2)}   ${t.r}R  ${C.dim(t.label)}`)
   console.log(`  R:R       ${signal.rr}`)
   if (sizing.allowed) {
-    console.log(`  size      ${C.bold(`${sizing.contracts} ${sizing.symbol}`)}   risking ${C.bold(`$${sizing.riskDollars.toFixed(0)}`)}  ${C.dim(`(limited by ${sizing.limitedBy})`)}`)
+    console.log(`  size      ${C.bold(`${sizing.contracts} ${sizing.symbol}`)} ${C.dim(sizing.unit)}   risking ${C.bold(`$${sizing.riskDollars.toFixed(0)}`)}  ${C.dim(`(limited by ${sizing.limitedBy})`)}`)
   } else {
     console.log(`  size      ${C.red('no position')} — ${sizing.reason}`)
   }
@@ -143,8 +201,8 @@ function cmdAnalyze(args) {
 
 /* ── levels: the map for the session ────────────────────────────────────── */
 
-function cmdLevels(args) {
-  const candles = getCandles(args)
+async function cmdLevels(args) {
+  const candles = await getCandles(args)
   const instrument = instrumentOf(args)
   const market = new Market(candles, { instrument })
   const i = candles.length - 1
@@ -185,8 +243,8 @@ function cmdLevels(args) {
 
 /* ── backtest ───────────────────────────────────────────────────────────── */
 
-function cmdBacktest(args) {
-  const candles = getCandles(args)
+async function cmdBacktest(args) {
+  const candles = await getCandles(args)
   const instrument = instrumentOf(args)
   const result = backtest({
     candles,
@@ -223,6 +281,20 @@ function cmdBacktest(args) {
   const out = args.report ?? 'backtest-report.html'
   writeFileSync(out, renderReport(result, { title: `${instrument.symbol} — Backtest Report` }))
   console.log(`\n  report written to ${C.cyan(out)}\n`)
+}
+
+/* ── fetch: pull data down to a CSV for repeated use ────────────────────── */
+
+async function cmdFetch(args) {
+  if (!args.source) {
+    console.error(C.red('--source yahoo|tradier is required'))
+    process.exit(1)
+  }
+  const candles = await getCandles(args, { audit: true })
+  const out = args.out ?? `${String(args.symbol ?? (args.source === 'tradier' ? 'QQQ' : 'NQ')).replace(/[^A-Za-z0-9]/g, '')}_${args.interval ?? '1m'}.csv`
+  writeCandles(out, candles)
+  console.log(`  ${candles.length} bars written to ${C.cyan(out)}`)
+  console.log(C.dim(`  reuse with: node src/cli.js backtest --csv ${out}\n`))
 }
 
 /* ── stats from a journal ───────────────────────────────────────────────── */
@@ -287,16 +359,31 @@ function usage() {
 
   ${C.bold('Commands')}
     demo                     end-to-end run on generated data
+    fetch                    download bars to a CSV
     analyze                  read the current setup, step by step
     levels                   liquidity, orderflow and range for the session
     backtest                 full backtest with prop firm rules + HTML report
     stats                    performance breakdown from a journal file
 
+  ${C.bold('Data sources')}
+    --csv <file>             OHLCV file you already have
+    --source yahoo           NQ=F and other futures, full 23h session
+                             1m: 7 days max · 5m: 60 days · 1h: 730 days
+    --source tradier         equities and ETFs only — NO futures.
+                             Real consolidated volume; ~20 days of 1m,
+                             04:00-20:00 ET with session_filter=all.
+                             Needs TRADIER_TOKEN.
+    (none)                   synthetic data, for testing the engine only
+
   ${C.bold('Options')}
-    --csv <file>             1-minute OHLCV data (omit to use synthetic data)
-    --symbol <NQ|MNQ|ES|MES> default NQ
+    --symbol <sym>           NQ, ES, QQQ, SPY… (default NQ, or QQQ on tradier)
+    --equity                 treat an unknown symbol as shares
+    --interval <1m|5m|1h>    bar size (tradier: 1min|5min|15min)
+    --range <7d|60d>         yahoo lookback
+    --start/--end <date>     tradier window (YYYY-MM-DD)
+    --days <n>               tradier lookback / synthetic length
+    --out <file.csv>         fetch destination
     --account <${Object.keys(ACCOUNT_PRESETS).join('|')}>
-    --days <n> --seed <n>    synthetic data size and seed
     --journal <file.jsonl>   journal to write (backtest) or read (stats)
     --report <file.html>     backtest report path
     --grades <A+,A,B>        grades allowed to trade
@@ -309,22 +396,19 @@ function usage() {
 
 const args = parseArgs(process.argv.slice(2))
 const cmd = args._[0] ?? 'help'
-switch (cmd) {
-  case 'demo':
-    cmdBacktest({ ...args, days: args.days ?? 30 })
-    break
-  case 'analyze':
-    cmdAnalyze(args)
-    break
-  case 'levels':
-    cmdLevels(args)
-    break
-  case 'backtest':
-    cmdBacktest(args)
-    break
-  case 'stats':
-    cmdStats(args)
-    break
-  default:
-    usage()
+const commands = {
+  demo: () => cmdBacktest({ ...args, days: args.days ?? 30 }),
+  fetch: () => cmdFetch(args),
+  analyze: () => cmdAnalyze(args),
+  levels: () => cmdLevels(args),
+  backtest: () => cmdBacktest(args),
+  stats: () => cmdStats(args),
+}
+
+try {
+  await (commands[cmd] ?? usage)()
+} catch (err) {
+  // Network and provider failures should read as one clear line, not a stack.
+  console.error(`\n  ${C.red('error')}  ${err.message}\n`)
+  process.exitCode = 1
 }

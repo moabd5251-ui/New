@@ -407,3 +407,53 @@ test('the risk curve is not monotonic — both tails fail', () => {
   const best = paid.indexOf(Math.max(...paid))
   assert.ok(best > 0 && best < paid.length - 1, `optimum should be interior, got index ${best}`)
 })
+
+test('the drawdown model only matters at large position size', () => {
+  // Counter-intuitive and worth pinning: at sane sizes the intraday-unrealised
+  // floor and the end-of-day floor produce nearly the same odds, because a
+  // day's excursion is small next to the drawdown allowance. The distinction
+  // only bites when a single day can swing a large share of the buffer.
+  const edge = { winRate: 0.4, payoffRatio: 2, badRunProb: 0.2, badRunDays: 5, badRunMultiplier: 0.45 }
+  const at = (dm, f) =>
+    monteCarlo({ preset: 'LUCID-FLEX-50K', riskFraction: f, edge, rules: { drawdownModel: dm }, runs: 800 }).breachRate
+
+  assert.ok(Math.abs(at('trailing-unrealised', 0.05) - at('trailing-eod', 0.05)) < 0.04, 'at 5% risk the models should barely differ')
+  assert.ok(at('trailing-unrealised', 0.3) - at('trailing-eod', 0.3) > 0.03, 'at 30% risk the unrealised floor should be clearly worse')
+})
+
+test('a user-supplied account resolves and carries its own rules', async () => {
+  const { PropAccount, accountSpec } = await import('../src/risk/propfirm.js')
+  assert.ok(accountSpec('LUCID-FLEX-50K'), 'user accounts must resolve alongside the published presets')
+  const a = new PropAccount({ preset: 'LUCID-FLEX-50K' })
+  assert.equal(a.rules.drawdownModel, 'trailing-eod')
+  assert.equal(a.rules.consistencyPct, 0.5)
+  assert.equal(a.payoutSplit, 0.9)
+  assert.equal(a.floor, 48000)
+  assert.equal(a.profitTargetAssumed, true, 'an assumed profit target must be flagged as such')
+})
+
+test('hitting the target in a single day fails the consistency rule', async () => {
+  const { simulateEvaluation } = await import('../src/risk/survival.js')
+  const rng = () => 0 // every trade wins
+  const r = simulateEvaluation({ preset: 'LUCID-FLEX-50K', riskFraction: 0.2, edge: { winRate: 1, payoffRatio: 2 }, rng })
+  assert.equal(r.outcome, 'pass', 'a perfect run reaches the target')
+  assert.equal(r.consistencyOk, false, 'all the profit landed on one day')
+  assert.equal(r.paid, false, 'passing on one day is not a payout')
+  assert.equal(r.payout, 0)
+})
+
+test('the payout split is applied once profit is spread across days', async () => {
+  const { simulateEvaluation } = await import('../src/risk/survival.js')
+  // Small size and one trade a day, so no single day can dominate the total.
+  const rng = () => 0
+  const r = simulateEvaluation({
+    preset: 'LUCID-FLEX-50K',
+    riskFraction: 0.02,
+    edge: { winRate: 1, payoffRatio: 2, tradesPerDay: 1 },
+    rng,
+  })
+  assert.equal(r.outcome, 'pass')
+  assert.equal(r.paid, true, 'profit spread over many days satisfies a 50% consistency limit')
+  const profit = r.balance - 50000
+  assert.ok(Math.abs(r.payout - profit * 0.9) < 1e-6, 'payout must be net of the 90% split')
+})

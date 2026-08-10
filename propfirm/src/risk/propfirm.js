@@ -44,14 +44,23 @@ export function equityInstrument(symbol) {
  *
  *  trailing-unrealised — the floor trails the highest ACCOUNT VALUE reached,
  *                        including open profit. Harshest and most common.
- *  trailing-eod        — the floor trails the end-of-day closing balance.
+ *  trailing-close      — the floor trails the highest CLOSED balance. Open
+ *                        profit you give back before exiting costs you nothing,
+ *                        which makes runners and scale-outs far cheaper to
+ *                        attempt than under the unrealised model.
+ *  trailing-eod        — the floor trails the end-of-day closing balance. More
+ *                        forgiving still: a green morning and a red afternoon
+ *                        only ratchet the floor by the net.
  *  static              — the floor never moves.
+ *
+ * Breach is always checked against live equity regardless of model. A floor
+ * that only updates on closes is not a floor you can trade through intraday.
  *
  * `lockAtProfit`: many trailing programs stop trailing once the account is up
  * by (drawdown + buffer); after that the floor locks, usually at the starting
  * balance plus the buffer.
  */
-export const DRAWDOWN_MODELS = ['trailing-unrealised', 'trailing-eod', 'static']
+export const DRAWDOWN_MODELS = ['trailing-unrealised', 'trailing-close', 'trailing-eod', 'static']
 
 /** Template account presets. Confirm against your firm before use. */
 export const ACCOUNT_PRESETS = {
@@ -62,6 +71,33 @@ export const ACCOUNT_PRESETS = {
   '150K': { startingBalance: 150000, drawdown: 5000, maxContracts: 17, maxMicros: 170, profitTarget: 9000 },
   '250K': { startingBalance: 250000, drawdown: 6500, maxContracts: 27, maxMicros: 270, profitTarget: 15000 },
   '300K': { startingBalance: 300000, drawdown: 7500, maxContracts: 35, maxMicros: 350, profitTarget: 20000 },
+}
+
+/**
+ * Account parameters supplied by the account holder rather than taken from a
+ * published table. Kept separate from ACCOUNT_PRESETS so it is obvious which
+ * numbers came from where — and still worth re-checking against the agreement,
+ * since these were entered by hand.
+ */
+export const USER_ACCOUNTS = {
+  'LUCID-FLEX-50K': {
+    startingBalance: 50000,
+    drawdown: 2000,
+    // End-of-day trailing: the floor moves on the closing balance, so a green
+    // morning handed back in the afternoon ratchets it only by the net. This is
+    // the most forgiving of the trailing variants and it changes sizing
+    // materially versus an intraday-unrealised floor.
+    drawdownModel: 'trailing-eod',
+    // 50% during the evaluation, and none at all once funded.
+    consistencyPct: 0.5,
+    consistencyAppliesAfterPass: false,
+    // Withdrawals unlock above $2k of profit, at a 90% split.
+    profitTarget: 2000,
+    profitTargetAssumed: true,
+    payoutSplit: 0.9,
+    maxContracts: 10,
+    maxMicros: 100,
+  },
 }
 
 export const DEFAULT_RULES = {
@@ -82,6 +118,11 @@ export const DEFAULT_RULES = {
   flattenByMinuteET: 15 * 60 + 55,
 }
 
+/** Resolve a preset name from either the published table or user-supplied set. */
+export function accountSpec(name) {
+  return ACCOUNT_PRESETS[name] ?? USER_ACCOUNTS[name] ?? null
+}
+
 /**
  * A live account: balance, the drawdown floor, and the daily guardrails.
  *
@@ -95,7 +136,7 @@ export class PropAccount {
    *          instrument?:object}} config
    */
   constructor(config = {}) {
-    const preset = config.preset ? ACCOUNT_PRESETS[config.preset] : null
+    const preset = config.preset ? accountSpec(config.preset) : null
     if (config.preset && !preset) throw new Error(`Unknown account preset: ${config.preset}`)
 
     this.startingBalance = config.startingBalance ?? preset?.startingBalance ?? 50000
@@ -103,7 +144,19 @@ export class PropAccount {
     this.maxContracts = config.maxContracts ?? preset?.maxContracts ?? 10
     this.maxMicros = config.maxMicros ?? preset?.maxMicros ?? this.maxContracts * 10
     this.profitTarget = config.profitTarget ?? preset?.profitTarget ?? 3000
-    this.rules = { ...DEFAULT_RULES, ...(config.rules ?? {}) }
+    // A preset may carry rule overrides of its own (drawdown model, consistency
+    // limit); explicit config.rules still wins over them.
+    this.rules = {
+      ...DEFAULT_RULES,
+      ...(preset?.drawdownModel ? { drawdownModel: preset.drawdownModel } : {}),
+      ...(preset?.consistencyPct !== undefined ? { consistencyPct: preset.consistencyPct } : {}),
+      ...(preset?.consistencyAppliesAfterPass !== undefined
+        ? { consistencyAppliesAfterPass: preset.consistencyAppliesAfterPass }
+        : {}),
+      ...(config.rules ?? {}),
+    }
+    this.profitTargetAssumed = preset?.profitTargetAssumed ?? false
+    this.payoutSplit = config.payoutSplit ?? preset?.payoutSplit ?? 1
     this.instrument = config.instrument ?? INSTRUMENTS.NQ
 
     this.balance = this.startingBalance
@@ -133,6 +186,14 @@ export class PropAccount {
   get dailyRoom() {
     const limit = this.drawdown * this.rules.dailyLossLimitPct
     return Math.max(0, limit + this.dayPnL)
+  }
+
+  /**
+   * Record a realised close against the drawdown floor.
+   * Only the closed-balance model moves on this event.
+   */
+  #onRealisedClose() {
+    if (this.rules.drawdownModel === 'trailing-close') this.#raiseFloor(this.balance)
   }
 
   /** Roll the daily counters when the futures trading day changes. */
@@ -211,6 +272,7 @@ export class PropAccount {
     this.dayTrades++
     this.consecutiveLosses = trade.pnl < 0 ? this.consecutiveLosses + 1 : 0
     this.trades.push({ ...trade, balanceAfter: this.balance, day: this.day })
+    this.#onRealisedClose()
     this.mark(0)
     if (!this.passed && this.balance - this.startingBalance >= this.profitTarget) this.passed = true
     return this

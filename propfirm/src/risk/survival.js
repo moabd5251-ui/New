@@ -42,7 +42,7 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-import { PropAccount, ACCOUNT_PRESETS } from './propfirm.js'
+import { PropAccount, accountSpec } from './propfirm.js'
 import { mulberry32 } from '../data/synthetic.js'
 
 /**
@@ -74,10 +74,10 @@ export function simulateEvaluation({
   rng,
   maxDays = 250,
   rules = {},
+  overrides = {},
 }) {
-  const account = new PropAccount({ preset, rules })
-  const spec = ACCOUNT_PRESETS[preset]
-  const riskDollars = spec.drawdown * riskFraction
+  const account = new PropAccount({ preset, rules, ...overrides })
+  const riskDollars = account.drawdown * riskFraction
   const { winRate, payoffRatio, lossMfeR = 0.35, tradesPerDay = 3 } = edge
 
   const { badRunProb = 0, badRunDays = 5, badRunMultiplier = 0.5 } = edge
@@ -125,7 +125,13 @@ export function simulateEvaluation({
 }
 
 function finish(outcome, account, trades, days) {
+  // Consistency gates the evaluation itself: you cannot pass on one outsized
+  // day. Whether it also gates later withdrawals once funded is a separate
+  // question this simulation does not reach — Lucid's Flex drops it after the
+  // pass, which only matters for the funded phase.
   const consistency = account.consistency()
+  const paid = outcome === 'pass' && consistency.ok
+  const profit = account.balance - account.startingBalance
   return {
     outcome,
     trades,
@@ -133,8 +139,9 @@ function finish(outcome, account, trades, days) {
     balance: account.balance,
     peak: account.peak,
     consistencyOk: consistency.ok,
-    // Passing the target but failing consistency is not a payout.
-    paid: outcome === 'pass' && consistency.ok,
+    paid,
+    // What actually reaches your bank, after the split.
+    payout: paid ? profit * (account.payoutSplit ?? 1) : 0,
   }
 }
 
@@ -144,20 +151,24 @@ function finish(outcome, account, trades, days) {
  * @returns {{passRate:number, breachRate:number, timeoutRate:number,
  *            paidRate:number, medianDaysToPass:number|null, runs:number}}
  */
-export function monteCarlo({ preset = '50K', riskFraction = 0.05, edge, runs = 2000, seed = 12345, maxDays = 250, rules = {} }) {
+export function monteCarlo({ preset = '50K', riskFraction = 0.05, edge, runs = 2000, seed = 12345, maxDays = 250, rules = {}, overrides = {} }) {
   const rng = mulberry32(seed)
   let pass = 0
   let breach = 0
   let timeout = 0
   let paid = 0
+  let payoutTotal = 0
   const daysToPass = []
 
   for (let i = 0; i < runs; i++) {
-    const r = simulateEvaluation({ preset, riskFraction, edge, rng, maxDays, rules })
+    const r = simulateEvaluation({ preset, riskFraction, edge, rng, maxDays, rules, overrides })
     if (r.outcome === 'pass') {
       pass++
       daysToPass.push(r.days)
-      if (r.paid) paid++
+      if (r.paid) {
+        paid++
+        payoutTotal += r.payout
+      }
     } else if (r.outcome === 'breach') breach++
     else timeout++
   }
@@ -169,6 +180,9 @@ export function monteCarlo({ preset = '50K', riskFraction = 0.05, edge, runs = 2
     breachRate: breach / runs,
     timeoutRate: timeout / runs,
     paidRate: paid / runs,
+    // Averaged over ALL runs, including the ones that breached — this is the
+    // number to compare against the evaluation fee.
+    expectedPayout: payoutTotal / runs,
     medianDaysToPass: daysToPass.length ? daysToPass[Math.floor(daysToPass.length / 2)] : null,
   }
 }
@@ -179,11 +193,12 @@ export function monteCarlo({ preset = '50K', riskFraction = 0.05, edge, runs = 2
  * The shape of this curve is the whole point: pass probability rises with size,
  * turns over, and collapses. Both tails are ways to fail.
  */
-export function riskCurve({ preset = '50K', edge, fractions = [0.02, 0.03, 0.05, 0.075, 0.1, 0.15, 0.2, 0.3], runs = 2000, seed = 12345, maxDays = 250 }) {
+export function riskCurve({ preset = '50K', edge, fractions = [0.02, 0.03, 0.05, 0.075, 0.1, 0.15, 0.2, 0.3], runs = 2000, seed = 12345, maxDays = 250, overrides = {} }) {
+  const drawdown = overrides.drawdown ?? accountSpec(preset)?.drawdown
   return fractions.map((riskFraction) => ({
     riskFraction,
-    riskDollars: ACCOUNT_PRESETS[preset].drawdown * riskFraction,
-    ...monteCarlo({ preset, riskFraction, edge, runs, seed, maxDays }),
+    riskDollars: drawdown * riskFraction,
+    ...monteCarlo({ preset, riskFraction, edge, runs, seed, maxDays, overrides }),
   }))
 }
 
@@ -193,10 +208,10 @@ export function riskCurve({ preset = '50K', edge, fractions = [0.02, 0.03, 0.05,
  * Answers "what do I actually need to be able to do?" rather than "what would
  * happen if I were good?".
  */
-export function requiredEdge({ preset = '50K', riskFraction = 0.05, payoffRatio = 2, target = 0.6, runs = 1000, seed = 999, maxDays = 250 }) {
+export function requiredEdge({ preset = '50K', riskFraction = 0.05, payoffRatio = 2, target = 0.6, runs = 1000, seed = 999, maxDays = 250, overrides = {}, edgeExtras = {} }) {
   const out = []
   for (let winRate = 0.2; winRate <= 0.65; winRate += 0.05) {
-    const mc = monteCarlo({ preset, riskFraction, edge: { winRate, payoffRatio }, runs, seed, maxDays })
+    const mc = monteCarlo({ preset, riskFraction, edge: { winRate, payoffRatio, ...edgeExtras }, runs, seed, maxDays, overrides })
     out.push({ winRate, expectancyR: winRate * payoffRatio - (1 - winRate), ...mc })
   }
   const first = out.find((r) => r.paidRate >= target)

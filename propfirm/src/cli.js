@@ -24,6 +24,7 @@ import { backtest } from './backtest/backtest.js'
 import { PropAccount, INSTRUMENTS, ACCOUNT_PRESETS, equityInstrument } from './risk/propfirm.js'
 import { sizePosition } from './risk/sizing.js'
 import { riskCurve, requiredEdge } from './risk/survival.js'
+import { recordOvernight, loadOvernight, overnightScorecard, OVERNIGHT_SPEC, BACKTEST_REFERENCE } from './research/overnight.js'
 import { Journal } from './journal/journal.js'
 import { buildStats, recommendations } from './journal/stats.js'
 import { renderReport } from './report/html.js'
@@ -462,6 +463,43 @@ async function cmdForward(args) {
   console.log(C.dim('\n  These are paper signals: no fill, no slippage, no commission.\n'))
 }
 
+/* ── overnight: forward-validate the Globex-open capture, paper only ────── */
+
+function cmdOvernight(args) {
+  const source = args.source ?? 'yahoo'
+  const symbol = source === 'yahoo' ? resolveYahooSymbol(args.symbol ?? 'NQ') : String(args.symbol ?? 'NQ').toUpperCase()
+  const root = args.store ?? DEFAULT_STORE
+
+  const { path, added, records, total } = recordOvernight({ root, symbol })
+  section(`OVERNIGHT FORWARD — ${symbol} (spec v${OVERNIGHT_SPEC.version}, registered ${OVERNIGHT_SPEC.registered})`)
+  console.log(`  journal     ${C.cyan(path)}`)
+  console.log(`  new nights  ${added ? C.green(String(added)) : '0'}  (${total} total)`)
+  for (const r of records) {
+    const v = r.variants.s100
+    console.log(`              ${r.night}  entry ${r.entry.toFixed(2)} → 9:30 ${r.exit930.toFixed(2)}  100pt-stop ${colourR(v.pts)}pt ${C.dim(`(${v.exit})`)}`)
+  }
+
+  const all = loadOvernight(path)
+  if (!all.length) {
+    console.log(C.dim('\n  Nothing recorded yet. Nights accrue as collection runs.\n'))
+    return
+  }
+  const card = overnightScorecard(all)
+  section('RUNNING SCORECARD (paper, 1 MNQ)')
+  console.log('  variant   nights   mean/night   total     win%   worst   stops   sim balance')
+  for (const [key, v] of Object.entries(card.variants)) {
+    if (!v.n) continue
+    const status = v.breached ? C.red(`breached ${v.breached}`) : v.passed ? C.green(`passed ${v.passed}`) : ''
+    console.log(
+      `  ${key.padEnd(8)} ${String(v.n).padStart(5)}   ${colourR(v.meanPts).padStart(14)}pt ${colourR(v.totalPts).padStart(12)}pt   ${(v.winRate * 100).toFixed(0).padStart(3)}%  ${String(v.worstPts.toFixed(0)).padStart(6)}  ${String(v.stops).padStart(5)}   $${v.balance.toFixed(0)} ${status}`,
+    )
+  }
+  console.log(C.dim(`\n  Backtest reference: ${BACKTEST_REFERENCE.meanPtsNoStop}pt/night over ${BACKTEST_REFERENCE.window} (sd ${BACKTEST_REFERENCE.sdPts}pt).`))
+  console.log(C.dim(`  Under ~30 nights the mean is noise — judge nothing before that.`))
+  if (card.nights < 30) console.log(C.yellow(`  ${card.nights} night(s) so far: keep collecting.`))
+  console.log(C.dim('\n  Paper only. No orders are placed by anything in this repository.\n'))
+}
+
 /* ── survival: what edge and what size actually pass an evaluation ──────── */
 
 function cmdSurvival(args) {
@@ -558,6 +596,8 @@ function usage() {
     collect                  merge the provider window into a growing store,
                              and journal signals on the newly closed bars
     forward                  score the accumulated out-of-sample signals
+    overnight                journal completed 18:00→9:30 nights against the
+                             registered overnight-capture spec (paper only)
     analyze                  read the current setup, step by step
     levels                   liquidity, orderflow and range for the session
     backtest                 full backtest with prop firm rules + HTML report
@@ -610,6 +650,7 @@ const commands = {
   fetch: () => cmdFetch(args),
   collect: () => cmdCollect(args),
   forward: () => cmdForward(args),
+  overnight: () => cmdOvernight(args),
   analyze: () => cmdAnalyze(args),
   levels: () => cmdLevels(args),
   backtest: () => cmdBacktest(args),

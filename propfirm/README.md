@@ -179,6 +179,29 @@ Expect roughly 2–3 months before the sample means anything. Around 30 resolved
 signals is where the numbers stop being noise, and `forward` says so until you
 get there.
 
+### Overnight-capture forward validation (the paper bot)
+
+The one hypothesis the sweep left standing — long from the 18:00 ET Globex
+open to the next 09:30 ET RTH open, disaster stop, no target — gets the same
+treatment as the signal engine, in `src/research/overnight.js`:
+
+```bash
+node src/cli.js overnight --symbol NQ   # after collect; journals completed nights
+```
+
+Each completed night is evaluated **exactly once** against the frozen spec
+(registered 2026-08-10, before any of the judging data existed): no-stop,
+50-pt-stop and 100-pt-stop variants at 1 MNQ with 1 pt round-trip cost,
+appended to `data/NQ_F-overnight.jsonl`. The scorecard tracks each variant's
+running mean against the backtest reference (+19.3 pt/night, sd 183) and walks
+a simulated Lucid Flex 50K (trailing-EOD $2,000, $3,000 target) night by
+night. Under ~30 nights the command says the sample is noise, because it is.
+
+This is a **paper** bot: nothing in this repository places, routes or sizes a
+real order. If the forward mean holds up after 30+ nights, that is the moment
+an evaluation fee stops being a donation; if it collapses, the journal killed
+the hypothesis for the cost of nothing.
+
 ---
 
 ## The system

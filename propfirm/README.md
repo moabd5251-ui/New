@@ -446,6 +446,7 @@ treated as nothing, and a survivor required the same sign out-of-sample.
 | Liquidity sweeps: continuation, ≥3-touch, failed-break fade | 14 | See below |
 | Real orderflow (delta extremes, delta/price and CVD divergence, absorption) | 10 | Noise on 3 months of tape; CVD divergence flips sign between halves |
 | 5m structure continuation (higher-low longs / lower-high shorts, stop at the last swing) | 9 | Entry has no edge (t ≤ 0.8); stops AT the swing level get hunted — 65–73% stop-outs vs 49% one swing wider — and no variant beats costs |
+| Daily open with the trend (9:30 entry; 20d SMA / yesterday / 5d momentum filters) | 8 | Every filter underperforms always-long in-sample; "yesterday direction" flips sign between halves; always-long-at-open is drift (+4–5 pt/day, t ≈ 0) with ±200 pt daily swings |
 
 The sweep family deserves its own paragraph because it produced the campaign's
 best-looking number and then took it away. Sweeps of equal-highs pools showed

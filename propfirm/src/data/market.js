@@ -46,9 +46,29 @@ export class Market {
     this.timeframes = { ...DEFAULT_TIMEFRAMES, ...(opts.timeframes ?? {}) }
     this.views = new Map()
 
+    // Higher timeframes may be supplied directly instead of aggregated from
+    // the base series. This matters more than it sounds: aggregating a daily
+    // view out of a 7-day 1-minute window gives six daily bars and no swings
+    // at all, so step 1 can never form a bias and the whole system is mute.
+    // Providers that cap intraday history but serve years of hourly and daily
+    // data can fill those views properly — see `opts.series`.
+    const provided = opts.series ?? {}
+    this.injected = []
+
     for (const [name, spec] of Object.entries(this.timeframes)) {
-      const candles = spec === null ? base : aggregate(base, spec)
-      const seconds = spec === null ? inferBaseSeconds(base) : parseTimeframe(spec)
+      let candles
+      let seconds
+      if (provided[name]?.length) {
+        candles = provided[name]
+        seconds = inferBaseSeconds(candles)
+        this.injected.push(name)
+      } else if (spec === null) {
+        candles = base
+        seconds = inferBaseSeconds(base)
+      } else {
+        candles = aggregate(base, spec)
+        seconds = parseTimeframe(spec)
+      }
       this.views.set(name, this.#buildView(name, candles, seconds))
     }
 

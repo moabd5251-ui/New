@@ -14,6 +14,8 @@ import { loadCandles, writeCandles } from './data/csv.js'
 import { fetchYahoo, YAHOO_SYMBOLS, YAHOO_LIMITS } from './data/providers/yahoo.js'
 import { fetchTradier } from './data/providers/tradier.js'
 import { auditSeries, formatAudit } from './data/quality.js'
+import { CandleStore } from './data/store.js'
+import { collect, resolveForward, ENGINE_VERSION, CONTEXT_STREAMS } from './data/collector.js'
 import { generateSeries } from './data/synthetic.js'
 import { Market } from './data/market.js'
 import { TradingSystem } from './engine/system.js'
@@ -297,6 +299,107 @@ async function cmdFetch(args) {
   console.log(C.dim(`  reuse with: node src/cli.js backtest --csv ${out}\n`))
 }
 
+/* ── collect: accumulate 1m history past the provider's window ──────────── */
+
+const DEFAULT_STORE = 'data'
+
+async function cmdCollect(args) {
+  const source = args.source ?? 'yahoo'
+  const symbol = source === 'yahoo' ? resolveYahooSymbol(args.symbol ?? 'NQ') : String(args.symbol ?? 'QQQ').toUpperCase()
+  const root = args.store ?? DEFAULT_STORE
+  const instrument = instrumentOf(args)
+
+  const candles = await getCandles({ ...args, source, symbol, interval: args.interval ?? (source === 'tradier' ? '1min' : '1m') }, { audit: false })
+
+  // Step 1 reads daily and 4h structure, which a one-week window of 1-minute
+  // bars cannot provide. Pull those streams separately.
+  const contextSeries = {}
+  if (source === 'yahoo') {
+    for (const [name, cfg] of Object.entries(CONTEXT_STREAMS)) {
+      try {
+        const out = await fetchYahoo({ symbol, interval: cfg.interval, range: cfg.range })
+        contextSeries[name] = out.candles
+        console.error(C.dim(`  context ${cfg.interval}: ${out.candles.length} bars`))
+      } catch (err) {
+        console.error(C.yellow(`  context ${cfg.interval} unavailable: ${err.message}`))
+      }
+    }
+  }
+
+  const result = collect({
+    candles,
+    root,
+    symbol,
+    instrument,
+    contextSeries,
+    paper: args.paper !== false && args.noPaper !== true,
+    systemConfig: configFrom(args),
+  })
+
+  section('COLLECTED')
+  console.log(`  fetched     ${result.fetched} bars`)
+  console.log(`  new         ${C.green(String(result.added))} added, ${result.updated} revised, ${result.unchanged} already stored`)
+  console.log(`  store       ${result.coverage.bars.toLocaleString()} bars over ${result.coverage.days} day(s)  ${C.dim(`${result.coverage.first ?? '—'} → ${result.coverage.last ?? '—'}`)}`)
+  for (const [name, c] of Object.entries(result.context ?? {})) {
+    console.log(`  context     ${name.padEnd(8)} ${String(c.bars).padStart(5)} bars ${C.dim(`(+${c.added})`)}`)
+  }
+
+  if (result.paper) {
+    const p = result.paper
+    if (p.note) {
+      console.log(`  forward     ${C.dim(p.note)}`)
+    } else {
+      console.log(`  forward     evaluated ${p.evaluated} new bar(s), recorded ${C.bold(String(p.signals))} signal(s)`)
+      for (const r of (p.records ?? []).slice(-5)) {
+        console.log(`              ${C.dim(r.barTime)}  ${r.direction === 'long' ? C.green('LONG ') : C.red('SHORT')} ${r.model.padEnd(13)} ${gradeColour(r.grade)}  entry ${r.entry.toFixed(2)} stop ${r.stop.toFixed(2)}`)
+      }
+    }
+  }
+
+  // The container is ephemeral; the store only survives if it is committed.
+  console.log(C.dim(`\n  Store lives in ${root}/. Commit it — this container does not persist.`))
+  console.log(C.dim(`  Run this daily; Yahoo's window is 7 days, so anything longer than a week between runs loses bars.\n`))
+}
+
+async function cmdForward(args) {
+  const source = args.source ?? 'yahoo'
+  const symbol = source === 'yahoo' ? resolveYahooSymbol(args.symbol ?? 'NQ') : String(args.symbol ?? 'QQQ').toUpperCase()
+  const root = args.store ?? DEFAULT_STORE
+  const store = new CandleStore(root, symbol)
+  const cov = store.coverage()
+
+  section(`FORWARD RECORD — ${symbol}`)
+  console.log(`  store       ${cov.bars.toLocaleString()} bars over ${cov.days} day(s)  ${C.dim(`${cov.first ?? '—'} → ${cov.last ?? '—'}`)}`)
+  console.log(`  engine      v${ENGINE_VERSION}`)
+
+  const out = resolveForward({ root, symbol })
+  console.log(`  signals     ${out.resolved} resolved, ${out.pending} still open`)
+  if (!out.resolved) {
+    console.log(C.dim('\n  Nothing resolved yet. Keep collecting.\n'))
+    return
+  }
+  console.log(`  win rate    ${(out.winRate * 100).toFixed(1)}%`)
+  console.log(`  expectancy  ${colourR(out.expectancyR)}R per signal`)
+  console.log(`  total       ${colourR(out.totalR)}R`)
+
+  const byModel = {}
+  for (const r of out.records) {
+    const k = r.model
+    byModel[k] ??= { n: 0, sum: 0 }
+    byModel[k].n++
+    byModel[k].sum += r.outcome.r
+  }
+  section('BY MODEL')
+  for (const [k, v] of Object.entries(byModel).sort((a, b) => b[1].sum / b[1].n - a[1].sum / a[1].n)) {
+    console.log(`  ${k.padEnd(14)} ${String(v.n).padStart(4)} signals  ${colourR(v.sum / v.n)}R`)
+  }
+
+  if (out.resolved < 30) {
+    console.log(C.yellow(`\n  ${out.resolved} resolved signals is not yet a sample. Do not act on these numbers.`))
+  }
+  console.log(C.dim('\n  These are paper signals: no fill, no slippage, no commission.\n'))
+}
+
 /* ── stats from a journal ───────────────────────────────────────────────── */
 
 function cmdStats(args) {
@@ -360,6 +463,9 @@ function usage() {
   ${C.bold('Commands')}
     demo                     end-to-end run on generated data
     fetch                    download bars to a CSV
+    collect                  merge the provider window into a growing store,
+                             and journal signals on the newly closed bars
+    forward                  score the accumulated out-of-sample signals
     analyze                  read the current setup, step by step
     levels                   liquidity, orderflow and range for the session
     backtest                 full backtest with prop firm rules + HTML report
@@ -383,6 +489,8 @@ function usage() {
     --start/--end <date>     tradier window (YYYY-MM-DD)
     --days <n>               tradier lookback / synthetic length
     --out <file.csv>         fetch destination
+    --store <dir>            collector store (default ./data)
+    --noPaper                collect bars only, skip forward evaluation
     --account <${Object.keys(ACCOUNT_PRESETS).join('|')}>
     --journal <file.jsonl>   journal to write (backtest) or read (stats)
     --report <file.html>     backtest report path
@@ -399,6 +507,8 @@ const cmd = args._[0] ?? 'help'
 const commands = {
   demo: () => cmdBacktest({ ...args, days: args.days ?? 30 }),
   fetch: () => cmdFetch(args),
+  collect: () => cmdCollect(args),
+  forward: () => cmdForward(args),
   analyze: () => cmdAnalyze(args),
   levels: () => cmdLevels(args),
   backtest: () => cmdBacktest(args),

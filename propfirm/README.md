@@ -9,7 +9,7 @@ Zero dependencies. Node 20+. `node --test` for the suite.
 
 ```bash
 cd propfirm
-npm test                                   # 135 tests
+npm test                                   # 151 tests
 node src/cli.js demo                       # end-to-end run on generated data
 node src/cli.js analyze  --csv nq_1m.csv   # read the current setup, step by step
 node src/cli.js levels   --csv nq_1m.csv   # liquidity map + orderflow for the session
@@ -20,6 +20,10 @@ node src/cli.js stats    --journal journal.jsonl
 node src/cli.js analyze  --source yahoo --symbol NQ --interval 1m --range 7d
 node src/cli.js backtest --source yahoo --symbol NQ --interval 5m --range 60d
 node src/cli.js fetch    --source tradier --symbol QQQ --days 15 --out qqq_1m.csv
+
+# forward collection — run daily, commit the result
+node src/cli.js collect  --source yahoo --symbol NQ
+node src/cli.js forward  --symbol NQ
 ```
 
 ---
@@ -107,6 +111,73 @@ are worth separating before concluding the strategy does not work:
 The honest conclusion is not "the strategy is bad", it is **"this data cannot
 answer the question."** Answering it needs real 1-minute-or-finer CME futures
 data with genuine per-trade aggressor side, over months rather than days.
+
+---
+
+## Forward collection
+
+Yahoo's 7-day 1-minute window is too short to test anything — but the window
+*moves*. `collect` pulls it and merges into a day-partitioned store, so a
+1-minute history accumulates that no single request could return.
+
+```bash
+node src/cli.js collect --source yahoo --symbol NQ   # daily
+node src/cli.js forward --symbol NQ                  # score what has resolved
+```
+
+Each run does two things:
+
+1. **Merges bars.** One CSV per CME trading day, keyed on timestamp, idempotent.
+   Running twice adds nothing; a provider revision updates a bar in place and
+   never deletes one. Closed days are never rewritten, so git diffs stay small.
+
+2. **Evaluates the newly closed bars exactly once** and journals whatever the
+   system says to `data/<symbol>-forward.jsonl`, stamped with `engineVersion`.
+   A watermark enforces the once-only rule. These are paper signals — no fill,
+   no slippage, no P&L. The question is narrower and more useful than "did it
+   make money": *when this system fires on data it has never seen, is it right?*
+
+`forward` resolves records whose outcome is now knowable, using the same
+pessimistic rule as the backtester — a bar that spans both stop and target
+counts as the stop.
+
+**The store must be committed.** The container is ephemeral; git is the only
+place the history survives. `data/` is deliberately not ignored.
+
+**Run it at least weekly.** Yahoo serves 7 days, so a longer gap between runs
+loses bars permanently.
+
+### Higher-timeframe context is collected separately
+
+This is the part that makes forward collection work at all. Step 1 reads daily
+and 4-hour structure, and a 7-day window of 1-minute bars aggregates to *six
+daily candles with no swings* — the bias can never form, and the system sits
+mute no matter how many 1-minute bars accumulate. Measured: 0 signals over
+6,673 bars.
+
+So `collect` also pulls hourly (60 days) and daily (2 years) streams into their
+own stores, and `Market` accepts them directly via `opts.series` instead of
+aggregating everything from the base. With real daily/4h structure injected, the
+same six days of 1-minute data produced 4 signals.
+
+```js
+const market = new Market(oneMinuteBars, {
+  instrument: INSTRUMENTS.NQ,
+  series: { context: dailyBars, macro: fourHourBars, trend: hourlyBars },
+})
+```
+
+### The discipline this depends on
+
+A forward record is only evidence if the engine that produced it is not
+afterwards tuned against the result. The watermark enforces evaluate-once;
+nothing can enforce don't-tune. If you change the engine, bump `ENGINE_VERSION`
+in `src/data/collector.js` — records from before the change belong to the old
+engine and must not be pooled with new ones.
+
+Expect roughly 2–3 months before the sample means anything. Around 30 resolved
+signals is where the numbers stop being noise, and `forward` says so until you
+get there.
 
 ---
 
@@ -231,6 +302,8 @@ src/
     market.js       multi-timeframe model with as-of accessors
     csv.js          tolerant CSV ingestion + validation
     quality.js      data audit — refuses data that cannot support the engine
+    store.js        day-partitioned candle store, idempotent merge
+    collector.js    forward collection + evaluate-once paper journal
     synthetic.js    deterministic generator (testing only)
     providers/
       yahoo.js      futures OHLCV, no key required

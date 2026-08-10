@@ -1,4 +1,8 @@
 node_modules/
-*.jsonl
+
+# Scratch output at the repo root. The collector store under data/ is the
+# durable record and is deliberately tracked — this container is ephemeral, so
+# git is the only place the accumulating history survives.
+/*.jsonl
 *-report.html
 backtest-report.html

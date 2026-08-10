@@ -145,3 +145,42 @@ export function targetFor(chart, direction, { minAtr = 0.5, maxAtr = 6 } = {}) {
     inferred: true,
   }
 }
+
+/**
+ * Read a vertical spread against the chart.
+ *
+ * A vertical's short strike caps the payoff, so the question that matters is
+ * not "will price rise" but "can it reach the short strike without first
+ * having to break a level that has repeatedly turned it back". A spread whose
+ * max gain sits beyond a five-touch shelf is asking for more than the chart
+ * has ever given; one whose short strike sits at or inside the shelf collects
+ * in full on a move the chart already supports. Same reading for the
+ * breakeven, which is the level that decides whether the trade makes anything
+ * at all.
+ *
+ * @param {{longStrike:number, shortStrike:number, breakeven:number}} spread
+ * @param {'up'|'down'} direction
+ */
+export function assessSpread(spread, chart, direction) {
+  if (!chart) return null
+  const levels = direction === 'up' ? chart.resistance : chart.support
+  const beyond = (a, b) => (direction === 'up' ? a > b : a < b)
+
+  // The first shelf standing between price and the short strike.
+  const blocking = levels.filter((l) => beyond(l.price, chart.price) && beyond(spread.shortStrike, l.price))
+  const nearest = levels[0] ?? null
+
+  return {
+    nearestLevel: nearest ? { price: nearest.price, touches: nearest.touches } : null,
+    /** Shelves price must clear to reach max gain. */
+    levelsToMaxGain: blocking.map((l) => ({ price: l.price, touches: l.touches })),
+    maxGainNeedsBreak: blocking.length > 0,
+    /** Most-tested shelf in the way, which is the one that matters. */
+    hardestLevel: blocking.length ? blocking.reduce((a, b) => (b.touches > a.touches ? b : a)).price : null,
+    /** Distance from price to the short strike, in ATR — is the ask plausible? */
+    reachAtr: Math.abs(spread.shortStrike - chart.price) / chart.atr,
+    /** Does the trade merely need price to hold, or actually to travel? */
+    breakevenBeyondPrice: beyond(spread.breakeven, chart.price),
+    breakevenAtr: Math.abs(spread.breakeven - chart.price) / chart.atr,
+  }
+}

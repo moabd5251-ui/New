@@ -41,7 +41,32 @@ export function renderOptionsPage(records, { generatedAt = new Date().toISOStrin
         <div><dt>Reward / risk</dt><dd>${s.rewardRisk.toFixed(2)}</dd></div>
       </dl>
       <p class="why">Reaction ${esc(r.reactionDay)}: gapped ${r.gapPct > 0 ? '+' : ''}${r.gapPct}% on volume, still unfilled — trading with the gap.</p>
+      ${chartLine(r)}
     </article>`
+  }
+
+  /**
+   * The chart read for a vertical. The useful fact is not the trend label but
+   * whether max gain sits beyond a level that has repeatedly turned price.
+   */
+  const chartLine = (r) => {
+    if (!r.chart || !r.assessment) return ''
+    const a = r.assessment
+    // Three distinct situations, and conflating the last two reads as a
+    // contradiction ("nearest resistance none above · max gain sits inside
+    // the nearest shelf"). No shelf overhead is its own case: price is at the
+    // top of its charted range with nothing above to stop it.
+    const side = r.direction === 'up' ? 'resistance' : 'support'
+    const verdict = a.maxGainNeedsBreak
+      ? `<span class="warn">max gain needs a break of ${a.hardestLevel.toFixed(2)}</span>`
+      : a.nearestLevel
+        ? `max gain sits inside the ${a.nearestLevel.price.toFixed(2)} shelf`
+        : `no charted ${side} in the way`
+    const near = a.nearestLevel
+      ? `nearest ${side} ${a.nearestLevel.price.toFixed(2)}${a.nearestLevel.touches > 1 ? `×${a.nearestLevel.touches}` : ''}`
+      : `no ${side} overhead`
+    return `<p class="chartline">${esc(r.chart.trend)} trend · ${esc(r.chart.zone)} · ${near} ·
+      short strike ${a.reachAtr.toFixed(1)} ATR away · ${verdict}</p>`
   }
 
   // Only one standard monthly sits inside a 20-45 DTE window, so same-day
@@ -117,6 +142,9 @@ export function renderOptionsPage(records, { generatedAt = new Date().toISOStrin
   .facts dt { color: var(--muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; }
   .facts dd { margin: 1px 0 0; font-weight: 600; font-variant-numeric: tabular-nums; }
   .why { color: var(--muted); font-size: 0.83rem; margin: 12px 0 0; }
+  .chartline { color: var(--muted); font-size: 0.8rem; margin: 8px 0 0; padding-top: 8px;
+    border-top: 1px solid var(--line); }
+  .warn { color: var(--dn); font-weight: 600; }
   .ledger-scroll { overflow-x: auto; }
   table { border-collapse: collapse; width: 100%; background: var(--surface);
     border: 1px solid var(--line); border-radius: 8px; font-size: 0.87rem; }

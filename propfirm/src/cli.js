@@ -28,7 +28,7 @@ import { recordOvernight, loadOvernight, overnightScorecard, OVERNIGHT_SPEC, BAC
 import { recordMondays, mondayScorecard, MONDAY_RTH_SPEC, MONDAY_BACKTEST_REFERENCE } from './research/mondayrth.js'
 import { OPTIONSCAN_SPEC, findReaction, buildVertical, pickExpiration, sizeContracts, loadJournal, saveJournal, appendCandidates, resolveExpired, scanScorecard } from './research/optionscan.js'
 import { renderOptionsPage } from './report/optionspage.js'
-import { analyzeChart, targetFor } from './research/chartanalysis.js'
+import { analyzeChart, targetFor, assessSpread } from './research/chartanalysis.js'
 import { BUTTERFLY_SPEC, buildButterfly, sizeFlies, butterflyJournalPath, resolveExpiredFlies, butterflyScorecard } from './research/butterfly.js'
 import { Journal } from './journal/journal.js'
 import { buildStats, recommendations } from './journal/stats.js'
@@ -622,6 +622,10 @@ async function cmdOptions(args) {
         spread,
         contracts,
         riskUsd: Math.round(spread.debit * 100 * contracts),
+        // What the chart looked like when this fired, and whether the payoff
+        // this structure caps at is actually reachable from here.
+        chart: chart ? { trend: chart.trend, zone: chart.zone, atr: Math.round(chart.atr * 100) / 100, price: chart.price } : null,
+        assessment: assessSpread(spread, chart, reaction.direction),
       })
     } catch (err) {
       console.log(`  ${symbol.padEnd(6)} ${C.red(err.message)}`)

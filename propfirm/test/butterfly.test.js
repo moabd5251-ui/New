@@ -136,3 +136,28 @@ test('resolution reports P&L both at mid and crossing the spread', async () => {
   assert.ok(o.pnlAtMidUsd > o.pnlUsd, 'a mid fill always beats crossing')
   assert.equal(butterflyScorecard(records).totalAtMidUsd, o.pnlAtMidUsd)
 })
+
+test('assessSpread says whether max gain needs a level broken', async () => {
+  const { assessSpread } = await import('../src/research/chartanalysis.js')
+  const chart = {
+    price: 100, atr: 2,
+    resistance: [{ price: 104, touches: 5 }, { price: 110, touches: 2 }],
+    support: [{ price: 96, touches: 3 }, { price: 90, touches: 4 }],
+  }
+  // Short strike beyond the 5-touch shelf: max gain requires breaking it.
+  const through = assessSpread({ longStrike: 100, shortStrike: 108, breakeven: 103 }, chart, 'up')
+  assert.equal(through.maxGainNeedsBreak, true)
+  assert.equal(through.hardestLevel, 104)
+  assert.equal(through.reachAtr, 4)
+
+  // Short strike at the shelf: the payoff is collected before it.
+  const inside = assessSpread({ longStrike: 98, shortStrike: 104, breakeven: 101 }, chart, 'up')
+  assert.equal(inside.maxGainNeedsBreak, false)
+  assert.equal(inside.hardestLevel, null)
+
+  // Puts read the mirror image against support.
+  const down = assessSpread({ longStrike: 100, shortStrike: 92, breakeven: 97 }, chart, 'down')
+  assert.equal(down.maxGainNeedsBreak, true)
+  assert.equal(down.hardestLevel, 96)
+  assert.equal(assessSpread({ longStrike: 100, shortStrike: 92, breakeven: 97 }, null, 'down'), null)
+})

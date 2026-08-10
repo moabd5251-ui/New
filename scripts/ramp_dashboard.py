@@ -257,6 +257,14 @@ function render(){
   const go=inWin.filter(r=>r.verdict==='WORTH TAKING');
   const marg=inWin.filter(r=>r.verdict==='MARGINAL');
   const no=inWin.filter(r=>r.verdict==='NOT WORTH IT');
+  // Anything in the window that is not one of the three judged verdicts — in practice
+  // NO PRICING, when the ramp estimate could not be measured so there was nothing to
+  // compare required-IV-rise against. These used to match no filter and vanish from the
+  // page entirely: on 10 Aug nine fully-built structures disappeared, leaving a single
+  // lotto card and the impression that the scan had found nothing. A name that cannot be
+  // ranked still has an entry window, a structure and a cost, all of which are worth
+  // seeing; what is missing is the verdict, and that is what the section says.
+  const unjudged=inWin.filter(r=>!['WORTH TAKING','MARGINAL','NOT WORTH IT'].includes(r.verdict));
   const started=rows.filter(r=>r.window==='RAMP STARTED');
   const late=rows.filter(r=>r.window==='TOO LATE');
   const early=rows.filter(r=>r.window==='TOO EARLY');
@@ -292,6 +300,7 @@ function render(){
     sec(go,'go','ENTER NOW','The vol expansion needed to break even is well under what these names typically deliver. Buy the volatility, close on the exit date shown, never hold into the report.')
   + sec(marg,'wait','MARGINAL','Break-even needs most of the typical expansion. Workable, but there is little room for the ramp to disappoint.')
   + sec(no,'stop','NOT WORTH IT','Decay over the holding period costs more than the ramp is likely to deliver. Skip these.')
+  + sec(unjudged,'na','IN THE WINDOW, NOT RANKED','Structure, cost and the vol rise needed to break even are all measured — but the typical expansion could not be estimated today, so there is nothing to judge that break-even against. Read the required rise on its own merits; these are not endorsed, only unranked.')
   + chips(started,'wait','RAMP ALREADY STARTED','Front-month premium is already elevated — the expansion has largely been paid for. If you are in these, this is the window to be taking profit.')
   + (late.filter(r=>r.lotto).length?`<section class="group">
       <div class="gh"><span class="tag" style="background:var(--vol)">LOTTO</span>

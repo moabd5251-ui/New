@@ -511,7 +511,9 @@ test('a withdrawal buffer shrinks the payout without making the attempt bad valu
 })
 
 test('the target must be reached the required number of times', () => {
-  const a = new PropAccount({ preset: 'LUCID-FLEX-50K' })
+  // The live account needs one touch; two is set explicitly here because this
+  // test covers the counting mechanism, not the preset's value.
+  const a = new PropAccount({ preset: 'LUCID-FLEX-50K', rules: { targetTouchesRequired: 2 } })
   a.startDay('d1')
   a.recordTrade({ pnl: 3000 })
   assert.equal(a.targetTouches, 1)
@@ -530,7 +532,7 @@ test('the target must be reached the required number of times', () => {
 })
 
 test('withdrawing at each touch banks cash and re-arms from the buffer', () => {
-  const a = new PropAccount({ preset: 'LUCID-FLEX-50K', rules: { withdrawAtTouch: true } })
+  const a = new PropAccount({ preset: 'LUCID-FLEX-50K', rules: { withdrawAtTouch: true, targetTouchesRequired: 2 } })
   a.startDay('d1')
   a.recordTrade({ pnl: 3000 })
   assert.equal(a.balance, 52100, 'the excess above the buffer is withdrawn')

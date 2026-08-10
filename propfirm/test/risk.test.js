@@ -561,3 +561,42 @@ test('evaluationEV honours rule overrides instead of silently using the preset',
   const twice = evaluationEV({ riskFraction: 0.075, edge, rules: { targetTouchesRequired: 2 }, runs: 1200 })
   assert.ok(once.paidRate > twice.paidRate, 'requiring two touches must be harder than one')
 })
+
+/* ── the two-stage program ──────────────────────────────────────────────── */
+
+test('a failed evaluation never reaches the funded stage', async () => {
+  const { simulateProgram } = await import('../src/risk/survival.js')
+  const rng = () => 0.99 // every trade loses
+  const r = simulateProgram({ riskFraction: 0.1, edge: { winRate: 0.4, payoffRatio: 2 }, rng })
+  assert.equal(r.outcome, 'breached-eval')
+  assert.equal(r.payout, 0)
+  assert.equal(r.fundedDays, 0, 'the funded stage must not run')
+})
+
+test('the funded stage withdraws repeatedly above the buffer', async () => {
+  const { simulateProgram } = await import('../src/risk/survival.js')
+  const rng = () => 0 // every trade wins
+  const r = simulateProgram({ riskFraction: 0.05, edge: { winRate: 1, payoffRatio: 2, tradesPerDay: 1 }, rng, fundedDays: 60 })
+  assert.equal(r.outcome, 'paid')
+  assert.ok(r.withdrawals > 1, 'a funded account pays out more than once')
+  assert.ok(r.payout > 0)
+})
+
+test('carrying the funded account on pays sooner than resetting it', async () => {
+  const { programMonteCarlo } = await import('../src/risk/survival.js')
+  const edge = { winRate: 0.5, payoffRatio: 2, badRunProb: 0.2, badRunDays: 5, badRunMultiplier: 0.45 }
+  const reset = programMonteCarlo({ riskFraction: 0.075, edge, fundedResets: true, runs: 600 })
+  const carry = programMonteCarlo({ riskFraction: 0.075, edge, fundedResets: false, runs: 600 })
+  // Both pass the evaluation equally often; they differ only after it.
+  assert.ok(Math.abs(reset.passEvalRate - carry.passEvalRate) < 0.05)
+  assert.ok(carry.paidRate > reset.paidRate, 'carrying on starts already above the buffer')
+  assert.ok(carry.expectedPayout > reset.expectedPayout)
+})
+
+test('paying out can never exceed passing the evaluation', async () => {
+  const { programMonteCarlo } = await import('../src/risk/survival.js')
+  for (const winRate of [0.4, 0.5]) {
+    const r = programMonteCarlo({ riskFraction: 0.075, edge: { winRate, payoffRatio: 2 }, runs: 400 })
+    assert.ok(r.paidRate <= r.passEvalRate + 1e-9, 'you cannot be paid without passing first')
+  }
+})

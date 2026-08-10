@@ -289,3 +289,174 @@ export function requiredEdge({ preset = '50K', riskFraction = 0.05, payoffRatio 
   const first = out.find((r) => r.paidRate >= target)
   return { curve: out, minimumWinRate: first?.winRate ?? null, target, payoffRatio }
 }
+
+/* ── Two-stage programs: evaluation, then funded ────────────────────────── */
+
+/**
+ * Trade an account forward until a stop condition fires.
+ *
+ * Shared by both stages so the drawdown, daily limits and clustering behave
+ * identically either side of the pass.
+ *
+ * @returns {{days:number, trades:number, stopped:'condition'|'breach'|'timeout'}}
+ */
+function tradePhase(account, { edge, rng, riskDollars, maxDays, done, onDayEnd }) {
+  const { winRate, payoffRatio, lossMfeR = 0.35, tradesPerDay = 3 } = edge
+  const { badRunProb = 0, badRunDays = 5, badRunMultiplier = 0.5 } = edge
+  let day = 0
+  let trades = 0
+  let badDaysLeft = 0
+
+  while (day < maxDays) {
+    day++
+    account.startDay(`d${day}`)
+    if (badDaysLeft > 0) badDaysLeft--
+    else if (badRunProb > 0 && rng() < badRunProb) badDaysLeft = badRunDays
+    const effectiveWinRate = badDaysLeft > 0 ? winRate * badRunMultiplier : winRate
+
+    for (let k = 0; k < tradesPerDay; k++) {
+      if (!account.canTrade(0, 10 * 60).allowed) break
+      trades++
+      const won = rng() < effectiveWinRate
+      account.mark((won ? payoffRatio : lossMfeR) * riskDollars)
+      if (account.breached) return { day, trades, stopped: 'breach' }
+      account.recordTrade({ pnl: (won ? payoffRatio : -1) * riskDollars })
+      if (account.breached) return { day, trades, stopped: 'breach' }
+      if (done?.(account)) return { day, trades, stopped: 'condition' }
+    }
+    onDayEnd?.(account, day)
+    if (account.breached) return { day, trades, stopped: 'breach' }
+    if (done?.(account)) return { day, trades, stopped: 'condition' }
+  }
+  return { day, trades, stopped: 'timeout' }
+}
+
+/**
+ * The full journey: pass the evaluation, then draw payouts from the funded
+ * account.
+ *
+ * Structure modelled — reach the profit target to pass (consistency applies),
+ * then withdraw anything above the buffer from the funded account (consistency
+ * no longer applies). Withdrawals are checked once a day, which is closer to
+ * how payouts are actually requested than checking every tick.
+ *
+ * `fundedResets` covers the ambiguity in how the funded stage begins:
+ *   true  — a fresh account at the starting balance, so the buffer has to be
+ *           earned again before any cash comes out.
+ *   false — the same account carries on from where the evaluation ended, so
+ *           the profit already above the buffer is withdrawable immediately.
+ * They differ by roughly the size of the first payout; check the agreement.
+ */
+export function simulateProgram({
+  preset = 'LUCID-FLEX-50K',
+  riskFraction = 0.05,
+  edge,
+  rng,
+  evalMaxDays = 250,
+  fundedDays = 120,
+  fundedResets = true,
+}) {
+  const spec = accountSpec(preset) ?? {}
+  const riskDollars = spec.drawdown * riskFraction
+  const buffer = spec.withdrawalThreshold ?? 0
+  const split = spec.payoutSplit ?? 1
+
+  // ── Stage 1: the evaluation ───────────────────────────────────────────
+  const evaluation = new PropAccount({ preset, rules: { targetTouchesRequired: 1, withdrawAtTouch: false } })
+  const evalRun = tradePhase(evaluation, {
+    edge,
+    rng,
+    riskDollars,
+    maxDays: evalMaxDays,
+    done: (a) => a.passed,
+  })
+
+  if (!evaluation.passed) {
+    return { outcome: evalRun.stopped === 'breach' ? 'breached-eval' : 'timeout-eval', payout: 0, evalDays: evalRun.day, fundedDays: 0, withdrawals: 0 }
+  }
+  if (!evaluation.consistency().ok) {
+    return { outcome: 'failed-consistency', payout: 0, evalDays: evalRun.day, fundedDays: 0, withdrawals: 0 }
+  }
+
+  // ── Stage 2: funded ───────────────────────────────────────────────────
+  const funded = new PropAccount({
+    preset,
+    // Consistency is dropped once funded, and there is no target to "pass" —
+    // the account simply runs and pays out above the buffer.
+    rules: { consistencyPct: 1, targetTouchesRequired: Number.MAX_SAFE_INTEGER },
+    ...(fundedResets ? {} : { startingBalance: evaluation.balance }),
+  })
+  if (!fundedResets) {
+    // Carrying on means the drawdown floor carries too, not a fresh one.
+    funded.floor = evaluation.floor
+    funded.floorLocked = evaluation.floorLocked
+    funded.peak = evaluation.peak
+  }
+
+  let withdrawn = 0
+  let withdrawals = 0
+  const base = fundedResets ? funded.startingBalance : 50000
+
+  const fundedRun = tradePhase(funded, {
+    edge,
+    rng,
+    riskDollars,
+    maxDays: fundedDays,
+    onDayEnd: (a) => {
+      const profit = a.balance - base
+      const excess = profit - buffer
+      if (excess > 0) {
+        withdrawn += excess * split
+        withdrawals++
+        a.balance -= excess
+      }
+    },
+  })
+
+  return {
+    outcome: withdrawals > 0 ? 'paid' : fundedRun.stopped === 'breach' ? 'breached-funded' : 'funded-no-payout',
+    payout: withdrawn,
+    withdrawals,
+    evalDays: evalRun.day,
+    fundedDays: fundedRun.day,
+    passedEval: true,
+  }
+}
+
+/** Monte Carlo over the full two-stage program. */
+export function programMonteCarlo({ preset = 'LUCID-FLEX-50K', riskFraction = 0.05, edge, runs = 3000, seed = 12345, fee = null, fundedResets = true, fundedDays = 120, evalMaxDays = 250 }) {
+  const rng = mulberry32(seed)
+  const spec = accountSpec(preset) ?? {}
+  const cost = fee ?? spec.evaluationFee ?? 0
+
+  const tally = { paid: 0, passedEval: 0, breachedEval: 0, failedConsistency: 0, breachedFunded: 0 }
+  let payoutTotal = 0
+  let withdrawalTotal = 0
+
+  for (let i = 0; i < runs; i++) {
+    const r = simulateProgram({ preset, riskFraction, edge, rng, fundedResets, fundedDays, evalMaxDays })
+    if (r.passedEval) tally.passedEval++
+    if (r.outcome === 'breached-eval') tally.breachedEval++
+    if (r.outcome === 'failed-consistency') tally.failedConsistency++
+    if (r.outcome === 'breached-funded') tally.breachedFunded++
+    if (r.payout > 0) {
+      tally.paid++
+      payoutTotal += r.payout
+      withdrawalTotal += r.withdrawals
+    }
+  }
+
+  const expectedPayout = payoutTotal / runs
+  return {
+    runs,
+    passEvalRate: tally.passedEval / runs,
+    paidRate: tally.paid / runs,
+    breachedEvalRate: tally.breachedEval / runs,
+    failedConsistencyRate: tally.failedConsistency / runs,
+    breachedFundedRate: tally.breachedFunded / runs,
+    expectedPayout,
+    avgWithdrawals: tally.paid > 0 ? withdrawalTotal / tally.paid : 0,
+    fee: cost,
+    ev: expectedPayout - cost,
+  }
+}

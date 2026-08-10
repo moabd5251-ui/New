@@ -192,9 +192,15 @@ function card(r){
         <div class="need-row"><span class="need-lab">Needs</span>
           <span class="need-bar"><i style="width:${needPct}%;background:${need<=ramp*0.5?css('--go'):need<=ramp?css('--wait'):css('--stop')}"></i></span>
           <span class="need-val">+${need}</span></div>
-        <div class="need-row"><span class="need-lab">Typical ramp</span>
+        ${ramp?`<div class="need-row"><span class="need-lab">Typical ramp</span>
           <span class="need-bar"><i style="width:100%;background:${css('--vol')}"></i></span>
-          <span class="need-val">+${ramp}</span></div>
+          <span class="need-val">+${ramp}</span></div>`:
+        // With no ramp estimate the comparison has no denominator. Drawing the bar
+        // anyway filled it to 0%, which reads as "needs nothing" — the most flattering
+        // possible rendering of a missing number. Say it is missing instead.
+        `<div class="need-row"><span class="need-lab">Typical ramp</span>
+          <span style="flex:1;font-size:11.5px;color:var(--stop)">not measurable today —
+            too few names reporting within 2 days to read the cross-section</span></div>`}
       </div>
     </div>
     <div class="stats">

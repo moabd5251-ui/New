@@ -17,6 +17,7 @@ close, the market has rejected the surprise and there is nothing left to drift.
 import math, time
 from datetime import datetime, timezone
 import numpy as np
+import pandas as pd
 import opt_lib as O
 import portfolio as P
 import feed
@@ -39,6 +40,11 @@ MIN_GAP_PCT = 2.0           # smaller gaps are noise, not a surprise
 BACKTEST = dict(n=151, with_gap_avg_r=0.072, against_gap_avg_r=-0.189,
                 spread_r=0.261, spread_t=2.22, with_gap_t=1.18,
                 win_rate=61.6, top5_share_of_profit=99, median_r=0.07)
+# The largest single-session earnings reaction in this universe's history is well under
+# this. Anything beyond it is a data fault, not a surprise — an unadjusted split or a
+# mismatched series — so the row is dropped rather than traded.
+MAX_PLAUSIBLE_GAP = 60.0    # percent
+
 TARGET_DELTA = 0.80         # deep ITM: moves like stock, minimal vega left to lose
 STRUCT_DTE = (25, 70)
 
@@ -63,6 +69,18 @@ def find_reaction(df, report_date, window=3):
         if prev_close <= 0:
             continue
         gap = (float(df["Open"].iloc[i]) - prev_close) / prev_close * 100
+        # A gap is measured against the PREVIOUS close, so that bar has to be a real
+        # session. When it is not — a half day, a placeholder, or bars belonging to a
+        # different security — the reference price is meaningless and the "gap" is an
+        # artefact. Two independent sanity checks, because either alone lets something
+        # through: a reference bar that barely traded relative to the reaction, and a
+        # move no earnings reaction actually produces.
+        pv = df["Volume"].iloc[i - 1]
+        rv = df["Volume"].iloc[i]
+        if pd.notna(pv) and pd.notna(rv) and rv > 0 and float(pv) < float(rv) * 0.02:
+            continue
+        if abs(gap) > MAX_PLAUSIBLE_GAP:
+            continue
         if abs(gap) > abs(best_gap):
             best, best_gap = i, gap
     if best is None:

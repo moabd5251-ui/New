@@ -8,14 +8,65 @@ import feed
 UNIVERSE = ["SPY","QQQ","IWM","DIA","AAPL","MSFT","NVDA","AMZN","GOOGL","META","TSLA",
             "AVGO","JPM","V","UNH","XOM","WMT","LLY","MA","COST","HD","NFLX","AMD","CRM","ORCL"]
 
+def _corrupt(df):
+    """Does this series contain bars that are not this instrument?
+
+    Tradier returned 275 daily bars for MCD of which 271 were a different security
+    entirely — $55-68 on about fourteen shares a day — before the real McDonald's bars
+    resumed at $270 on seven million. The earnings-drift scan read the last thin bar as
+    the pre-report close and published a 296% gap on 8,603x volume as a HIGH conviction
+    setup. Nothing downstream could have caught it, because every number was internally
+    consistent; only the series itself was wrong.
+
+    Two signatures, either of which condemns the series:
+
+    VOLUME SCALE — recent activity is real by definition (the name is trading now). If
+    the bulk of history is orders of magnitude thinner than the last few sessions, the
+    history belongs to something else.
+
+    PRICE DISCONTINUITY — consecutive closes differing by more than 3x. On unadjusted
+    data a genuine split looks identical to this, which is not a false positive worth
+    keeping: an unadjusted split fabricates exactly the same phantom gap, so either way
+    the series is unfit and the adjusted source should be used instead.
+    """
+    if df is None or len(df) < 30:
+        return False
+    v = df["Volume"].dropna()
+    if len(v) >= 30:
+        recent, med = float(v.tail(5).median()), float(v.median())
+        if med > 0 and recent / med > 1000:
+            return True
+    c = df["Close"].dropna()
+    if len(c) >= 2:
+        r = (c / c.shift()).dropna()
+        if bool(((r > 3) | (r < 1 / 3)).any()):
+            return True
+    return False
+
+
 def bars(sym, interval="1d", rng="1y"):
     """Completed bars only; the live quote rides along in df.attrs["live"].
 
     Only drops the final bar when it is genuinely still forming — i.e. when it is
     dated today. Dropping unconditionally discarded the most recent COMPLETE session
     whenever this ran outside regular hours, quietly making every indicator a day stale.
+
+    Falls back to Yahoo when the configured provider returns a series that fails the
+    integrity check — see _corrupt(). If both sources fail it raises rather than
+    returning something plausible-looking, because silent bad bars are how a 296% gap
+    reaches a phone.
     """
     df = feed.bars(sym, interval, rng)
+    if interval == "1d" and _corrupt(df):
+        try:
+            alt = feed.YahooProvider().bars(sym, interval, rng)
+        except Exception as e:
+            raise RuntimeError(f"{sym}: bad daily bars from "
+                               f"{feed.provider().name} and Yahoo unreachable ({e})")
+        if _corrupt(alt):
+            raise RuntimeError(f"{sym}: daily bars failed the integrity check on both "
+                               f"{feed.provider().name} and Yahoo")
+        df = alt
     out = df
     if len(df):
         last_day = df.index[-1].date()

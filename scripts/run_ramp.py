@@ -49,8 +49,15 @@ def main():
 
     print("[ramp] assessing entry windows and structures")
     assessed, meta = V.assess(rows)
-    print(f"[ramp] expansion estimate: +{meta.get('ramp')} pts "
-          f"(flat {meta.get('base_spread')} -> peak {meta.get('peak_spread')})")
+    if meta.get("ramp") is None:
+        # Not an error: the estimate is read from this scan's own cross-section, and on
+        # a day with fewer than two names inside 2 days of reporting there is nothing to
+        # measure the ramped term structure against. Say so rather than printing "+None".
+        print("[ramp] expansion estimate: not measurable today — too few names "
+              "reporting within 2 days to read the cross-section")
+    else:
+        print(f"[ramp] expansion estimate: +{meta.get('ramp')} pts "
+              f"(flat {meta.get('base_spread')} -> peak {meta.get('peak_spread')})")
 
     print("[lotto] building tickets for names reporting within 2 days")
     assessed = LT.attach(assessed, max_days=2)

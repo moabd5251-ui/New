@@ -45,13 +45,18 @@ import { atr } from '../core/candles.js'
  */
 export function measureForwardEdge(candles, events, { horizons = [5, 15, 30, 60], direction = 1, atrPeriod = 14, thin = true } = {}) {
   const atrs = atr(candles, atrPeriod)
+  // Detectors do not all emit events in index order — inverted FVGs, for one,
+  // come out ordered by gap formation, with the inversion up to 1500 bars
+  // later. The thinning below assumes ascending indices; feeding it unsorted
+  // events silently keeps overlapping windows and inflates every t-statistic.
+  const ordered = [...events].sort((a, b) => a.index - b.index)
   const out = []
 
   for (const horizon of horizons) {
     const samples = []
     let lastUsed = -Infinity
 
-    for (const ev of events) {
+    for (const ev of ordered) {
       const i = ev.index
       // Thin to non-overlapping events: two signals inside one horizon of each
       // other share most of their outcome and are not independent evidence.

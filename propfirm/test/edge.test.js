@@ -39,6 +39,22 @@ test('overlapping events are thinned so they are not counted as independent', ()
   assert.ok(Math.abs(raw.tStat) > Math.abs(thinned.tStat))
 })
 
+test('unsorted events are measured identically to sorted ones', () => {
+  // Detectors do not all emit events in index order — inverted FVGs come out
+  // ordered by gap formation, not inversion. Unsorted input used to defeat the
+  // thinning and produced a t of −24 on data whose real t was −1.3.
+  const candles = ramp(600, 0.5).map((c, i) => {
+    const wob = Math.sin(i / 3) * 2
+    return { ...c, o: c.o + wob, h: c.h + wob, l: c.l + wob, c: c.c + wob }
+  })
+  const sorted = Array.from({ length: 200 }, (_, k) => ({ index: 100 + k }))
+  const shuffled = [...sorted].sort(() => (Math.sin(sorted.length) > 0 ? 1 : -1)).reverse()
+
+  const a = measureForwardEdge(candles, sorted, { horizons: [30], direction: 1 })[0]
+  const b = measureForwardEdge(candles, shuffled, { horizons: [30], direction: 1 })[0]
+  assert.deepEqual(b, a, 'event order must not change the measurement')
+})
+
 test('forward moves are scaled by volatility so regimes are comparable', () => {
   const quiet = ramp(600, 0.5)
   const wild = quiet.map((c) => ({ ...c, h: c.c + 20, l: c.c - 20 }))

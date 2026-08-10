@@ -376,34 +376,34 @@ entry rule, and tuning against a sample that size is curve-fitting. So the
 components were measured directly instead. Each fires thousands of times over
 704,591 bars of real NQ, and each makes a falsifiable claim.
 
-Forward move in ATR / hit rate / t-statistic, on non-overlapping events.
+Forward move in ATR / hit rate / t-statistic at a 15-bar horizon, on
+non-overlapping events, split in-sample (before 2026-01-01) / out-of-sample.
 **Positive means the signal was right.**
 
-| Component | 5 bars | 15 bars | 60 bars |
-|---|---|---|---|
-| *random baseline (long)* | *+0.008 / 50% / +0.6* | *+0.020 / 51% / +0.8* | *+0.103 / 53% / +1.7* |
-| CISD up | +0.014 / 50% / +0.6 | +0.041 / 50% / +1.1 | +0.128 / 52% / +1.4 |
-| CISD down | −0.054 / 47% / −2.7 | −0.061 / 47% / −1.7 | −0.208 / 46% / −2.3 |
-| **IFVG bullish** | **−0.379 / 41% / −10.1** | **−0.811 / 40% / −13.4** | **−2.063 / 37% / −14.3** |
-| **IFVG bearish** | **−0.645 / 34% / −17.8** | **−1.402 / 29% / −23.6** | **−3.446 / 25% / −24.2** |
-| break & retest up | +0.034 / 50% / +1.7 | +0.049 / 51% / +1.5 | +0.155 / 52% / +1.8 |
-| break & retest down | +0.007 / 47% / +0.4 | −0.020 / 47% / −0.6 | −0.090 / 47% / −1.0 |
-| displacement down | −0.057 / 46% / −4.7 | −0.074 / 47% / −3.0 | −0.110 / 46% / −1.5 |
-| CISD up, killzone only | −0.007 / 49% / −0.3 | +0.009 / 50% / +0.2 | +0.069 / 52% / +0.6 |
+| Component | in-sample | out-of-sample |
+|---|---|---|
+| *random baseline (long)* | *+0.052 / 52% / +1.7* | *−0.052 / 49% / −1.1* |
+| CISD up | +0.052 / 50% / +1.2 | +0.014 / 51% / +0.2 |
+| CISD down | −0.040 / 47% / −0.9 | −0.108 / 47% / −1.7 |
+| IFVG bullish | +0.015 / 50% / +0.5 | +0.011 / 51% / +0.2 |
+| IFVG bearish | −0.041 / 47% / −1.3 | −0.045 / 47% / −0.9 |
 
-Three things follow, and none of them are close calls.
+> **Correction.** An earlier revision of this table reported the IFVG model as
+> spectacularly anti-predictive — up to t = −24. That number was a measurement
+> bug, not a market fact: inverted-FVG events are emitted ordered by *gap
+> formation*, not by inversion time, and the overlap-thinning in
+> `measureForwardEdge` assumed sorted input. Unsorted events defeated the
+> thinning, so clustered inversions inside one large move were counted dozens
+> of times each. With events sorted (now done inside the function, with a
+> regression test), the corrected picture is the table above: IFVG is mildly
+> inverted at roughly cost scale, and nothing here clears |t| = 3.
 
-**The IFVG model is strongly anti-predictive.** Not weak — inverted, at
-t = −24 across 2,334 non-overlapping samples. After a bearish inverted fair
-value gap, NQ rises 1.4 ATR over the next fifteen minutes, and the hit rate is
-29%. A volume-driven close through an imbalance appears to mark local
-exhaustion on this instrument and timeframe, not continuation. This single
-result explains why IFVG had the worst per-model expectancy in every backtest
-and why A+ setups, which lean on it, performed worst of all grades.
+Two things follow.
 
-**Nothing else predicts either.** The best component, break & retest up, is
-+0.034 ATR at five bars against a +0.008 baseline, t = 1.7. That is
-indistinguishable from drift.
+**Nothing predicts.** Every component sits within noise of the baseline in
+both halves of the data. The mild IFVG inversion — fading a bearish IFVG earns
+about +0.04 to +0.14 ATR — is the size of a round-trip cost and does not reach
+significance.
 
 **The killzone filter removes what little signal exists** rather than
 concentrating it: CISD's t-statistic falls to roughly zero once restricted to
@@ -426,10 +426,41 @@ Every subtraction helps and none reaches profitability, which is the signature
 of components carrying no edge: fewer bad signals simply means losing more
 slowly. The entries cannot be fixed by recombining parts that do not predict.
 
-The one genuinely exploitable-looking result is the inverse of the IFVG model,
-and it is deliberately **not** implemented here. A t = −24 finding on a single
-instrument over one two-year window is a hypothesis, not a strategy: it needs
-out-of-sample confirmation, a cost model (0.6 ATR ≈ 6 NQ points against ~$14 a
-round turn), and an explanation of why the effect should persist. Shipping a
-fade because one backtest lit up is how the previous version of this system got
-its confidence.
+---
+
+## Measured: is there any edge to be had?
+
+After the system itself tested negative, the question inverted: forget the
+transcript — does *anything* measurable on this data clear costs? Six families
+of hypotheses were swept under one discipline: selection on the in-sample half
+only (before 2026-01-01), the out-of-sample half read once; every mean judged
+against NQ's round-trip cost (~0.9 pt ≈ 0.12 ATR); |t| below 3 in-sample
+treated as nothing, and a survivor required the same sign out-of-sample.
+
+| Family | Variants | Result |
+|---|---|---|
+| Momentum / reversal (15–60 bar, ±1.5 ATR) | 6 | Weak reversal tilt, under cost, fails OOS |
+| VWAP stretch reversion (±2, ±4 ATR) | 4 | Noise both halves |
+| Opening-range break, gap fade, time-of-day | 10 + 46 buckets | ORB-up t = +2.8 IS flips negative OOS; nothing else |
+| IFVG continuation *and* fade, by session/volume | 12 | Fade of bearish IFVG sign-consistent but cost-sized, t < 3 |
+| Liquidity sweeps: continuation, ≥3-touch, failed-break fade | 14 | See below |
+| Real orderflow (delta extremes, delta/price and CVD divergence, absorption) | 10 | Noise on 3 months of tape; CVD divergence flips sign between halves |
+
+The sweep family deserves its own paragraph because it produced the campaign's
+best-looking number and then took it away. Sweeps of equal-highs pools showed
+*continuation* — buying the sweep — at t = +3.8 in-sample **and** +3.2
+out-of-sample. But the library's pools are clustered over the full series
+before sweeps are marked, so which crossings become events is decided with
+future knowledge. Re-deriving the events strictly causally — clusters built
+only from swings already confirmed, swept pools retired in real time — the
+edge collapses to noise, and a cost-aware simulation of every variant is flat
+to negative in both halves. The classic "liquidity grab reversal" (sweep, then
+reclaim within 3 bars, fade it) also fails: slightly *inverted* in-sample
+(t = −2.4) and negative after costs everywhere.
+
+Three artifacts were caught and killed in the process — the unsorted-event
+thinning bug (t = −24 that was really t = −1.3), the future-informed pool
+clustering, and an earlier lookahead in level ranking. That is the recurring
+shape of this project: every number that looked like an edge has so far been a
+bug in the measurement, and the honest result of a disciplined sweep over
+~60 hypothesis variants on two years of real data is **none survived**.

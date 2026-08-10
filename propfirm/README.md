@@ -445,6 +445,7 @@ treated as nothing, and a survivor required the same sign out-of-sample.
 | IFVG continuation *and* fade, by session/volume | 12 | Fade of bearish IFVG sign-consistent but cost-sized, t < 3 |
 | Liquidity sweeps: continuation, ≥3-touch, failed-break fade | 14 | See below |
 | Real orderflow (delta extremes, delta/price and CVD divergence, absorption) | 10 | Noise on 3 months of tape; CVD divergence flips sign between halves |
+| 5m structure continuation (higher-low longs / lower-high shorts, stop at the last swing) | 9 | Entry has no edge (t ≤ 0.8); stops AT the swing level get hunted — 65–73% stop-outs vs 49% one swing wider — and no variant beats costs |
 
 The sweep family deserves its own paragraph because it produced the campaign's
 best-looking number and then took it away. Sweeps of equal-highs pools showed

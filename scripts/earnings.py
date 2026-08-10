@@ -14,10 +14,42 @@ import portfolio as P
 import feed
 
 # Liquid, optionable, and broad enough that something is always reporting.
-UNIVERSE = ["AAPL","MSFT","NVDA","AMZN","GOOGL","META","TSLA","AVGO","JPM","V","UNH","XOM",
+#
+# The mega-cap block below reports in one tight cluster in the fortnight after each
+# quarter ends. That left the pre-earnings scans nearly empty for weeks at a stretch —
+# on 10 Aug only 13 of 50 names had a report inside 45 days, because the rest had just
+# reported and their next one was two months out. The problem was the shape of the
+# universe, not the market.
+#
+# The OFF-CYCLE block fixes that. Retailers report on a fiscal quarter ending in
+# January, so they land in late August; enterprise software and several semis sit on
+# the same shifted calendar. They fill precisely the weeks the mega-caps leave empty,
+# every quarter, not just this one. Checked against the feed before adding: 49 of these
+# had a confirmed report inside 45 days on the day they went in.
+#
+# Both the volatility-ramp and earnings-drift scans read this list, so it lengthens
+# each run — the cost of a universe that is never empty.
+MEGA_CAP = ["AAPL","MSFT","NVDA","AMZN","GOOGL","META","TSLA","AVGO","JPM","V","UNH","XOM",
             "WMT","LLY","MA","COST","HD","NFLX","AMD","CRM","ORCL","ADBE","INTC","CSCO",
             "QCOM","TXN","PEP","KO","MCD","NKE","DIS","BA","CAT","GE","PFE","MRK","ABBV",
             "T","VZ","PYPL","SBUX","MU","SHOP","UBER","ABNB","COIN","SNOW","PANW","MRVL","DELL"]
+
+OFF_CYCLE = [
+    # Retail and consumer — fiscal year ends in January, so reports land late August
+    "TGT","LOW","TJX","ROST","BBY","DG","DLTR","ULTA","BURL","DKS","M","KSS","ANF",
+    "WSM","LULU","CHWY","RH","KR","GIS",
+    # Enterprise software and hardware on the same shifted calendar
+    "CRWD","ZS","OKTA","WDAY","INTU","ADSK","DOCU","MDB","NTAP","HPQ","HPE","VEEV",
+    "SMCI","TEAM",
+    # Semis and equipment reporting August/September rather than July
+    "AMAT","ADI","MCHP","ON",
+    # China ADRs — heavily traded options, and a reporting calendar of their own
+    "BABA","PDD","JD","NIO","LI",
+    # Industrials and services with off-quarter fiscal years
+    "DE","FDX","ACN","MDT",
+]
+
+UNIVERSE = MEGA_CAP + OFF_CYCLE
 
 
 def earnings_info(sym):

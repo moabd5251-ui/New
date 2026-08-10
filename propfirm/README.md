@@ -529,6 +529,7 @@ treated as nothing, and a survivor required the same sign out-of-sample.
 | Real orderflow (delta extremes, delta/price and CVD divergence, absorption) | 10 | Noise on 3 months of tape; CVD divergence flips sign between halves |
 | 5m structure continuation (higher-low longs / lower-high shorts, stop at the last swing) | 9 | Entry has no edge (t ≤ 0.8); stops AT the swing level get hunted — 65–73% stop-outs vs 49% one swing wider — and no variant beats costs |
 | Daily open with the trend (9:30 entry; 20d SMA / yesterday / 5d momentum filters) | 8 | Every filter underperforms always-long in-sample; "yesterday direction" flips sign between halves; always-long-at-open is drift (+4–5 pt/day, t ≈ 0) with ±200 pt daily swings |
+| Multi-timeframe structure alignment (15m higher-low, filtered by 1h and daily HH+HL) | 14 | Alignment *hurts*, monotonically: 15m alone +0.06→+0.35 ATR OOS; +1h turns it negative; +1h+daily is the worst cell measured (−0.27 to −0.76, t −1.7). Counter-trend entries (daily *down*) are mildly positive in both halves. The profitable-looking 8h-hold variant is the overnight premium in disguise — see below. |
 | Daily classics (overnight premium, day-of-week, turn-of-month, RSI(2), SMA/Donchian, NR7 / inside day, last-hour momentum) | 21 | Only long-overnight expressions are sign-consistent: overnight hold +18.5 pt both halves (t 1.9/0.9), RSI(2)<10 next-day long, Monday long. All shorts lose everywhere. |
 | Prop-tradable (intraday) legs of the above | 6 | The returns live overnight: RSI(2)'s intraday leg is +74 pt IS but **−89 pt OOS**; down-day reversion intraday flips sign too. Only Monday-intraday stays positive both halves (+33/+57 pt, t 1.5/1.3) — below threshold, one cell of dozens tested. |
 | Globex-open overnight capture (enter 18:00 ET, exit next 9:30) | 4 legs + MC | The one candidate left standing. The 16:00→17:00 leg a flat-by-close rule blocks averages *negative*; the 18:00→9:30 leg holds the whole premium: +16.3 pt IS (t +2.0), +26.2 pt OOS (t +1.3). Monte Carlo through Lucid Flex 50K at 1 MNQ: 61% pass, then 61% to a first $900 payout — nominally +EV against the $150 fee, but t ≈ 2, long-only beta from a bull sample, iid bootstrap understates clustered-loss breach risk, and one sample night was −$1,890/micro. A hypothesis to forward-validate, not a proven edge. |
@@ -546,9 +547,22 @@ to negative in both halves. The classic "liquidity grab reversal" (sweep, then
 reclaim within 3 bars, fade it) also fails: slightly *inverted* in-sample
 (t = −2.4) and negative after costs everywhere.
 
-Three artifacts were caught and killed in the process — the unsorted-event
+The multi-timeframe test deserves its own note, because it produced the
+campaign's most convincing false positive. Trading 15-minute higher lows with
+the stop at the swing low and an 8-hour hold returned **+0.148R in-sample and
++0.137R out-of-sample** (+4 to +5 NQ points a trade, net of costs, PF 1.15) —
+positive in both halves, which nothing else had managed. Two controls killed
+it. Random entries at the same cadence with the same stop distance returned
+**+0.133R in-sample (+4.22 pt) — as good as the signal**, so the structure
+contributed nothing. And 74% of the entries fall outside RTH, where an 8-hour
+hold simply carries the position through the overnight session: shorten the
+hold to two hours, too short to collect that drift, and the signal (+0.30 pt)
+underperforms random (+1.25 pt). The "edge" was the overnight premium plus
+being long a rising market, with a structure rule bolted on the front.
+
+Four artifacts were caught and killed in the process — the unsorted-event
 thinning bug (t = −24 that was really t = −1.3), the future-informed pool
-clustering, and an earlier lookahead in level ranking. That is the recurring
+clustering, an earlier lookahead in level ranking, and this one. That is the recurring
 shape of this project: every number that looked like an edge has so far been a
 bug in the measurement, and the honest result of a disciplined sweep over
 ~60 hypothesis variants on two years of real data is **none survived**.

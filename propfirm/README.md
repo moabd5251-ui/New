@@ -447,6 +447,8 @@ treated as nothing, and a survivor required the same sign out-of-sample.
 | Real orderflow (delta extremes, delta/price and CVD divergence, absorption) | 10 | Noise on 3 months of tape; CVD divergence flips sign between halves |
 | 5m structure continuation (higher-low longs / lower-high shorts, stop at the last swing) | 9 | Entry has no edge (t ≤ 0.8); stops AT the swing level get hunted — 65–73% stop-outs vs 49% one swing wider — and no variant beats costs |
 | Daily open with the trend (9:30 entry; 20d SMA / yesterday / 5d momentum filters) | 8 | Every filter underperforms always-long in-sample; "yesterday direction" flips sign between halves; always-long-at-open is drift (+4–5 pt/day, t ≈ 0) with ±200 pt daily swings |
+| Daily classics (overnight premium, day-of-week, turn-of-month, RSI(2), SMA/Donchian, NR7 / inside day, last-hour momentum) | 21 | Only long-overnight expressions are sign-consistent: overnight hold +18.5 pt both halves (t 1.9/0.9), RSI(2)<10 next-day long, Monday long. All shorts lose everywhere. |
+| Prop-tradable (intraday) legs of the above | 6 | The returns live overnight: RSI(2)'s intraday leg is +74 pt IS but **−89 pt OOS**; down-day reversion intraday flips sign too. Only Monday-intraday stays positive both halves (+33/+57 pt, t 1.5/1.3) — below threshold, one cell of dozens tested. |
 
 The sweep family deserves its own paragraph because it produced the campaign's
 best-looking number and then took it away. Sweeps of equal-highs pools showed

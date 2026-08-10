@@ -104,7 +104,12 @@ export const USER_ACCOUNTS = {
     // The target has to be reached TWICE before a payout is released. Reaching
     // it, dipping below and climbing back is a materially harder ask than
     // reaching it once, because the account has to survive the dip in between.
-    targetTouchesRequired: 2,
+    targetTouchesRequired: 1,
+    // Passing starts a FRESH funded account at the starting balance —
+    // confirmed by the account holder. The buffer has to be earned again
+    // before any cash comes out, so the $3k made in the evaluation is never
+    // itself withdrawable.
+    fundedResets: true,
     evaluationFee: 150,
     maxContracts: 10,
     maxMicros: 100,

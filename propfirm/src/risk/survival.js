@@ -350,14 +350,25 @@ function tradePhase(account, { edge, rng, riskDollars, maxDays, done, onDayEnd }
 export function simulateProgram({
   preset = 'LUCID-FLEX-50K',
   riskFraction = 0.05,
+  /**
+   * Sizing can differ by stage, and probably should. Breaching the evaluation
+   * costs the fee and nothing else — you buy another for $150. Breaching a
+   * funded account destroys an income stream that pays repeatedly. The downside
+   * is asymmetric, so the optimal size is too.
+   */
+  evalRiskFraction = null,
+  fundedRiskFraction = null,
   edge,
   rng,
   evalMaxDays = 250,
   fundedDays = 120,
-  fundedResets = true,
+  fundedResets = null,
 }) {
   const spec = accountSpec(preset) ?? {}
-  const riskDollars = spec.drawdown * riskFraction
+  const resets = fundedResets ?? spec.fundedResets ?? true
+  const evalRisk = spec.drawdown * (evalRiskFraction ?? riskFraction)
+  const fundedRisk = spec.drawdown * (fundedRiskFraction ?? riskFraction)
+  const riskDollars = evalRisk
   const buffer = spec.withdrawalThreshold ?? 0
   const split = spec.payoutSplit ?? 1
 
@@ -384,9 +395,9 @@ export function simulateProgram({
     // Consistency is dropped once funded, and there is no target to "pass" —
     // the account simply runs and pays out above the buffer.
     rules: { consistencyPct: 1, targetTouchesRequired: Number.MAX_SAFE_INTEGER },
-    ...(fundedResets ? {} : { startingBalance: evaluation.balance }),
+    ...(resets ? {} : { startingBalance: evaluation.balance }),
   })
-  if (!fundedResets) {
+  if (!resets) {
     // Carrying on means the drawdown floor carries too, not a fresh one.
     funded.floor = evaluation.floor
     funded.floorLocked = evaluation.floorLocked
@@ -395,12 +406,12 @@ export function simulateProgram({
 
   let withdrawn = 0
   let withdrawals = 0
-  const base = fundedResets ? funded.startingBalance : 50000
+  const base = resets ? funded.startingBalance : 50000
 
   const fundedRun = tradePhase(funded, {
     edge,
     rng,
-    riskDollars,
+    riskDollars: fundedRisk,
     maxDays: fundedDays,
     onDayEnd: (a) => {
       const profit = a.balance - base
@@ -424,7 +435,7 @@ export function simulateProgram({
 }
 
 /** Monte Carlo over the full two-stage program. */
-export function programMonteCarlo({ preset = 'LUCID-FLEX-50K', riskFraction = 0.05, edge, runs = 3000, seed = 12345, fee = null, fundedResets = true, fundedDays = 120, evalMaxDays = 250 }) {
+export function programMonteCarlo({ preset = 'LUCID-FLEX-50K', riskFraction = 0.05, evalRiskFraction = null, fundedRiskFraction = null, edge, runs = 3000, seed = 12345, fee = null, fundedResets = null, fundedDays = 120, evalMaxDays = 250 }) {
   const rng = mulberry32(seed)
   const spec = accountSpec(preset) ?? {}
   const cost = fee ?? spec.evaluationFee ?? 0
@@ -434,7 +445,7 @@ export function programMonteCarlo({ preset = 'LUCID-FLEX-50K', riskFraction = 0.
   let withdrawalTotal = 0
 
   for (let i = 0; i < runs; i++) {
-    const r = simulateProgram({ preset, riskFraction, edge, rng, fundedResets, fundedDays, evalMaxDays })
+    const r = simulateProgram({ preset, riskFraction, evalRiskFraction, fundedRiskFraction, edge, rng, fundedResets, fundedDays, evalMaxDays })
     if (r.passedEval) tally.passedEval++
     if (r.outcome === 'breached-eval') tally.breachedEval++
     if (r.outcome === 'failed-consistency') tally.failedConsistency++

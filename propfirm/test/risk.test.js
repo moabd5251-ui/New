@@ -600,3 +600,23 @@ test('paying out can never exceed passing the evaluation', async () => {
     assert.ok(r.paidRate <= r.passEvalRate + 1e-9, 'you cannot be paid without passing first')
   }
 })
+
+test('evaluation and funded stages can be sized independently', async () => {
+  const { programMonteCarlo } = await import('../src/risk/survival.js')
+  const edge = { winRate: 0.5, payoffRatio: 2, badRunProb: 0.2, badRunDays: 5, badRunMultiplier: 0.45 }
+  const small = programMonteCarlo({ evalRiskFraction: 0.03, fundedRiskFraction: 0.075, edge, runs: 900 })
+  const large = programMonteCarlo({ evalRiskFraction: 0.10, fundedRiskFraction: 0.075, edge, runs: 900 })
+  // Only the evaluation sizing differs, so only the pass rate should move.
+  assert.ok(small.passEvalRate > large.passEvalRate + 0.1, 'smaller evaluation size must pass more often')
+  assert.ok(small.expectedPayout > large.expectedPayout, 'and carry more of the funded stream with it')
+})
+
+test('a fresh funded account has to earn the buffer again', async () => {
+  const { simulateProgram } = await import('../src/risk/survival.js')
+  const rng = () => 0
+  const reset = simulateProgram({ riskFraction: 0.05, edge: { winRate: 1, payoffRatio: 2, tradesPerDay: 1 }, rng, fundedResets: true, fundedDays: 3 })
+  // Three funded days at one winning trade a day cannot clear a $2,100 buffer
+  // at $100 risk, so nothing is withdrawable yet.
+  assert.equal(reset.payout, 0, 'the $3k made in the evaluation is not withdrawable')
+  assert.equal(reset.outcome, 'funded-no-payout')
+})

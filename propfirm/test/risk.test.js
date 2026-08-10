@@ -676,3 +676,22 @@ test('no protective rule may ever move a stop backwards', () => {
   short.update(bar(T(1), 100, 100, 80, 81), { poc: NaN, pocFlip: null, delta: -500, atr: 2 })
   assert.ok(short.position.stop < 100, `breakeven must not undo a lower trail, stop was ${short.position.stop}`)
 })
+
+test('room-scaled sizing shrinks risk as the account approaches its floor', async () => {
+  const { simulateEvaluation } = await import('../src/risk/survival.js')
+  // A losing run: with room-scaling the account should survive longer than flat
+  // sizing, because every loss makes the next position smaller.
+  const edge = { winRate: 0.1, payoffRatio: 2, tradesPerDay: 3 }
+  const flat = simulateEvaluation({ preset: 'LUCID-FLEX-50K', riskFraction: 0.1, edge, rng: () => 0.99, sizingMode: 'flat' })
+  const scaled = simulateEvaluation({ preset: 'LUCID-FLEX-50K', riskFraction: 0.1, edge, rng: () => 0.99, sizingMode: 'roomScaled' })
+  assert.equal(flat.outcome, 'breach')
+  assert.ok(scaled.trades > flat.trades, `room-scaling should survive more trades: ${scaled.trades} vs ${flat.trades}`)
+})
+
+test('room-scaling trades breaches for timeouts, which is not free', () => {
+  const edge = { winRate: 0.45, payoffRatio: 2, badRunProb: 0.2, badRunDays: 5, badRunMultiplier: 0.45 }
+  const flat = monteCarlo({ preset: 'LUCID-FLEX-50K', riskFraction: 0.03, edge, sizingMode: 'flat', runs: 800 })
+  const scaled = monteCarlo({ preset: 'LUCID-FLEX-50K', riskFraction: 0.03, edge, sizingMode: 'roomScaled', runs: 800 })
+  assert.ok(scaled.breachRate < flat.breachRate, 'fewer accounts should die')
+  assert.ok(scaled.timeoutRate > flat.timeoutRate, 'but more should simply run out of time')
+})

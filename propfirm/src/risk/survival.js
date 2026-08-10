@@ -75,10 +75,39 @@ export function simulateEvaluation({
   maxDays = 250,
   rules = {},
   overrides = {},
+  sizingMode = 'flat',
+  minSizeScale = 0.25,
+  maxSizeScale = 2,
 }) {
   const account = new PropAccount({ preset, rules, ...overrides })
-  const riskDollars = account.drawdown * riskFraction
+  const baseRisk = account.drawdown * riskFraction
   const { winRate, payoffRatio, lossMfeR = 0.35, tradesPerDay = 3 } = edge
+
+  /**
+   * How position size responds to the account's own state.
+   *
+   *   flat        — the same dollar risk regardless of how much room is left.
+   *   roomScaled  — risk shrinks in proportion to the remaining distance to the
+   *                 floor: conservative when the account is in trouble, full
+   *                 size when it is healthy.
+   *   antiMartingale — risk grows with accumulated profit, pressing a good run.
+   *
+   * Note that scaling down near the floor cuts both ways. It genuinely extends
+   * survival, and it also slows the climb toward the target at exactly the
+   * moment the account most needs to make ground, which can convert a breach
+   * into a timeout rather than into a pass.
+   */
+  const sizeFor = () => {
+    if (sizingMode === 'roomScaled') {
+      const roomFraction = Math.max(0, Math.min(1, account.room / account.drawdown))
+      return baseRisk * Math.max(minSizeScale, roomFraction)
+    }
+    if (sizingMode === 'antiMartingale') {
+      const progress = Math.max(0, (account.balance - account.startingBalance) / account.profitTarget)
+      return baseRisk * Math.min(maxSizeScale, 1 + progress)
+    }
+    return baseRisk
+  }
 
   const { badRunProb = 0, badRunDays = 5, badRunMultiplier = 0.5 } = edge
   let day = 0
@@ -102,6 +131,7 @@ export function simulateEvaluation({
       if (!gate.allowed) break
 
       trades++
+      const riskDollars = sizeFor()
       const won = rng() < effectiveWinRate
 
       // Losers that run your way first still lift the trailing peak. Sweeping
@@ -156,7 +186,7 @@ function finish(outcome, account, trades, days) {
  * @returns {{passRate:number, breachRate:number, timeoutRate:number,
  *            paidRate:number, medianDaysToPass:number|null, runs:number}}
  */
-export function monteCarlo({ preset = '50K', riskFraction = 0.05, edge, runs = 2000, seed = 12345, maxDays = 250, rules = {}, overrides = {} }) {
+export function monteCarlo({ preset = '50K', riskFraction = 0.05, edge, runs = 2000, seed = 12345, maxDays = 250, rules = {}, overrides = {}, sizingMode = 'flat', minSizeScale = 0.25, maxSizeScale = 2 }) {
   const rng = mulberry32(seed)
   let pass = 0
   let breach = 0
@@ -166,7 +196,7 @@ export function monteCarlo({ preset = '50K', riskFraction = 0.05, edge, runs = 2
   const daysToPass = []
 
   for (let i = 0; i < runs; i++) {
-    const r = simulateEvaluation({ preset, riskFraction, edge, rng, maxDays, rules, overrides })
+    const r = simulateEvaluation({ preset, riskFraction, edge, rng, maxDays, rules, overrides, sizingMode, minSizeScale, maxSizeScale })
     if (r.outcome === 'pass') {
       pass++
       daysToPass.push(r.days)

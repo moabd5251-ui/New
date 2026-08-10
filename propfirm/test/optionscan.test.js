@@ -98,11 +98,40 @@ test('sizing respects the risk budget', () => {
   assert.equal(sizeContracts(8), 0, 'a debit above budget buys nothing')
 })
 
-test('pickExpiration stays inside the DTE window', () => {
-  const exps = ['2026-08-14', '2026-08-21', '2026-09-18', '2026-10-16', '2026-12-18']
-  const pick = pickExpiration(exps, '2026-08-10')
-  assert.equal(pick.d, '2026-09-18')
+test('pickExpiration prefers the monthly over a nearer weekly', () => {
+  // 2026-09-04 and 2026-09-11 are weeklies; 2026-09-18 is the third Friday.
+  // The weeklies sit closer to the window's midpoint and must still lose:
+  // measured on the live book they carry 10-120x less open interest.
+  const exps = ['2026-08-14', '2026-09-04', '2026-09-11', '2026-09-18', '2026-12-18']
+  assert.equal(pickExpiration(exps, '2026-08-10').d, '2026-09-18')
+  // With no monthly in the window, a weekly is better than nothing.
+  assert.equal(pickExpiration(['2026-09-04', '2026-09-11'], '2026-08-10').d, '2026-09-11')
   assert.equal(pickExpiration(['2026-08-14'], '2026-08-10'), null)
+})
+
+test('buildVertical narrows the spread to fit the risk budget', () => {
+  // A $500 stock: the 0.32-delta strike is 40 wide and costs $1,600 — over
+  // the $750 budget. A narrower short must be chosen rather than the name
+  // being rejected.
+  const chain = [
+    leg('call', 500, 0.65, 21.0, 21.4, 900),
+    leg('call', 510, 0.52, 15.65, 15.95, 900),
+    leg('call', 520, 0.44, 10.4, 10.7, 900),
+    leg('call', 540, 0.32, 5.1, 5.3, 900),
+  ]
+  const { spread, reason } = buildVertical(chain, 'up')
+  assert.equal(reason, null)
+  assert.ok(spread.debit * 100 <= OPTIONSCAN_SPEC.accountSize * OPTIONSCAN_SPEC.riskPct,
+    `debit $${(spread.debit * 100).toFixed(0)} must fit the budget`)
+  assert.ok(spread.shortStrike < 540, 'the textbook 0.32-delta short is unaffordable here')
+  assert.ok(spread.rewardRisk >= OPTIONSCAN_SPEC.minRewardRisk)
+})
+
+test('buildVertical reports why when nothing fits', () => {
+  const chain = [leg('call', 100, 0.65, 40.0, 40.4, 900), leg('call', 200, 0.30, 1.0, 1.05, 900)]
+  const { spread, reason } = buildVertical(chain, 'up')
+  assert.equal(spread, null)
+  assert.match(reason, /budget/)
 })
 
 test('renderOptionsPage: shows open and resolved records in both states', async () => {

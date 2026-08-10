@@ -5,10 +5,12 @@
  * system themes.
  */
 
+import { OPTIONSCAN_SPEC } from '../research/optionscan.js'
+
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
 const usd = (n) => `${n < 0 ? '−' : ''}$${Math.abs(n).toFixed(0)}`
 
-export function renderOptionsPage(records, { generatedAt = new Date().toISOString() } = {}) {
+export function renderOptionsPage(records, { generatedAt = new Date().toISOString(), spec = OPTIONSCAN_SPEC } = {}) {
   const open = records.filter((r) => !r.outcome)
   const done = records.filter((r) => r.outcome)
   const wins = done.filter((r) => r.outcome.pnlUsd > 0)
@@ -124,7 +126,7 @@ export function renderOptionsPage(records, { generatedAt = new Date().toISOStrin
   <header>
     <p class="eyebrow">Paper journal · no orders placed</p>
     <h1>Options scan — post-reaction debit spreads</h1>
-    <p class="sub">Unfilled ≥3% gaps on volume, expressed as defined-risk verticals with the gap. Spec v1, registered 2026-08-10.</p>
+    <p class="sub">Unfilled ≥3% gaps on volume, expressed as defined-risk verticals with the gap. Spec v${spec.version}, registered ${esc(spec.registered)}. Standard monthly expirations, ${spec.dteMin}–${spec.dteMax} DTE.</p>
   </header>
 
   <dl class="tiles">

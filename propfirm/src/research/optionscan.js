@@ -29,7 +29,15 @@ import { readFileSync, existsSync, writeFileSync, mkdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 
 export const OPTIONSCAN_SPEC = {
-  version: 1,
+  // v2 (2026-08-10, same day, nothing resolved): expiration selection now
+  // prefers standard monthlies, and short-strike selection is budget-aware.
+  // v1 records were artifacts of routing every name into a weekly chain with
+  // a tenth of the open interest, so the v1 journal was discarded rather than
+  // pooled — a record the current scanner would never produce is not evidence
+  // about the current scanner. Discarding was safe here only because no v1
+  // record had resolved; once outcomes exist, a version bump must keep them
+  // and segregate them, never delete them.
+  version: 2,
   registered: '2026-08-10',
   gapPct: 0.03,
   volFactor: 1.5,
@@ -41,6 +49,9 @@ export const OPTIONSCAN_SPEC = {
   shortDelta: 0.32,
   maxSpreadPct: 0.12,
   minOpenInterest: 50,
+  /** Floor on (width − debit) / debit, so budget-driven narrowing can't
+   *  degenerate into a spread that pays less than it risks. */
+  minRewardRisk: 0.8,
   accountSize: 50000,
   riskPct: 0.015,
 }
@@ -100,28 +111,55 @@ export function buildVertical(chain, direction, spec = OPTIONSCAN_SPEC) {
     )
   if (liquid.length < 2) return { spread: null, reason: `only ${liquid.length} liquid ${type} strike(s) — need 2` }
 
-  const nearest = (target) =>
-    liquid.reduce((best, o) => (Math.abs(o.delta - target) < Math.abs(best.delta - target) ? o : best))
-  const long = nearest(spec.longDelta)
-  const short = nearest(spec.shortDelta)
-  if (long.strike === short.strike) return { spread: null, reason: 'delta targets collapse to one strike' }
+  const long = liquid.reduce((best, o) =>
+    Math.abs(o.delta - spec.longDelta) < Math.abs(best.delta - spec.longDelta) ? o : best,
+  )
 
-  const debit = long.mid - short.mid
-  const width = Math.abs(short.strike - long.strike)
-  if (debit <= 0 || debit >= width) return { spread: null, reason: 'debit outside (0, width) — quotes crossed or stale' }
+  // Short-leg choice is budget-aware, not purely delta-driven. On a $500
+  // stock the textbook 0.65→0.32 vertical can be $40 wide and cost $1,600 a
+  // contract, which no 1.5% risk budget can hold — and rejecting the NAME for
+  // that is wrong when a narrower structure on the same thesis fits. So:
+  // consider every liquid strike further out than the long leg, keep the ones
+  // that fit the budget and still pay enough to be worth doing, and among
+  // those take the delta closest to target. Narrowing lowers reward/risk, so
+  // the floor is what stops this from degenerating into a hair-thin spread.
+  const budget = spec.accountSize * spec.riskPct
+  const candidates = []
+  for (const o of liquid) {
+    if (o.delta >= long.delta) continue
+    const width = Math.abs(o.strike - long.strike)
+    const debit = long.mid - o.mid
+    if (width <= 0 || debit <= 0 || debit >= width) continue
+    candidates.push({ short: o, width, debit, rewardRisk: (width - debit) / debit })
+  }
+  if (!candidates.length) return { spread: null, reason: 'no liquid short strike beyond the long leg' }
+
+  const affordable = candidates.filter((c) => c.debit * 100 <= budget && c.rewardRisk >= spec.minRewardRisk)
+  if (!affordable.length) {
+    const cheapest = candidates.reduce((a, b) => (a.debit < b.debit ? a : b))
+    return {
+      spread: null,
+      reason: cheapest.debit * 100 > budget
+        ? `cheapest structure $${(cheapest.debit * 100).toFixed(0)} exceeds the $${budget.toFixed(0)} budget`
+        : `nothing within budget clears ${spec.minRewardRisk} reward/risk`,
+    }
+  }
+  const pick = affordable.reduce((a, b) =>
+    Math.abs(a.short.delta - spec.shortDelta) < Math.abs(b.short.delta - spec.shortDelta) ? a : b,
+  )
 
   return {
     spread: {
       type,
       longStrike: long.strike,
-      shortStrike: short.strike,
+      shortStrike: pick.short.strike,
       longDelta: long.delta,
-      shortDelta: short.delta,
-      debit,
-      width,
-      maxGain: width - debit,
-      breakeven: type === 'call' ? long.strike + debit : long.strike - debit,
-      rewardRisk: (width - debit) / debit,
+      shortDelta: pick.short.delta,
+      debit: pick.debit,
+      width: pick.width,
+      maxGain: pick.width - pick.debit,
+      breakeven: type === 'call' ? long.strike + pick.debit : long.strike - pick.debit,
+      rewardRisk: pick.rewardRisk,
     },
     reason: null,
   }
@@ -139,15 +177,33 @@ export function sizeContracts(debit, spec = OPTIONSCAN_SPEC) {
   return Math.max(0, Math.floor(budget / (debit * 100)))
 }
 
-/** Pick the expiration inside the DTE window, nearest its middle. */
+/** A standard monthly expiration is the third Friday of its month. */
+export function isMonthlyExpiration(dateStr) {
+  const d = new Date(`${dateStr}T12:00:00Z`)
+  const dom = d.getUTCDate()
+  return d.getUTCDay() === 5 && dom >= 15 && dom <= 21
+}
+
+/**
+ * Pick the expiration inside the DTE window, preferring standard monthlies.
+ *
+ * This is not cosmetic. Measured on the live book, the weeklies inside the
+ * window carry 10–120× LESS open interest than the monthly beside them — LLY
+ * had 2,180 contracts open across its Sep-4 weekly against 32,225 on the
+ * Sep-18 monthly, which is the difference between zero tradeable strikes and
+ * forty-nine. Choosing purely by "nearest the middle of the window" quietly
+ * routed every name into the illiquid chain and then blamed the name.
+ */
 export function pickExpiration(expirations, today, spec = OPTIONSCAN_SPEC) {
   const t0 = Date.parse(`${today}T00:00:00Z`)
   const inWindow = expirations
-    .map((d) => ({ d, dte: Math.round((Date.parse(`${d}T00:00:00Z`) - t0) / 86_400_000) }))
+    .map((d) => ({ d, dte: Math.round((Date.parse(`${d}T00:00:00Z`) - t0) / 86_400_000), monthly: isMonthlyExpiration(d) }))
     .filter((x) => x.dte >= spec.dteMin && x.dte <= spec.dteMax)
   if (!inWindow.length) return null
+  const monthlies = inWindow.filter((x) => x.monthly)
+  const pool = monthlies.length ? monthlies : inWindow
   const midDte = (spec.dteMin + spec.dteMax) / 2
-  return inWindow.reduce((a, b) => (Math.abs(a.dte - midDte) < Math.abs(b.dte - midDte) ? a : b))
+  return pool.reduce((a, b) => (Math.abs(a.dte - midDte) < Math.abs(b.dte - midDte) ? a : b))
 }
 
 /* ── journal ──────────────────────────────────────────────────────────────── */

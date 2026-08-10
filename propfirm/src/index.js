@@ -35,6 +35,7 @@ export { TradingSystem, DEFAULT_CONFIG, buildTargets } from './engine/system.js'
 export { PropAccount, INSTRUMENTS, ACCOUNT_PRESETS, DEFAULT_RULES, equityInstrument } from './risk/propfirm.js'
 export { sizePosition, roundToTick, toTicks, dollarsFor } from './risk/sizing.js'
 export { PositionManager, DEFAULT_MANAGEMENT } from './risk/management.js'
+export { simulateEvaluation, monteCarlo, riskCurve, requiredEdge } from './risk/survival.js'
 
 export { Journal } from './journal/journal.js'
 export { buildStats, recommendations } from './journal/stats.js'

@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import { PropAccount, INSTRUMENTS, ACCOUNT_PRESETS } from '../src/risk/propfirm.js'
 import { sizePosition, roundToTick, toTicks, dollarsFor } from '../src/risk/sizing.js'
 import { PositionManager } from '../src/risk/management.js'
+import { monteCarlo, riskCurve } from '../src/risk/survival.js'
 import { Journal } from '../src/journal/journal.js'
 import { buildStats, recommendations } from '../src/journal/stats.js'
 
@@ -360,4 +361,49 @@ test('recommendations separate what to keep from what to drop', () => {
   const rec = recommendations(buildStats(trades))
   assert.ok(rec.keep.some((r) => r.includes('CISD')))
   assert.ok(rec.drop.some((r) => r.includes('IFVG')))
+})
+
+/* ── survival analysis ──────────────────────────────────────────────────── */
+
+test('a negative edge cannot be sized into a pass', () => {
+  for (const riskFraction of [0.02, 0.05, 0.1, 0.2]) {
+    const m = monteCarlo({ riskFraction, edge: { winRate: 0.25, payoffRatio: 2 }, runs: 300 })
+    assert.ok(m.paidRate < 0.05, `risking ${riskFraction} turned a -0.25R edge into a ${(m.paidRate * 100).toFixed(1)}% payout rate`)
+  }
+})
+
+test('a real edge with independent trades passes at small size', () => {
+  // Arithmetically true, and the reason the clustered case below matters: this
+  // is what a simulator says when it is allowed to assume too much.
+  const m = monteCarlo({ riskFraction: 0.03, edge: { winRate: 0.45, payoffRatio: 2 }, runs: 300 })
+  assert.ok(m.paidRate > 0.9)
+})
+
+test('clustered losses collapse the odds on the same edge', () => {
+  const clean = monteCarlo({ riskFraction: 0.05, edge: { winRate: 0.45, payoffRatio: 2 }, runs: 400 })
+  const clustered = monteCarlo({
+    riskFraction: 0.05,
+    edge: { winRate: 0.45, payoffRatio: 2, badRunProb: 0.2, badRunDays: 5, badRunMultiplier: 0.45 },
+    runs: 400,
+  })
+  assert.ok(clustered.breachRate > clean.breachRate * 5, 'loss clustering must dominate the outcome')
+})
+
+test('oversizing separates passing from being paid', () => {
+  const edge = { winRate: 0.45, payoffRatio: 2 }
+  const small = monteCarlo({ riskFraction: 0.03, edge, runs: 400 })
+  const large = monteCarlo({ riskFraction: 0.2, edge, runs: 400 })
+  assert.ok(large.medianDaysToPass < small.medianDaysToPass, 'bigger size should pass faster')
+  assert.ok(large.paidRate < small.paidRate * 0.3, 'a fast pass should fail the consistency rule')
+})
+
+test('the risk curve is not monotonic — both tails fail', () => {
+  const curve = riskCurve({
+    edge: { winRate: 0.45, payoffRatio: 2, badRunProb: 0.2, badRunDays: 5, badRunMultiplier: 0.45 },
+    fractions: [0.01, 0.03, 0.05, 0.15, 0.3],
+    runs: 400,
+  })
+  const paid = curve.map((c) => c.paidRate)
+  const best = paid.indexOf(Math.max(...paid))
+  assert.ok(best > 0 && best < paid.length - 1, `optimum should be interior, got index ${best}`)
 })

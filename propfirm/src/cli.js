@@ -23,6 +23,7 @@ import { TradingSystem } from './engine/system.js'
 import { backtest } from './backtest/backtest.js'
 import { PropAccount, INSTRUMENTS, ACCOUNT_PRESETS, equityInstrument } from './risk/propfirm.js'
 import { sizePosition } from './risk/sizing.js'
+import { riskCurve, requiredEdge } from './risk/survival.js'
 import { Journal } from './journal/journal.js'
 import { buildStats, recommendations } from './journal/stats.js'
 import { renderReport } from './report/html.js'
@@ -461,6 +462,35 @@ async function cmdForward(args) {
   console.log(C.dim('\n  These are paper signals: no fill, no slippage, no commission.\n'))
 }
 
+/* ── survival: what edge and what size actually pass an evaluation ──────── */
+
+function cmdSurvival(args) {
+  const preset = args.account ?? '50K'
+  const winRate = Number(args.winRate ?? 0.45)
+  const payoffRatio = Number(args.payoff ?? 2)
+  const badRunProb = Number(args.clustering ?? 0.2)
+  const edge = { winRate, payoffRatio, badRunProb, badRunDays: 5, badRunMultiplier: 0.45 }
+
+  section(`RISK SIZING — ${preset}, ${(winRate * 100).toFixed(0)}% win at ${payoffRatio}R (${(winRate * payoffRatio - (1 - winRate)).toFixed(2)}R expectancy)`)
+  console.log(C.dim(`  loss clustering: ${(badRunProb * 100).toFixed(0)}% of days start a bad run\n`))
+  console.log('  risk%    $risk    pass   breach    PAID   median days')
+  for (const r of riskCurve({ preset, edge, runs: Number(args.runs ?? 3000) })) {
+    console.log(
+      `  ${(r.riskFraction * 100).toFixed(1).padStart(5)}% ${String('$' + r.riskDollars.toFixed(0)).padStart(7)}  ${fmtPct(r.passRate)} ${fmtPct(r.breachRate)}  ${C.bold(fmtPct(r.paidRate))}   ${r.medianDaysToPass ?? '—'}`,
+    )
+  }
+  console.log(C.dim('\n  PAID is the column that matters. Passing fast concentrates profit into'))
+  console.log(C.dim('  one day and fails the consistency rule.'))
+
+  section('REQUIRED EDGE (at 5% risk)')
+  console.log('  win%   expectancy    PAID')
+  for (const r of requiredEdge({ preset, payoffRatio, riskFraction: 0.05, runs: Number(args.runs ?? 1500) }).curve) {
+    console.log(`  ${(r.winRate * 100).toFixed(0).padStart(4)}%   ${(r.expectancyR >= 0 ? '+' : '') + r.expectancyR.toFixed(2)}R       ${fmtPct(r.paidRate)}`)
+  }
+  console.log(C.dim('\n  Below break-even expectancy no position size helps. Sizing is how you'))
+  console.log(C.dim('  keep an edge you already have — it cannot manufacture one.\n'))
+}
+
 /* ── stats from a journal ───────────────────────────────────────────────── */
 
 function cmdStats(args) {
@@ -512,6 +542,7 @@ function table(groups) {
 }
 
 const fmtN = (n, d = 2) => (Number.isFinite(n) ? n.toFixed(d) : '—')
+const fmtPct = (x) => `${(x * 100).toFixed(1).padStart(5)}%`
 const fmtConf = (c) => (c >= 0.6 ? C.green(c.toFixed(2)) : c >= 0.35 ? C.yellow(c.toFixed(2)) : C.red(c.toFixed(2)))
 const colourR = (r) => (r >= 0 ? C.green(r.toFixed(2)) : C.red(r.toFixed(2)))
 const colourMoney = (d) => (d >= 0 ? C.green(`$${d.toFixed(0)}`) : C.red(`-$${Math.abs(d).toFixed(0)}`))
@@ -531,6 +562,8 @@ function usage() {
     levels                   liquidity, orderflow and range for the session
     backtest                 full backtest with prop firm rules + HTML report
     stats                    performance breakdown from a journal file
+    survival                 what edge and what position size actually pass
+                             an evaluation, by Monte Carlo
 
   ${C.bold('Data sources')}
     --csv <file>             OHLCV file you already have
@@ -581,6 +614,7 @@ const commands = {
   levels: () => cmdLevels(args),
   backtest: () => cmdBacktest(args),
   stats: () => cmdStats(args),
+  survival: () => cmdSurvival(args),
 }
 
 try {

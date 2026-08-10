@@ -1,0 +1,204 @@
+/**
+ * Survival analysis for a prop firm evaluation.
+ *
+ * Two separate problems get conflated when people talk about "passing":
+ *
+ *   1. Having an edge. Hard, uncertain, and not something a simulator can grant
+ *      you.
+ *   2. Converting an edge into a payout before the drawdown rule kills the
+ *      account. This part is arithmetic, and most accounts die here — not from
+ *      a bad strategy but from correct trades sized wrongly.
+ *
+ * This module answers the second question: given an edge you believe you have,
+ * what fraction of the drawdown allowance should you risk per trade, and what
+ * are the odds you reach the profit target before the floor reaches you?
+ *
+ * The answer is never "risk as little as possible". A trailing drawdown that
+ * follows your equity peak means small size does not make you safe — it makes
+ * the race longer, and variance has more time to grind you into a floor that
+ * only ever moves up. There is an interior optimum, and it is usually lower
+ * than gamblers think and higher than the cautious assume.
+ *
+ * The other thing this makes visible is that PASSING and BEING PAID are
+ * different events. Size up and you pass more often and faster — and then fail
+ * the consistency rule, because one outsized day dominates the profit. At 15%
+ * risk on a good edge the simulation passes 37% of the time and gets paid 6%.
+ * Optimising for the pass is optimising for the wrong outcome.
+ *
+ * ── What is modelled and what is not ────────────────────────────────────────
+ * Modelled: trade-by-trade P&L, the trailing-unrealised floor including the
+ * peak reached *inside* a trade, floor locking, daily loss limits,
+ * consecutive-loss cutoffs, the daily trade cap and the payout consistency
+ * rule.
+ *
+ * Serial correlation IS modelled, optionally, because it turned out to matter
+ * far more than the intra-trade excursion effect this module was originally
+ * written around. Real losses cluster: news days, regime changes, tilt. With
+ * independent trades and a genuine edge, small size passes an evaluation almost
+ * every time — which is true arithmetic and a poor description of reality.
+ *
+ * Still not modelled: an edge that decays, and execution failure. Both make
+ * real outcomes worse. Treat the output as an upper bound, never a forecast.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
+import { PropAccount, ACCOUNT_PRESETS } from './propfirm.js'
+import { mulberry32 } from '../data/synthetic.js'
+
+/**
+ * @typedef {Object} EdgeAssumption
+ * @property {number} winRate       0..1
+ * @property {number} payoffRatio   average win in R (losses are -1R)
+ * @property {number} [lossMfeR]    how far a losing trade runs in your favour
+ *                                  before failing. Lifts the trailing peak. In
+ *                                  practice this is a second-order effect —
+ *                                  once the balance is climbing, realised gains
+ *                                  set the peak, not excursions — so do not
+ *                                  expect it to explain a blown account.
+ * @property {number} [tradesPerDay]
+ * @property {number} [badRunProb]      chance any given day enters a bad regime
+ * @property {number} [badRunDays]      how long a bad regime lasts
+ * @property {number} [badRunMultiplier] win rate multiplier while in one
+ */
+
+/**
+ * Run one evaluation to its conclusion.
+ *
+ * @returns {{outcome:'pass'|'breach'|'timeout', trades:number, days:number,
+ *            balance:number, peak:number, consistencyOk:boolean}}
+ */
+export function simulateEvaluation({
+  preset = '50K',
+  riskFraction = 0.05,
+  edge,
+  rng,
+  maxDays = 250,
+  rules = {},
+}) {
+  const account = new PropAccount({ preset, rules })
+  const spec = ACCOUNT_PRESETS[preset]
+  const riskDollars = spec.drawdown * riskFraction
+  const { winRate, payoffRatio, lossMfeR = 0.35, tradesPerDay = 3 } = edge
+
+  const { badRunProb = 0, badRunDays = 5, badRunMultiplier = 0.5 } = edge
+  let day = 0
+  let trades = 0
+  let badDaysLeft = 0
+
+  while (day < maxDays) {
+    day++
+    account.startDay(`d${day}`)
+
+    // Losing stretches arrive together, not spread evenly. This is the
+    // difference between a simulator that says you pass and a screen that says
+    // you did not.
+    if (badDaysLeft > 0) badDaysLeft--
+    else if (badRunProb > 0 && rng() < badRunProb) badDaysLeft = badRunDays
+
+    const effectiveWinRate = badDaysLeft > 0 ? winRate * badRunMultiplier : winRate
+
+    for (let k = 0; k < tradesPerDay; k++) {
+      const gate = account.canTrade(0, 10 * 60)
+      if (!gate.allowed) break
+
+      trades++
+      const won = rng() < effectiveWinRate
+
+      // Losers that run your way first still lift the trailing peak. Sweeping
+      // this from 0R to 1R moves the breach rate by under a tenth of a percent,
+      // though: once the balance is climbing, realised gains set the peak and
+      // excursions are lost in the noise. Kept because it is free and correct,
+      // not because it explains anything.
+      const mfeR = won ? payoffRatio : lossMfeR
+      account.mark(mfeR * riskDollars)
+      if (account.breached) {
+        return finish('breach', account, trades, day)
+      }
+
+      const pnl = (won ? payoffRatio : -1) * riskDollars
+      account.recordTrade({ pnl })
+      if (account.breached) return finish('breach', account, trades, day)
+      if (account.passed) return finish('pass', account, trades, day)
+    }
+  }
+  return finish('timeout', account, trades, day)
+}
+
+function finish(outcome, account, trades, days) {
+  const consistency = account.consistency()
+  return {
+    outcome,
+    trades,
+    days,
+    balance: account.balance,
+    peak: account.peak,
+    consistencyOk: consistency.ok,
+    // Passing the target but failing consistency is not a payout.
+    paid: outcome === 'pass' && consistency.ok,
+  }
+}
+
+/**
+ * Monte Carlo across many evaluations.
+ *
+ * @returns {{passRate:number, breachRate:number, timeoutRate:number,
+ *            paidRate:number, medianDaysToPass:number|null, runs:number}}
+ */
+export function monteCarlo({ preset = '50K', riskFraction = 0.05, edge, runs = 2000, seed = 12345, maxDays = 250, rules = {} }) {
+  const rng = mulberry32(seed)
+  let pass = 0
+  let breach = 0
+  let timeout = 0
+  let paid = 0
+  const daysToPass = []
+
+  for (let i = 0; i < runs; i++) {
+    const r = simulateEvaluation({ preset, riskFraction, edge, rng, maxDays, rules })
+    if (r.outcome === 'pass') {
+      pass++
+      daysToPass.push(r.days)
+      if (r.paid) paid++
+    } else if (r.outcome === 'breach') breach++
+    else timeout++
+  }
+
+  daysToPass.sort((a, b) => a - b)
+  return {
+    runs,
+    passRate: pass / runs,
+    breachRate: breach / runs,
+    timeoutRate: timeout / runs,
+    paidRate: paid / runs,
+    medianDaysToPass: daysToPass.length ? daysToPass[Math.floor(daysToPass.length / 2)] : null,
+  }
+}
+
+/**
+ * Sweep risk sizing to find where the odds peak.
+ *
+ * The shape of this curve is the whole point: pass probability rises with size,
+ * turns over, and collapses. Both tails are ways to fail.
+ */
+export function riskCurve({ preset = '50K', edge, fractions = [0.02, 0.03, 0.05, 0.075, 0.1, 0.15, 0.2, 0.3], runs = 2000, seed = 12345, maxDays = 250 }) {
+  return fractions.map((riskFraction) => ({
+    riskFraction,
+    riskDollars: ACCOUNT_PRESETS[preset].drawdown * riskFraction,
+    ...monteCarlo({ preset, riskFraction, edge, runs, seed, maxDays }),
+  }))
+}
+
+/**
+ * The minimum edge that gives a realistic chance, for a given sizing.
+ *
+ * Answers "what do I actually need to be able to do?" rather than "what would
+ * happen if I were good?".
+ */
+export function requiredEdge({ preset = '50K', riskFraction = 0.05, payoffRatio = 2, target = 0.6, runs = 1000, seed = 999, maxDays = 250 }) {
+  const out = []
+  for (let winRate = 0.2; winRate <= 0.65; winRate += 0.05) {
+    const mc = monteCarlo({ preset, riskFraction, edge: { winRate, payoffRatio }, runs, seed, maxDays })
+    out.push({ winRate, expectancyR: winRate * payoffRatio - (1 - winRate), ...mc })
+  }
+  const first = out.find((r) => r.paidRate >= target)
+  return { curve: out, minimumWinRate: first?.winRate ?? null, target, payoffRatio }
+}

@@ -44,6 +44,19 @@ export function renderOptionsPage(records, { generatedAt = new Date().toISOStrin
     </article>`
   }
 
+  // Only one standard monthly sits inside a 20-45 DTE window, so same-day
+  // candidates share an expiration by construction. Say so where the
+  // positions are, not in a footnote.
+  const clusterNote = (list) => {
+    const byExp = new Map()
+    for (const r of list) byExp.set(r.expiration, (byExp.get(r.expiration) ?? 0) + 1)
+    const biggest = [...byExp.entries()].sort((a, b) => b[1] - a[1])[0]
+    const risk = list.reduce((a, r) => a + r.riskUsd, 0)
+    const dirs = new Set(list.map((r) => r.direction))
+    if (biggest[1] < 2) return ''
+    return `<p class="note">${biggest[1]} of ${list.length} positions settle together on ${esc(biggest[0])}${dirs.size === 1 ? `, all ${dirs.has('up') ? 'bullish' : 'bearish'}` : ''} — ${usd(risk)} resolving on one day. Only one monthly expiration falls inside the 20–45 day window, so same-day candidates always share it. Correlated outcomes count for less than their number: these behave like roughly ${(list.length / (1 + (list.length - 1) * 0.21)).toFixed(1)} independent bets.</p>`
+  }
+
   const row = (r) => `
     <tr>
       <td class="mono">${esc(r.symbol)}</td>
@@ -115,6 +128,9 @@ export function renderOptionsPage(records, { generatedAt = new Date().toISOStrin
   th.num-h { text-align: right; }
   .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-weight: 600; }
   .pos-n { color: var(--up); } .neg-n { color: var(--dn); }
+  .note { color: var(--muted); font-size: 0.83rem; background: var(--surface);
+    border: 1px solid var(--line); border-left: 3px solid var(--dn);
+    border-radius: 0 8px 8px 0; padding: 10px 14px; margin: 0 0 14px; }
   .empty { color: var(--muted); font-size: 0.88rem; background: var(--surface);
     border: 1px dashed var(--line); border-radius: 8px; padding: 16px 18px; }
   .prior { border-left: 3px solid var(--accent); padding: 10px 16px; margin: 34px 0 0;
@@ -137,6 +153,7 @@ export function renderOptionsPage(records, { generatedAt = new Date().toISOStrin
   </dl>
 
   <h2>Open positions</h2>
+  ${open.length ? clusterNote(open) : ''}
   ${open.length ? open.map(card).join('\n') : '<p class="empty">Nothing open. The scanner only journals an unfilled reaction gap with a liquid structure inside the risk budget — most days that is nothing, and that is correct.</p>'}
 
   <h2>Resolved at expiry</h2>

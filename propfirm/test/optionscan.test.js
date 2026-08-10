@@ -175,3 +175,16 @@ test('journal: one candidate per (symbol, reactionDay); expiry resolution', asyn
   assert.equal(card.resolved, 1)
   assert.equal(card.winRate, 1)
 })
+
+test('the scorecard exposes expiry clustering, not just a count', async () => {
+  const { clusterSummary } = await import('../src/research/optionscan.js')
+  const mk = (symbol, expiration, riskUsd) => ({ symbol, expiration, riskUsd, spread: {}, direction: 'up' })
+  // Four candidates found the same day share the one monthly in the window.
+  const c = clusterSummary([mk('A', '2026-09-18', 555), mk('B', '2026-09-18', 673), mk('C', '2026-09-18', 667), mk('D', '2026-10-16', 435)])
+  assert.equal(c.expirations, 2)
+  assert.equal(c.largestCluster, 3)
+  assert.equal(c.exposureUsd, 555 + 673 + 667 + 435, 'open exposure sums every unresolved record')
+  // Resolved records stop counting toward live exposure.
+  const withOutcome = [{ ...mk('A', '2026-09-18', 555), outcome: { pnlUsd: 100 } }, mk('B', '2026-09-18', 673)]
+  assert.equal(clusterSummary(withOutcome).exposureUsd, 673)
+})

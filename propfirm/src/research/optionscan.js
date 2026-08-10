@@ -251,10 +251,33 @@ export async function resolveExpired(records, today, historyFor) {
   return resolved
 }
 
+/**
+ * Records are NOT independent samples, and the count alone hides it.
+ *
+ * Only one standard monthly falls inside a 20-45 DTE window, so every
+ * candidate found on a given day shares an expiration by construction — four
+ * spreads opened today all settle on the same Friday, and (measured on these
+ * four: average pairwise return correlation 0.21) behave like about 2.4
+ * independent bets rather than four. Judging a 30-record journal as 30
+ * observations would therefore overstate the evidence. Distinct expirations
+ * is the honest denominator to watch alongside the count.
+ */
+export function clusterSummary(records) {
+  const byExpiry = new Map()
+  for (const r of records) byExpiry.set(r.expiration, (byExpiry.get(r.expiration) ?? 0) + 1)
+  const sizes = [...byExpiry.values()]
+  return {
+    expirations: byExpiry.size,
+    largestCluster: sizes.length ? Math.max(...sizes) : 0,
+    exposureUsd: records.filter((r) => !r.outcome).reduce((a, r) => a + (r.riskUsd ?? 0), 0),
+  }
+}
+
 export function scanScorecard(records) {
   const done = records.filter((r) => r.outcome)
   const open = records.length - done.length
-  if (!done.length) return { open, resolved: 0 }
+  const cluster = clusterSummary(records)
+  if (!done.length) return { open, resolved: 0, ...cluster }
   const rs = done.map((r) => r.outcome.r)
   const pnls = done.map((r) => r.outcome.pnlUsd)
   const mean = rs.reduce((a, b) => a + b, 0) / rs.length
@@ -264,5 +287,7 @@ export function scanScorecard(records) {
     winRate: rs.filter((x) => x > 0).length / rs.length,
     meanR: mean,
     totalUsd: pnls.reduce((a, b) => a + b, 0),
+    resolvedExpirations: new Set(done.map((r) => r.expiration)).size,
+    ...cluster,
   }
 }

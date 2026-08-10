@@ -616,7 +616,11 @@ async function cmdOptions(args) {
   const card = scanScorecard(updated)
   section('FORWARD RECORD (paper, held to expiry)')
   console.log(`  open ${card.open}   resolved ${card.resolved}${card.resolved ? `   win ${(card.winRate * 100).toFixed(0)}%   mean ${colourR(card.meanR)}R   total ${colourMoney(card.totalUsd)}` : ''}`)
-  if (card.resolved < 30) console.log(C.yellow(`  ${card.resolved} resolved is not a sample. The measured prior: direction real (t 2.22), returns ≈ 0.`))
+  console.log(`  clusters    ${card.expirations} distinct expiration(s), largest holds ${card.largestCluster}   open exposure ${colourMoney(-card.exposureUsd).replace('-', '')}`)
+  if (card.largestCluster > 1) {
+    console.log(C.dim(`              only one monthly falls in a ${OPTIONSCAN_SPEC.dteMin}–${OPTIONSCAN_SPEC.dteMax} DTE window, so same-day candidates always share it`))
+  }
+  if (card.resolved < 30) console.log(C.yellow(`  ${card.resolved} resolved is not a sample — and correlated records count for less than their number.`))
   console.log(C.dim('\n  Paper journal only — nothing here places orders. Commit data/ to keep it.\n'))
 }
 

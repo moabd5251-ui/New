@@ -429,7 +429,9 @@ test('a user-supplied account resolves and carries its own rules', async () => {
   assert.equal(a.rules.consistencyPct, 0.5)
   assert.equal(a.payoutSplit, 0.9)
   assert.equal(a.floor, 48000)
-  assert.equal(a.profitTargetAssumed, true, 'an assumed profit target must be flagged as such')
+  assert.equal(a.profitTarget, 3000)
+  assert.equal(a.evaluationFee ?? 150, 150)
+  assert.equal(a.profitTargetAssumed, false, 'the target is confirmed, so it must not be flagged as assumed')
 })
 
 test('hitting the target in a single day fails the consistency rule', async () => {

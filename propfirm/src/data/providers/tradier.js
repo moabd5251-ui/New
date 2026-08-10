@@ -154,6 +154,61 @@ export async function tradierQuote(symbols, opts = {}) {
   return { matched: quotes, unmatched: [] }
 }
 
+/** Daily OHLCV history. Tradier serves years of dailies, unlike its 1m data. */
+export async function tradierHistory(symbol, opts = {}) {
+  const { token = process.env.TRADIER_TOKEN, sandbox = false, fetchImpl = globalThis.fetch, start, end } = opts
+  if (!token) throw new Error('Tradier requires a token: set TRADIER_TOKEN or pass { token }')
+  const base = sandbox ? SANDBOX : BASE
+  const from = start ?? new Date(Date.now() - 200 * 86_400_000).toISOString().slice(0, 10)
+  const to = end ?? new Date().toISOString().slice(0, 10)
+  const body = await requestJson(
+    `${base}/history?symbol=${encodeURIComponent(symbol)}&interval=daily&start=${from}&end=${to}`,
+    token,
+    fetchImpl,
+  )
+  const days = body?.history?.day
+  if (!days) return []
+  return (Array.isArray(days) ? days : [days]).map((d) => ({
+    date: d.date,
+    o: d.open,
+    h: d.high,
+    l: d.low,
+    c: d.close,
+    v: d.volume ?? 0,
+  }))
+}
+
+/** Option expiration dates for a symbol, ascending YYYY-MM-DD strings. */
+export async function tradierExpirations(symbol, opts = {}) {
+  const { token = process.env.TRADIER_TOKEN, sandbox = false, fetchImpl = globalThis.fetch } = opts
+  if (!token) throw new Error('Tradier requires a token: set TRADIER_TOKEN or pass { token }')
+  const base = sandbox ? SANDBOX : BASE
+  const body = await requestJson(
+    `${base}/options/expirations?symbol=${encodeURIComponent(symbol)}&includeAllRoots=true`,
+    token,
+    fetchImpl,
+  )
+  const dates = body?.expirations?.date
+  return dates ? [].concat(dates) : []
+}
+
+/**
+ * One expiration's full chain with greeks (ORATS-supplied; occasionally null
+ * on illiquid strikes — callers must tolerate missing greeks).
+ */
+export async function tradierChain(symbol, expiration, opts = {}) {
+  const { token = process.env.TRADIER_TOKEN, sandbox = false, fetchImpl = globalThis.fetch } = opts
+  if (!token) throw new Error('Tradier requires a token: set TRADIER_TOKEN or pass { token }')
+  const base = sandbox ? SANDBOX : BASE
+  const body = await requestJson(
+    `${base}/options/chains?symbol=${encodeURIComponent(symbol)}&expiration=${expiration}&greeks=true`,
+    token,
+    fetchImpl,
+  )
+  const options = body?.options?.option
+  return options ? [].concat(options) : []
+}
+
 function eachDay(start, end) {
   const out = []
   const a = new Date(`${start}T00:00:00Z`)

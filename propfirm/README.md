@@ -212,6 +212,26 @@ the historical weekday literature, so the honest prior is that it dies in the
 forward sample. At one Monday a week, ~50 observations take a year: this
 hypothesis earns patience, not money.
 
+### Options swing scanner (`options` command)
+
+The defined-risk expression of the one measured options signal available to
+this project: after a large gap on volume, direction continues (with-gap beat
+against-gap by +0.261R, t = 2.22 on 151 reactions — while the strategy's own
+return was ≈ 0, with 99% of profit in 5 trades; tilted odds, not an edge).
+
+```bash
+TRADIER_TOKEN=… node src/cli.js options    # scan, journal, resolve, score
+```
+
+Per name on the watchlist (`data/options-watchlist.json`): find an unfilled
+≥3% gap on ≥1.5× volume within the last 10 sessions, then build a vertical
+debit spread in the gap direction, 20–45 DTE — long ~0.65Δ, short ~0.32Δ,
+chosen from *liquid* strikes only (bid > 0, spread ≤ 12% of mid, OI ≥ 50) —
+sized to a 1.5% risk budget. Candidates journal to `data/options-scan.jsonl`
+once per (symbol, reaction); expired records resolve honestly from the
+underlying's close, since a vertical at expiry is worth exactly its intrinsic.
+Paper only; the forward record is the only thing that can promote it.
+
 ### The execution bot (`bot/`)
 
 For when — and only when — the paper gate passes. A Tradovate execution bot

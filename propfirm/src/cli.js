@@ -9,10 +9,10 @@
  *   node src/cli.js stats    --journal j.jsonl    performance from the journal
  */
 
-import { writeFileSync } from 'node:fs'
+import { writeFileSync, readFileSync } from 'node:fs'
 import { loadCandles, writeCandles } from './data/csv.js'
 import { fetchYahoo, YAHOO_SYMBOLS, YAHOO_LIMITS } from './data/providers/yahoo.js'
-import { fetchTradier } from './data/providers/tradier.js'
+import { fetchTradier, tradierHistory, tradierExpirations, tradierChain } from './data/providers/tradier.js'
 import { fetchDatabento, databentoCost, CONTINUOUS, DEFAULT_DATASET } from './data/providers/databento.js'
 import { auditSeries, formatAudit } from './data/quality.js'
 import { CandleStore } from './data/store.js'
@@ -26,6 +26,7 @@ import { sizePosition } from './risk/sizing.js'
 import { riskCurve, requiredEdge } from './risk/survival.js'
 import { recordOvernight, loadOvernight, overnightScorecard, OVERNIGHT_SPEC, BACKTEST_REFERENCE } from './research/overnight.js'
 import { recordMondays, mondayScorecard, MONDAY_RTH_SPEC, MONDAY_BACKTEST_REFERENCE } from './research/mondayrth.js'
+import { OPTIONSCAN_SPEC, findReaction, buildVertical, pickExpiration, sizeContracts, loadJournal, saveJournal, appendCandidates, resolveExpired, scanScorecard } from './research/optionscan.js'
 import { Journal } from './journal/journal.js'
 import { buildStats, recommendations } from './journal/stats.js'
 import { renderReport } from './report/html.js'
@@ -529,6 +530,90 @@ function cmdMonday(args) {
   console.log(C.dim('  ~50 Mondays is a year. This hypothesis earns patience, not money.\n'))
 }
 
+/* ── options: post-reaction debit-spread scanner, paper journal ─────────── */
+
+async function cmdOptions(args) {
+  const root = args.store ?? DEFAULT_STORE
+  const watchlistPath = args.watchlist ?? `${root}/options-watchlist.json`
+  const journalPath = args.journal ?? `${root}/options-scan.jsonl`
+  const symbols = JSON.parse(readFileSync(watchlistPath, 'utf8'))
+  const today = new Date().toISOString().slice(0, 10)
+
+  section(`OPTIONS SCAN — ${symbols.length} names (spec v${OPTIONSCAN_SPEC.version}, registered ${OPTIONSCAN_SPEC.registered})`)
+
+  const records = loadJournal(journalPath)
+  const historyCache = new Map()
+  const historyFor = async (sym) => {
+    if (!historyCache.has(sym)) historyCache.set(sym, await tradierHistory(sym))
+    return historyCache.get(sym)
+  }
+
+  // 1. Settle anything that has expired — the scorecard is the point.
+  const settled = await resolveExpired(records, today, historyFor)
+  if (settled) console.log(`  resolved    ${C.green(String(settled))} expired position(s)`)
+
+  // 2. Scan for new reactions.
+  const candidates = []
+  for (const symbol of symbols) {
+    try {
+      const bars = await historyFor(symbol)
+      const reaction = findReaction(bars)
+      if (!reaction) continue
+      const expirations = await tradierExpirations(symbol)
+      const exp = pickExpiration(expirations, today)
+      if (!exp) {
+        console.log(`  ${symbol.padEnd(6)} reaction ${reaction.reactionDay} ${reaction.direction} — ${C.dim('no expiration in 20–45 DTE')}`)
+        continue
+      }
+      const chain = await tradierChain(symbol, exp.d)
+      const { spread, reason } = buildVertical(chain, reaction.direction)
+      if (!spread) {
+        console.log(`  ${symbol.padEnd(6)} reaction ${reaction.reactionDay} ${reaction.direction} — ${C.dim(reason)}`)
+        continue
+      }
+      const contracts = sizeContracts(spread.debit)
+      if (!contracts) {
+        console.log(`  ${symbol.padEnd(6)} ${C.dim(`debit $${(spread.debit * 100).toFixed(0)} exceeds the risk budget — skipped`)}`)
+        continue
+      }
+      candidates.push({
+        spec: OPTIONSCAN_SPEC.version,
+        scanDate: today,
+        symbol,
+        reactionDay: reaction.reactionDay,
+        direction: reaction.direction,
+        gapPct: Math.round(reaction.gapPct * 1000) / 10,
+        expiration: exp.d,
+        dte: exp.dte,
+        spread,
+        contracts,
+        riskUsd: Math.round(spread.debit * 100 * contracts),
+      })
+    } catch (err) {
+      console.log(`  ${symbol.padEnd(6)} ${C.red(err.message)}`)
+    }
+  }
+
+  const { records: updated, added } = appendCandidates(records, candidates)
+  saveJournal(journalPath, updated)
+
+  section('NEW CANDIDATES')
+  if (!added.length) console.log(C.dim('  none — most days this is the correct output'))
+  for (const c of added) {
+    const s = c.spread
+    console.log(
+      `  ${C.bold(c.symbol.padEnd(6))} ${c.direction === 'up' ? C.green('CALL') : C.red('PUT ')} ${s.longStrike}/${s.shortStrike} ${c.expiration} (${c.dte}d)  ` +
+        `debit $${(s.debit * 100).toFixed(0)} ×${c.contracts}  max +$${(s.maxGain * 100 * c.contracts).toFixed(0)}  RR ${s.rewardRisk.toFixed(2)}  ${C.dim(`gap ${c.gapPct}% on ${c.reactionDay}`)}`,
+    )
+  }
+
+  const card = scanScorecard(updated)
+  section('FORWARD RECORD (paper, held to expiry)')
+  console.log(`  open ${card.open}   resolved ${card.resolved}${card.resolved ? `   win ${(card.winRate * 100).toFixed(0)}%   mean ${colourR(card.meanR)}R   total ${colourMoney(card.totalUsd)}` : ''}`)
+  if (card.resolved < 30) console.log(C.yellow(`  ${card.resolved} resolved is not a sample. The measured prior: direction real (t 2.22), returns ≈ 0.`))
+  console.log(C.dim('\n  Paper journal only — nothing here places orders. Commit data/ to keep it.\n'))
+}
+
 /* ── survival: what edge and what size actually pass an evaluation ──────── */
 
 function cmdSurvival(args) {
@@ -681,6 +766,7 @@ const commands = {
   forward: () => cmdForward(args),
   overnight: () => cmdOvernight(args),
   monday: () => cmdMonday(args),
+  options: () => cmdOptions(args),
   analyze: () => cmdAnalyze(args),
   levels: () => cmdLevels(args),
   backtest: () => cmdBacktest(args),

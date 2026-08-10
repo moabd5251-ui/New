@@ -132,6 +132,9 @@ function finish(outcome, account, trades, days) {
   const consistency = account.consistency()
   const paid = outcome === 'pass' && consistency.ok
   const profit = account.balance - account.startingBalance
+  // When the account withdraws at each target touch, the cash taken out is
+  // already tracked and the closing balance understates what was earned.
+  const withdrawn = account.withdrawn ?? 0
   return {
     outcome,
     trades,
@@ -141,7 +144,9 @@ function finish(outcome, account, trades, days) {
     consistencyOk: consistency.ok,
     paid,
     // What actually reaches your bank, after the split.
-    payout: paid ? profit * (account.payoutSplit ?? 1) : 0,
+    targetTouches: account.targetTouches,
+    withdrawn,
+    payout: paid ? (withdrawn > 0 ? withdrawn : profit * (account.payoutSplit ?? 1)) : 0,
   }
 }
 
@@ -229,6 +234,7 @@ export function evaluationEV({
   runs = 4000,
   seed = 12345,
   maxDays = 250,
+  rules = {},
   overrides = {},
 }) {
   const spec = accountSpec(preset) ?? {}
@@ -237,12 +243,13 @@ export function evaluationEV({
   const split = spec.payoutSplit ?? 1
   const mode = payoutMode ?? spec.payoutMode ?? 'full'
 
-  const mc = monteCarlo({ preset, riskFraction, edge, runs, seed, maxDays, overrides })
+  const mc = monteCarlo({ preset, riskFraction, edge, runs, seed, maxDays, rules, overrides })
 
   // `expectedPayout` already applies the split to the whole profit. Under the
   // buffer reading, only the excess above the threshold is withdrawable.
   let expectedPayout = mc.expectedPayout
-  if (mode === 'buffer' && mc.paidRate > 0) {
+  const withdrawsAtTouch = rules.withdrawAtTouch ?? spec.withdrawAtTouch ?? false
+  if (mode === 'buffer' && !withdrawsAtTouch && mc.paidRate > 0) {
     const avgProfitWhenPaid = mc.expectedPayout / mc.paidRate / split
     const withdrawable = Math.max(0, avgProfitWhenPaid - threshold)
     expectedPayout = mc.paidRate * withdrawable * split

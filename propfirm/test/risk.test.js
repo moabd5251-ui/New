@@ -437,7 +437,16 @@ test('a user-supplied account resolves and carries its own rules', async () => {
 test('hitting the target in a single day fails the consistency rule', async () => {
   const { simulateEvaluation } = await import('../src/risk/survival.js')
   const rng = () => 0 // every trade wins
-  const r = simulateEvaluation({ preset: 'LUCID-FLEX-50K', riskFraction: 0.2, edge: { winRate: 1, payoffRatio: 2 }, rng })
+  // Pinned to a single touch: this test is about consistency, not the
+  // reach-the-target-twice rule (a perfect run never dips, so it could never
+  // register a second touch).
+  const r = simulateEvaluation({
+    preset: 'LUCID-FLEX-50K',
+    riskFraction: 0.2,
+    edge: { winRate: 1, payoffRatio: 2 },
+    rules: { targetTouchesRequired: 1 },
+    rng,
+  })
   assert.equal(r.outcome, 'pass', 'a perfect run reaches the target')
   assert.equal(r.consistencyOk, false, 'all the profit landed on one day')
   assert.equal(r.paid, false, 'passing on one day is not a payout')
@@ -452,6 +461,7 @@ test('the payout split is applied once profit is spread across days', async () =
     preset: 'LUCID-FLEX-50K',
     riskFraction: 0.02,
     edge: { winRate: 1, payoffRatio: 2, tradesPerDay: 1 },
+    rules: { targetTouchesRequired: 1 },
     rng,
   })
   assert.equal(r.outcome, 'pass')
@@ -498,4 +508,56 @@ test('a withdrawal buffer shrinks the payout without making the attempt bad valu
   // A small payout raises the hit rate required rather than killing the EV.
   assert.ok(e.breakevenPaidRate > 0.1 && e.breakevenPaidRate < 0.25)
   assert.ok(e.paidRate > e.breakevenPaidRate, 'this edge should clear its own breakeven')
+})
+
+test('the target must be reached the required number of times', () => {
+  const a = new PropAccount({ preset: 'LUCID-FLEX-50K' })
+  a.startDay('d1')
+  a.recordTrade({ pnl: 3000 })
+  assert.equal(a.targetTouches, 1)
+  assert.equal(a.passed, false, 'one touch is not enough when two are required')
+
+  // A sustained run above the target is still one touch.
+  a.recordTrade({ pnl: 200 })
+  assert.equal(a.targetTouches, 1, 'staying above the target must not re-count')
+
+  // Falling below re-arms; coming back counts the second touch.
+  a.recordTrade({ pnl: -800 })
+  assert.equal(a.armed, true)
+  a.recordTrade({ pnl: 800 })
+  assert.equal(a.targetTouches, 2)
+  assert.equal(a.passed, true)
+})
+
+test('withdrawing at each touch banks cash and re-arms from the buffer', () => {
+  const a = new PropAccount({ preset: 'LUCID-FLEX-50K', rules: { withdrawAtTouch: true } })
+  a.startDay('d1')
+  a.recordTrade({ pnl: 3000 })
+  assert.equal(a.balance, 52100, 'the excess above the buffer is withdrawn')
+  assert.ok(Math.abs(a.withdrawn - 810) < 1e-6, '(3000 - 2100) * 0.9')
+  assert.equal(a.armed, true, 'the withdrawal drops us below the target, so we re-arm')
+  assert.equal(a.passed, false)
+
+  a.recordTrade({ pnl: 900 })
+  assert.equal(a.targetTouches, 2)
+  assert.equal(a.passed, true)
+  assert.ok(Math.abs(a.withdrawn - 1620) < 1e-6, 'two withdrawals of $810')
+})
+
+test('a withdrawal must not move the drawdown floor or trip a breach', () => {
+  const a = new PropAccount({ preset: 'LUCID-FLEX-50K', rules: { withdrawAtTouch: true } })
+  a.startDay('d1')
+  const floorBefore = a.floor
+  a.recordTrade({ pnl: 3000 })
+  assert.ok(a.floor >= floorBefore, 'the floor may ratchet up on profit, never down on a withdrawal')
+  assert.equal(a.breached, false, 'taking cash out is not a loss')
+  assert.ok(a.balance > a.floor)
+})
+
+test('evaluationEV honours rule overrides instead of silently using the preset', async () => {
+  const { evaluationEV } = await import('../src/risk/survival.js')
+  const edge = { winRate: 0.5, payoffRatio: 2, badRunProb: 0.2, badRunDays: 5, badRunMultiplier: 0.45 }
+  const once = evaluationEV({ riskFraction: 0.075, edge, rules: { targetTouchesRequired: 1 }, runs: 1200 })
+  const twice = evaluationEV({ riskFraction: 0.075, edge, rules: { targetTouchesRequired: 2 }, runs: 1200 })
+  assert.ok(once.paidRate > twice.paidRate, 'requiring two touches must be harder than one')
 })

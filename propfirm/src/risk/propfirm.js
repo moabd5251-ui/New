@@ -101,6 +101,10 @@ export const USER_ACCOUNTS = {
     payoutSplit: 0.9,
     withdrawalThreshold: 2100,
     payoutMode: 'buffer',
+    // The target has to be reached TWICE before a payout is released. Reaching
+    // it, dipping below and climbing back is a materially harder ask than
+    // reaching it once, because the account has to survive the dip in between.
+    targetTouchesRequired: 2,
     evaluationFee: 150,
     maxContracts: 10,
     maxMicros: 100,
@@ -121,6 +125,14 @@ export const DEFAULT_RULES = {
   riskPerTradePct: 0.1,
   /** Payout consistency: no single day may exceed this share of total profit. */
   consistencyPct: 0.3,
+  /** How many separate times the profit target must be reached before a payout. */
+  targetTouchesRequired: 1,
+  /**
+   * Whether reaching the target withdraws the excess above the buffer. Changes
+   * what "twice" means: with a withdrawal you climb back from the buffer, and
+   * without one you have to fall below the target and recover on your own.
+   */
+  withdrawAtTouch: false,
   /** Flatten before the close — most firms require it. */
   flattenByMinuteET: 15 * 60 + 55,
 }
@@ -160,6 +172,10 @@ export class PropAccount {
       ...(preset?.consistencyAppliesAfterPass !== undefined
         ? { consistencyAppliesAfterPass: preset.consistencyAppliesAfterPass }
         : {}),
+      ...(preset?.targetTouchesRequired !== undefined
+        ? { targetTouchesRequired: preset.targetTouchesRequired }
+        : {}),
+      ...(preset?.withdrawAtTouch !== undefined ? { withdrawAtTouch: preset.withdrawAtTouch } : {}),
       ...(config.rules ?? {}),
     }
     this.profitTargetAssumed = preset?.profitTargetAssumed ?? false
@@ -182,6 +198,14 @@ export class PropAccount {
     this.breached = false
     this.breachReason = null
     this.passed = false
+
+    // Target-touch tracking. `armed` prevents one sustained run above the
+    // target from counting as several touches — the balance has to come back
+    // below it before the next one registers.
+    this.targetTouches = 0
+    this.armed = true
+    this.withdrawn = 0
+    this.withdrawalThreshold = config.withdrawalThreshold ?? preset?.withdrawalThreshold ?? 0
   }
 
   /** Dollars of loss available before the account is dead. */
@@ -281,8 +305,39 @@ export class PropAccount {
     this.trades.push({ ...trade, balanceAfter: this.balance, day: this.day })
     this.#onRealisedClose()
     this.mark(0)
-    if (!this.passed && this.balance - this.startingBalance >= this.profitTarget) this.passed = true
+    this.#checkTarget()
     return this
+  }
+
+  /**
+   * Count reaching the profit target, and release the payout once it has
+   * happened the required number of times.
+   */
+  #checkTarget() {
+    let profit = this.balance - this.startingBalance
+
+    if (this.armed && profit >= this.profitTarget) {
+      this.targetTouches++
+
+      if (this.rules.withdrawAtTouch) {
+        // Take out everything above the buffer. The withdrawal reduces the
+        // balance but is not a loss — it must never move the floor or trip a
+        // breach, so it is applied directly rather than through recordTrade.
+        const excess = profit - this.withdrawalThreshold
+        if (excess > 0) {
+          this.withdrawn += excess * this.payoutSplit
+          this.balance -= excess
+          profit = this.balance - this.startingBalance
+        }
+      }
+      if (this.targetTouches >= this.rules.targetTouchesRequired) this.passed = true
+    }
+
+    // Re-arm whenever the balance sits below the target — after a dip, or
+    // immediately after a withdrawal has taken it back down to the buffer.
+    // Deciding this from the current profit rather than inside the branch above
+    // is what makes the withdraw-and-climb-again cycle work at all.
+    this.armed = profit < this.profitTarget
   }
 
   /**

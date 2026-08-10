@@ -28,6 +28,8 @@ import { recordOvernight, loadOvernight, overnightScorecard, OVERNIGHT_SPEC, BAC
 import { recordMondays, mondayScorecard, MONDAY_RTH_SPEC, MONDAY_BACKTEST_REFERENCE } from './research/mondayrth.js'
 import { OPTIONSCAN_SPEC, findReaction, buildVertical, pickExpiration, sizeContracts, loadJournal, saveJournal, appendCandidates, resolveExpired, scanScorecard } from './research/optionscan.js'
 import { renderOptionsPage } from './report/optionspage.js'
+import { analyzeChart, targetFor } from './research/chartanalysis.js'
+import { BUTTERFLY_SPEC, buildButterfly, sizeFlies, butterflyJournalPath, resolveExpiredFlies, butterflyScorecard } from './research/butterfly.js'
 import { Journal } from './journal/journal.js'
 import { buildStats, recommendations } from './journal/stats.js'
 import { renderReport } from './report/html.js'
@@ -555,6 +557,9 @@ async function cmdOptions(args) {
 
   // 2. Scan for new reactions.
   const candidates = []
+  const flyCandidates = []
+  const flyNotes = []
+  const charts = new Map()
   for (const symbol of symbols) {
     try {
       const bars = await historyFor(symbol)
@@ -567,6 +572,34 @@ async function cmdOptions(args) {
         continue
       }
       const chain = await tradierChain(symbol, exp.d)
+
+      // Chart analysis runs for every reaction, whether or not a structure
+      // ends up being built — it is the record of what the name looked like
+      // at the moment the signal fired.
+      const chart = analyzeChart(bars)
+      const target = targetFor(chart, reaction.direction)
+      charts.set(symbol, { chart, target, reaction, expiration: exp.d })
+
+      // Butterfly candidate, centred on the chart target. Independent of the
+      // vertical: a name can qualify for one, both, or neither.
+      if (chart && target) {
+        const { fly, reason: flyReason } = buildButterfly(chain, reaction.direction, target.price, chart.price, chart.atr)
+        if (fly) {
+          const n = sizeFlies(fly.debit)
+          if (n) {
+            flyCandidates.push({
+              spec: BUTTERFLY_SPEC.version, scanDate: today, symbol,
+              reactionDay: reaction.reactionDay, direction: reaction.direction,
+              gapPct: Math.round(reaction.gapPct * 1000) / 10,
+              expiration: exp.d, dte: exp.dte, fly, contracts: n,
+              riskUsd: Math.round(fly.debit * 100 * n),
+              target: { price: target.price, basis: target.basis, atrAway: Math.round(target.atrAway * 100) / 100, inferred: target.inferred },
+              chart: { trend: chart.trend, zone: chart.zone, atr: Math.round(chart.atr * 100) / 100 },
+            })
+          }
+        } else flyNotes.push(`${symbol}: ${flyReason}`)
+      }
+
       const { spread, reason } = buildVertical(chain, reaction.direction)
       if (!spread) {
         console.log(`  ${symbol.padEnd(6)} reaction ${reaction.reactionDay} ${reaction.direction} — ${C.dim(reason)}`)
@@ -598,6 +631,49 @@ async function cmdOptions(args) {
   const { records: updated, added } = appendCandidates(records, candidates)
   saveJournal(journalPath, updated)
 
+  // ── Butterfly journal: separate file, separate spec, never pooled ───────
+  const flyPath = butterflyJournalPath(root, 'options')
+  const flyRecords = loadJournal(flyPath)
+  const flySettled = await resolveExpiredFlies(flyRecords, today, historyFor)
+  const { records: flyUpdated, added: flyAdded } = appendCandidates(flyRecords, flyCandidates)
+  saveJournal(flyPath, flyUpdated)
+
+  section('CHART ANALYSIS (at the moment each signal fired)')
+  if (!charts.size) console.log(C.dim('  no live reactions on the watchlist'))
+  for (const [sym, { chart, target, reaction }] of charts) {
+    if (!chart) { console.log(`  ${sym.padEnd(6)} ${C.dim('insufficient history')}`); continue }
+    const arrow = reaction.direction === 'up' ? C.green('▲') : C.red('▼')
+    console.log(`  ${C.bold(sym.padEnd(6))} ${arrow} ${chart.price.toFixed(2)}  trend ${chart.trend.padEnd(7)} ${chart.zone.padEnd(12)} ATR ${chart.atr.toFixed(2)} (${(chart.atrPct * 100).toFixed(1)}%)`)
+    console.log(`         range ${chart.range.low.toFixed(2)}–${chart.range.high.toFixed(2)}, ${(chart.range.position * 100).toFixed(0)}% of it`)
+    const fmtL = (l) => `${l.price.toFixed(2)}${l.touches > 1 ? C.cyan(`×${l.touches}`) : ''}`
+    if (chart.resistance.length) console.log(`         resistance ${chart.resistance.map(fmtL).join('  ')}`)
+    if (chart.support.length) console.log(`         support    ${chart.support.map(fmtL).join('  ')}`)
+    if (target) console.log(`         target ${C.bold(target.price.toFixed(2))} — ${target.inferred ? C.yellow(target.basis) : target.basis} (${target.atrAway.toFixed(1)} ATR away)`)
+  }
+
+  section('BUTTERFLY CANDIDATES (parallel journal, centred on the chart target)')
+  for (const n of flyNotes) console.log(`  ${C.dim(n)}`)
+  if (!flyAdded.length) console.log(C.dim('  none new'))
+  for (const c of flyAdded) {
+    const f = c.fly
+    console.log(
+      `  ${C.bold(c.symbol.padEnd(6))} ${f.type === 'call' ? C.green('CALL') : C.red('PUT ')} fly ${f.lowerStrike}/${f.bodyStrike}/${f.upperStrike} ${c.expiration}  ` +
+        `cost $${(f.debit * 100).toFixed(0)} ×${c.contracts}  max +$${(f.maxGain * 100 * c.contracts).toFixed(0)}  RR ${f.rewardRisk.toFixed(1)}`,
+    )
+    console.log(`         profit zone ${f.lowerBreakeven.toFixed(2)}–${f.upperBreakeven.toFixed(2)}  ${C.dim(`body on ${c.target.basis}`)}  ${C.red(`execution drag $${(f.executionDrag * 100 * c.contracts).toFixed(0)}`)}`)
+  }
+  if (flySettled) console.log(`  resolved    ${flySettled} expired butterfly position(s)`)
+  const flyCard = butterflyScorecard(flyUpdated)
+  if (flyUpdated.length) {
+    console.log(`\n  open ${flyCard.open}   resolved ${flyCard.resolved}${flyCard.resolved ? `   in-zone ${(flyCard.inZoneRate * 100).toFixed(0)}%   mean ${colourR(flyCard.meanR)}R   median miss ${flyCard.medianMissWidths?.toFixed(2)} wing-widths` : ''}`)
+    if (flyCard.resolved) {
+      console.log(`  P&L crossing the spread ${colourMoney(flyCard.totalUsd)}   ·   filling at mid ${colourMoney(flyCard.totalAtMidUsd)}`)
+    }
+    console.log(C.red(`  slippage paid on entry so far: $${flyCard.executionDragUsd.toFixed(0)}`))
+    console.log(C.yellow('  Priced on 2026-08-10 every available butterfly had NEGATIVE EV (−$58 to −$128)'))
+    console.log(C.yellow('  against +$15 to +$52 on the verticals. This journal exists to test that verdict.'))
+  }
+
   section('NEW CANDIDATES')
   if (!added.length) console.log(C.dim('  none — most days this is the correct output'))
   for (const c of added) {
@@ -609,7 +685,18 @@ async function cmdOptions(args) {
   }
 
   if (args.html) {
-    writeFileSync(args.html, renderOptionsPage(updated))
+    const chartRows = [...charts.entries()]
+      .filter(([, v]) => v.chart)
+      .map(([symbol, { chart, reaction }]) => ({
+        symbol,
+        price: chart.price,
+        trend: chart.trend,
+        zone: chart.zone,
+        rangePosition: chart.range.position,
+        atr: chart.atr,
+        levels: (reaction.direction === 'up' ? chart.resistance : chart.support).slice(0, 3),
+      }))
+    writeFileSync(args.html, renderOptionsPage(updated, { flies: flyUpdated.filter((f) => !f.outcome), charts: chartRows }))
     console.log(`\n  page written to ${C.cyan(args.html)}`)
   }
 

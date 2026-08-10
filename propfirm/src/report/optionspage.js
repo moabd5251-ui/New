@@ -10,7 +10,7 @@ import { OPTIONSCAN_SPEC } from '../research/optionscan.js'
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
 const usd = (n) => `${n < 0 ? '−' : ''}$${Math.abs(n).toFixed(0)}`
 
-export function renderOptionsPage(records, { generatedAt = new Date().toISOString(), spec = OPTIONSCAN_SPEC } = {}) {
+export function renderOptionsPage(records, { generatedAt = new Date().toISOString(), spec = OPTIONSCAN_SPEC, flies = [], charts = [] } = {}) {
   const open = records.filter((r) => !r.outcome)
   const done = records.filter((r) => r.outcome)
   const wins = done.filter((r) => r.outcome.pnlUsd > 0)
@@ -163,6 +163,46 @@ export function renderOptionsPage(records, { generatedAt = new Date().toISOStrin
       <tbody>${done.map(row).join('\n')}</tbody></table></div>
       ${meanR !== null ? `<p class="sub" style="margin-top:8px">Mean ${meanR >= 0 ? '+' : ''}${meanR.toFixed(2)}R per spread, held to expiration.</p>` : ''}`
     : '<p class="empty">Nothing has reached expiration yet. Verticals resolve here automatically from the underlying’s close.</p>'}
+
+  ${flies.length ? `
+  <h2>Butterflies — parallel journal, separate spec</h2>
+  <p class="note">Built on request after the arithmetic argued against them. Priced on live chains, every butterfly
+  available on these names carried <strong>negative expected value</strong> (−$58 to −$128) while the verticals were
+  +$15 to +$52 — three bid/ask spreads instead of one, a headline reward:risk paid for in hit rate, and a structure
+  that pays nothing when the drift runs further than expected. The body is centred on a tested chart level rather
+  than an arbitrary strike, which is the strongest version of the idea. This journal exists to test that verdict, and
+  is kept separate so it can never be pooled with the vertical record.</p>
+  <div class="ledger-scroll"><table>
+    <thead><tr><th>Sym</th><th>Structure</th><th class="num-h">Cost</th><th class="num-h">Max gain</th><th class="num-h">R:R</th><th>Profit zone</th><th class="num-h">Slippage</th><th>Body sits on</th></tr></thead>
+    <tbody>${flies.map((f) => `
+      <tr>
+        <td class="mono">${esc(f.symbol)}</td>
+        <td>${f.fly.type === 'call' ? 'Call' : 'Put'} ${f.fly.lowerStrike}/${f.fly.bodyStrike}/${f.fly.upperStrike}</td>
+        <td class="num">${usd(f.riskUsd)}</td>
+        <td class="num">${usd(f.fly.maxGain * 100 * f.contracts)}</td>
+        <td class="num">${f.fly.rewardRisk.toFixed(1)}</td>
+        <td class="num">${f.fly.lowerBreakeven.toFixed(2)}–${f.fly.upperBreakeven.toFixed(2)}</td>
+        <td class="num neg-n">${usd(f.fly.executionDrag * 100 * f.contracts)}</td>
+        <td>${f.target.inferred ? '<em>' + esc(f.target.basis) + '</em>' : esc(f.target.basis)}</td>
+      </tr>`).join('')}</tbody>
+  </table></div>
+  <p class="sub" style="margin-top:8px">Total slippage paid at entry: <strong>${usd(flies.reduce((a, f) => a + f.fly.executionDrag * 100 * f.contracts, 0))}</strong> across ${flies.length} structures — the cost this journal is really measuring.</p>` : ''}
+
+  ${charts.length ? `
+  <h2>Chart at the moment each signal fired</h2>
+  <div class="ledger-scroll"><table>
+    <thead><tr><th>Sym</th><th class="num-h">Price</th><th>Trend</th><th>Range zone</th><th class="num-h">ATR</th><th>Nearest shelves</th></tr></thead>
+    <tbody>${charts.map((c) => `
+      <tr>
+        <td class="mono">${esc(c.symbol)}</td>
+        <td class="num">${c.price.toFixed(2)}</td>
+        <td>${esc(c.trend)}</td>
+        <td>${esc(c.zone)} · ${(c.rangePosition * 100).toFixed(0)}%</td>
+        <td class="num">${c.atr.toFixed(2)}</td>
+        <td class="mono" style="font-size:0.8rem">${c.levels.map((l) => `${l.price.toFixed(2)}${l.touches > 1 ? `×${l.touches}` : ''}`).join(' · ')}</td>
+      </tr>`).join('')}</tbody>
+  </table></div>
+  <p class="sub" style="margin-top:8px">Shelves are swing clusters within 0.6 ATR; ×n counts how often price turned there. Levels with more touches make better butterfly bodies — repetition is the only evidence a chart offers that a price means something.</p>` : ''}
 
   <div class="prior">
     <strong>The measured prior this rides on:</strong> gap direction continues (with-gap beat against-gap by +0.261R,

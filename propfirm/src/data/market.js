@@ -100,7 +100,7 @@ export class Market {
     const pools = mapLiquidity(candles, structure.swings, { tolerance })
     const apex = apexLevels(candles, structure.swings, { tolerance })
 
-    return {
+    const view = {
       name,
       seconds,
       candles,
@@ -118,6 +118,27 @@ export class Market {
       swing,
       align: candles === this.base ? null : alignIndex(this.base, candles, seconds),
     }
+
+    // Sorted indexes for the as-of accessors.
+    //
+    // Every query below used to filter a whole array. That is invisible on a
+    // week of data and ruinous on two years: the micro view holds 158k swings
+    // and 89k break-and-retest events, and re-scanning those for each of 704k
+    // bars is on the order of 10^11 operations. Sorting once and binary
+    // searching per query turns each lookup into a handful of comparisons.
+    //
+    // A swing is only knowable `right` bars after it forms, so the index is
+    // built on that availability, not on the pivot's own index.
+    const avail = (sw) => sw.index + swing.right
+    view.highsByAvail = structure.swings.filter((x) => x.type === 'high').sort((a, b) => avail(a) - avail(b))
+    view.lowsByAvail = structure.swings.filter((x) => x.type === 'low').sort((a, b) => avail(a) - avail(b))
+    view.swingsByAvail = [...structure.swings].sort((a, b) => avail(a) - avail(b))
+    view.availOf = avail
+
+    view.poolsByPrice = [...pools].sort((a, b) => a.price - b.price)
+    view.sweptPools = pools.filter((p) => p.swept && p.sweptIndex !== null).sort((a, b) => a.sweptIndex - b.sweptIndex)
+
+    return view
   }
 
   /** @returns {object} the raw view for a timeframe name. */
@@ -147,26 +168,40 @@ export class Market {
   /**
    * Swings that were actually knowable at base bar `i` — a pivot needs its
    * right-hand confirmation bars before it exists.
+   *
+   * `limit` bounds the slice to the most recent N, which is all any caller
+   * actually reads; returning 158k swings per bar is what made this slow.
    */
-  swingsAt(name, i) {
+  swingsAt(name, i, { limit = Infinity } = {}) {
     const v = this.view(name)
     const k = this.indexAt(name, i)
     if (k < 0) return []
-    return v.structure.swings.filter((s) => s.index + v.swing.right <= k)
+    const end = countAtMost(v.swingsByAvail, k, v.availOf)
+    const from = Number.isFinite(limit) ? Math.max(0, end - limit) : 0
+    return v.swingsByAvail.slice(from, end)
   }
 
   /** Trend as of base bar `i`, recomputed from knowable swings only. */
   trendAt(name, i) {
-    const swings = this.swingsAt(name, i)
-    const highs = swings.filter((s) => s.type === 'high')
-    const lows = swings.filter((s) => s.type === 'low')
-    if (highs.length < 2 || lows.length < 2) return { trend: 'range', highs, lows }
-    const risingHighs = highs.at(-1).price > highs.at(-2).price
-    const risingLows = lows.at(-1).price > lows.at(-2).price
+    const v = this.view(name)
+    const k = this.indexAt(name, i)
+    if (k < 0) return { trend: 'range', highs: [], lows: [] }
+
+    const hEnd = countAtMost(v.highsByAvail, k, v.availOf)
+    const lEnd = countAtMost(v.lowsByAvail, k, v.availOf)
+    if (hEnd < 2 || lEnd < 2) return { trend: 'range', highs: [], lows: [] }
+
+    const h1 = v.highsByAvail[hEnd - 1]
+    const h0 = v.highsByAvail[hEnd - 2]
+    const l1 = v.lowsByAvail[lEnd - 1]
+    const l0 = v.lowsByAvail[lEnd - 2]
+
+    const risingHighs = h1.price > h0.price
+    const risingLows = l1.price > l0.price
     let trend = 'range'
     if (risingHighs && risingLows) trend = 'up'
     else if (!risingHighs && !risingLows) trend = 'down'
-    return { trend, highs, lows, lastHigh: highs.at(-1), lastLow: lows.at(-1) }
+    return { trend, highs: [h0, h1], lows: [l0, l1], lastHigh: h1, lastLow: l1 }
   }
 
   /** The working dealing range as of base bar `i`. */
@@ -179,11 +214,12 @@ export class Market {
   }
 
   /** Structure breaks that had already happened by base bar `i`. */
-  breaksAt(name, i) {
+  breaksAt(name, i, { limit = 200 } = {}) {
     const v = this.view(name)
     const k = this.indexAt(name, i)
     if (k < 0) return []
-    return v.structure.breaks.filter((b) => b.index <= k)
+    const end = countAtMost(v.structure.breaks, k, (b) => b.index)
+    return v.structure.breaks.slice(Math.max(0, end - limit), end)
   }
 
   /**
@@ -204,10 +240,82 @@ export class Market {
       }))
   }
 
-  /** Next liquidity target in `direction`, as of base bar `i`. */
-  drawAt(name, i, direction) {
+  /**
+   * Next liquidity target in `direction`, as of base bar `i`.
+   *
+   * Walks outward from the current price through the price-sorted pool list
+   * rather than filtering every pool, and stops as soon as it has enough
+   * candidates to rank.
+   */
+  drawAt(name, i, direction, { scan = 40 } = {}) {
+    const v = this.view(name)
+    const k = this.indexAt(name, i)
+    if (k < 0) return null
     const price = this.base[i].c
-    return drawOnLiquidity(this.poolsAt(name, i), price, direction)
+    const list = v.poolsByPrice
+    if (!list.length) return null
+
+    const up = direction === 'up'
+    const side = up ? 'buyside' : 'sellside'
+    let idx = lowerBoundBy(list, price, (p) => p.price)
+    const candidates = []
+    const step = up ? 1 : -1
+    if (!up) idx -= 1
+
+    for (let n = 0; n < scan && idx >= 0 && idx < list.length; idx += step) {
+      const p = list[idx]
+      if (p.formedIndex > k) continue
+      if (p.side !== side) continue
+      if (up ? p.price <= price : p.price >= price) continue
+      const swept = p.swept && p.sweptIndex !== null && p.sweptIndex <= k
+      if (swept) continue
+      candidates.push({ ...p, swept: false, distance: Math.abs(p.price - price) })
+      n++
+    }
+    if (!candidates.length) return null
+    const strength = (p) =>
+      p.touches * 2 + (p.origin.startsWith('prev-day') ? 3 : 0) + (p.origin.startsWith('equal') ? 2 : 0)
+    candidates.sort((a, b) => a.distance - b.distance || strength(b) - strength(a))
+    return candidates[0]
+  }
+
+  /**
+   * Unswept pools between `price` and the direction of travel — the obstacles a
+   * target has to clear.
+   */
+  poolsAhead(name, i, price, direction, { limit = 8 } = {}) {
+    const v = this.view(name)
+    const k = this.indexAt(name, i)
+    if (k < 0) return []
+    const list = v.poolsByPrice
+    const up = direction === 'up'
+    let idx = lowerBoundBy(list, price, (p) => p.price)
+    const out = []
+    const step = up ? 1 : -1
+    if (!up) idx -= 1
+    while (out.length < limit && idx >= 0 && idx < list.length) {
+      const p = list[idx]
+      idx += step
+      if (p.formedIndex > k) continue
+      if (p.swept && p.sweptIndex !== null && p.sweptIndex <= k) continue
+      if (up ? p.price <= price : p.price >= price) continue
+      out.push(p)
+    }
+    return out
+  }
+
+  /** Was a pool on `side` swept in the window ending at HTF index `k`? */
+  sweptRecently(name, i, side, withinBars) {
+    const v = this.view(name)
+    const k = this.indexAt(name, i)
+    if (k < 0) return false
+    const end = countAtMost(v.sweptPools, k, (p) => p.sweptIndex)
+    for (let x = end - 1; x >= 0; x--) {
+      const p = v.sweptPools[x]
+      if (k - p.sweptIndex > withinBars) break
+      if (p.side === side) return true
+    }
+    return false
   }
 
   /** Premium / discount / OTE read for base bar `i` against `name`'s range. */
@@ -217,22 +325,96 @@ export class Market {
     return premiumDiscount(this.base[i].c, r, r.direction)
   }
 
-  /** Where we are in the external → internal liquidity cycle. */
-  cycleAt(name, i) {
+  /**
+   * Where we are in the external → internal liquidity cycle.
+   *
+   * Takes the most recent sweeps directly instead of copying the candle history
+   * and re-filtering every pool — that slice alone was an O(n) allocation on
+   * every single bar.
+   */
+  cycleAt(name, i, { lookback = 60 } = {}) {
     const v = this.view(name)
     const k = this.indexAt(name, i)
     if (k < 0) return { state: 'undefined', note: 'no closed bar yet', sweptPool: null }
-    return liquidityCycle(v.candles.slice(0, k + 1), this.poolsAt(name, i), this.rangeAt(name, i))
+
+    const end = countAtMost(v.sweptPools, k, (p) => p.sweptIndex)
+    let fresh = null
+    for (let x = end - 1; x >= 0; x--) {
+      const p = v.sweptPools[x]
+      if (k - p.sweptIndex > lookback) break
+      fresh = p
+      break
+    }
+
+    if (fresh) {
+      const reclaimed = fresh.reclaimed && fresh.reclaimIndex !== undefined && fresh.reclaimIndex <= k
+      if (reclaimed) {
+        return {
+          state: 'swept-erl-expect-pullback',
+          note: `${fresh.origin} at ${fresh.price.toFixed(2)} swept and reclaimed — external liquidity taken, expect rotation toward internal range`,
+          sweptPool: fresh,
+        }
+      }
+      return {
+        state: 'seeking-erl',
+        note: `${fresh.origin} at ${fresh.price.toFixed(2)} taken and held — expansion continuing toward the next external pool`,
+        sweptPool: fresh,
+      }
+    }
+
+    const rangeInfo = this.rangeAt(name, i)
+    if (rangeInfo) {
+      const pd = premiumDiscount(v.candles[k].c, rangeInfo, rangeInfo.direction)
+      if (Math.abs(pd.ratio - 0.5) < 0.15) {
+        return { state: 'rebalancing-irl', note: 'price at equilibrium of the range — rebalancing internal liquidity', sweptPool: null }
+      }
+    }
+    return { state: 'seeking-erl', note: 'no recent sweep — price working toward external liquidity', sweptPool: null }
   }
 
-  /** Pattern events of one kind that fired at or before base bar `i`. */
+  /**
+   * Pattern events of one kind that fired at or before base bar `i`.
+   *
+   * Event lists are already in index order, so the window is found by binary
+   * search and walked backwards — the micro view holds ~89k break-and-retest
+   * events and filtering all of them per bar was the single worst hot spot.
+   */
   eventsAt(name, kind, i, { withinBars = Infinity } = {}) {
     const v = this.view(name)
     const k = this.indexAt(name, i)
     if (k < 0) return []
     const list = v[kind] ?? []
-    return list.filter((e) => e.index <= k && k - e.index <= withinBars)
+    if (!list.length) return []
+    const end = countAtMost(list, k, (e) => e.index)
+    if (!Number.isFinite(withinBars)) return list.slice(0, end)
+    let from = end
+    while (from > 0 && k - list[from - 1].index <= withinBars) from--
+    return list.slice(from, end)
   }
+}
+
+/** Number of leading entries whose key is <= `value`, on a key-sorted array. */
+function countAtMost(arr, value, key) {
+  let lo = 0
+  let hi = arr.length
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1
+    if (key(arr[mid]) <= value) lo = mid + 1
+    else hi = mid
+  }
+  return lo
+}
+
+/** First index whose key is >= `value`, on a key-sorted array. */
+function lowerBoundBy(arr, value, key) {
+  let lo = 0
+  let hi = arr.length
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1
+    if (key(arr[mid]) < value) lo = mid + 1
+    else hi = mid
+  }
+  return lo
 }
 
 function median(xs) {

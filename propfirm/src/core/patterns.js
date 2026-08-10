@@ -78,10 +78,14 @@ function mkGap(index, direction, top, bottom, t) {
  * recorded because an inversion without volume behind it is the version of this
  * model that fails most often.
  */
-export function resolveFVGs(candles, fvgs, { volumePeriod = 20 } = {}) {
+export function resolveFVGs(candles, fvgs, { volumePeriod = 20, maxLookahead = 1500 } = {}) {
   const volBase = volumeBaseline(candles, volumePeriod)
   for (const g of fvgs) {
-    for (let i = g.index + 1; i < candles.length; i++) {
+    // Bounded lookahead. A gap that inverts three months later is not the
+    // setup this model describes, and scanning every gap to the end of the
+    // series is quadratic — the cost only shows up once the history is long.
+    const stop = Math.min(candles.length, g.index + 1 + maxLookahead)
+    for (let i = g.index + 1; i < stop; i++) {
       const c = candles[i]
       if (!g.mitigated && c.l <= g.midpoint && c.h >= g.midpoint) {
         g.mitigated = true
@@ -261,7 +265,18 @@ export function detectCISD(candles, opts = {}) {
  * @param {{price:number}[]} levels apex / flip levels to watch
  */
 export function detectBreakAndRetest(candles, levels, opts = {}) {
-  const { tolerance = 5, maxRetestBars = 40, minRetestBars = 1, volumeFactor = 1.1, volumePeriod = 20, nearestLevels = 10 } = opts
+  const {
+    tolerance = 5,
+    maxRetestBars = 40,
+    minRetestBars = 1,
+    volumeFactor = 1.1,
+    volumePeriod = 20,
+    nearestLevels = 10,
+    /** How long a flipped level stays a candidate for a break. */
+    levelLifetimeBars = 5000,
+    /** Hard cap on candidates carried forward, newest kept. */
+    maxActiveLevels = 250,
+  } = opts
   const volBase = volumeBaseline(candles, volumePeriod)
   const fvgs = resolveFVGs(candles, findFVGs(candles))
   const disp = displacement(candles, opts)
@@ -278,16 +293,24 @@ export function detectBreakAndRetest(candles, levels, opts = {}) {
     while (formed < sorted.length && sorted[formed].index < i) active.push(sorted[formed++])
     const d = disp[i]
     if (!d) continue
+
+    // Retire stale levels and cap the working set. Without this the candidate
+    // list grows with the series and the per-bar sort turns the whole function
+    // quadratic; it also keeps the model honest, since a level nobody has
+    // touched for months is not what "break and retest" means.
+    if (active.length) {
+      let keepFrom = 0
+      while (keepFrom < active.length && i - active[keepFrom].index > levelLifetimeBars) keepFrom++
+      if (keepFrom > 0) active.splice(0, keepFrom)
+      if (active.length > maxActiveLevels) active.splice(0, active.length - maxActiveLevels)
+    }
+
     const c = candles[i]
     const prev = candles[i - 1]
 
-    // Nearest levels to the current price are the only ones that can be broken
-    // by this bar.
-    const candidatesForBar = active
-      .map((l) => ({ l, dist: Math.abs(l.price - c.c) }))
-      .sort((a, b) => a.dist - b.dist)
-      .slice(0, nearestLevels)
-      .map((x) => x.l)
+    // Nearest levels to the current price are the only ones this bar can break.
+    // A partial selection avoids sorting the whole working set every time.
+    const candidatesForBar = nearest(active, c.c, nearestLevels)
 
     for (const level of candidatesForBar) {
       const brokeUp = d.direction === 'up' && prev.c <= level.price && c.c > level.price
@@ -332,4 +355,23 @@ export function detectBreakAndRetest(candles, levels, opts = {}) {
     }
   }
   return out.sort((a, b) => a.index - b.index)
+}
+
+/** The `n` entries closest in price to `price`, without sorting the whole list. */
+function nearest(levels, price, n) {
+  if (levels.length <= n) return levels
+  const best = []
+  for (const l of levels) {
+    const dist = Math.abs(l.price - price)
+    if (best.length < n) {
+      best.push({ l, dist })
+      if (best.length === n) best.sort((a, b) => a.dist - b.dist)
+    } else if (dist < best[n - 1].dist) {
+      best[n - 1] = { l, dist }
+      for (let k = n - 1; k > 0 && best[k].dist < best[k - 1].dist; k--) {
+        ;[best[k], best[k - 1]] = [best[k - 1], best[k]]
+      }
+    }
+  }
+  return best.map((b) => b.l)
 }

@@ -191,8 +191,12 @@ function equitySvg(curve) {
   const pts = curve.filter((_, i) => i % step === 0)
 
   const values = pts.flatMap((p) => [p.equity, p.floor])
-  const min = Math.min(...values)
-  const max = Math.max(...values)
+  let min = Infinity
+  let max = -Infinity
+  for (const v of values) {
+    if (v < min) min = v
+    if (v > max) max = v
+  }
   const span = max - min || 1
   const x = (i) => pad.l + (i / Math.max(1, pts.length - 1)) * (W - pad.l - pad.r)
   const y = (v) => pad.t + (1 - (v - min) / span) * (H - pad.t - pad.b)

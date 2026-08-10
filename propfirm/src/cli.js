@@ -13,6 +13,7 @@ import { writeFileSync } from 'node:fs'
 import { loadCandles, writeCandles } from './data/csv.js'
 import { fetchYahoo, YAHOO_SYMBOLS, YAHOO_LIMITS } from './data/providers/yahoo.js'
 import { fetchTradier } from './data/providers/tradier.js'
+import { fetchDatabento, databentoCost, CONTINUOUS, DEFAULT_DATASET } from './data/providers/databento.js'
 import { auditSeries, formatAudit } from './data/quality.js'
 import { CandleStore } from './data/store.js'
 import { collect, resolveForward, ENGINE_VERSION, CONTEXT_STREAMS } from './data/collector.js'
@@ -80,6 +81,25 @@ async function getCandles(args, { audit = true } = {}) {
     label = `yahoo:${symbol} ${interval}/${range}`
     if (out.meta.droppedUnclosedBar) console.error(C.dim(`  dropped in-progress bar at ${out.meta.droppedUnclosedBar}`))
     if (out.meta.droppedNullRows) console.error(C.dim(`  dropped ${out.meta.droppedNullRows} empty row(s)`))
+  } else if (args.source === 'databento') {
+    const symbols = args.symbols ?? CONTINUOUS[String(args.symbol ?? 'NQ').toUpperCase()] ?? args.symbol
+    const schema = String(args.schema ?? 'ohlcv-1m')
+    const { start, end } = dateWindow({ ...args, days: args.days ?? 730 })
+    console.error(C.dim(`Pricing ${symbols} ${schema} ${start} → ${end} from Databento…`))
+    const out = await fetchDatabento({
+      symbols,
+      schema,
+      start,
+      end,
+      maxCostUsd: Number(args.maxCost ?? 5),
+      onProgress: (p) => {
+        if (p.phase === 'cost') console.error(C.yellow(`  this query costs $${p.cost.toFixed(2)}`))
+        else process.stderr.write(C.dim(`  ${p.from} → ${p.to}: ${p.bars} bars (${p.total} total)\n`))
+      },
+    })
+    candles = out.candles
+    label = `databento:${symbols} ${schema}`
+    console.error(C.dim(`  billed $${out.meta.costUsd.toFixed(2)}`))
   } else if (args.source === 'tradier') {
     const symbol = String(args.symbol ?? 'QQQ').toUpperCase()
     const { start, end } = dateWindow(args)
@@ -305,6 +325,7 @@ const DEFAULT_STORE = 'data'
 
 async function cmdCollect(args) {
   const source = args.source ?? 'yahoo'
+  if (source === 'databento') return cmdCollectDatabento(args)
   const symbol = source === 'yahoo' ? resolveYahooSymbol(args.symbol ?? 'NQ') : String(args.symbol ?? 'QQQ').toUpperCase()
   const root = args.store ?? DEFAULT_STORE
   const instrument = instrumentOf(args)
@@ -359,6 +380,46 @@ async function cmdCollect(args) {
   // The container is ephemeral; the store only survives if it is committed.
   console.log(C.dim(`\n  Store lives in ${root}/. Commit it — this container does not persist.`))
   console.log(C.dim(`  Run this daily; Yahoo's window is 7 days, so anything longer than a week between runs loses bars.\n`))
+}
+
+/**
+ * Databento collection writes each month into the store as it arrives, rather
+ * than buffering the whole range. The data is billed on download, so it must be
+ * on disk before any later step gets the chance to fail.
+ */
+async function cmdCollectDatabento(args) {
+  const symbol = String(args.symbol ?? 'NQ').toUpperCase()
+  const symbols = args.symbols ?? CONTINUOUS[symbol] ?? symbol
+  const schema = String(args.schema ?? 'ohlcv-1m')
+  const root = args.store ?? DEFAULT_STORE
+  const instrument = instrumentOf(args)
+  const { start, end } = dateWindow({ ...args, days: args.days ?? 730 })
+  const store = new CandleStore(root, symbols)
+
+  let added = 0
+  const out = await fetchDatabento({
+    symbols,
+    schema,
+    start,
+    end,
+    maxCostUsd: Number(args.maxCost ?? 5),
+    retain: false,
+    onChunk: (chunk) => {
+      const m = store.merge(chunk)
+      added += m.added
+    },
+    onProgress: (p) => {
+      if (p.phase === 'cost') console.error(C.yellow(`  this query costs $${p.cost.toFixed(2)}`))
+      else process.stderr.write(C.dim(`  ${p.from} → ${p.to}: ${p.bars} bars stored\n`))
+    },
+  })
+
+  const cov = store.coverage()
+  section('COLLECTED (databento)')
+  console.log(`  billed      $${out.meta.costUsd.toFixed(2)}`)
+  console.log(`  new         ${C.green(String(added))} bars added`)
+  console.log(`  store       ${cov.bars.toLocaleString()} bars over ${cov.days} day(s)  ${C.dim(`${cov.first} → ${cov.last}`)}`)
+  console.log(C.dim(`\n  Stored under ${root}/. Commit it — this container does not persist.\n`))
 }
 
 async function cmdForward(args) {
@@ -475,6 +536,11 @@ function usage() {
     --csv <file>             OHLCV file you already have
     --source yahoo           NQ=F and other futures, full 23h session
                              1m: 7 days max · 5m: 60 days · 1h: 730 days
+    --source databento       real CME history back to 2010. BILLED BY VOLUME —
+                             every fetch is priced first and refuses to run
+                             above --maxCost (default $5). ohlcv-1m is cents
+                             per year; trades and mbp-10 are far more.
+                             Needs DATABENTO_API_KEY.
     --source tradier         equities and ETFs only — NO futures.
                              Real consolidated volume; ~20 days of 1m,
                              04:00-20:00 ET with session_filter=all.
@@ -490,6 +556,8 @@ function usage() {
     --days <n>               tradier lookback / synthetic length
     --out <file.csv>         fetch destination
     --store <dir>            collector store (default ./data)
+    --schema <s>             databento schema (default ohlcv-1m)
+    --maxCost <usd>          databento spend ceiling (default 5)
     --noPaper                collect bars only, skip forward evaluation
     --account <${Object.keys(ACCOUNT_PRESETS).join('|')}>
     --journal <file.jsonl>   journal to write (backtest) or read (stats)

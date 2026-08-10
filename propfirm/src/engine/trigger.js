@@ -142,11 +142,12 @@ const MODELS = {
 
     // Liquidity must have been taken before the inversion, otherwise this is
     // just a gap being filled in open space.
-    const pools = market.poolsAt(microTf, i)
     const microIndex = market.indexAt(microTf, i)
-    const sweptBefore = pools.some(
-      (p) => p.swept && p.sweptIndex !== null && p.sweptIndex <= ev.index && ev.index - p.sweptIndex <= 20 &&
-        (bias === 'short' ? p.side === 'buyside' : p.side === 'sellside'),
+    const sweptBefore = market.sweptRecently(
+      microTf,
+      i,
+      bias === 'short' ? 'buyside' : 'sellside',
+      Math.max(20, microIndex - ev.index + 20),
     )
 
     const price = market.base[i].c

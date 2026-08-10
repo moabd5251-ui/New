@@ -225,7 +225,8 @@ export class PropAccount {
     if (this.day !== null) days.push([this.day, this.dayPnL])
     const totalProfit = days.reduce((a, [, p]) => a + Math.max(0, p), 0)
     if (totalProfit <= 0) return { ok: true, bestDayShare: 0, totalProfit: 0, limit: this.rules.consistencyPct }
-    const best = Math.max(...days.map(([, p]) => p))
+    let best = -Infinity
+    for (const [, p] of days) if (p > best) best = p
     const share = best / totalProfit
     return {
       ok: share <= this.rules.consistencyPct,

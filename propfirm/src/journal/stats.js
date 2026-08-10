@@ -10,6 +10,8 @@
  * and another is bleeding it.
  */
 
+import { maxOf, minOf } from '../core/candles.js'
+
 /**
  * @param {import('./journal.js').JournalEntry[]} trades
  */
@@ -63,8 +65,8 @@ function summarise(trades) {
     avgWinR,
     avgLossR,
     payoffRatio: avgLossR > 0 ? avgWinR / avgLossR : 0,
-    largestWinR: Math.max(0, ...rs),
-    largestLossR: Math.min(0, ...rs),
+    largestWinR: maxOf(rs, 0),
+    largestLossR: minOf(rs, 0),
     maxDrawdownR: maxDrawdown(rs),
     maxWinStreak: maxStreak(rs, (r) => r > 0),
     maxLossStreak: maxStreak(rs, (r) => r <= 0),

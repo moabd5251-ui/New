@@ -178,6 +178,25 @@ export function lowestLow(candles, i, n) {
   return lo
 }
 
+/**
+ * Extremes of a large array.
+ *
+ * `Math.max(...xs)` passes every element as an argument and blows the call
+ * stack somewhere around a hundred thousand of them — which is a bug that only
+ * appears once the data gets real. A 2-year 1-minute series is 700k bars.
+ */
+export function maxOf(xs, fallback = -Infinity) {
+  let m = fallback
+  for (const x of xs) if (x > m) m = x
+  return m
+}
+
+export function minOf(xs, fallback = Infinity) {
+  let m = fallback
+  for (const x of xs) if (x < m) m = x
+  return m
+}
+
 /** Assert the series is ascending and free of obvious corruption. */
 export function validateSeries(candles) {
   const problems = []

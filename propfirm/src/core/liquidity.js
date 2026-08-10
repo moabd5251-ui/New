@@ -38,15 +38,45 @@ export function poolsFromSwings(candles, swings, { tolerance = 5 } = {}) {
   const build = (type, side) => {
     const list = swings.filter((s) => s.type === type)
     const clusters = []
+    // Bucket by price so finding the cluster a swing belongs to is a couple of
+    // map lookups rather than a scan of every cluster found so far. On a
+    // two-year 1-minute series that difference is minutes versus hours.
+    const buckets = new Map()
+    const bucketOf = (price) => Math.floor(price / Math.max(tolerance, 1e-9))
+    const findNear = (price) => {
+      const b = bucketOf(price)
+      for (const key of [b - 1, b, b + 1]) {
+        const list = buckets.get(key)
+        if (!list) continue
+        for (const cl of list) if (Math.abs(cl.price - price) <= tolerance) return cl
+      }
+      return null
+    }
+    const index = (cl) => {
+      const b = bucketOf(cl.price)
+      if (!buckets.has(b)) buckets.set(b, [])
+      buckets.get(b).push(cl)
+    }
+
     for (const s of list) {
-      const hit = clusters.find((cl) => Math.abs(cl.price - s.price) <= tolerance)
+      const hit = findNear(s.price)
       if (hit) {
+        const oldBucket = bucketOf(hit.price)
         hit.indices.push(s.index)
         hit.touches++
         // Anchor the pool at the extreme of the cluster: stops rest beyond the
         // furthest wick, not at the average.
         hit.price = side === 'buyside' ? Math.max(hit.price, s.price) : Math.min(hit.price, s.price)
         hit.formedIndex = Math.max(hit.formedIndex, s.index)
+        // Re-index if the anchor moved into a different bucket.
+        if (bucketOf(hit.price) !== oldBucket) {
+          const prev = buckets.get(oldBucket)
+          if (prev) {
+            const at = prev.indexOf(hit)
+            if (at >= 0) prev.splice(at, 1)
+          }
+          index(hit)
+        }
       } else {
         clusters.push({
           side,
@@ -59,6 +89,7 @@ export function poolsFromSwings(candles, swings, { tolerance = 5 } = {}) {
           sweptIndex: null,
           reclaimed: false,
         })
+        index(clusters[clusters.length - 1])
       }
     }
     for (const cl of clusters) if (cl.touches >= 2) cl.origin = side === 'buyside' ? 'equal-highs' : 'equal-lows'
@@ -130,27 +161,98 @@ export function sessionPools(candles) {
  * @param {LiquidityPool[]} pools mutated in place
  */
 export function markSweeps(candles, pools, { reclaimBars = 3, tolerance = 0.5 } = {}) {
+  // One forward pass over the bars, with each side's unswept pools in a heap
+  // ordered by how close they are to being taken. Scanning forward separately
+  // for every pool is quadratic, which is invisible on a week of data and fatal
+  // on two years of it.
+  const pending = new Map()
   for (const pool of pools) {
-    for (let i = pool.formedIndex + 1; i < candles.length; i++) {
-      const c = candles[i]
-      const pierced =
-        pool.side === 'buyside' ? c.h > pool.price + tolerance : c.l < pool.price - tolerance
-      if (!pierced) continue
+    const at = pool.formedIndex
+    if (!pending.has(at)) pending.set(at, [])
+    pending.get(at).push(pool)
+  }
+
+  // Buyside pools are taken by a HIGH, so the lowest price goes first.
+  const buy = new Heap((a, b) => a.price - b.price)
+  // Sellside pools are taken by a LOW, so the highest price goes first.
+  const sell = new Heap((a, b) => b.price - a.price)
+
+  const reclaimCheck = (pool, i) => {
+    for (let k = i; k < Math.min(candles.length, i + 1 + reclaimBars); k++) {
+      const back = pool.side === 'buyside' ? candles[k].c < pool.price : candles[k].c > pool.price
+      if (back) {
+        pool.reclaimed = true
+        pool.reclaimIndex = k
+        return
+      }
+    }
+  }
+
+  for (let i = 0; i < candles.length; i++) {
+    // A pool is only sweepable from the bar after it formed.
+    const born = pending.get(i - 1)
+    if (born) for (const p of born) (p.side === 'buyside' ? buy : sell).push(p)
+
+    const c = candles[i]
+    while (buy.size && buy.peek().price + tolerance < c.h) {
+      const pool = buy.pop()
       pool.swept = true
       pool.sweptIndex = i
-      // Reclaim = a close back on the origin side within a few bars.
-      for (let k = i; k < Math.min(candles.length, i + 1 + reclaimBars); k++) {
-        const back = pool.side === 'buyside' ? candles[k].c < pool.price : candles[k].c > pool.price
-        if (back) {
-          pool.reclaimed = true
-          pool.reclaimIndex = k
-          break
-        }
-      }
-      break
+      reclaimCheck(pool, i)
+    }
+    while (sell.size && sell.peek().price - tolerance > c.l) {
+      const pool = sell.pop()
+      pool.swept = true
+      pool.sweptIndex = i
+      reclaimCheck(pool, i)
     }
   }
   return pools
+}
+
+/** Minimal binary heap; `cmp(a, b) < 0` means `a` comes out first. */
+class Heap {
+  constructor(cmp) {
+    this.cmp = cmp
+    this.items = []
+  }
+  get size() {
+    return this.items.length
+  }
+  peek() {
+    return this.items[0]
+  }
+  push(x) {
+    const a = this.items
+    a.push(x)
+    let i = a.length - 1
+    while (i > 0) {
+      const p = (i - 1) >> 1
+      if (this.cmp(a[i], a[p]) >= 0) break
+      ;[a[i], a[p]] = [a[p], a[i]]
+      i = p
+    }
+  }
+  pop() {
+    const a = this.items
+    const top = a[0]
+    const last = a.pop()
+    if (a.length) {
+      a[0] = last
+      let i = 0
+      for (;;) {
+        const l = i * 2 + 1
+        const r = l + 1
+        let m = i
+        if (l < a.length && this.cmp(a[l], a[m]) < 0) m = l
+        if (r < a.length && this.cmp(a[r], a[m]) < 0) m = r
+        if (m === i) break
+        ;[a[i], a[m]] = [a[m], a[i]]
+        i = m
+      }
+    }
+    return top
+  }
 }
 
 /** All pools for a series, swept-state resolved. */

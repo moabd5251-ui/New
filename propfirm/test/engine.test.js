@@ -311,6 +311,8 @@ function stubMarket({ price, poc, pools }) {
     base: [{ t: Date.UTC(2026, 0, 15, 15, 0), o: price, h: price, l: price, c: price, v: 1 }],
     orderflow: { poc: [poc] },
     poolsAt: () => pools,
+    poolsAhead: (_name, _i, from, direction) =>
+      pools.filter((p) => (direction === 'up' ? p.price > from : p.price < from)),
     instrument: NQ,
   }
 }

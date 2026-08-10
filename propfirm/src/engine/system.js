@@ -222,11 +222,8 @@ export function buildTargets(market, i, { direction, entry, stop, draw, cfg }) {
   }
 
   // Opposing pools between us and the target will slow price down.
-  const pools = market.poolsAt('micro', i).filter((p) => {
-    if (p.swept) return false
-    return long ? p.price > entry : p.price < entry
-  })
-  for (const p of pools.slice(0, 8)) obstacles.push({ price: p.price, label: `${p.origin}`, kind: 'pool' })
+  const pools = market.poolsAhead('micro', i, entry, long ? 'up' : 'down', { limit: 8 })
+  for (const p of pools) obstacles.push({ price: p.price, label: `${p.origin}`, kind: 'pool' })
 
   // Nearest obstacle in front of us caps the target.
   const ahead = obstacles

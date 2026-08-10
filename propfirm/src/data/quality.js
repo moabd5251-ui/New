@@ -12,7 +12,7 @@
  * discard almost everything.
  */
 
-import { validateSeries } from '../core/candles.js'
+import { validateSeries, maxOf } from '../core/candles.js'
 import { sessionOf, futuresDayKey, etMinuteOfDay } from '../core/sessions.js'
 
 /**
@@ -56,7 +56,7 @@ export function auditSeries(candles, opts = {}) {
     total,
     mean: total / candles.length,
     median: median(volumes),
-    max: Math.max(...volumes),
+    max: maxOf(volumes, 0),
     zeroBars: zeroVolume,
     zeroShare,
     distinctValues: distinct,
@@ -110,7 +110,7 @@ export function auditSeries(candles, opts = {}) {
     gaps.push({ from: candles[i - 1].t, to: candles[i].t, missingBars: Math.round(delta / step) - 1 })
   }
   stats.gaps = gaps.length
-  stats.largestGapBars = gaps.length ? Math.max(...gaps.map((g) => g.missingBars)) : 0
+  stats.largestGapBars = maxOf(gaps.map((g) => g.missingBars), 0)
   if (gaps.length > candles.length * 0.02) {
     warnings.push(`${gaps.length} intraday gaps — the series is patchy, which distorts swings and volume baselines`)
   }

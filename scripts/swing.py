@@ -35,18 +35,37 @@ MIN_RR = 1.5            # to T1 or T2
 TIMEOUT_BARS = 25       # trading days a pending alert may stay open
 
 
-def bars(symbol, rng="1y"):
-    """Completed daily bars for a routine asset.
+CRYPTO = {"BTC", "ETH"}
 
-    Drops a last bar stamped with today's UTC date. Futures settle at 21:00 UTC and
-    crypto at 00:00 UTC, so any bar carrying today's date is still being written no
-    matter which of the two it is.
+
+def _forming(symbol, bar_date):
+    """Is the bar dated `bar_date` still being written?
+
+    The two asset classes end their day at different moments, and treating them alike
+    threw away real data. Crypto's daily bar runs on UTC and closes at 00:00, so one
+    carrying today's UTC date is always unfinished. Futures settle at 17:00 New York —
+    which is 15 minutes BEFORE this scan runs — so their bar for today is finished by
+    the time we look, and discarding it left the futures analysis reading Friday's close
+    on a Monday evening, three days stale across a weekend.
+
+    New York time rather than a hardcoded 21:00 UTC, because that offset moves an hour
+    with daylight saving and would silently drop a bar for half the year.
     """
+    if symbol in CRYPTO:
+        return bar_date >= pd.Timestamp.now(tz="UTC").strftime("%Y-%m-%d")
+    ny = pd.Timestamp.now(tz="America/New_York")
+    today = ny.strftime("%Y-%m-%d")
+    if bar_date > today:
+        return True
+    return bar_date == today and ny.hour < 17
+
+
+def bars(symbol, rng="1y"):
+    """Completed daily bars for a routine asset — see _forming() for what counts."""
     import feed
     df = feed.YahooProvider().bars(SYMBOLS.get(symbol, symbol), "1d", rng)
     df = df.dropna(subset=["Open", "High", "Low", "Close"])
-    today = pd.Timestamp.now(tz="UTC").strftime("%Y-%m-%d")
-    if len(df) and df.index[-1].strftime("%Y-%m-%d") >= today:
+    while len(df) and _forming(symbol, df.index[-1].strftime("%Y-%m-%d")):
         df = df.iloc[:-1]
     return df
 

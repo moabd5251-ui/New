@@ -40,4 +40,5 @@ export { simulateEvaluation, monteCarlo, riskCurve, requiredEdge } from './risk/
 export { Journal } from './journal/journal.js'
 export { buildStats, recommendations } from './journal/stats.js'
 export { backtest } from './backtest/backtest.js'
+export { measureForwardEdge, baselineEdge, edgeReport, formatEdgeReport } from './research/edge.js'
 export { renderReport } from './report/html.js'

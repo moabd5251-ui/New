@@ -45,12 +45,21 @@ export function backtest({
   accountConfig = {},
   managementConfig = {},
   marketConfig = {},
+  /**
+   * A prebuilt Market, reused across runs. Building one from two years of
+   * 1-minute data takes minutes, so comparing configuration variants without
+   * this means rebuilding identical state for every variant.
+   */
+  market: prebuiltMarket = null,
   options = {},
 }) {
   const opts = { ...DEFAULT_BACKTEST, ...options }
   const account = new PropAccount(accountConfig)
   const instrument = account.instrument ?? INSTRUMENTS.NQ
-  const market = new Market(candles, { instrument, ...marketConfig })
+  const market = prebuiltMarket ?? new Market(candles, { instrument, ...marketConfig })
+  if (prebuiltMarket && prebuiltMarket.base !== candles) {
+    throw new Error('a prebuilt market must have been built from the same candle series')
+  }
   const system = new TradingSystem(systemConfig)
   const journal = new Journal(opts.journalPath)
 

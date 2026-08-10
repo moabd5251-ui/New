@@ -1,0 +1,4 @@
+node_modules/
+*.jsonl
+*-report.html
+backtest-report.html

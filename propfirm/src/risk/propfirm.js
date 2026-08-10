@@ -1,0 +1,246 @@
+/**
+ * Prop firm account rules.
+ *
+ * The strategy is half the job. The other half is not breaching an account, and
+ * the rule that kills most funded accounts is the trailing drawdown — because
+ * it follows the UNREALISED peak. Being up $1,800 and giving it back is not
+ * "flat", it moves the floor up under you and then stops you out of the account
+ * on a trade that would otherwise have been a scratch.
+ *
+ * ── Verify these numbers against your own firm ──────────────────────────────
+ * The account presets below reflect commonly published evaluation parameters,
+ * but every firm changes its rules and the details differ per program. Treat
+ * them as a template: confirm drawdown amount, contract limits, consistency and
+ * payout terms against your actual account agreement before trading, and edit
+ * the preset to match. A rule engine configured from memory is worse than none.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
+/** Contract specifications. Tick value in USD. */
+export const INSTRUMENTS = {
+  NQ: { symbol: 'NQ', name: 'E-mini Nasdaq-100', tickSize: 0.25, tickValue: 5, pointValue: 20 },
+  MNQ: { symbol: 'MNQ', name: 'Micro E-mini Nasdaq-100', tickSize: 0.25, tickValue: 0.5, pointValue: 2 },
+  ES: { symbol: 'ES', name: 'E-mini S&P 500', tickSize: 0.25, tickValue: 12.5, pointValue: 50 },
+  MES: { symbol: 'MES', name: 'Micro E-mini S&P 500', tickSize: 0.25, tickValue: 1.25, pointValue: 5 },
+}
+
+/**
+ * Drawdown models.
+ *
+ *  trailing-unrealised — the floor trails the highest ACCOUNT VALUE reached,
+ *                        including open profit. Harshest and most common.
+ *  trailing-eod        — the floor trails the end-of-day closing balance.
+ *  static              — the floor never moves.
+ *
+ * `lockAtProfit`: many trailing programs stop trailing once the account is up
+ * by (drawdown + buffer); after that the floor locks, usually at the starting
+ * balance plus the buffer.
+ */
+export const DRAWDOWN_MODELS = ['trailing-unrealised', 'trailing-eod', 'static']
+
+/** Template account presets. Confirm against your firm before use. */
+export const ACCOUNT_PRESETS = {
+  '25K': { startingBalance: 25000, drawdown: 1500, maxContracts: 4, maxMicros: 40, profitTarget: 1500 },
+  '50K': { startingBalance: 50000, drawdown: 2500, maxContracts: 10, maxMicros: 100, profitTarget: 3000 },
+  '75K': { startingBalance: 75000, drawdown: 2750, maxContracts: 12, maxMicros: 120, profitTarget: 4250 },
+  '100K': { startingBalance: 100000, drawdown: 3000, maxContracts: 14, maxMicros: 140, profitTarget: 6000 },
+  '150K': { startingBalance: 150000, drawdown: 5000, maxContracts: 17, maxMicros: 170, profitTarget: 9000 },
+  '250K': { startingBalance: 250000, drawdown: 6500, maxContracts: 27, maxMicros: 270, profitTarget: 15000 },
+  '300K': { startingBalance: 300000, drawdown: 7500, maxContracts: 35, maxMicros: 350, profitTarget: 20000 },
+}
+
+export const DEFAULT_RULES = {
+  drawdownModel: 'trailing-unrealised',
+  /** Trailing stops once balance ≥ starting + drawdown + lockBuffer. */
+  lockAtProfit: true,
+  lockBuffer: 100,
+  /** Self-imposed daily loss limit as a fraction of the drawdown allowance. */
+  dailyLossLimitPct: 0.3,
+  /** Stop trading for the day after this many losses. */
+  maxConsecutiveLosses: 2,
+  maxTradesPerDay: 5,
+  /** Risk per trade as a fraction of the drawdown allowance. */
+  riskPerTradePct: 0.1,
+  /** Payout consistency: no single day may exceed this share of total profit. */
+  consistencyPct: 0.3,
+  /** Flatten before the close — most firms require it. */
+  flattenByMinuteET: 15 * 60 + 55,
+}
+
+/**
+ * A live account: balance, the drawdown floor, and the daily guardrails.
+ *
+ * Feed it `mark()` on every bar while a position is open (so the trailing floor
+ * sees unrealised peaks) and `recordTrade()` when one closes.
+ */
+export class PropAccount {
+  /**
+   * @param {{preset?:string, startingBalance?:number, drawdown?:number,
+   *          maxContracts?:number, profitTarget?:number, rules?:object,
+   *          instrument?:object}} config
+   */
+  constructor(config = {}) {
+    const preset = config.preset ? ACCOUNT_PRESETS[config.preset] : null
+    if (config.preset && !preset) throw new Error(`Unknown account preset: ${config.preset}`)
+
+    this.startingBalance = config.startingBalance ?? preset?.startingBalance ?? 50000
+    this.drawdown = config.drawdown ?? preset?.drawdown ?? 2500
+    this.maxContracts = config.maxContracts ?? preset?.maxContracts ?? 10
+    this.maxMicros = config.maxMicros ?? preset?.maxMicros ?? this.maxContracts * 10
+    this.profitTarget = config.profitTarget ?? preset?.profitTarget ?? 3000
+    this.rules = { ...DEFAULT_RULES, ...(config.rules ?? {}) }
+    this.instrument = config.instrument ?? INSTRUMENTS.NQ
+
+    this.balance = this.startingBalance
+    /** Highest account value ever seen, including open profit. */
+    this.peak = this.startingBalance
+    this.floor = this.startingBalance - this.drawdown
+    this.floorLocked = false
+
+    this.day = null
+    this.dayStartBalance = this.startingBalance
+    this.dayPnL = 0
+    this.dayTrades = 0
+    this.consecutiveLosses = 0
+    this.dailyPnL = new Map()
+    this.trades = []
+    this.breached = false
+    this.breachReason = null
+    this.passed = false
+  }
+
+  /** Dollars of loss available before the account is dead. */
+  get room() {
+    return this.balance - this.floor
+  }
+
+  /** Dollars still allowed to be lost today under the self-imposed limit. */
+  get dailyRoom() {
+    const limit = this.drawdown * this.rules.dailyLossLimitPct
+    return Math.max(0, limit + this.dayPnL)
+  }
+
+  /** Roll the daily counters when the futures trading day changes. */
+  startDay(dayKey) {
+    if (this.day === dayKey) return
+    if (this.day !== null) {
+      this.dailyPnL.set(this.day, this.dayPnL)
+      // End-of-day trailing programs move the floor on the closing balance.
+      if (this.rules.drawdownModel === 'trailing-eod') this.#raiseFloor(this.balance)
+    }
+    this.day = dayKey
+    this.dayStartBalance = this.balance
+    this.dayPnL = 0
+    this.dayTrades = 0
+    this.consecutiveLosses = 0
+  }
+
+  /**
+   * Mark the account to market. `openPnL` is the unrealised P&L of any live
+   * position — this is what makes a trailing-unrealised floor move.
+   */
+  mark(openPnL = 0) {
+    const equity = this.balance + openPnL
+    this.peak = Math.max(this.peak, equity)
+    if (this.rules.drawdownModel === 'trailing-unrealised') this.#raiseFloor(equity)
+    if (equity <= this.floor && !this.breached) {
+      this.breached = true
+      this.breachReason = `equity ${equity.toFixed(2)} hit the drawdown floor ${this.floor.toFixed(2)}`
+    }
+    return equity
+  }
+
+  #raiseFloor(equity) {
+    if (this.floorLocked) return
+    const lockLevel = this.startingBalance + this.drawdown + this.rules.lockBuffer
+    const candidate = equity - this.drawdown
+    if (candidate > this.floor) this.floor = candidate
+    if (this.rules.lockAtProfit && this.floor >= this.startingBalance + this.rules.lockBuffer) {
+      this.floor = this.startingBalance + this.rules.lockBuffer
+      this.floorLocked = true
+    }
+    if (this.rules.lockAtProfit && equity >= lockLevel) {
+      this.floor = this.startingBalance + this.rules.lockBuffer
+      this.floorLocked = true
+    }
+  }
+
+  /**
+   * Can a new trade be opened right now?
+   * @returns {{allowed:boolean, reason:string|null}}
+   */
+  canTrade(nowMs, etMinute = null) {
+    if (this.breached) return no(`account breached: ${this.breachReason}`)
+    if (this.dayTrades >= this.rules.maxTradesPerDay) return no(`daily trade cap (${this.rules.maxTradesPerDay}) reached`)
+    if (this.consecutiveLosses >= this.rules.maxConsecutiveLosses) {
+      return no(`${this.consecutiveLosses} consecutive losses — done for the day`)
+    }
+    if (this.dailyRoom <= 0) return no('daily loss limit reached')
+    if (this.room <= 0) return no('no drawdown room left')
+    // The flatten window is the run-up to the 16:00 ET cash close. It must not
+    // swallow the evening — the Asia session opens at 18:00 ET and is one of
+    // the better windows for this strategy on NQ.
+    if (etMinute !== null && etMinute >= this.rules.flattenByMinuteET && etMinute < 17 * 60) {
+      return no('too close to the close')
+    }
+    return { allowed: true, reason: null }
+  }
+
+  /**
+   * Record a closed trade.
+   * @param {{pnl:number, rMultiple?:number, model?:string, session?:string, t?:number}} trade
+   */
+  recordTrade(trade) {
+    this.balance += trade.pnl
+    this.dayPnL += trade.pnl
+    this.dayTrades++
+    this.consecutiveLosses = trade.pnl < 0 ? this.consecutiveLosses + 1 : 0
+    this.trades.push({ ...trade, balanceAfter: this.balance, day: this.day })
+    this.mark(0)
+    if (!this.passed && this.balance - this.startingBalance >= this.profitTarget) this.passed = true
+    return this
+  }
+
+  /**
+   * Payout consistency check: is any single day too large a share of total
+   * profit? Firms use this to deny payouts even on a green account.
+   */
+  consistency() {
+    const days = [...this.dailyPnL.entries()]
+    if (this.day !== null) days.push([this.day, this.dayPnL])
+    const totalProfit = days.reduce((a, [, p]) => a + Math.max(0, p), 0)
+    if (totalProfit <= 0) return { ok: true, bestDayShare: 0, totalProfit: 0, limit: this.rules.consistencyPct }
+    const best = Math.max(...days.map(([, p]) => p))
+    const share = best / totalProfit
+    return {
+      ok: share <= this.rules.consistencyPct,
+      bestDayShare: share,
+      bestDay: days.find(([, p]) => p === best)?.[0] ?? null,
+      totalProfit,
+      limit: this.rules.consistencyPct,
+      note: share > this.rules.consistencyPct
+        ? `best day is ${(share * 100).toFixed(1)}% of total profit, above the ${(this.rules.consistencyPct * 100).toFixed(0)}% limit — keep trading to dilute it before requesting a payout`
+        : 'within consistency limits',
+    }
+  }
+
+  snapshot() {
+    return {
+      balance: this.balance,
+      peak: this.peak,
+      floor: this.floor,
+      floorLocked: this.floorLocked,
+      room: this.room,
+      dailyRoom: this.dailyRoom,
+      dayPnL: this.dayPnL,
+      dayTrades: this.dayTrades,
+      breached: this.breached,
+      breachReason: this.breachReason,
+      passed: this.passed,
+      profitTarget: this.profitTarget,
+      progress: (this.balance - this.startingBalance) / this.profitTarget,
+    }
+  }
+}
+
+const no = (reason) => ({ allowed: false, reason })

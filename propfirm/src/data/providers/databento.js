@@ -235,3 +235,65 @@ export function monthChunks(start, end) {
   }
   return out
 }
+
+/**
+ * Stream the trades schema day by day, handing each day's raw CSV to a callback
+ * and never accumulating it.
+ *
+ * Trades are two orders of magnitude larger than bars — a single day of NQ is
+ * ~48 MB and ~415,000 rows — so a month-sized chunk would be hundreds of
+ * megabytes held in memory for no reason. The caller folds each day down to
+ * whatever aggregate it actually needs and lets the raw text go.
+ *
+ * @param {{start:string, end:string, symbols?:string, dataset?:string,
+ *          stypeIn?:string, apiKey?:string, maxCostUsd?:number,
+ *          onDay:Function, fetchImpl?:Function, onProgress?:Function}} opts
+ */
+export async function fetchDatabentoTrades(opts) {
+  const {
+    dataset = DEFAULT_DATASET,
+    symbols = CONTINUOUS.NQ,
+    start,
+    end,
+    stypeIn = 'continuous',
+    apiKey = process.env.DATABENTO_API_KEY,
+    maxCostUsd = 5,
+    onDay,
+    fetchImpl = globalThis.fetch,
+    onProgress = null,
+  } = opts
+
+  if (!start || !end) throw new Error('fetchDatabentoTrades needs { start, end }')
+  if (typeof onDay !== 'function') throw new Error('fetchDatabentoTrades needs an onDay callback to consume each day')
+
+  const cost = await databentoCost({ dataset, symbols, schema: 'trades', start, end, stypeIn, apiKey, fetchImpl })
+  if (cost > maxCostUsd) {
+    throw new Error(`Trades query would cost $${cost.toFixed(2)}, above the $${maxCostUsd.toFixed(2)} limit.`)
+  }
+  onProgress?.({ phase: 'cost', cost })
+
+  const days = []
+  for (let d = new Date(`${start}T00:00:00Z`); d < new Date(`${end}T00:00:00Z`); d = new Date(d.getTime() + 86_400_000)) {
+    const wd = d.getUTCDay()
+    if (wd === 0 || wd === 6) continue // no CME session opens on these
+    days.push(d.toISOString().slice(0, 10))
+  }
+
+  let processed = 0
+  for (const day of days) {
+    const next = new Date(Date.parse(`${day}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10)
+    const text = await call(
+      'timeseries.get_range',
+      { dataset, symbols, schema: 'trades', start: day, end: next, stype_in: stypeIn, encoding: 'csv', pretty_px: 'true', pretty_ts: 'true' },
+      apiKey,
+      fetchImpl,
+      { raw: true },
+    )
+    // Consume before moving on; the bytes are already paid for.
+    await onDay(text, { day })
+    processed++
+    onProgress?.({ phase: 'day', day, processed, total: days.length, bytes: text.length })
+  }
+
+  return { costUsd: cost, days: processed }
+}

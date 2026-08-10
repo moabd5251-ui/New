@@ -225,7 +225,7 @@ export function evaluationEV({
   riskFraction = 0.05,
   edge,
   fee = null,
-  payoutMode = 'full',
+  payoutMode = null,
   runs = 4000,
   seed = 12345,
   maxDays = 250,
@@ -235,22 +235,31 @@ export function evaluationEV({
   const cost = fee ?? spec.evaluationFee ?? 0
   const threshold = spec.withdrawalThreshold ?? 0
   const split = spec.payoutSplit ?? 1
+  const mode = payoutMode ?? spec.payoutMode ?? 'full'
 
   const mc = monteCarlo({ preset, riskFraction, edge, runs, seed, maxDays, overrides })
 
   // `expectedPayout` already applies the split to the whole profit. Under the
   // buffer reading, only the excess above the threshold is withdrawable.
   let expectedPayout = mc.expectedPayout
-  if (payoutMode === 'buffer' && mc.paidRate > 0) {
+  if (mode === 'buffer' && mc.paidRate > 0) {
     const avgProfitWhenPaid = mc.expectedPayout / mc.paidRate / split
     const withdrawable = Math.max(0, avgProfitWhenPaid - threshold)
     expectedPayout = mc.paidRate * withdrawable * split
   }
 
+  const payoutPerSuccess = mc.paidRate > 0 ? expectedPayout / mc.paidRate : 0
+
   return {
     ...mc,
     fee: cost,
-    payoutMode,
+    payoutMode: mode,
+    withdrawalThreshold: threshold,
+    // The payout rate the fee needs to break even. A small payout does not make
+    // an attempt bad value on its own — it raises the hit rate required, and
+    // that is the number worth comparing your real results against.
+    payoutPerSuccess,
+    breakevenPaidRate: payoutPerSuccess > 0 ? cost / payoutPerSuccess : Infinity,
     expectedPayout,
     ev: expectedPayout - cost,
     // How many times the fee you get back, on average, per attempt.

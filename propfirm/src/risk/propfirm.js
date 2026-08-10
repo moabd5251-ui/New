@@ -91,12 +91,16 @@ export const USER_ACCOUNTS = {
     // 50% during the evaluation, and none at all once funded.
     consistencyPct: 0.5,
     consistencyAppliesAfterPass: false,
-    // Confirmed by the account holder: $3k target, 90% split, withdrawals
-    // unlock above $2k of profit, $150 evaluation fee.
+    // Confirmed by the account holder: $3k target, $150 fee, 90% split, and
+    // only profit ABOVE $2,100 is withdrawable — the buffer stays in the
+    // account. That last rule is the one that sets the size of a payout: at
+    // the $3k target the first withdrawal is (3000 - 2100) * 0.9 = $810, not
+    // $2,700. The buffer is not lost, it just is not cash yet.
     profitTarget: 3000,
     profitTargetAssumed: false,
     payoutSplit: 0.9,
-    withdrawalThreshold: 2000,
+    withdrawalThreshold: 2100,
+    payoutMode: 'buffer',
     evaluationFee: 150,
     maxContracts: 10,
     maxMicros: 100,

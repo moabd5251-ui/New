@@ -485,3 +485,17 @@ test('EV never counts a payout on a breached run', async () => {
   assert.equal(e.expectedPayout, 0)
   assert.equal(e.ev, -150, 'with no chance of passing, EV is exactly the fee')
 })
+
+test('a withdrawal buffer shrinks the payout without making the attempt bad value', async () => {
+  const { evaluationEV } = await import('../src/risk/survival.js')
+  const edge = { winRate: 0.45, payoffRatio: 2, badRunProb: 0.2, badRunDays: 5, badRunMultiplier: 0.45 }
+  const e = evaluationEV({ riskFraction: 0.075, edge, runs: 1200 })
+
+  assert.equal(e.payoutMode, 'buffer', 'the account spec should select the buffer reading')
+  assert.equal(e.withdrawalThreshold, 2100)
+  // (3000 - 2100) * 0.9 = 810, plus a little overshoot past the target.
+  assert.ok(e.payoutPerSuccess > 750 && e.payoutPerSuccess < 1100, `payout per success was ${e.payoutPerSuccess}`)
+  // A small payout raises the hit rate required rather than killing the EV.
+  assert.ok(e.breakevenPaidRate > 0.1 && e.breakevenPaidRate < 0.25)
+  assert.ok(e.paidRate > e.breakevenPaidRate, 'this edge should clear its own breakeven')
+})

@@ -202,6 +202,35 @@ real order. If the forward mean holds up after 30+ nights, that is the moment
 an evaluation fee stops being a donation; if it collapses, the journal killed
 the hypothesis for the cost of nothing.
 
+### The execution bot (`bot/`)
+
+For when — and only when — the paper gate passes. A Tradovate execution bot
+implementing the identical spec: market buy 1 MNQ in the ten minutes after
+18:00 ET, stop placed at fill − 100 the moment the fill is known, no target,
+flatten at 09:29. It runs on your machine or a VPS, not in a cloud session:
+
+```bash
+export TRADOVATE_USER=… TRADOVATE_PASS=… TRADOVATE_CID=… TRADOVATE_SEC=… TRADOVATE_DEVICE_ID=…
+node bot/run.js                    # demo environment, DRY RUN — logs, no orders
+node bot/run.js --execute          # demo environment, real demo orders
+node bot/run.js --live --armed --execute   # real account; all three flags required
+```
+
+Safety rails, all tested: one entry per night (crash-safe — state is written
+before the order); never enters over an existing position or working order; if
+the stop cannot be attached the position is closed immediately rather than
+held unprotected; Friday/Saturday evenings and the dates in
+`bot/holidays.json` are refused; a circuit breaker halts entries once realised
+losses reach $1,000; touching `bot/KILL` flattens and stops the bot. Every
+action appends to `bot/log.jsonl`.
+
+Prerequisites that are questions for the firm, not for this code: written
+confirmation that overnight holds and automated entry are allowed, and API
+Access credentials (cid/sec) — retail Tradovate sells this as an add-on and
+prop white-labels may not offer it. Run `--execute` against **demo** for the
+whole paper-validation period first; going live is three explicit flags and
+should stay that way.
+
 ---
 
 ## The system

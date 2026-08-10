@@ -1,8 +1,4 @@
-node_modules/
-
-# Scratch output at the repo root. The collector store under data/ is the
-# durable record and is deliberately tracked — this container is ephemeral, so
-# git is the only place the accumulating history survives.
-/*.jsonl
-*-report.html
-backtest-report.html
+# Bot runtime state lives on the machine that runs it, never in git.
+bot/state.json
+bot/log.jsonl
+bot/KILL

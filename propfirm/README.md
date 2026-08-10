@@ -366,3 +366,70 @@ node src/cli.js stats --journal journal.jsonl
 which reports expectancy by model, session and grade, and says plainly which to
 keep, review and drop. Feed the stats object back into `new TradingSystem({ stats })`
 to let measured expectancy reweight the grading.
+
+---
+
+## Measured: do the entry components predict anything?
+
+The full system produces ~50 trades in two years — far too few to judge an
+entry rule, and tuning against a sample that size is curve-fitting. So the
+components were measured directly instead. Each fires thousands of times over
+704,591 bars of real NQ, and each makes a falsifiable claim.
+
+Forward move in ATR / hit rate / t-statistic, on non-overlapping events.
+**Positive means the signal was right.**
+
+| Component | 5 bars | 15 bars | 60 bars |
+|---|---|---|---|
+| *random baseline (long)* | *+0.008 / 50% / +0.6* | *+0.020 / 51% / +0.8* | *+0.103 / 53% / +1.7* |
+| CISD up | +0.014 / 50% / +0.6 | +0.041 / 50% / +1.1 | +0.128 / 52% / +1.4 |
+| CISD down | −0.054 / 47% / −2.7 | −0.061 / 47% / −1.7 | −0.208 / 46% / −2.3 |
+| **IFVG bullish** | **−0.379 / 41% / −10.1** | **−0.811 / 40% / −13.4** | **−2.063 / 37% / −14.3** |
+| **IFVG bearish** | **−0.645 / 34% / −17.8** | **−1.402 / 29% / −23.6** | **−3.446 / 25% / −24.2** |
+| break & retest up | +0.034 / 50% / +1.7 | +0.049 / 51% / +1.5 | +0.155 / 52% / +1.8 |
+| break & retest down | +0.007 / 47% / +0.4 | −0.020 / 47% / −0.6 | −0.090 / 47% / −1.0 |
+| displacement down | −0.057 / 46% / −4.7 | −0.074 / 47% / −3.0 | −0.110 / 46% / −1.5 |
+| CISD up, killzone only | −0.007 / 49% / −0.3 | +0.009 / 50% / +0.2 | +0.069 / 52% / +0.6 |
+
+Three things follow, and none of them are close calls.
+
+**The IFVG model is strongly anti-predictive.** Not weak — inverted, at
+t = −24 across 2,334 non-overlapping samples. After a bearish inverted fair
+value gap, NQ rises 1.4 ATR over the next fifteen minutes, and the hit rate is
+29%. A volume-driven close through an imbalance appears to mark local
+exhaustion on this instrument and timeframe, not continuation. This single
+result explains why IFVG had the worst per-model expectancy in every backtest
+and why A+ setups, which lean on it, performed worst of all grades.
+
+**Nothing else predicts either.** The best component, break & retest up, is
++0.034 ATR at five bars against a +0.008 baseline, t = 1.7. That is
+indistinguishable from drift.
+
+**The killzone filter removes what little signal exists** rather than
+concentrating it: CISD's t-statistic falls to roughly zero once restricted to
+killzone hours.
+
+### What that means for the entries
+
+Removing components improves results monotonically and never rescues them
+(24 months, real NQ, nothing tuned):
+
+| Entry set | Trades | Win rate | Expectancy |
+|---|---|---|---|
+| All three models | 44 | 15.9% | −0.581R |
+| IFVG removed | 60 | 31.7% | −0.433R |
+| Break & retest only | 71 | 28.2% | −0.349R |
+| CISD only | 63 | 38.1% | −0.323R |
+| No killzone filter | 50 | 26.0% | −0.527R |
+
+Every subtraction helps and none reaches profitability, which is the signature
+of components carrying no edge: fewer bad signals simply means losing more
+slowly. The entries cannot be fixed by recombining parts that do not predict.
+
+The one genuinely exploitable-looking result is the inverse of the IFVG model,
+and it is deliberately **not** implemented here. A t = −24 finding on a single
+instrument over one two-year window is a hypothesis, not a strategy: it needs
+out-of-sample confirmation, a cost model (0.6 ATR ≈ 6 NQ points against ~$14 a
+round turn), and an explanation of why the effect should persist. Shipping a
+fade because one backtest lit up is how the previous version of this system got
+its confidence.

@@ -5,18 +5,37 @@
  * while the reason for it is still true, and closed when it stops being true —
  * not when a fixed number of points has been reached.
  *
+ * ── Why deterioration tightens instead of closing ───────────────────────────
+ * The first version of this closed a position whenever the orderflow turned:
+ * three bars of opposing delta, or the point of control flipping against it.
+ * Measured over three months of real aggressor data, that was the single
+ * biggest fault in the system. Winners averaged 0.85R against ~2R targets, and
+ * of nineteen winners only eight reached a target — seven were closed by the
+ * opposing-delta rule and four at breakeven, after an average of nine bars.
+ * Losers, meanwhile, still ran the full distance to the stop at -1.26R. The
+ * exits were asymmetric in exactly the wrong direction: quick to give up on
+ * winners, patient with losers.
+ *
+ * Three bars of opposing delta on a 1-minute chart is noise, and the source
+ * material's version of this judgement is a human watching a live tape decide
+ * whether deterioration is real. A mechanical rule cannot make that call, so it
+ * should not be allowed to end trades — only to demand more protection.
+ *
+ * So deterioration now moves the stop up behind price. If the move was real,
+ * the trade survives and keeps running; if it was not, the tightened stop takes
+ * it out at a better price than the original invalidation. Only price closes a
+ * position.
+ * ─────────────────────────────────────────────────────────────────────────────
+ *
  * The rules encoded here, in the order they are checked each bar:
  *
  *   1. Hard stop — invalidation hit.
- *   2. Adverse close — price closes back past 50% of the stop distance. The
- *      trade is wrong early; cut it rather than donating the rest.
- *   3. Orderflow flip — the point of control flips against the position, or
- *      sustained delta turns against it. This is the "I don't like the volume
- *      right now" exit, and it is the difference between a breakeven and a
- *      full stop-out.
- *   4. Targets — scale at T1, run the remainder.
- *   5. Breakeven / trail — once T1 is banked or the POC has moved behind the
- *      position, protect it.
+ *   2. Adverse close — price closes back past 50% of the stop distance. Kept as
+ *      a close, because it demonstrably helps: those exits average -0.88R
+ *      against -1.26R for trades left to hit the stop.
+ *   3. Targets — scale at T1, run the remainder.
+ *   4. Deterioration — orderflow turning against the position TIGHTENS the stop.
+ *   5. Breakeven / volatility trail — protect a runner without capping it.
  *   6. Session flatten — out before the close.
  */
 
@@ -25,16 +44,35 @@ import { etMinuteOfDay } from '../core/sessions.js'
 export const DEFAULT_MANAGEMENT = {
   /** Close if a bar CLOSES this far back into the stop distance. */
   adverseCloseFraction: 0.5,
-  /** Move to breakeven once this many R of open profit is reached. */
-  breakevenAtR: 1,
-  /** Exit on sustained opposing delta once open profit exceeds this R. */
+  /**
+   * Move to breakeven once this many R of open profit is reached. Deliberately
+   * beyond 1R: a stop parked at entry the moment a trade reaches 1R converts
+   * ordinary retracement into a scratch, and did so for four of nineteen
+   * winners in the measured sample.
+   */
+  breakevenAtR: 1.5,
+  /**
+   * What deterioration does. 'tighten' pulls the stop up behind price;
+   * 'close' exits immediately, which is the old behaviour and is kept only so
+   * the two can be compared.
+   */
+  orderflowAction: 'tighten',
+  /** Open profit required before deterioration is acted on at all. */
   orderflowExitMinR: 0.3,
-  /** Bars of opposing delta required before the orderflow exit fires. */
-  opposingDeltaBars: 3,
+  /** Bars of opposing delta before deterioration counts as real. */
+  opposingDeltaBars: 5,
+  /** Where a tightened stop lands, as a fraction of the way from stop to price. */
+  tightenFraction: 0.5,
   /** Trail the stop behind the session POC once in profit. */
   trailBehindPOC: true,
   /** Extra clearance when trailing behind a level, in points. */
   trailBufferPoints: 2,
+  /**
+   * Volatility trail: once past breakeven, the stop follows the best price
+   * reached by this multiple of ATR. Wide enough to sit outside normal noise,
+   * which is the whole point — it should only be hit when the move is over.
+   */
+  trailAtrMultiple: 2.5,
   /** Hard time stop: bars a scalp is allowed to stay open. */
   maxBarsInTrade: 120,
   /** Flatten at this ET minute regardless. */
@@ -68,6 +106,8 @@ export class PositionManager {
     this.events = []
     this.closed = false
     this.exitReason = null
+    // Best price reached since entry, for the volatility trail.
+    this.extreme = position.entry
   }
 
   get long() {
@@ -112,9 +152,11 @@ export class PositionManager {
       if (this.remaining <= 0) return this.#close(t.price, `target ${t.label}`, actions)
       // First scale banked — the rest rides risk-free.
       if (!this.movedToBreakeven) {
-        this.position.stop = this.position.entry
         this.movedToBreakeven = true
-        actions.push({ type: 'stop-moved', price: this.position.entry, reason: 'first target banked' })
+        if (this.#tighterThanCurrent(this.position.entry)) {
+          this.position.stop = this.position.entry
+          actions.push({ type: 'stop-moved', price: this.position.entry, reason: 'first target banked' })
+        }
       }
     }
 
@@ -127,18 +169,34 @@ export class PositionManager {
       return this.#close(bar.c, `closed back through ${(this.cfg.adverseCloseFraction * 100).toFixed(0)}% of the stop — cutting it short`, actions)
     }
 
-    // ── 3. Orderflow deterioration.
+    // Track the best price seen, which the volatility trail hangs off.
+    this.extreme = this.long ? Math.max(this.extreme, bar.h) : Math.min(this.extreme, bar.l)
+
+    // ── 4. Orderflow deterioration — tighten, do not close.
     if (flow) {
       const openR = this.rAt(bar.c)
       const deltaAgainst = this.long ? flow.delta < 0 : flow.delta > 0
       this.opposingDeltaStreak = deltaAgainst ? this.opposingDeltaStreak + 1 : 0
 
       const pocAgainst = flow.pocFlip && (this.long ? flow.pocFlip.direction === 'down' : flow.pocFlip.direction === 'up')
-      if (pocAgainst && openR > 0) {
-        return this.#close(bar.c, 'point of control flipped against the position', actions)
-      }
-      if (this.opposingDeltaStreak >= this.cfg.opposingDeltaBars && openR >= this.cfg.orderflowExitMinR) {
-        return this.#close(bar.c, `${this.opposingDeltaStreak} bars of opposing aggression — taking what is there`, actions)
+      const sustainedAgainst = this.opposingDeltaStreak >= this.cfg.opposingDeltaBars
+      const deteriorating = (pocAgainst || sustainedAgainst) && openR >= this.cfg.orderflowExitMinR
+
+      if (deteriorating) {
+        const why = pocAgainst
+          ? 'point of control flipped against the position'
+          : `${this.opposingDeltaStreak} bars of opposing aggression`
+        if (this.cfg.orderflowAction === 'close') {
+          return this.#close(bar.c, `${why} — taking what is there`, actions)
+        }
+        // Pull the stop part of the way from where it is to current price. The
+        // trade keeps its upside; it just has less room to give back.
+        const candidate = this.position.stop + (bar.c - this.position.stop) * this.cfg.tightenFraction
+        const better = this.long ? candidate > this.position.stop : candidate < this.position.stop
+        if (better) {
+          this.position.stop = candidate
+          actions.push({ type: 'stop-moved', price: candidate, reason: `${why} — tightening` })
+        }
       }
 
       // ── 5. Trail behind the point of control once it sits behind us.
@@ -152,13 +210,32 @@ export class PositionManager {
           actions.push({ type: 'stop-moved', price: candidate, reason: 'trailing behind the point of control' })
         }
       }
+
+      // ── 5b. Volatility trail on the runner.
+      const atrNow = flow.atr
+      if (Number.isFinite(atrNow) && atrNow > 0 && this.rAt(bar.c) >= this.cfg.breakevenAtR) {
+        const gap = atrNow * this.cfg.trailAtrMultiple
+        const candidate = this.long ? this.extreme - gap : this.extreme + gap
+        const better = this.long ? candidate > this.position.stop : candidate < this.position.stop
+        const behindUs = this.long ? candidate < bar.c : candidate > bar.c
+        if (better && behindUs) {
+          this.position.stop = candidate
+          actions.push({ type: 'stop-moved', price: candidate, reason: `trailing ${this.cfg.trailAtrMultiple}x ATR behind the high` })
+        }
+      }
     }
 
-    // ── 5b. Breakeven on R alone.
+    // ── 5c. Breakeven on R alone.
     if (!this.movedToBreakeven && this.rAt(bar.c) >= this.cfg.breakevenAtR) {
-      this.position.stop = this.position.entry
       this.movedToBreakeven = true
-      actions.push({ type: 'stop-moved', price: this.position.entry, reason: `${this.cfg.breakevenAtR}R reached` })
+      // Only if it is an improvement. A trail that has already climbed past
+      // entry must not be dragged back down to it — moving a stop backwards is
+      // never protection, and doing exactly that was silently undoing the
+      // volatility trail on every winner that reached breakeven.
+      if (this.#tighterThanCurrent(this.position.entry)) {
+        this.position.stop = this.position.entry
+        actions.push({ type: 'stop-moved', price: this.position.entry, reason: `${this.cfg.breakevenAtR}R reached` })
+      }
     }
 
     // ── 6. Time and session limits.
@@ -171,6 +248,11 @@ export class PositionManager {
     }
 
     return { actions, closed: false, exitPrice: null, exitReason: null }
+  }
+
+  /** Would this price be a tighter stop than the one currently set? */
+  #tighterThanCurrent(price) {
+    return this.long ? price > this.position.stop : price < this.position.stop
   }
 
   #close(price, reason, actions) {

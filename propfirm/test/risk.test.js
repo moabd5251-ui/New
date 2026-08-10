@@ -259,21 +259,57 @@ test('after breakeven the trade cannot lose', () => {
   assert.equal(r.exitReason, 'stopped at breakeven')
 })
 
-test('the point of control flipping against an open trade closes it', () => {
+test('a point-of-control flip tightens the stop instead of closing the trade', () => {
   const m = mkManager()
+  const before = m.position.stop
   const r = m.update(bar(T(), 100, 106, 99, 105), { poc: 104, pocFlip: { direction: 'down' }, delta: -500 })
-  assert.equal(r.closed, true)
-  assert.match(r.exitReason, /point of control flipped/)
+  assert.equal(r.closed, false, 'deterioration must not end a trade on its own')
+  assert.ok(m.position.stop > before, 'the stop should move up behind price')
+  assert.ok(m.position.stop < 105, 'and stay below current price, so the trade can still run')
+  assert.ok(r.actions.some((a) => a.type === 'stop-moved' && /tightening/.test(a.reason)))
 })
 
-test('sustained opposing aggression takes what is there', () => {
+test('sustained opposing aggression tightens, and only price closes', () => {
   const m = mkManager({}, { opposingDeltaBars: 3, orderflowExitMinR: 0.3 })
   const flow = { poc: 95, pocFlip: null, delta: -400 }
   m.update(bar(T(1), 100, 106, 100, 105), flow)
   m.update(bar(T(2), 105, 106, 104, 105), flow)
   const r = m.update(bar(T(3), 105, 106, 104, 105), flow)
-  assert.equal(r.closed, true)
-  assert.match(r.exitReason, /opposing aggression/)
+  assert.equal(r.closed, false)
+  assert.ok(m.position.stop > 90, 'three bars against should have tightened the stop')
+
+  // The tightened stop is what eventually ends it — at a better price than the
+  // original invalidation.
+  const stop = m.position.stop
+  const out = m.update(bar(T(4), 105, 105, stop - 1, stop - 1), flow)
+  assert.equal(out.closed, true)
+  assert.equal(out.exitPrice, stop)
+})
+
+test('the legacy close-on-deterioration behaviour is still available', () => {
+  const m = mkManager({}, { orderflowAction: 'close', opposingDeltaBars: 3 })
+  const flow = { poc: 95, pocFlip: null, delta: -400 }
+  m.update(bar(T(1), 100, 106, 100, 105), flow)
+  m.update(bar(T(2), 105, 106, 104, 105), flow)
+  const r = m.update(bar(T(3), 105, 106, 104, 105), flow)
+  assert.equal(r.closed, true, 'opt-in close mode must still work for comparison')
+})
+
+test('the volatility trail follows the high and never loosens', () => {
+  // Targets deliberately out of reach: this test is about the trail, and a bar
+  // that fills a target closes the position before the trail can act.
+  const m = new PositionManager(
+    { direction: 'long', entry: 100, stop: 90, contracts: 1, targets: [{ price: 500, r: 40, label: 'T1', contracts: 1 }] },
+    { breakevenAtR: 1, trailAtrMultiple: 2, trailBehindPOC: false },
+  )
+  // Runs to a high of 120 with a 2-point ATR, so the trail sits at 120 - 4.
+  m.update(bar(T(1), 100, 120, 100, 119), { poc: NaN, pocFlip: null, delta: 500, atr: 2 })
+  const trailed = m.position.stop
+  assert.ok(trailed >= 115 && trailed < 119, `expected a trail near 116, got ${trailed}`)
+
+  // A lower high must not drag the stop back down.
+  m.update(bar(T(2), 119, 119, 117, 118), { poc: NaN, pocFlip: null, delta: 500, atr: 2 })
+  assert.equal(m.position.stop, trailed, 'a trailing stop only ever ratchets')
 })
 
 test('the stop trails behind the point of control, never away from it', () => {
@@ -621,4 +657,22 @@ test('a fresh funded account has to earn the buffer again', async () => {
   // at $100 risk, so nothing is withdrawable yet.
   assert.equal(reset.payout, 0, 'the $3k made in the evaluation is not withdrawable')
   assert.equal(reset.outcome, 'funded-no-payout')
+})
+
+test('no protective rule may ever move a stop backwards', () => {
+  // The trail climbs above entry; the breakeven rule must then leave it alone.
+  const m = new PositionManager(
+    { direction: 'long', entry: 100, stop: 90, contracts: 1, targets: [{ price: 500, r: 40, label: 'T1', contracts: 1 }] },
+    { breakevenAtR: 1, trailAtrMultiple: 2, trailBehindPOC: false },
+  )
+  m.update(bar(T(1), 100, 120, 100, 119), { poc: NaN, pocFlip: null, delta: 500, atr: 2 })
+  assert.ok(m.position.stop > 100, `breakeven must not undo a higher trail, stop was ${m.position.stop}`)
+
+  // Same guarantee for a short.
+  const short = new PositionManager(
+    { direction: 'short', entry: 100, stop: 110, contracts: 1, targets: [{ price: 1, r: 40, label: 'T1', contracts: 1 }] },
+    { breakevenAtR: 1, trailAtrMultiple: 2, trailBehindPOC: false },
+  )
+  short.update(bar(T(1), 100, 100, 80, 81), { poc: NaN, pocFlip: null, delta: -500, atr: 2 })
+  assert.ok(short.position.stop < 100, `breakeven must not undo a lower trail, stop was ${short.position.stop}`)
 })

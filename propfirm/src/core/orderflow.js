@@ -322,6 +322,7 @@ export class BarOrderflow {
     this.absorption = detectAbsorption(candles, opts)
     this.absorptionByIndex = new Map(this.absorption.map((a) => [a.index, a]))
     this.volBase = volumeBaseline(candles, opts.volumePeriod ?? 20)
+    this.atrs = atr(candles, opts.atrPeriod ?? 14)
     this.profileCache = new Map()
   }
 
@@ -340,6 +341,9 @@ export class BarOrderflow {
       cvd: this.cv.cumulative[i],
       relVolume: relativeVolume(this.candles, i, this.volBase),
       absorption: this.absorptionByIndex.get(i) ?? null,
+      // Exposed so trade management can size a trailing stop against current
+      // volatility rather than a fixed number of points.
+      atr: this.atrs[i],
       isProxy: true,
     }
   }

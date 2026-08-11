@@ -49,7 +49,23 @@ def record(a, session_open=None):
         return None
     rows = load()
     key = (a["symbol"], a["expiry"])
-    if any((r["symbol"], r["expiry"]) == key for r in rows):
+    prior = next((r for r in rows if (r["symbol"], r["expiry"]) == key), None)
+    if prior is not None:
+        # The CLAIM is fixed at the first read — max pain, magnet and expected move are
+        # the prediction, and letting a later capture revise them would be marking your
+        # own homework. The REGIME is not a claim, it is a condition that holds during
+        # the day, and it moves: on 11 Aug SPY and QQQ were +1.73bn and +0.29bn at 15:35
+        # and -2.57bn and -0.91bn by the close. Both then ran about twice their expected
+        # move while IWM, which stayed long gamma throughout, moved 0.02%. Scoring all
+        # three as "long" would have filed two amplifying days in the damping bucket and
+        # buried the one relationship in this study that is actually behaving.
+        if not prior.get("scored"):
+            g = a.get("total_gex") or 0
+            prior["regime_last"] = "long" if g > 0 else "short"
+            prior["gex_last"] = g
+            prior["regime_flipped"] = prior["regime_last"] != prior.get("regime")
+            prior["regime_last_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+            save(rows)
         return None                      # one call per symbol per expiry
     mags = a.get("magnets") or []
     entry = dict(
@@ -120,10 +136,16 @@ def summary():
     mg_rate, mg_n = rate("magnet_moved_toward")
     ie_rate, ie_n = rate("inside_expected")
 
+    # Prefer the last observed regime over the first. A day is classified by the state
+    # dealers were actually in as it played out, not by a label frozen at the first read.
+    def regime_of(r):
+        return r.get("regime_last") or r.get("regime")
+
     lng = [r["realised_range_pct"] for r in rows
-           if r.get("regime") == "long" and r.get("realised_range_pct") is not None]
+           if regime_of(r) == "long" and r.get("realised_range_pct") is not None]
     sht = [r["realised_range_pct"] for r in rows
-           if r.get("regime") == "short" and r.get("realised_range_pct") is not None]
+           if regime_of(r) == "short" and r.get("realised_range_pct") is not None]
+    flipped = sum(1 for r in rows if r.get("regime_flipped"))
     mean = lambda x: round(sum(x) / len(x), 3) if x else None
 
     return dict(

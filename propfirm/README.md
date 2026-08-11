@@ -529,6 +529,7 @@ treated as nothing, and a survivor required the same sign out-of-sample.
 | Real orderflow (delta extremes, delta/price and CVD divergence, absorption) | 10 | Noise on 3 months of tape; CVD divergence flips sign between halves |
 | 5m structure continuation (higher-low longs / lower-high shorts, stop at the last swing) | 9 | Entry has no edge (t ≤ 0.8); stops AT the swing level get hunted — 65–73% stop-outs vs 49% one swing wider — and no variant beats costs |
 | Daily open with the trend (9:30 entry; 20d SMA / yesterday / 5d momentum filters) | 8 | Every filter underperforms always-long in-sample; "yesterday direction" flips sign between halves; always-long-at-open is drift (+4–5 pt/day, t ≈ 0) with ±200 pt daily swings |
+| **NY-open liquidity sweep + reversal** (sweep → displacement → CHoCH → OTE entry, killzone only) | 4 + control | **The only entry that beats its random-entry control.** +0.842R IS (n=34), +0.683R OOS (n=12) against −0.079R / −0.002R for random killzone entries with the same stop and management. But: median trade −1.02R, the top 5 of 46 trades are 106% of all profit, t = 1.7 / 0.7, and the setup fires **1.9×/month**, not the ~1/day the playbook's pass math assumes. See below. |
 | Multi-timeframe structure alignment (15m higher-low, filtered by 1h and daily HH+HL) | 14 | Alignment *hurts*, monotonically: 15m alone +0.06→+0.35 ATR OOS; +1h turns it negative; +1h+daily is the worst cell measured (−0.27 to −0.76, t −1.7). Counter-trend entries (daily *down*) are mildly positive in both halves. The profitable-looking 8h-hold variant is the overnight premium in disguise — see below. |
 | Daily classics (overnight premium, day-of-week, turn-of-month, RSI(2), SMA/Donchian, NR7 / inside day, last-hour momentum) | 21 | Only long-overnight expressions are sign-consistent: overnight hold +18.5 pt both halves (t 1.9/0.9), RSI(2)<10 next-day long, Monday long. All shorts lose everywhere. |
 | Prop-tradable (intraday) legs of the above | 6 | The returns live overnight: RSI(2)'s intraday leg is +74 pt IS but **−89 pt OOS**; down-day reversion intraday flips sign too. Only Monday-intraday stays positive both halves (+33/+57 pt, t 1.5/1.3) — below threshold, one cell of dozens tested. |
@@ -559,6 +560,43 @@ hold simply carries the position through the overnight session: shorten the
 hold to two hours, too short to collect that drift, and the signal (+0.30 pt)
 underperforms random (+1.25 pt). The "edge" was the overnight premium plus
 being long a rising market, with a structure rule bolted on the front.
+
+### The one entry that survived its control
+
+The NY-open liquidity sweep reversal, implemented exactly as specified —
+overnight range and prior-day levels marked before the open, sweep during the
+07:00–10:00 killzone, displacement back through the swept level at ≥1.2 ATR,
+CHoCH against the last opposing pivot, limit entry in the 62–79% OTE band,
+stop 3 ticks beyond the sweep extreme, 2R first target with half off and stop
+to breakeven, second half to opposite-side liquidity, time stop 11:30 — is the
+only entry rule in this repository that beats a random-entry control:
+
+| | in-sample | out-of-sample |
+|---|---|---|
+| Playbook entries | **+0.842R** (n 34) | **+0.683R** (n 12) |
+| Random killzone entries, same stop and management | −0.079R (n 310) | −0.002R (n 133) |
+
+The control matters because it is what killed the multi-timeframe result: there,
+random entries matched the signal exactly, proving the "edge" was the management
+and the drift. Here random entries return zero and the rule returns +0.7 to
++0.8R, so the entry is contributing something.
+
+**Four reasons that is not yet a strategy.** The median trade is **−1.02R** — a
+full stop-out is the typical outcome. The top five trades of forty-six are
+**106%** of all profit, meaning the other forty-one lose money collectively;
+that is the same profile as the drift study (99% of profit in 5 of 151) and it
+makes forward performance close to unpredictable. The t-statistics are 1.7 and
+0.7, nowhere near the |t| ≥ 3 this project requires. And the out-of-sample
+sample is **twelve trades**.
+
+**The frequency correction matters most for planning.** With every filter on,
+the setup fires **1.9 times a month** on two years of real NQ — not the
+roughly one per day the pass math assumes. At +0.8R and two trades a month,
+reaching 27R takes about **17 months**, not 4–8 weeks. Dropping the CHoCH
+requirement restores the frequency to about one a day (562 trades) at a much
+smaller +0.160R IS / +0.158R OOS — remarkably stable across halves, and a far
+larger sample, which arguably makes it the better candidate of the two despite
+the smaller number.
 
 Four artifacts were caught and killed in the process — the unsorted-event
 thinning bug (t = −24 that was really t = −1.3), the future-informed pool

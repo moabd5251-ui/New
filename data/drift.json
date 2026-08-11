@@ -2,12 +2,12 @@
   {
     "symbol": "ABNB",
     "report_date": "2026-08-06",
-    "days_since": 3,
+    "days_since": 4,
     "beat_rate": 25,
     "avg_surprise": -6.3,
-    "atr": 6.06,
-    "stop": 138.21,
-    "target": 196.25,
+    "atr": 6.49,
+    "stop": 138.0,
+    "target": 204.16,
     "idx": 274,
     "date": "2026-08-07",
     "pre_close": 151.64,
@@ -15,104 +15,68 @@
     "day_move_pct": 17.43,
     "react_close": 178.07,
     "vol_ratio": 4.38,
-    "bars_since": 0,
+    "bars_since": 1,
     "direction": "UP",
-    "drift_since": 0.0,
+    "drift_since": 3.72,
     "gap_filled": false,
-    "state": "HOLDING",
-    "state_note": "Holding the reaction level without extending \u2014 consolidating rather than drifting.",
-    "spot": 178.07,
-    "rr": 0.46,
-    "tradeable": true,
-    "conviction": "HIGH",
-    "down_gap_bonus": false,
-    "structures": {
-      "shares": {
-        "structure": "SHARES",
-        "legs": "long 100 shares",
-        "cost": 17807.0,
-        "vega": 0.0,
-        "delta": 1.0,
-        "risk": 3986.0,
-        "note": "No volatility exposure at all \u2014 the cleanest way to own a drift."
-      },
-      "deep_itm": {
-        "structure": "DEEP ITM CALL",
-        "legs": "175.0C",
-        "strike": 175.0,
-        "expiry": "2026-09-11",
-        "dte": 31,
-        "cost": 1345.0,
-        "max_loss": 1345.0,
-        "delta": 0.732,
-        "vega": 0.178,
-        "theta": -0.1038,
-        "iv": 30.7,
-        "capital_vs_shares": 7.6,
-        "min_oi": 58,
-        "stale": false,
-        "note": "Behaves like 73 shares for 8% of the capital, with little vega left to lose."
-      }
-    },
-    "fired": [
-      "entry"
-    ],
+    "state": "DRIFTING",
+    "state_note": "Continued 3.7% further up since the reaction \u2014 the drift is underway.",
+    "spot": 184.7,
+    "rr": 0.42,
     "chart": {
       "symbol": "ABNB",
-      "asof": "2026-08-07",
-      "price": 178.07,
-      "atr": 6.06,
-      "atr_pct": 3.4,
+      "asof": "2026-08-10",
+      "price": 184.7,
+      "atr": 6.49,
+      "atr_pct": 3.51,
       "trend": "UPTREND",
       "trend_note": "Price above the 20-day above the 50-day.",
-      "ema20": 150.99,
-      "sma50": 143.51,
-      "sma200": 133.34,
+      "ema20": 154.2,
+      "sma50": 144.51,
+      "sma200": 133.63,
       "resistance": [],
       "support": [
         {
-          "price": 166.38,
+          "price": 172.12,
           "cs": 1,
           "labels": [
             "fib 0.236"
           ],
-          "dist_pct": -6.56,
-          "dist_atr": 1.93
+          "dist_pct": -6.81,
+          "dist_atr": 1.94
+        },
+        {
+          "price": 163.54,
+          "cs": 1,
+          "labels": [
+            "fib 0.382"
+          ],
+          "dist_pct": -11.45,
+          "dist_atr": 3.26
         },
         {
           "price": 156.5,
-          "cs": 3,
+          "cs": 4,
           "labels": [
             "swing high",
-            "fib 0.382"
-          ],
-          "dist_pct": -12.11,
-          "dist_atr": 3.56
-        },
-        {
-          "price": 150.88,
-          "cs": 8,
-          "labels": [
-            "swing high",
-            "bear OB",
-            "bull OB"
+            "fib 0.5",
+            "EMA20"
           ],
           "dist_pct": -15.27,
-          "dist_atr": 4.49
+          "dist_atr": 4.35
         }
       ],
       "room_up": null,
-      "room_down": 1.93,
+      "room_down": 1.94,
       "structure": {
         "bars_ago": 0,
         "dir": "up",
         "level": 156.5
       },
-      "pos_52w": 99.4,
+      "pos_52w": 98.3,
       "lo52": 110.81,
-      "hi52": 178.48,
+      "hi52": 185.99,
       "series": [
-        126.28,
         125.19,
         124.95,
         126.81,
@@ -201,24 +165,76 @@
         149.92,
         152.49,
         151.64,
-        178.07
+        178.07,
+        184.7
       ],
       "read": [
         "UPTREND \u2014 Price above the 20-day above the 50-day.",
         "No confirmed level above price \u2014 it is at the top of its range, so there is nothing overhead to stall it and nothing to target either.",
-        "Nearest support 166.38 is 1.93 ATR below (-6.56%), confluence 1.",
+        "Nearest support 172.12 is 1.94 ATR below (-6.81%), confluence 1.",
         "Structure broke up through 156.5 0 sessions ago."
       ]
-    }
+    },
+    "tradeable": true,
+    "conviction": "HIGH",
+    "down_gap_bonus": false,
+    "structures": {
+      "shares": {
+        "structure": "SHARES",
+        "legs": "long 100 shares",
+        "cost": 18470.0,
+        "vega": 0.0,
+        "delta": 1.0,
+        "risk": 4670.0,
+        "note": "No volatility exposure at all \u2014 the cleanest way to own a drift."
+      },
+      "deep_itm": {
+        "structure": "DEEP ITM CALL",
+        "legs": "175.0C",
+        "strike": 175.0,
+        "expiry": "2026-09-11",
+        "dte": 30,
+        "cost": 1402.5,
+        "max_loss": 1402.5,
+        "delta": 0.766,
+        "vega": 0.1686,
+        "theta": -0.0894,
+        "iv": 31.6,
+        "capital_vs_shares": 7.6,
+        "min_oi": 62,
+        "stale": false,
+        "note": "Behaves like 77 shares for 8% of the capital, with little vega left to lose."
+      },
+      "vertical": {
+        "structure": "DEBIT CALL SPREAD",
+        "legs": "180.0 / 200.0",
+        "expiry": "2026-09-11",
+        "dte": 30,
+        "cost": 841.5,
+        "max_loss": 841.5,
+        "max_profit": 1158.5,
+        "rr": 1.38,
+        "breakeven": 188.41,
+        "delta": 0.473,
+        "vega": 0.0403,
+        "theta": -0.0351,
+        "min_oi": 52,
+        "stale": false,
+        "note": "Cheapest of the three, and its short leg cancels most of the remaining vega."
+      }
+    },
+    "fired": [
+      "entry"
+    ]
   },
   {
     "symbol": "TEAM",
     "report_date": "2026-08-06",
-    "days_since": 3,
+    "days_since": 4,
     "beat_rate": 100,
     "avg_surprise": 21.6,
-    "atr": 9.8,
-    "stop": 139.42,
+    "atr": 9.92,
+    "stop": 139.36,
     "target": 166.48,
     "idx": 274,
     "date": "2026-08-07",
@@ -227,42 +243,25 @@
     "day_move_pct": 35.31,
     "react_close": 149.07,
     "vol_ratio": 4.86,
-    "bars_since": 0,
+    "bars_since": 1,
     "direction": "UP",
-    "drift_since": 0.0,
+    "drift_since": 1.88,
     "gap_filled": false,
-    "state": "HOLDING",
-    "state_note": "Holding the reaction level without extending \u2014 consolidating rather than drifting.",
-    "spot": 149.07,
-    "rr": 1.8,
-    "tradeable": true,
-    "conviction": "HIGH",
-    "down_gap_bonus": false,
-    "structures": {
-      "shares": {
-        "structure": "SHARES",
-        "legs": "long 100 shares",
-        "cost": 14907.0,
-        "vega": 0.0,
-        "delta": 1.0,
-        "risk": 965.0,
-        "note": "No volatility exposure at all \u2014 the cleanest way to own a drift."
-      }
-    },
-    "fired": [
-      "entry"
-    ],
+    "state": "DRIFTING",
+    "state_note": "Continued 1.9% further up since the reaction \u2014 the drift is underway.",
+    "spot": 151.87,
+    "rr": 1.17,
     "chart": {
       "symbol": "TEAM",
-      "asof": "2026-08-07",
-      "price": 149.07,
-      "atr": 9.8,
-      "atr_pct": 6.57,
+      "asof": "2026-08-10",
+      "price": 151.87,
+      "atr": 9.92,
+      "atr_pct": 6.53,
       "trend": "UPTREND",
       "trend_note": "Price above the 20-day above the 50-day.",
-      "ema20": 103.16,
-      "sma50": 93.7,
-      "sma200": 108.04,
+      "ema20": 107.8,
+      "sma50": 94.87,
+      "sma200": 107.96,
       "resistance": [
         {
           "price": 158.04,
@@ -270,8 +269,8 @@
           "labels": [
             "swing low"
           ],
-          "dist_pct": 6.02,
-          "dist_atr": 0.92
+          "dist_pct": 4.06,
+          "dist_atr": 0.62
         },
         {
           "price": 166.48,
@@ -280,8 +279,8 @@
             "swing high",
             "swing low"
           ],
-          "dist_pct": 11.68,
-          "dist_atr": 1.78
+          "dist_pct": 9.62,
+          "dist_atr": 1.47
         },
         {
           "price": 171.3,
@@ -289,8 +288,8 @@
           "labels": [
             "swing high"
           ],
-          "dist_pct": 14.91,
-          "dist_atr": 2.27
+          "dist_pct": 12.79,
+          "dist_atr": 1.96
         }
       ],
       "support": [
@@ -301,42 +300,39 @@
             "swing high",
             "swing low"
           ],
-          "dist_pct": -5.63,
-          "dist_atr": 0.86
+          "dist_pct": -7.37,
+          "dist_atr": 1.13
         },
         {
-          "price": 134.61,
+          "price": 135.21,
           "cs": 1,
           "labels": [
             "fib 0.236"
           ],
-          "dist_pct": -9.7,
-          "dist_atr": 1.48
+          "dist_pct": -10.97,
+          "dist_atr": 1.68
         },
         {
-          "price": 119.38,
-          "cs": 5,
+          "price": 123.59,
+          "cs": 1,
           "labels": [
-            "swing high",
-            "swing low",
             "fib 0.382"
           ],
-          "dist_pct": -19.92,
-          "dist_atr": 3.03
+          "dist_pct": -18.62,
+          "dist_atr": 2.85
         }
       ],
-      "room_up": 0.92,
-      "room_down": 0.86,
+      "room_up": 0.62,
+      "room_down": 1.13,
       "structure": {
         "bars_ago": 0,
         "dir": "up",
         "level": 119.38
       },
-      "pos_52w": 69.6,
+      "pos_52w": 74.9,
       "lo52": 56.01,
-      "hi52": 189.69,
+      "hi52": 184.0,
       "series": [
-        68.25,
         69.37,
         68.29,
         68.09,
@@ -425,24 +421,269 @@
         110.31,
         113.32,
         110.17,
-        149.07
+        149.07,
+        151.87
       ],
       "read": [
         "UPTREND \u2014 Price above the 20-day above the 50-day.",
-        "Nearest resistance 158.04 is 0.92 ATR above (+6.02%), confluence 2 \u2014 swing low.",
-        "Nearest support 140.68 is 0.86 ATR below (-5.63%), confluence 4.",
+        "Nearest resistance 158.04 is 0.62 ATR above (+4.06%), confluence 2 \u2014 swing low.",
+        "Nearest support 140.68 is 1.13 ATR below (-7.37%), confluence 4.",
         "Structure broke up through 119.38 0 sessions ago."
       ]
-    }
+    },
+    "tradeable": true,
+    "conviction": "HIGH",
+    "down_gap_bonus": false,
+    "structures": {
+      "shares": {
+        "structure": "SHARES",
+        "legs": "long 100 shares",
+        "cost": 15187.0,
+        "vega": 0.0,
+        "delta": 1.0,
+        "risk": 1251.0,
+        "note": "No volatility exposure at all \u2014 the cleanest way to own a drift."
+      }
+    },
+    "fired": [
+      "entry"
+    ]
+  },
+  {
+    "symbol": "TTD",
+    "report_date": "2026-08-06",
+    "days_since": 4,
+    "beat_rate": 50,
+    "avg_surprise": -5.9,
+    "atr": 1.31,
+    "stop": 21.19,
+    "target": 9.47,
+    "idx": 274,
+    "date": "2026-08-07",
+    "pre_close": 17.67,
+    "gap_pct": -27.16,
+    "day_move_pct": -21.9,
+    "react_close": 13.8,
+    "vol_ratio": 7.32,
+    "bars_since": 1,
+    "direction": "DOWN",
+    "drift_since": -2.97,
+    "gap_filled": false,
+    "state": "DRIFTING",
+    "state_note": "Continued 3.0% further down since the reaction \u2014 the drift is underway.",
+    "spot": 13.39,
+    "rr": 0.5,
+    "chart": {
+      "symbol": "TTD",
+      "asof": "2026-08-10",
+      "price": 13.39,
+      "atr": 1.31,
+      "atr_pct": 9.76,
+      "trend": "DOWNTREND",
+      "trend_note": "Price below the 20-day below the 50-day.",
+      "ema20": 17.62,
+      "sma50": 18.77,
+      "sma200": 28.25,
+      "resistance": [
+        {
+          "price": 15.13,
+          "cs": 1,
+          "labels": [
+            "fib 0.786"
+          ],
+          "dist_pct": 12.98,
+          "dist_atr": 1.33
+        },
+        {
+          "price": 16.98,
+          "cs": 5,
+          "labels": [
+            "swing low",
+            "bull OB",
+            "fib 0.618"
+          ],
+          "dist_pct": 26.81,
+          "dist_atr": 2.75
+        },
+        {
+          "price": 17.62,
+          "cs": 1,
+          "labels": [
+            "EMA20"
+          ],
+          "dist_pct": 31.61,
+          "dist_atr": 3.24
+        }
+      ],
+      "support": [],
+      "room_up": 1.33,
+      "room_down": null,
+      "structure": {
+        "bars_ago": 0,
+        "dir": "down",
+        "level": 16.7
+      },
+      "pos_52w": 1.3,
+      "lo52": 12.83,
+      "hi52": 57.0,
+      "series": [
+        21.98,
+        22.05,
+        22.21,
+        20.7,
+        20.25,
+        20.61,
+        20.09,
+        21.22,
+        21.02,
+        22.38,
+        22.76,
+        22.47,
+        24.05,
+        23.2,
+        23.56,
+        22.62,
+        23.97,
+        23.14,
+        23.23,
+        24.37,
+        23.59,
+        24.24,
+        24.1,
+        24.61,
+        24.01,
+        23.49,
+        23.08,
+        21.52,
+        21.14,
+        20.49,
+        20.41,
+        21.15,
+        22.27,
+        21.16,
+        21.02,
+        21.28,
+        22.38,
+        22.18,
+        22.29,
+        21.15,
+        21.56,
+        23.22,
+        21.1,
+        20.56,
+        21.03,
+        19.95,
+        19.43,
+        19.89,
+        19.29,
+        18.9,
+        19.28,
+        19.27,
+        18.96,
+        18.16,
+        18.51,
+        18.02,
+        17.93,
+        17.7,
+        17.33,
+        18.37,
+        18.65,
+        18.08,
+        19.15,
+        19.1,
+        19.31,
+        19.18,
+        19.07,
+        19.75,
+        19.53,
+        19.79,
+        18.94,
+        19.37,
+        19.12,
+        18.59,
+        18.64,
+        18.25,
+        17.58,
+        16.79,
+        17.29,
+        17.88,
+        18.91,
+        19.09,
+        18.28,
+        18.04,
+        18.3,
+        19.34,
+        18.96,
+        17.67,
+        13.8,
+        13.39
+      ],
+      "read": [
+        "DOWNTREND \u2014 Price below the 20-day below the 50-day.",
+        "Nearest resistance 15.13 is 1.33 ATR above (+12.98%), confluence 1 \u2014 fib 0.786.",
+        "Structure broke down through 16.7 0 sessions ago."
+      ]
+    },
+    "tradeable": true,
+    "conviction": "HIGH",
+    "down_gap_bonus": true,
+    "structures": {
+      "shares": {
+        "structure": "SHARES",
+        "legs": "short 100 shares",
+        "cost": 1339.0,
+        "vega": 0.0,
+        "delta": -1.0,
+        "risk": 780.0,
+        "note": "No volatility exposure at all \u2014 the cleanest way to own a drift."
+      },
+      "deep_itm": {
+        "structure": "DEEP ITM PUT",
+        "legs": "15.5P",
+        "strike": 15.5,
+        "expiry": "2026-09-11",
+        "dte": 30,
+        "cost": 218.0,
+        "max_loss": 218.0,
+        "delta": -0.779,
+        "vega": 0.0112,
+        "theta": -0.0117,
+        "iv": 100.5,
+        "capital_vs_shares": 16.3,
+        "min_oi": 86,
+        "stale": false,
+        "note": "Behaves like 78 shares for 16% of the capital, with little vega left to lose."
+      },
+      "vertical": {
+        "structure": "DEBIT PUT SPREAD",
+        "legs": "14.0 / 12.5",
+        "expiry": "2026-09-11",
+        "dte": 30,
+        "cost": 81.0,
+        "max_loss": 81.0,
+        "max_profit": 69.0,
+        "rr": 0.85,
+        "breakeven": 13.19,
+        "delta": -0.284,
+        "vega": 0.0021,
+        "theta": -0.0011,
+        "min_oi": 171,
+        "stale": false,
+        "note": "Cheapest of the three, and its short leg cancels most of the remaining vega."
+      }
+    },
+    "fired": [
+      "entry"
+    ]
   },
   {
     "symbol": "SHOP",
     "report_date": "2026-08-05",
-    "days_since": 5,
+    "days_since": 6,
     "beat_rate": 75,
     "avg_surprise": 2.1,
-    "atr": 8.44,
-    "stop": 140.94,
+    "atr": 8.55,
+    "stop": 150.88,
     "target": 159.01,
     "idx": 272,
     "date": "2026-08-05",
@@ -451,86 +692,26 @@
     "day_move_pct": 16.98,
     "react_close": 144.24,
     "vol_ratio": 4.7,
-    "bars_since": 2,
+    "bars_since": 3,
     "direction": "UP",
-    "drift_since": 5.08,
+    "drift_since": 7.58,
     "gap_filled": false,
     "state": "DRIFTING",
-    "state_note": "Continued 5.1% further up since the reaction \u2014 the drift is underway.",
-    "spot": 151.57,
-    "rr": 0.7,
-    "tradeable": true,
-    "conviction": "HIGH",
-    "down_gap_bonus": false,
-    "structures": {
-      "shares": {
-        "structure": "SHARES",
-        "legs": "long 100 shares",
-        "cost": 15157.0,
-        "vega": 0.0,
-        "delta": 1.0,
-        "risk": 1063.0,
-        "note": "No volatility exposure at all \u2014 the cleanest way to own a drift."
-      },
-      "deep_itm": {
-        "structure": "DEEP ITM CALL",
-        "legs": "160.0C",
-        "strike": 160.0,
-        "expiry": "2026-09-11",
-        "dte": 31,
-        "cost": 655.0,
-        "max_loss": 655.0,
-        "delta": 0.433,
-        "vega": 0.181,
-        "theta": -0.1366,
-        "iv": 44.8,
-        "capital_vs_shares": 4.3,
-        "min_oi": 92,
-        "stale": false,
-        "note": "Behaves like 43 shares for 4% of the capital, with little vega left to lose."
-      },
-      "vertical": {
-        "structure": "DEBIT CALL SPREAD",
-        "legs": "160.0 / 175.0",
-        "expiry": "2026-09-11",
-        "dte": 31,
-        "cost": 420.5,
-        "max_loss": 420.5,
-        "max_profit": 1079.5,
-        "rr": 2.57,
-        "breakeven": 164.21,
-        "delta": 0.232,
-        "vega": 0.054,
-        "theta": -0.0419,
-        "min_oi": 67,
-        "stale": false,
-        "note": "Cheapest of the three, and its short leg cancels most of the remaining vega."
-      }
-    },
-    "fired": [
-      "entry"
-    ],
+    "state_note": "Continued 7.6% further up since the reaction \u2014 the drift is underway.",
+    "spot": 155.18,
+    "rr": 0.89,
     "chart": {
       "symbol": "SHOP",
-      "asof": "2026-08-07",
-      "price": 151.57,
-      "atr": 8.44,
-      "atr_pct": 5.57,
+      "asof": "2026-08-10",
+      "price": 155.18,
+      "atr": 8.55,
+      "atr_pct": 5.51,
       "trend": "UPTREND",
       "trend_note": "Price above the 20-day above the 50-day.",
-      "ema20": 128.0,
-      "sma50": 119.25,
-      "sma200": 132.64,
+      "ema20": 130.59,
+      "sma50": 120.06,
+      "sma200": 132.6,
       "resistance": [
-        {
-          "price": 155.15,
-          "cs": 2,
-          "labels": [
-            "swing low"
-          ],
-          "dist_pct": 2.36,
-          "dist_atr": 0.42
-        },
         {
           "price": 159.01,
           "cs": 4,
@@ -538,8 +719,8 @@
             "swing high",
             "swing low"
           ],
-          "dist_pct": 4.91,
-          "dist_atr": 0.88
+          "dist_pct": 2.47,
+          "dist_atr": 0.45
         },
         {
           "price": 172.98,
@@ -547,29 +728,30 @@
           "labels": [
             "swing high"
           ],
-          "dist_pct": 14.13,
-          "dist_atr": 2.54
+          "dist_pct": 11.47,
+          "dist_atr": 2.08
+        },
+        {
+          "price": 182.19,
+          "cs": 2,
+          "labels": [
+            "swing high"
+          ],
+          "dist_pct": 17.41,
+          "dist_atr": 3.16
         }
       ],
       "support": [
         {
           "price": 148.57,
-          "cs": 4,
+          "cs": 6,
           "labels": [
             "swing high",
+            "swing low",
             "bull OB"
           ],
-          "dist_pct": -1.98,
-          "dist_atr": 0.36
-        },
-        {
-          "price": 145.16,
-          "cs": 2,
-          "labels": [
-            "swing low"
-          ],
-          "dist_pct": -4.23,
-          "dist_atr": 0.76
+          "dist_pct": -4.26,
+          "dist_atr": 0.77
         },
         {
           "price": 139.1,
@@ -579,22 +761,32 @@
             "swing low",
             "fib 0.236"
           ],
-          "dist_pct": -8.23,
-          "dist_atr": 1.48
+          "dist_pct": -10.36,
+          "dist_atr": 1.88
+        },
+        {
+          "price": 133.99,
+          "cs": 9,
+          "labels": [
+            "swing high",
+            "swing low",
+            "bear OB"
+          ],
+          "dist_pct": -13.66,
+          "dist_atr": 2.48
         }
       ],
-      "room_up": 0.42,
-      "room_down": 0.36,
+      "room_up": 0.45,
+      "room_down": 0.77,
       "structure": {
         "bars_ago": 0,
         "dir": "up",
         "level": 133.99
       },
-      "pos_52w": 65.3,
+      "pos_52w": 69.4,
       "lo52": 94.0,
       "hi52": 182.19,
       "series": [
-        118.62,
         118.52,
         118.25,
         118.8,
@@ -683,40 +875,505 @@
         123.3,
         144.24,
         147.44,
-        151.57
+        151.57,
+        155.18
       ],
       "read": [
         "UPTREND \u2014 Price above the 20-day above the 50-day.",
-        "Nearest resistance 155.15 is 0.42 ATR above (+2.36%), confluence 2 \u2014 swing low.",
-        "Nearest support 148.57 is 0.36 ATR below (-1.98%), confluence 4.",
+        "Nearest resistance 159.01 is 0.45 ATR above (+2.47%), confluence 4 \u2014 swing high, swing low.",
+        "Nearest support 148.57 is 0.77 ATR below (-4.26%), confluence 6.",
         "Structure broke up through 133.99 0 sessions ago."
       ]
-    }
+    },
+    "tradeable": true,
+    "conviction": "HIGH",
+    "down_gap_bonus": false,
+    "structures": {
+      "shares": {
+        "structure": "SHARES",
+        "legs": "long 100 shares",
+        "cost": 15518.0,
+        "vega": 0.0,
+        "delta": 1.0,
+        "risk": 430.0,
+        "note": "No volatility exposure at all \u2014 the cleanest way to own a drift."
+      },
+      "deep_itm": {
+        "structure": "DEEP ITM CALL",
+        "legs": "142.0C",
+        "strike": 142.0,
+        "expiry": "2026-09-11",
+        "dte": 30,
+        "cost": 1472.5,
+        "max_loss": 1472.5,
+        "delta": 0.739,
+        "vega": 0.1443,
+        "theta": -0.1199,
+        "iv": 45.9,
+        "capital_vs_shares": 9.5,
+        "min_oi": 59,
+        "stale": false,
+        "note": "Behaves like 74 shares for 9% of the capital, with little vega left to lose."
+      },
+      "vertical": {
+        "structure": "DEBIT CALL SPREAD",
+        "legs": "157.5 / 165.0",
+        "expiry": "2026-09-11",
+        "dte": 30,
+        "cost": 274.5,
+        "max_loss": 274.5,
+        "max_profit": 475.5,
+        "rr": 1.73,
+        "breakeven": 160.25,
+        "delta": 0.137,
+        "vega": 0.0235,
+        "theta": -0.0173,
+        "min_oi": 53,
+        "stale": false,
+        "note": "Cheapest of the three, and its short leg cancels most of the remaining vega."
+      }
+    },
+    "fired": [
+      "entry"
+    ]
   },
   {
-    "symbol": "MCHP",
-    "report_date": "2026-08-06",
-    "days_since": 3,
+    "symbol": "PLTR",
+    "report_date": "2026-08-03",
+    "days_since": 7,
     "beat_rate": 100,
-    "avg_surprise": 7.3,
-    "atr": 4.66,
-    "stop": 79.27,
-    "target": 99.6,
+    "avg_surprise": 17.7,
+    "atr": 9.63,
+    "stop": 166.0,
+    "target": 185.75,
+    "idx": 271,
+    "date": "2026-08-04",
+    "pre_close": 125.65,
+    "gap_pct": 15.52,
+    "day_move_pct": 29.45,
+    "react_close": 162.66,
+    "vol_ratio": 4.85,
+    "bars_since": 4,
+    "direction": "UP",
+    "drift_since": 7.73,
+    "gap_filled": false,
+    "state": "DRIFTING",
+    "state_note": "Continued 7.7% further up since the reaction \u2014 the drift is underway.",
+    "spot": 175.23,
+    "rr": 1.14,
+    "chart": {
+      "symbol": "PLTR",
+      "asof": "2026-08-10",
+      "price": 175.23,
+      "atr": 9.63,
+      "atr_pct": 5.5,
+      "trend": "UPTREND",
+      "trend_note": "Price above the 20-day above the 50-day.",
+      "ema20": 142.1,
+      "sma50": 133.24,
+      "sma200": 152.25,
+      "resistance": [
+        {
+          "price": 176.5,
+          "cs": 2,
+          "labels": [
+            "swing low"
+          ],
+          "dist_pct": 0.72,
+          "dist_atr": 0.13
+        },
+        {
+          "price": 185.75,
+          "cs": 2,
+          "labels": [
+            "swing high"
+          ],
+          "dist_pct": 6.0,
+          "dist_atr": 1.09
+        },
+        {
+          "price": 190.39,
+          "cs": 2,
+          "labels": [
+            "swing high"
+          ],
+          "dist_pct": 8.65,
+          "dist_atr": 1.57
+        }
+      ],
+      "support": [
+        {
+          "price": 170.82,
+          "cs": 2,
+          "labels": [
+            "swing low"
+          ],
+          "dist_pct": -2.52,
+          "dist_atr": 0.46
+        },
+        {
+          "price": 163.7,
+          "cs": 7,
+          "labels": [
+            "swing high",
+            "swing low",
+            "bull OB"
+          ],
+          "dist_pct": -6.58,
+          "dist_atr": 1.2
+        },
+        {
+          "price": 156.28,
+          "cs": 4,
+          "labels": [
+            "swing high",
+            "bear OB"
+          ],
+          "dist_pct": -10.81,
+          "dist_atr": 1.97
+        }
+      ],
+      "room_up": 0.13,
+      "room_down": 0.46,
+      "structure": {
+        "bars_ago": 0,
+        "dir": "up",
+        "level": 138.9
+      },
+      "pos_52w": 68.1,
+      "lo52": 106.37,
+      "hi52": 207.52,
+      "series": [
+        146.49,
+        148.46,
+        147.93,
+        150.07,
+        140.76,
+        130.49,
+        128.06,
+        132.37,
+        135.7,
+        142.15,
+        142.76,
+        146.39,
+        145.89,
+        145.97,
+        152.62,
+        141.57,
+        143.09,
+        143.1,
+        141.18,
+        137.97,
+        139.11,
+        144.07,
+        146.03,
+        135.91,
+        133.79,
+        137.05,
+        137.8,
+        136.89,
+        136.0,
+        130.05,
+        133.73,
+        133.99,
+        135.14,
+        135.26,
+        137.15,
+        137.415,
+        136.88,
+        136.6,
+        132.51,
+        143.34,
+        156.54,
+        160.65,
+        152.17,
+        142.2,
+        141.7,
+        135.53,
+        136.47,
+        132.07,
+        130.21,
+        131.08,
+        127.99,
+        134.71,
+        133.25,
+        130.63,
+        128.47,
+        119.5,
+        116.7,
+        113.5,
+        107.27,
+        112.93,
+        115.7,
+        116.67,
+        125.73,
+        129.3,
+        132.54,
+        134.37,
+        132.22,
+        129.04,
+        126.79,
+        130.04,
+        133.72,
+        133.76,
+        134.44,
+        132.38,
+        134.85,
+        132.66,
+        124.57,
+        123.37,
+        122.92,
+        131.53,
+        123.53,
+        123.0,
+        122.26,
+        123.06,
+        125.65,
+        162.66,
+        158.43,
+        155.92,
+        172.01,
+        175.23
+      ],
+      "read": [
+        "UPTREND \u2014 Price above the 20-day above the 50-day.",
+        "Nearest resistance 176.5 is 0.13 ATR above (+0.72%), confluence 2 \u2014 swing low.",
+        "Nearest support 170.82 is 0.46 ATR below (-2.52%), confluence 2.",
+        "Structure broke up through 138.9 0 sessions ago."
+      ]
+    },
+    "tradeable": true,
+    "conviction": "HIGH",
+    "down_gap_bonus": false,
+    "structures": {
+      "shares": {
+        "structure": "SHARES",
+        "legs": "long 100 shares",
+        "cost": 17523.0,
+        "vega": 0.0,
+        "delta": 1.0,
+        "risk": 923.0,
+        "note": "No volatility exposure at all \u2014 the cleanest way to own a drift."
+      },
+      "deep_itm": {
+        "structure": "DEEP ITM CALL",
+        "legs": "155.0C",
+        "strike": 155.0,
+        "expiry": "2026-09-11",
+        "dte": 30,
+        "cost": 2320.0,
+        "max_loss": 2320.0,
+        "delta": 0.826,
+        "vega": 0.131,
+        "theta": -0.1197,
+        "iv": 48.7,
+        "capital_vs_shares": 13.2,
+        "min_oi": 206,
+        "stale": false,
+        "note": "Behaves like 83 shares for 13% of the capital, with little vega left to lose."
+      },
+      "vertical": {
+        "structure": "DEBIT CALL SPREAD",
+        "legs": "175.0 / 195.0",
+        "expiry": "2026-09-11",
+        "dte": 30,
+        "cost": 667.5,
+        "max_loss": 667.5,
+        "max_profit": 1332.5,
+        "rr": 2.0,
+        "breakeven": 181.68,
+        "delta": 0.285,
+        "vega": 0.0381,
+        "theta": -0.0249,
+        "min_oi": 388,
+        "stale": false,
+        "note": "Cheapest of the three, and its short leg cancels most of the remaining vega."
+      }
+    },
+    "fired": [
+      "entry"
+    ]
+  },
+  {
+    "symbol": "NET",
+    "report_date": "2026-08-06",
+    "days_since": 4,
+    "beat_rate": 100,
+    "avg_surprise": 8.3,
+    "atr": 17.47,
+    "stop": 241.96,
+    "target": 363.0,
     "idx": 274,
     "date": "2026-08-07",
-    "pre_close": 74.36,
-    "gap_pct": 9.4,
-    "day_move_pct": 13.89,
-    "react_close": 84.69,
-    "vol_ratio": 1.72,
-    "bars_since": 0,
+    "pre_close": 284.43,
+    "gap_pct": 11.8,
+    "day_move_pct": 5.57,
+    "react_close": 300.27,
+    "vol_ratio": 2.74,
+    "bars_since": 1,
     "direction": "UP",
-    "drift_since": 0.0,
+    "drift_since": 3.44,
     "gap_filled": false,
-    "state": "HOLDING",
-    "state_note": "Holding the reaction level without extending \u2014 consolidating rather than drifting.",
-    "spot": 84.69,
-    "rr": 2.75,
+    "state": "DRIFTING",
+    "state_note": "Continued 3.4% further up since the reaction \u2014 the drift is underway.",
+    "spot": 310.59,
+    "rr": 0.76,
+    "chart": {
+      "symbol": "NET",
+      "asof": "2026-08-10",
+      "price": 310.59,
+      "atr": 17.47,
+      "atr_pct": 5.62,
+      "trend": "UPTREND",
+      "trend_note": "Price above the 20-day above the 50-day.",
+      "ema20": 279.96,
+      "sma50": 258.73,
+      "sma200": 215.74,
+      "resistance": [],
+      "support": [
+        {
+          "price": 291.0,
+          "cs": 7,
+          "labels": [
+            "swing high",
+            "bull OB",
+            "bear OB"
+          ],
+          "dist_pct": -6.31,
+          "dist_atr": 1.12
+        },
+        {
+          "price": 276.81,
+          "cs": 8,
+          "labels": [
+            "swing high",
+            "bear OB",
+            "bull OB"
+          ],
+          "dist_pct": -10.87,
+          "dist_atr": 1.93
+        },
+        {
+          "price": 260.0,
+          "cs": 8,
+          "labels": [
+            "swing high",
+            "bear OB",
+            "bull OB"
+          ],
+          "dist_pct": -16.29,
+          "dist_atr": 2.9
+        }
+      ],
+      "room_up": null,
+      "room_down": 1.12,
+      "structure": {
+        "bars_ago": 0,
+        "dir": "up",
+        "level": 291.0
+      },
+      "pos_52w": 91.5,
+      "lo52": 158.83,
+      "hi52": 324.73,
+      "series": [
+        205.43,
+        211.69,
+        211.78,
+        216.29,
+        211.25,
+        193.05,
+        166.99,
+        184.02,
+        178.65,
+        190.13,
+        197.38,
+        200.99,
+        204.81,
+        207.67,
+        207.56,
+        205.0,
+        207.07,
+        212.36,
+        208.5,
+        211.97,
+        204.97,
+        217.5,
+        224.17,
+        244.43,
+        248.59,
+        256.79,
+        196.13,
+        193.52,
+        186.79,
+        192.62,
+        199.81,
+        197.56,
+        201.75,
+        206.73,
+        210.13,
+        212.65,
+        216.17,
+        217.54,
+        209.22,
+        228.11,
+        241.82,
+        270.82,
+        272.66,
+        265.33,
+        268.64,
+        250.11,
+        247.79,
+        236.13,
+        219.67,
+        227.44,
+        228.48,
+        235.71,
+        230.97,
+        226.87,
+        224.06,
+        218.38,
+        224.94,
+        223.48,
+        226.65,
+        237.24,
+        243.76,
+        245.28,
+        246.31,
+        242.41,
+        247.55,
+        268.83,
+        273.4,
+        275.8,
+        268.4,
+        269.53,
+        281.75,
+        273.04,
+        272.46,
+        277.66,
+        272.42,
+        272.31,
+        268.98,
+        262.32,
+        262.15,
+        265.61,
+        264.1,
+        270.38,
+        283.39,
+        278.98,
+        282.74,
+        301.33,
+        292.96,
+        284.43,
+        300.27,
+        310.59
+      ],
+      "read": [
+        "UPTREND \u2014 Price above the 20-day above the 50-day.",
+        "No confirmed level above price \u2014 it is at the top of its range, so there is nothing overhead to stall it and nothing to target either.",
+        "Nearest support 291.0 is 1.12 ATR below (-6.31%), confluence 7.",
+        "Structure broke up through 291.0 0 sessions ago."
+      ]
+    },
     "tradeable": true,
     "conviction": "MEDIUM",
     "down_gap_bonus": false,
@@ -724,210 +1381,266 @@
       "shares": {
         "structure": "SHARES",
         "legs": "long 100 shares",
-        "cost": 8469.0,
+        "cost": 31059.0,
         "vega": 0.0,
         "delta": 1.0,
-        "risk": 542.0,
+        "risk": 6863.0,
         "note": "No volatility exposure at all \u2014 the cleanest way to own a drift."
+      },
+      "deep_itm": {
+        "structure": "DEEP ITM CALL",
+        "legs": "185.0C",
+        "strike": 185.0,
+        "expiry": "2026-09-11",
+        "dte": 30,
+        "cost": 12567.5,
+        "max_loss": 12567.5,
+        "delta": 1.0,
+        "vega": 0.0017,
+        "theta": -0.0078,
+        "iv": 107.6,
+        "capital_vs_shares": 40.5,
+        "min_oi": 55,
+        "stale": false,
+        "note": "Behaves like 100 shares for 40% of the capital, with little vega left to lose."
       }
     },
-    "fired": [],
+    "fired": []
+  },
+  {
+    "symbol": "APP",
+    "report_date": "2026-08-05",
+    "days_since": 5,
+    "beat_rate": 100,
+    "avg_surprise": 4.1,
+    "atr": 24.69,
+    "stop": 485.34,
+    "target": 264.94,
+    "idx": 273,
+    "date": "2026-08-06",
+    "pre_close": 417.8,
+    "gap_pct": -18.99,
+    "day_move_pct": -19.66,
+    "react_close": 335.67,
+    "vol_ratio": 2.36,
+    "bars_since": 2,
+    "direction": "DOWN",
+    "drift_since": 0.99,
+    "gap_filled": false,
+    "state": "HOLDING",
+    "state_note": "Holding the reaction level without extending \u2014 consolidating rather than drifting.",
+    "spot": 339.0,
+    "rr": 0.51,
     "chart": {
-      "symbol": "MCHP",
-      "asof": "2026-08-07",
-      "price": 84.69,
-      "atr": 4.66,
-      "atr_pct": 5.51,
-      "trend": "MIXED",
-      "trend_note": "Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
-      "ema20": 80.21,
-      "sma50": 87.27,
-      "sma200": 75.77,
+      "symbol": "APP",
+      "asof": "2026-08-10",
+      "price": 339.0,
+      "atr": 24.69,
+      "atr_pct": 7.28,
+      "trend": "DOWNTREND",
+      "trend_note": "Price below the 20-day below the 50-day.",
+      "ema20": 406.68,
+      "sma50": 473.29,
+      "sma200": 514.03,
       "resistance": [
         {
-          "price": 85.28,
-          "cs": 4,
-          "labels": [
-            "swing low",
-            "bull OB"
-          ],
-          "dist_pct": 0.7,
-          "dist_atr": 0.13
-        },
-        {
-          "price": 87.27,
-          "cs": 1,
-          "labels": [
-            "SMA50"
-          ],
-          "dist_pct": 3.05,
-          "dist_atr": 0.55
-        },
-        {
-          "price": 89.16,
-          "cs": 7,
+          "price": 343.0,
+          "cs": 6,
           "labels": [
             "swing low",
             "bull OB",
             "bear OB"
           ],
-          "dist_pct": 5.28,
-          "dist_atr": 0.96
-        }
-      ],
-      "support": [
-        {
-          "price": 83.35,
-          "cs": 9,
-          "labels": [
-            "swing high",
-            "swing low",
-            "bull OB"
-          ],
-          "dist_pct": -1.58,
-          "dist_atr": 0.29
+          "dist_pct": 1.18,
+          "dist_atr": 0.16
         },
         {
-          "price": 81.43,
-          "cs": 5,
+          "price": 364.64,
+          "cs": 2,
           "labels": [
-            "swing high",
-            "bear OB",
-            "EMA20"
+            "swing low"
           ],
-          "dist_pct": -3.85,
-          "dist_atr": 0.7
+          "dist_pct": 7.56,
+          "dist_atr": 1.04
         },
         {
-          "price": 78.0,
-          "cs": 5,
+          "price": 375.5,
+          "cs": 4,
           "labels": [
-            "swing low",
-            "bear OB",
-            "fib 0.786"
+            "swing high",
+            "swing low"
           ],
-          "dist_pct": -7.9,
-          "dist_atr": 1.43
+          "dist_pct": 10.77,
+          "dist_atr": 1.48
         }
       ],
-      "room_up": 0.13,
-      "room_down": 0.29,
+      "support": [],
+      "room_up": 0.16,
+      "room_down": null,
       "structure": {
-        "bars_ago": 2,
+        "bars_ago": 0,
         "dir": "down",
-        "level": 78.0
+        "level": 364.64
       },
-      "pos_52w": 63.0,
-      "lo52": 48.52,
-      "hi52": 105.91,
+      "pos_52w": 1.6,
+      "lo52": 332.19,
+      "hi52": 745.61,
       "series": [
-        64.61,
-        65.38,
-        65.6,
-        67.22,
-        67.51,
-        70.73,
-        71.22,
-        71.56,
-        73.55,
-        74.5,
-        74.49,
-        76.87,
-        78.76,
-        80.39,
-        80.93,
-        82.48,
-        90.64,
-        89.44,
-        86.84,
-        84.26,
-        90.17,
-        92.91,
-        93.95,
-        95.3,
-        98.48,
-        102.92,
-        101.58,
-        99.09,
-        99.03,
-        97.7,
-        96.71,
-        97.04,
-        93.85,
-        92.76,
-        91.81,
-        94.02,
-        91.11,
-        93.43,
-        98.05,
-        96.85,
-        96.04,
-        94.65,
-        91.52,
-        96.96,
-        96.55,
-        96.3,
-        88.34,
-        91.37,
-        91.47,
-        87.91,
-        92.94,
-        95.24,
-        100.32,
-        95.63,
-        94.11,
-        99.77,
-        102.71,
-        93.26,
-        92.48,
-        94.12,
-        87.93,
-        89.06,
-        91.2,
-        88.69,
-        84.64,
-        87.59,
-        84.15,
-        85.49,
-        88.26,
-        88.59,
-        84.23,
-        87.11,
-        86.26,
-        81.68,
-        80.96,
-        80.51,
-        83.38,
-        85.02,
-        81.35,
-        78.86,
-        77.9,
-        75.71,
-        71.37,
-        75.01,
-        74.29,
-        75.22,
-        80.67,
-        77.79,
-        74.36,
-        84.69
+        387.84,
+        386.37,
+        412.68,
+        410.44,
+        391.2,
+        379.14,
+        391.38,
+        417.45,
+        433.51,
+        464.63,
+        466.09,
+        477.2,
+        490.96,
+        473.18,
+        483.71,
+        454.17,
+        448.29,
+        460.29,
+        449.03,
+        443.43,
+        446.35,
+        460.0,
+        475.0,
+        478.11,
+        468.83,
+        498.87,
+        468.55,
+        478.42,
+        490.69,
+        453.53,
+        485.16,
+        501.0,
+        492.38,
+        476.9,
+        482.28,
+        485.89,
+        481.68,
+        514.24,
+        567.83,
+        599.89,
+        613.09,
+        613.7,
+        605.63,
+        570.83,
+        558.87,
+        557.2,
+        563.69,
+        520.84,
+        492.98,
+        478.57,
+        496.77,
+        520.86,
+        515.2,
+        479.49,
+        469.71,
+        469.39,
+        467.02,
+        464.96,
+        445.93,
+        477.08,
+        498.76,
+        515.23,
+        564.61,
+        527.06,
+        543.79,
+        527.98,
+        522.18,
+        520.43,
+        506.98,
+        442.85,
+        448.98,
+        452.73,
+        434.48,
+        424.54,
+        424.6,
+        428.69,
+        412.48,
+        398.86,
+        391.98,
+        412.73,
+        418.22,
+        399.46,
+        403.87,
+        395.9,
+        406.16,
+        419.7,
+        417.8,
+        335.67,
+        346.8,
+        339.0
       ],
       "read": [
-        "MIXED \u2014 Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
-        "Nearest resistance 85.28 is 0.13 ATR above (+0.70%), confluence 4 \u2014 swing low, bull OB.",
-        "Nearest support 83.35 is 0.29 ATR below (-1.58%), confluence 9.",
-        "Structure broke down through 78.0 2 sessions ago."
+        "DOWNTREND \u2014 Price below the 20-day below the 50-day.",
+        "Nearest resistance 343.0 is 0.16 ATR above (+1.18%), confluence 6 \u2014 swing low, bull OB, bear OB.",
+        "Structure broke down through 364.64 0 sessions ago."
       ]
-    }
+    },
+    "tradeable": true,
+    "conviction": "MEDIUM",
+    "down_gap_bonus": true,
+    "structures": {
+      "shares": {
+        "structure": "SHARES",
+        "legs": "short 100 shares",
+        "cost": 33900.0,
+        "vega": 0.0,
+        "delta": -1.0,
+        "risk": 14634.0,
+        "note": "No volatility exposure at all \u2014 the cleanest way to own a drift."
+      },
+      "deep_itm": {
+        "structure": "DEEP ITM PUT",
+        "legs": "375.0P",
+        "strike": 375.0,
+        "expiry": "2026-09-11",
+        "dte": 30,
+        "cost": 5885.0,
+        "max_loss": 5885.0,
+        "delta": -0.811,
+        "vega": 0.2622,
+        "theta": -0.2335,
+        "iv": 57.3,
+        "capital_vs_shares": 17.4,
+        "min_oi": 64,
+        "stale": false,
+        "note": "Behaves like 81 shares for 17% of the capital, with little vega left to lose."
+      },
+      "vertical": {
+        "structure": "DEBIT PUT SPREAD",
+        "legs": "335.0 / 295.0",
+        "expiry": "2026-09-11",
+        "dte": 30,
+        "cost": 1850.0,
+        "max_loss": 1850.0,
+        "max_profit": 2150.0,
+        "rr": 1.16,
+        "breakeven": 316.5,
+        "delta": -0.303,
+        "vega": 0.0691,
+        "theta": -0.0357,
+        "min_oi": 64,
+        "stale": false,
+        "note": "Cheapest of the three, and its short leg cancels most of the remaining vega."
+      }
+    },
+    "fired": []
   },
   {
     "symbol": "AMD",
     "report_date": "2026-08-04",
-    "days_since": 5,
+    "days_since": 6,
     "beat_rate": 100,
     "avg_surprise": 6.9,
-    "atr": 39.93,
-    "stop": 566.41,
+    "atr": 37.75,
+    "stop": 565.32,
     "target": 460.21,
     "idx": 272,
     "date": "2026-08-05",
@@ -936,74 +1649,25 @@
     "day_move_pct": -7.04,
     "react_close": 482.05,
     "vol_ratio": 1.74,
-    "bars_since": 2,
+    "bars_since": 3,
     "direction": "DOWN",
-    "drift_since": 0.27,
+    "drift_since": -2.59,
     "gap_filled": false,
-    "state": "HOLDING",
-    "state_note": "Holding the reaction level without extending \u2014 consolidating rather than drifting.",
-    "spot": 483.36,
-    "rr": 0.28,
-    "tradeable": true,
-    "conviction": "MEDIUM",
-    "down_gap_bonus": true,
-    "structures": {
-      "shares": {
-        "structure": "SHARES",
-        "legs": "short 100 shares",
-        "cost": 48336.0,
-        "vega": 0.0,
-        "delta": -1.0,
-        "risk": 8305.0,
-        "note": "No volatility exposure at all \u2014 the cleanest way to own a drift."
-      },
-      "deep_itm": {
-        "structure": "DEEP ITM PUT",
-        "legs": "550.0P",
-        "strike": 550.0,
-        "expiry": "2026-09-11",
-        "dte": 31,
-        "cost": 8350.0,
-        "max_loss": 8350.0,
-        "delta": -0.763,
-        "vega": 0.4278,
-        "theta": -0.4134,
-        "iv": 57.8,
-        "capital_vs_shares": 17.3,
-        "min_oi": 63,
-        "stale": false,
-        "note": "Behaves like 76 shares for 17% of the capital, with little vega left to lose."
-      },
-      "vertical": {
-        "structure": "DEBIT PUT SPREAD",
-        "legs": "500.0 / 440.0",
-        "expiry": "2026-09-11",
-        "dte": 31,
-        "cost": 2977.5,
-        "max_loss": 2977.5,
-        "max_profit": 3022.5,
-        "rr": 1.02,
-        "breakeven": 470.23,
-        "delta": -0.29,
-        "vega": 0.0614,
-        "theta": -0.0545,
-        "min_oi": 57,
-        "stale": false,
-        "note": "Cheapest of the three, and its short leg cancels most of the remaining vega."
-      }
-    },
-    "fired": [],
+    "state": "DRIFTING",
+    "state_note": "Continued 2.6% further down since the reaction \u2014 the drift is underway.",
+    "spot": 469.56,
+    "rr": 0.1,
     "chart": {
       "symbol": "AMD",
-      "asof": "2026-08-07",
-      "price": 483.36,
-      "atr": 39.93,
-      "atr_pct": 8.26,
+      "asof": "2026-08-10",
+      "price": 469.56,
+      "atr": 37.75,
+      "atr_pct": 8.04,
       "trend": "DOWNTREND",
       "trend_note": "Downtrend on the 20/50 stack, but price is on the other side of the 200-day \u2014 a counter-trend move inside a larger one.",
-      "ema20": 498.82,
-      "sma50": 514.08,
-      "sma200": 318.29,
+      "ema20": 496.03,
+      "sma50": 513.11,
+      "sma200": 319.45,
       "resistance": [
         {
           "price": 498.15,
@@ -1013,8 +1677,8 @@
             "bull OB",
             "fib 0.382"
           ],
-          "dist_pct": 3.06,
-          "dist_atr": 0.37
+          "dist_pct": 6.09,
+          "dist_atr": 0.76
         },
         {
           "price": 516.03,
@@ -1023,8 +1687,8 @@
             "bear OB",
             "bull OB"
           ],
-          "dist_pct": 6.76,
-          "dist_atr": 0.82
+          "dist_pct": 9.9,
+          "dist_atr": 1.23
         },
         {
           "price": 546.44,
@@ -1034,22 +1698,11 @@
             "bear OB",
             "fib 0.236"
           ],
-          "dist_pct": 13.05,
-          "dist_atr": 1.58
+          "dist_pct": 16.37,
+          "dist_atr": 2.04
         }
       ],
       "support": [
-        {
-          "price": 469.21,
-          "cs": 9,
-          "labels": [
-            "swing high",
-            "swing low",
-            "bull OB"
-          ],
-          "dist_pct": -2.93,
-          "dist_atr": 0.35
-        },
         {
           "price": 437.23,
           "cs": 5,
@@ -1058,8 +1711,8 @@
             "bull OB",
             "fib 0.786"
           ],
-          "dist_pct": -9.54,
-          "dist_atr": 1.16
+          "dist_pct": -6.89,
+          "dist_atr": 0.86
         },
         {
           "price": 393.36,
@@ -1067,22 +1720,30 @@
           "labels": [
             "swing low"
           ],
-          "dist_pct": -18.62,
-          "dist_atr": 2.25
+          "dist_pct": -16.23,
+          "dist_atr": 2.02
+        },
+        {
+          "price": 319.45,
+          "cs": 1,
+          "labels": [
+            "SMA200"
+          ],
+          "dist_pct": -31.97,
+          "dist_atr": 3.98
         }
       ],
-      "room_up": 0.37,
-      "room_down": 0.35,
+      "room_up": 0.76,
+      "room_down": 0.86,
       "structure": {
-        "bars_ago": 7,
+        "bars_ago": 8,
         "dir": "down",
         "level": 460.21
       },
-      "pos_52w": 76.7,
+      "pos_52w": 73.6,
       "lo52": 149.22,
       "hi52": 584.73,
       "series": [
-        203.43,
         210.21,
         217.5,
         220.18,
@@ -1171,24 +1832,74 @@
         518.58,
         482.05,
         489.28,
-        483.36
+        483.36,
+        469.56
       ],
       "read": [
         "DOWNTREND \u2014 Downtrend on the 20/50 stack, but price is on the other side of the 200-day \u2014 a counter-trend move inside a larger one.",
-        "Nearest resistance 498.15 is 0.37 ATR above (+3.06%), confluence 8 \u2014 swing low, bull OB, fib 0.382.",
-        "Nearest support 469.21 is 0.35 ATR below (-2.93%), confluence 9."
+        "Nearest resistance 498.15 is 0.76 ATR above (+6.09%), confluence 8 \u2014 swing low, bull OB, fib 0.382.",
+        "Nearest support 437.23 is 0.86 ATR below (-6.89%), confluence 5."
       ]
-    }
+    },
+    "tradeable": true,
+    "conviction": "MEDIUM",
+    "down_gap_bonus": true,
+    "structures": {
+      "shares": {
+        "structure": "SHARES",
+        "legs": "short 100 shares",
+        "cost": 46956.0,
+        "vega": 0.0,
+        "delta": -1.0,
+        "risk": 9576.0,
+        "note": "No volatility exposure at all \u2014 the cleanest way to own a drift."
+      },
+      "deep_itm": {
+        "structure": "DEEP ITM PUT",
+        "legs": "550.0P",
+        "strike": 550.0,
+        "expiry": "2026-09-11",
+        "dte": 30,
+        "cost": 8352.5,
+        "max_loss": 8352.5,
+        "delta": -0.785,
+        "vega": 0.4187,
+        "theta": -0.3883,
+        "iv": 57.0,
+        "capital_vs_shares": 17.8,
+        "min_oi": 63,
+        "stale": false,
+        "note": "Behaves like 79 shares for 18% of the capital, with little vega left to lose."
+      },
+      "vertical": {
+        "structure": "DEBIT PUT SPREAD",
+        "legs": "490.0 / 440.0",
+        "expiry": "2026-09-11",
+        "dte": 30,
+        "cost": 2417.5,
+        "max_loss": 2417.5,
+        "max_profit": 2582.5,
+        "rr": 1.07,
+        "breakeven": 465.82,
+        "delta": -0.258,
+        "vega": 0.0685,
+        "theta": -0.067,
+        "min_oi": 51,
+        "stale": false,
+        "note": "Cheapest of the three, and its short leg cancels most of the remaining vega."
+      }
+    },
+    "fired": []
   },
   {
     "symbol": "DIS",
     "report_date": "2026-08-05",
-    "days_since": 5,
+    "days_since": 6,
     "beat_rate": 100,
     "avg_surprise": 7.0,
-    "atr": 2.46,
-    "stop": 101.11,
-    "target": 105.25,
+    "atr": 2.54,
+    "stop": 101.07,
+    "target": 104.53,
     "idx": 272,
     "date": "2026-08-05",
     "pre_close": 98.18,
@@ -1196,75 +1907,35 @@
     "day_move_pct": 3.65,
     "react_close": 101.76,
     "vol_ratio": 1.87,
-    "bars_since": 2,
+    "bars_since": 3,
     "direction": "UP",
-    "drift_since": 3.1,
+    "drift_since": 1.4,
     "gap_filled": false,
     "state": "DRIFTING",
-    "state_note": "Continued 3.1% further up since the reaction \u2014 the drift is underway.",
-    "spot": 104.91,
-    "rr": 0.09,
-    "tradeable": true,
-    "conviction": "LOW",
-    "down_gap_bonus": false,
-    "structures": {
-      "shares": {
-        "structure": "SHARES",
-        "legs": "long 100 shares",
-        "cost": 10491.0,
-        "vega": 0.0,
-        "delta": 1.0,
-        "risk": 380.0,
-        "note": "No volatility exposure at all \u2014 the cleanest way to own a drift."
-      },
-      "deep_itm": {
-        "structure": "DEEP ITM CALL",
-        "legs": "100.0C",
-        "strike": 100.0,
-        "expiry": "2026-09-11",
-        "dte": 31,
-        "cost": 497.5,
-        "max_loss": 497.5,
-        "delta": 0.7,
-        "vega": 0.1055,
-        "theta": -0.0481,
-        "iv": 24.1,
-        "capital_vs_shares": 4.7,
-        "min_oi": 50,
-        "stale": false,
-        "note": "Behaves like 70 shares for 5% of the capital, with little vega left to lose."
-      },
-      "vertical": {
-        "structure": "DEBIT CALL SPREAD",
-        "legs": "105.0 / 110.0",
-        "expiry": "2026-09-11",
-        "dte": 31,
-        "cost": 142.5,
-        "max_loss": 142.5,
-        "max_profit": 357.5,
-        "rr": 2.51,
-        "breakeven": 106.42,
-        "delta": 0.239,
-        "vega": 0.0358,
-        "theta": -0.0162,
-        "min_oi": 80,
-        "stale": false,
-        "note": "Cheapest of the three, and its short leg cancels most of the remaining vega."
-      }
-    },
-    "fired": [],
+    "state_note": "Continued 1.4% further up since the reaction \u2014 the drift is underway.",
+    "spot": 103.18,
+    "rr": 0.64,
     "chart": {
       "symbol": "DIS",
-      "asof": "2026-08-07",
-      "price": 104.91,
-      "atr": 2.46,
-      "atr_pct": 2.35,
+      "asof": "2026-08-10",
+      "price": 103.18,
+      "atr": 2.54,
+      "atr_pct": 2.46,
       "trend": "UPTREND",
-      "trend_note": "Price above the 20-day above the 50-day.",
-      "ema20": 98.96,
-      "sma50": 98.93,
-      "sma200": 104.45,
+      "trend_note": "Uptrend on the 20/50 stack, but price is on the other side of the 200-day \u2014 a counter-trend move inside a larger one.",
+      "ema20": 99.36,
+      "sma50": 98.92,
+      "sma200": 104.39,
       "resistance": [
+        {
+          "price": 103.62,
+          "cs": 2,
+          "labels": [
+            "bear OB"
+          ],
+          "dist_pct": 0.43,
+          "dist_atr": 0.18
+        },
         {
           "price": 105.25,
           "cs": 5,
@@ -1273,8 +1944,8 @@
             "bear OB",
             "SMA200"
           ],
-          "dist_pct": 0.32,
-          "dist_atr": 0.14
+          "dist_pct": 2.01,
+          "dist_atr": 0.82
         },
         {
           "price": 107.11,
@@ -1282,29 +1953,11 @@
           "labels": [
             "swing high"
           ],
-          "dist_pct": 2.1,
-          "dist_atr": 0.89
-        },
-        {
-          "price": 108.8,
-          "cs": 2,
-          "labels": [
-            "swing low"
-          ],
-          "dist_pct": 3.71,
-          "dist_atr": 1.58
+          "dist_pct": 3.81,
+          "dist_atr": 1.55
         }
       ],
       "support": [
-        {
-          "price": 103.62,
-          "cs": 2,
-          "labels": [
-            "bear OB"
-          ],
-          "dist_pct": -1.22,
-          "dist_atr": 0.52
-        },
         {
           "price": 102.34,
           "cs": 7,
@@ -1313,8 +1966,8 @@
             "bear OB",
             "bull OB"
           ],
-          "dist_pct": -2.45,
-          "dist_atr": 1.04
+          "dist_pct": -0.81,
+          "dist_atr": 0.33
         },
         {
           "price": 101.02,
@@ -1324,22 +1977,32 @@
             "bull OB",
             "fib 0.382"
           ],
-          "dist_pct": -3.71,
-          "dist_atr": 1.58
+          "dist_pct": -2.09,
+          "dist_atr": 0.85
+        },
+        {
+          "price": 99.84,
+          "cs": 7,
+          "labels": [
+            "swing high",
+            "swing low",
+            "fib 0.5"
+          ],
+          "dist_pct": -3.23,
+          "dist_atr": 1.31
         }
       ],
-      "room_up": 0.14,
-      "room_down": 0.52,
+      "room_up": 0.18,
+      "room_down": 0.33,
       "structure": {
-        "bars_ago": 11,
+        "bars_ago": 12,
         "dir": "down",
         "level": 94.78
       },
-      "pos_52w": 46.1,
+      "pos_52w": 39.8,
       "lo52": 92.19,
       "hi52": 119.78,
       "series": [
-        96.38,
         96.56,
         96.61,
         96.28,
@@ -1428,23 +2091,451 @@
         98.18,
         101.76,
         104.68,
-        104.91
+        104.91,
+        103.18
+      ],
+      "read": [
+        "UPTREND \u2014 Uptrend on the 20/50 stack, but price is on the other side of the 200-day \u2014 a counter-trend move inside a larger one.",
+        "Nearest resistance 103.62 is 0.18 ATR above (+0.43%), confluence 2 \u2014 bear OB.",
+        "Nearest support 102.34 is 0.33 ATR below (-0.81%), confluence 7."
+      ]
+    },
+    "tradeable": true,
+    "conviction": "LOW",
+    "down_gap_bonus": false,
+    "fired": []
+  },
+  {
+    "symbol": "MCHP",
+    "report_date": "2026-08-06",
+    "days_since": 4,
+    "beat_rate": 100,
+    "avg_surprise": 7.3,
+    "atr": 4.75,
+    "stop": 75.63,
+    "target": 81.43,
+    "idx": 274,
+    "date": "2026-08-07",
+    "pre_close": 74.36,
+    "gap_pct": 9.4,
+    "day_move_pct": 13.89,
+    "react_close": 84.69,
+    "vol_ratio": 1.72,
+    "bars_since": 1,
+    "direction": "UP",
+    "drift_since": -3.9,
+    "gap_filled": false,
+    "state": "STALLING",
+    "state_note": "Given back 3.9% against the gap without filling it \u2014 momentum is fading but the level still holds.",
+    "spot": 81.39,
+    "rr": 0.01,
+    "chart": {
+      "symbol": "MCHP",
+      "asof": "2026-08-10",
+      "price": 81.39,
+      "atr": 4.75,
+      "atr_pct": 5.83,
+      "trend": "MIXED",
+      "trend_note": "Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
+      "ema20": 80.32,
+      "sma50": 86.98,
+      "sma200": 75.84,
+      "resistance": [
+        {
+          "price": 83.35,
+          "cs": 9,
+          "labels": [
+            "swing high",
+            "swing low",
+            "bull OB"
+          ],
+          "dist_pct": 2.41,
+          "dist_atr": 0.41
+        },
+        {
+          "price": 85.28,
+          "cs": 5,
+          "labels": [
+            "swing low",
+            "bull OB",
+            "SMA50"
+          ],
+          "dist_pct": 4.78,
+          "dist_atr": 0.82
+        },
+        {
+          "price": 89.16,
+          "cs": 7,
+          "labels": [
+            "swing low",
+            "bull OB",
+            "bear OB"
+          ],
+          "dist_pct": 9.54,
+          "dist_atr": 1.64
+        }
+      ],
+      "support": [
+        {
+          "price": 78.0,
+          "cs": 5,
+          "labels": [
+            "swing low",
+            "bear OB",
+            "fib 0.786"
+          ],
+          "dist_pct": -4.17,
+          "dist_atr": 0.71
+        },
+        {
+          "price": 76.09,
+          "cs": 7,
+          "labels": [
+            "swing high",
+            "bear OB",
+            "bull OB"
+          ],
+          "dist_pct": -6.51,
+          "dist_atr": 1.12
+        },
+        {
+          "price": 73.38,
+          "cs": 2,
+          "labels": [
+            "swing low"
+          ],
+          "dist_pct": -9.84,
+          "dist_atr": 1.69
+        }
+      ],
+      "room_up": 0.41,
+      "room_down": 0.71,
+      "structure": {
+        "bars_ago": 3,
+        "dir": "down",
+        "level": 78.0
+      },
+      "pos_52w": 57.3,
+      "lo52": 48.52,
+      "hi52": 105.91,
+      "series": [
+        65.38,
+        65.6,
+        67.22,
+        67.51,
+        70.73,
+        71.22,
+        71.56,
+        73.55,
+        74.5,
+        74.49,
+        76.87,
+        78.76,
+        80.39,
+        80.93,
+        82.48,
+        90.64,
+        89.44,
+        86.84,
+        84.26,
+        90.17,
+        92.91,
+        93.95,
+        95.3,
+        98.48,
+        102.92,
+        101.58,
+        99.09,
+        99.03,
+        97.7,
+        96.71,
+        97.04,
+        93.85,
+        92.76,
+        91.81,
+        94.02,
+        91.11,
+        93.43,
+        98.05,
+        96.85,
+        96.04,
+        94.65,
+        91.52,
+        96.96,
+        96.55,
+        96.3,
+        88.34,
+        91.37,
+        91.47,
+        87.91,
+        92.94,
+        95.24,
+        100.32,
+        95.63,
+        94.11,
+        99.77,
+        102.71,
+        93.26,
+        92.48,
+        94.12,
+        87.93,
+        89.06,
+        91.2,
+        88.69,
+        84.64,
+        87.59,
+        84.15,
+        85.49,
+        88.26,
+        88.59,
+        84.23,
+        87.11,
+        86.26,
+        81.68,
+        80.96,
+        80.51,
+        83.38,
+        85.02,
+        81.35,
+        78.86,
+        77.9,
+        75.71,
+        71.37,
+        75.01,
+        74.29,
+        75.22,
+        80.67,
+        77.79,
+        74.36,
+        84.69,
+        81.39
+      ],
+      "read": [
+        "MIXED \u2014 Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
+        "Nearest resistance 83.35 is 0.41 ATR above (+2.41%), confluence 9 \u2014 swing high, swing low, bull OB.",
+        "Nearest support 78.0 is 0.71 ATR below (-4.17%), confluence 5.",
+        "Structure broke down through 78.0 3 sessions ago."
+      ]
+    },
+    "tradeable": false,
+    "conviction": "NONE",
+    "down_gap_bonus": false,
+    "fired": []
+  },
+  {
+    "symbol": "DDOG",
+    "report_date": "2026-08-06",
+    "days_since": 5,
+    "beat_rate": 100,
+    "avg_surprise": 14.1,
+    "atr": 17.8,
+    "stop": 285.6,
+    "target": 237.67,
+    "idx": 273,
+    "date": "2026-08-06",
+    "pre_close": 283.17,
+    "gap_pct": -19.68,
+    "day_move_pct": -19.03,
+    "react_close": 229.29,
+    "vol_ratio": 3.55,
+    "bars_since": 2,
+    "direction": "DOWN",
+    "drift_since": 13.73,
+    "gap_filled": false,
+    "state": "STALLING",
+    "state_note": "Given back 13.7% against the gap without filling it \u2014 momentum is fading but the level still holds.",
+    "spot": 260.78,
+    "rr": 0.93,
+    "chart": {
+      "symbol": "DDOG",
+      "asof": "2026-08-10",
+      "price": 260.78,
+      "atr": 17.8,
+      "atr_pct": 6.83,
+      "trend": "UPTREND",
+      "trend_note": "Price above the 20-day above the 50-day.",
+      "ema20": 257.26,
+      "sma50": 249.79,
+      "sma200": 170.42,
+      "resistance": [
+        {
+          "price": 267.67,
+          "cs": 5,
+          "labels": [
+            "bear OB",
+            "bull OB",
+            "fib 0.236"
+          ],
+          "dist_pct": 2.64,
+          "dist_atr": 0.39
+        },
+        {
+          "price": 278.7,
+          "cs": 4,
+          "labels": [
+            "swing high",
+            "bear OB"
+          ],
+          "dist_pct": 6.87,
+          "dist_atr": 1.01
+        }
+      ],
+      "support": [
+        {
+          "price": 256.37,
+          "cs": 2,
+          "labels": [
+            "fib 0.382",
+            "EMA20"
+          ],
+          "dist_pct": -1.69,
+          "dist_atr": 0.25
+        },
+        {
+          "price": 246.6,
+          "cs": 4,
+          "labels": [
+            "bull OB",
+            "fib 0.5",
+            "SMA50"
+          ],
+          "dist_pct": -5.44,
+          "dist_atr": 0.8
+        },
+        {
+          "price": 237.67,
+          "cs": 5,
+          "labels": [
+            "swing low",
+            "bull OB",
+            "fib 0.618"
+          ],
+          "dist_pct": -8.86,
+          "dist_atr": 1.3
+        }
+      ],
+      "room_up": 0.39,
+      "room_down": 0.25,
+      "structure": {
+        "bars_ago": 3,
+        "dir": "up",
+        "level": 278.7
+      },
+      "pos_52w": 83.6,
+      "lo52": 98.01,
+      "hi52": 292.72,
+      "series": [
+        118.67,
+        120.36,
+        116.5,
+        116.54,
+        116.5,
+        108.98,
+        105.37,
+        110.08,
+        110.57,
+        121.06,
+        123.47,
+        126.61,
+        129.74,
+        129.29,
+        132.14,
+        127.86,
+        129.48,
+        132.66,
+        131.55,
+        133.98,
+        132.19,
+        140.53,
+        146.69,
+        145.73,
+        143.71,
+        188.73,
+        200.16,
+        202.32,
+        199.94,
+        205.31,
+        202.84,
+        207.98,
+        208.82,
+        215.15,
+        212.24,
+        218.04,
+        222.32,
+        223.65,
+        221.81,
+        225.24,
+        247.35,
+        277.49,
+        269.13,
+        250.33,
+        243.6,
+        234.11,
+        231.68,
+        227.34,
+        227.63,
+        234.24,
+        229.9,
+        233.09,
+        231.11,
+        226.63,
+        223.0,
+        221.37,
+        220.57,
+        222.65,
+        220.94,
+        239.77,
+        248.57,
+        260.36,
+        264.48,
+        260.36,
+        255.37,
+        256.81,
+        261.09,
+        269.0,
+        257.54,
+        260.24,
+        270.73,
+        264.46,
+        262.32,
+        258.69,
+        263.2,
+        254.79,
+        245.77,
+        244.39,
+        246.86,
+        251.86,
+        250.88,
+        264.2,
+        268.56,
+        267.97,
+        273.6,
+        288.15,
+        283.17,
+        229.29,
+        233.93,
+        260.78
       ],
       "read": [
         "UPTREND \u2014 Price above the 20-day above the 50-day.",
-        "Nearest resistance 105.25 is 0.14 ATR above (+0.32%), confluence 5 \u2014 swing high, bear OB, SMA200.",
-        "Nearest support 103.62 is 0.52 ATR below (-1.22%), confluence 2."
+        "Nearest resistance 267.67 is 0.39 ATR above (+2.64%), confluence 5 \u2014 bear OB, bull OB, fib 0.236.",
+        "Nearest support 256.37 is 0.25 ATR below (-1.69%), confluence 2.",
+        "Structure broke up through 278.7 3 sessions ago."
       ]
-    }
+    },
+    "tradeable": false,
+    "conviction": "NONE",
+    "down_gap_bonus": true,
+    "fired": []
   },
   {
     "symbol": "UBER",
     "report_date": "2026-08-05",
-    "days_since": 5,
+    "days_since": 6,
     "beat_rate": 50,
     "avg_surprise": 57.4,
-    "atr": 2.7,
-    "stop": 77.65,
+    "atr": 2.81,
+    "stop": 79.66,
     "target": 72.67,
     "idx": 272,
     "date": "2026-08-05",
@@ -1453,49 +2544,26 @@
     "day_move_pct": -5.29,
     "react_close": 68.18,
     "vol_ratio": 3.09,
-    "bars_since": 2,
+    "bars_since": 3,
     "direction": "DOWN",
-    "drift_since": 10.03,
+    "drift_since": 14.45,
     "gap_filled": true,
     "state": "GAP FILLED",
     "state_note": "Price traded back through the pre-report close \u2014 the market rejected the surprise, nothing left to drift.",
-    "spot": 75.02,
-    "rr": 0.89,
-    "tradeable": false,
-    "conviction": "NONE",
-    "down_gap_bonus": true,
-    "fired": [],
+    "spot": 78.03,
+    "rr": 3.29,
     "chart": {
       "symbol": "UBER",
-      "asof": "2026-08-07",
-      "price": 75.02,
-      "atr": 2.7,
+      "asof": "2026-08-10",
+      "price": 78.03,
+      "atr": 2.81,
       "atr_pct": 3.6,
-      "trend": "MIXED",
-      "trend_note": "Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
-      "ema20": 71.3,
-      "sma50": 71.75,
-      "sma200": 78.03,
+      "trend": "UPTREND",
+      "trend_note": "Price above the 20-day above the 50-day.",
+      "ema20": 71.94,
+      "sma50": 71.89,
+      "sma200": 77.95,
       "resistance": [
-        {
-          "price": 76.3,
-          "cs": 2,
-          "labels": [
-            "swing high"
-          ],
-          "dist_pct": 1.71,
-          "dist_atr": 0.47
-        },
-        {
-          "price": 77.76,
-          "cs": 3,
-          "labels": [
-            "swing high",
-            "SMA200"
-          ],
-          "dist_pct": 3.65,
-          "dist_atr": 1.01
-        },
         {
           "price": 79.23,
           "cs": 4,
@@ -1503,55 +2571,72 @@
             "swing high",
             "swing low"
           ],
-          "dist_pct": 5.61,
-          "dist_atr": 1.56
+          "dist_pct": 1.54,
+          "dist_atr": 0.43
+        },
+        {
+          "price": 80.83,
+          "cs": 4,
+          "labels": [
+            "swing high",
+            "swing low"
+          ],
+          "dist_pct": 3.59,
+          "dist_atr": 1.0
+        },
+        {
+          "price": 85.42,
+          "cs": 2,
+          "labels": [
+            "swing low"
+          ],
+          "dist_pct": 9.47,
+          "dist_atr": 2.63
         }
       ],
       "support": [
         {
-          "price": 74.01,
+          "price": 76.3,
           "cs": 2,
           "labels": [
-            "bear OB"
+            "swing high"
           ],
-          "dist_pct": -1.35,
-          "dist_atr": 0.37
+          "dist_pct": -2.22,
+          "dist_atr": 0.62
+        },
+        {
+          "price": 75.1,
+          "cs": 3,
+          "labels": [
+            "bear OB",
+            "fib 0.236"
+          ],
+          "dist_pct": -3.75,
+          "dist_atr": 1.04
         },
         {
           "price": 72.67,
-          "cs": 10,
+          "cs": 12,
           "labels": [
             "swing low",
             "bear OB",
             "bull OB"
           ],
-          "dist_pct": -3.13,
-          "dist_atr": 0.87
-        },
-        {
-          "price": 71.24,
-          "cs": 8,
-          "labels": [
-            "swing low",
-            "bull OB",
-            "bear OB"
-          ],
-          "dist_pct": -5.04,
-          "dist_atr": 1.4
+          "dist_pct": -6.87,
+          "dist_atr": 1.91
         }
       ],
-      "room_up": 0.47,
-      "room_down": 0.37,
+      "room_up": 0.43,
+      "room_down": 0.62,
       "structure": {
-        "bars_ago": 10,
+        "bars_ago": 11,
         "dir": "down",
         "level": 67.19
       },
-      "pos_52w": 26.3,
+      "pos_52w": 34.5,
       "lo52": 65.41,
       "hi52": 101.99,
       "series": [
-        71.93,
         71.71,
         71.84,
         72.17,
@@ -1640,23 +2725,221 @@
         71.99,
         68.18,
         70.47,
-        75.02
+        75.02,
+        78.03
       ],
       "read": [
-        "MIXED \u2014 Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
-        "Nearest resistance 76.3 is 0.47 ATR above (+1.71%), confluence 2 \u2014 swing high.",
-        "Nearest support 74.01 is 0.37 ATR below (-1.35%), confluence 2."
+        "UPTREND \u2014 Price above the 20-day above the 50-day.",
+        "Nearest resistance 79.23 is 0.43 ATR above (+1.54%), confluence 4 \u2014 swing high, swing low.",
+        "Nearest support 76.3 is 0.62 ATR below (-2.22%), confluence 2."
       ]
-    }
+    },
+    "tradeable": false,
+    "conviction": "NONE",
+    "down_gap_bonus": true,
+    "fired": []
+  },
+  {
+    "symbol": "ANET",
+    "report_date": "2026-08-04",
+    "days_since": 6,
+    "beat_rate": 100,
+    "avg_surprise": 9.0,
+    "atr": 11.07,
+    "stop": 156.72,
+    "target": 224.73,
+    "idx": 272,
+    "date": "2026-08-05",
+    "pre_close": 190.51,
+    "gap_pct": 10.33,
+    "day_move_pct": 3.57,
+    "react_close": 197.31,
+    "vol_ratio": 2.61,
+    "bars_since": 3,
+    "direction": "UP",
+    "drift_since": -2.93,
+    "gap_filled": true,
+    "state": "GAP FILLED",
+    "state_note": "Price traded back through the pre-report close \u2014 the market rejected the surprise, nothing left to drift.",
+    "spot": 191.52,
+    "rr": 0.95,
+    "chart": {
+      "symbol": "ANET",
+      "asof": "2026-08-10",
+      "price": 191.52,
+      "atr": 11.07,
+      "atr_pct": 5.78,
+      "trend": "UPTREND",
+      "trend_note": "Price above the 20-day above the 50-day.",
+      "ema20": 180.35,
+      "sma50": 171.27,
+      "sma200": 147.25,
+      "resistance": [
+        {
+          "price": 196.51,
+          "cs": 1,
+          "labels": [
+            "fib 0.236"
+          ],
+          "dist_pct": 2.6,
+          "dist_atr": 0.45
+        }
+      ],
+      "support": [
+        {
+          "price": 189.82,
+          "cs": 4,
+          "labels": [
+            "swing high",
+            "bear OB"
+          ],
+          "dist_pct": -0.89,
+          "dist_atr": 0.15
+        },
+        {
+          "price": 185.06,
+          "cs": 3,
+          "labels": [
+            "bear OB",
+            "fib 0.382"
+          ],
+          "dist_pct": -3.37,
+          "dist_atr": 0.58
+        },
+        {
+          "price": 179.8,
+          "cs": 6,
+          "labels": [
+            "swing high",
+            "BSL",
+            "fib 0.5"
+          ],
+          "dist_pct": -6.12,
+          "dist_atr": 1.06
+        }
+      ],
+      "room_up": 0.45,
+      "room_down": 0.15,
+      "structure": {
+        "bars_ago": 0,
+        "dir": "up",
+        "level": 189.82
+      },
+      "pos_52w": 76.7,
+      "lo52": 114.52,
+      "hi52": 214.89,
+      "series": [
+        124.85,
+        126.68,
+        126.25,
+        133.64,
+        145.07,
+        146.05,
+        147.35,
+        152.02,
+        154.37,
+        154.33,
+        161.01,
+        164.23,
+        166.85,
+        172.86,
+        177.73,
+        172.55,
+        176.91,
+        172.47,
+        165.29,
+        168.68,
+        172.71,
+        172.7,
+        172.62,
+        170.22,
+        147.06,
+        141.75,
+        141.77,
+        136.43,
+        142.54,
+        140.69,
+        147.81,
+        141.97,
+        141.71,
+        141.58,
+        140.49,
+        148.59,
+        154.03,
+        158.01,
+        154.31,
+        155.27,
+        159.47,
+        170.68,
+        175.33,
+        174.37,
+        166.01,
+        154.27,
+        156.4,
+        152.16,
+        151.76,
+        156.4,
+        163.24,
+        169.09,
+        168.01,
+        164.93,
+        169.67,
+        174.56,
+        162.2,
+        161.74,
+        165.45,
+        157.6,
+        164.1,
+        169.88,
+        166.62,
+        159.99,
+        173.28,
+        166.46,
+        181.05,
+        184.69,
+        186.96,
+        181.15,
+        182.57,
+        171.92,
+        168.56,
+        168.61,
+        169.35,
+        174.58,
+        174.87,
+        176.61,
+        173.99,
+        170.76,
+        169.71,
+        157.97,
+        171.02,
+        180.35,
+        184.89,
+        190.51,
+        197.31,
+        192.32,
+        188.67,
+        191.52
+      ],
+      "read": [
+        "UPTREND \u2014 Price above the 20-day above the 50-day.",
+        "Nearest resistance 196.51 is 0.45 ATR above (+2.60%), confluence 1 \u2014 fib 0.236.",
+        "Nearest support 189.82 is 0.15 ATR below (-0.89%), confluence 4.",
+        "Structure broke up through 189.82 0 sessions ago."
+      ]
+    },
+    "tradeable": false,
+    "conviction": "NONE",
+    "down_gap_bonus": false,
+    "fired": []
   },
   {
     "symbol": "ON",
     "report_date": "2026-08-03",
-    "days_since": 6,
+    "days_since": 7,
     "beat_rate": 100,
     "avg_surprise": 4.2,
-    "atr": 4.9,
-    "stop": 64.57,
+    "atr": 4.75,
+    "stop": 64.65,
     "target": 102.64,
     "idx": 271,
     "date": "2026-08-04",
@@ -1665,30 +2948,35 @@
     "day_move_pct": 0.47,
     "react_close": 80.78,
     "vol_ratio": 2.58,
-    "bars_since": 3,
+    "bars_since": 4,
     "direction": "UP",
-    "drift_since": 0.48,
+    "drift_since": -1.24,
     "gap_filled": true,
     "state": "GAP FILLED",
     "state_note": "Price traded back through the pre-report close \u2014 the market rejected the surprise, nothing left to drift.",
-    "spot": 81.17,
-    "rr": 1.29,
-    "tradeable": false,
-    "conviction": "NONE",
-    "down_gap_bonus": false,
-    "fired": [],
+    "spot": 79.78,
+    "rr": 1.51,
     "chart": {
       "symbol": "ON",
-      "asof": "2026-08-07",
-      "price": 81.17,
-      "atr": 4.9,
-      "atr_pct": 6.03,
+      "asof": "2026-08-10",
+      "price": 79.78,
+      "atr": 4.75,
+      "atr_pct": 5.95,
       "trend": "DOWNTREND",
       "trend_note": "Downtrend on the 20/50 stack, but price is on the other side of the 200-day \u2014 a counter-trend move inside a larger one.",
-      "ema20": 85.92,
-      "sma50": 101.34,
-      "sma200": 75.7,
+      "ema20": 85.33,
+      "sma50": 100.46,
+      "sma200": 75.82,
       "resistance": [
+        {
+          "price": 81.29,
+          "cs": 2,
+          "labels": [
+            "bear OB"
+          ],
+          "dist_pct": 1.89,
+          "dist_atr": 0.32
+        },
         {
           "price": 83.35,
           "cs": 4,
@@ -1696,8 +2984,8 @@
             "swing low",
             "bear OB"
           ],
-          "dist_pct": 2.69,
-          "dist_atr": 0.45
+          "dist_pct": 4.47,
+          "dist_atr": 0.75
         },
         {
           "price": 86.47,
@@ -1707,29 +2995,28 @@
             "bear OB",
             "fib 0.786"
           ],
-          "dist_pct": 6.53,
-          "dist_atr": 1.08
-        },
-        {
-          "price": 88.69,
-          "cs": 2,
-          "labels": [
-            "bull OB"
-          ],
-          "dist_pct": 9.26,
-          "dist_atr": 1.54
+          "dist_pct": 8.39,
+          "dist_atr": 1.41
         }
       ],
       "support": [
         {
-          "price": 73.76,
-          "cs": 3,
+          "price": 75.82,
+          "cs": 1,
           "labels": [
-            "swing high",
             "SMA200"
           ],
-          "dist_pct": -9.13,
-          "dist_atr": 1.51
+          "dist_pct": -4.96,
+          "dist_atr": 0.83
+        },
+        {
+          "price": 73.76,
+          "cs": 2,
+          "labels": [
+            "swing high"
+          ],
+          "dist_pct": -7.55,
+          "dist_atr": 1.27
         },
         {
           "price": 66.86,
@@ -1738,31 +3025,21 @@
             "swing high",
             "swing low"
           ],
-          "dist_pct": -17.63,
-          "dist_atr": 2.92
-        },
-        {
-          "price": 64.35,
-          "cs": 2,
-          "labels": [
-            "swing high"
-          ],
-          "dist_pct": -20.72,
-          "dist_atr": 3.43
+          "dist_pct": -16.19,
+          "dist_atr": 2.72
         }
       ],
-      "room_up": 0.45,
-      "room_down": 1.51,
+      "room_up": 0.32,
+      "room_down": 0.83,
       "structure": {
         "bars_ago": 0,
         "dir": "down",
         "level": 83.35
       },
-      "pos_52w": 40.5,
+      "pos_52w": 39.0,
       "lo52": 44.56,
       "hi52": 134.92,
       "series": [
-        61.92,
         62.2,
         62.19,
         63.49,
@@ -1851,24 +3128,29 @@
         80.78,
         76.91,
         78.33,
-        81.17
+        81.17,
+        79.78
       ],
       "read": [
         "DOWNTREND \u2014 Downtrend on the 20/50 stack, but price is on the other side of the 200-day \u2014 a counter-trend move inside a larger one.",
-        "Nearest resistance 83.35 is 0.45 ATR above (+2.69%), confluence 4 \u2014 swing low, bear OB.",
-        "Nearest support 73.76 is 1.51 ATR below (-9.13%), confluence 3.",
+        "Nearest resistance 81.29 is 0.32 ATR above (+1.89%), confluence 2 \u2014 bear OB.",
+        "Nearest support 75.82 is 0.83 ATR below (-4.96%), confluence 1.",
         "Structure broke down through 83.35 0 sessions ago."
       ]
-    }
+    },
+    "tradeable": false,
+    "conviction": "NONE",
+    "down_gap_bonus": false,
+    "fired": []
   },
   {
     "symbol": "AAPL",
     "report_date": "2026-07-30",
-    "days_since": 10,
+    "days_since": 11,
     "beat_rate": 100,
     "avg_surprise": 5.3,
-    "atr": 9.35,
-    "stop": 322.08,
+    "atr": 9.45,
+    "stop": 322.12,
     "target": 300.0,
     "idx": 269,
     "date": "2026-07-31",
@@ -1877,30 +3159,35 @@
     "day_move_pct": -7.35,
     "react_close": 308.91,
     "vol_ratio": 2.61,
-    "bars_since": 5,
+    "bars_since": 6,
     "direction": "DOWN",
-    "drift_since": 1.43,
+    "drift_since": -0.21,
     "gap_filled": false,
     "state": "HOLDING",
     "state_note": "Holding the reaction level without extending \u2014 consolidating rather than drifting.",
-    "spot": 313.33,
-    "rr": 1.52,
-    "tradeable": false,
-    "conviction": "NONE",
-    "down_gap_bonus": true,
-    "fired": [],
+    "spot": 308.26,
+    "rr": 0.6,
     "chart": {
       "symbol": "AAPL",
-      "asof": "2026-08-07",
-      "price": 313.33,
-      "atr": 9.35,
-      "atr_pct": 2.98,
+      "asof": "2026-08-10",
+      "price": 308.26,
+      "atr": 9.45,
+      "atr_pct": 3.06,
       "trend": "MIXED",
       "trend_note": "Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
-      "ema20": 317.8,
-      "sma50": 309.79,
-      "sma200": 279.41,
+      "ema20": 316.9,
+      "sma50": 309.7,
+      "sma200": 279.64,
       "resistance": [
+        {
+          "price": 312.81,
+          "cs": 2,
+          "labels": [
+            "bull OB"
+          ],
+          "dist_pct": 1.48,
+          "dist_atr": 0.48
+        },
         {
           "price": 317.4,
           "cs": 6,
@@ -1909,8 +3196,8 @@
             "swing low",
             "fib 0.382"
           ],
-          "dist_pct": 1.3,
-          "dist_atr": 0.44
+          "dist_pct": 2.97,
+          "dist_atr": 0.97
         },
         {
           "price": 321.33,
@@ -1918,32 +3205,11 @@
           "labels": [
             "bull OB"
           ],
-          "dist_pct": 2.55,
-          "dist_atr": 0.85
-        },
-        {
-          "price": 328.69,
-          "cs": 3,
-          "labels": [
-            "bull OB",
-            "fib 0.236"
-          ],
-          "dist_pct": 4.9,
-          "dist_atr": 1.64
+          "dist_pct": 4.24,
+          "dist_atr": 1.38
         }
       ],
       "support": [
-        {
-          "price": 307.98,
-          "cs": 6,
-          "labels": [
-            "bull OB",
-            "bear OB",
-            "fib 0.5"
-          ],
-          "dist_pct": -1.71,
-          "dist_atr": 0.57
-        },
         {
           "price": 302.42,
           "cs": 7,
@@ -1952,8 +3218,8 @@
             "swing low",
             "bear OB"
           ],
-          "dist_pct": -3.48,
-          "dist_atr": 1.17
+          "dist_pct": -1.89,
+          "dist_atr": 0.62
         },
         {
           "price": 297.79,
@@ -1962,22 +3228,31 @@
             "bull OB",
             "bear OB"
           ],
-          "dist_pct": -4.96,
-          "dist_atr": 1.66
+          "dist_pct": -3.4,
+          "dist_atr": 1.11
+        },
+        {
+          "price": 293.29,
+          "cs": 4,
+          "labels": [
+            "bear OB",
+            "bull OB"
+          ],
+          "dist_pct": -4.85,
+          "dist_atr": 1.58
         }
       ],
-      "room_up": 0.44,
-      "room_down": 0.57,
+      "room_up": 0.48,
+      "room_down": 0.62,
       "structure": {
-        "bars_ago": 7,
+        "bars_ago": 8,
         "dir": "up",
         "level": 334.99
       },
-      "pos_52w": 75.6,
-      "lo52": 216.58,
+      "pos_52w": 71.0,
+      "lo52": 219.25,
       "hi52": 344.57,
       "series": [
-        253.79,
         255.63,
         255.92,
         258.86,
@@ -2066,24 +3341,29 @@
         309.38,
         311.0,
         312.41,
-        313.33
+        313.33,
+        308.26
       ],
       "read": [
         "MIXED \u2014 Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
-        "Nearest resistance 317.4 is 0.44 ATR above (+1.30%), confluence 6 \u2014 swing high, swing low, fib 0.382.",
-        "Nearest support 307.98 is 0.57 ATR below (-1.71%), confluence 6."
+        "Nearest resistance 312.81 is 0.48 ATR above (+1.48%), confluence 2 \u2014 bull OB.",
+        "Nearest support 302.42 is 0.62 ATR below (-1.89%), confluence 7."
       ]
-    }
+    },
+    "tradeable": false,
+    "conviction": "NONE",
+    "down_gap_bonus": true,
+    "fired": []
   },
   {
     "symbol": "AMZN",
     "report_date": "2026-07-30",
-    "days_since": 10,
+    "days_since": 11,
     "beat_rate": 75,
     "avg_surprise": 77.0,
-    "atr": 9.99,
-    "stop": 250.2,
-    "target": 274.75,
+    "atr": 10.2,
+    "stop": 250.09,
+    "target": 278.56,
     "idx": 269,
     "date": "2026-07-31",
     "pre_close": 235.5,
@@ -2091,62 +3371,58 @@
     "day_move_pct": 15.32,
     "react_close": 271.58,
     "vol_ratio": 3.07,
-    "bars_since": 5,
+    "bars_since": 6,
     "direction": "UP",
-    "drift_since": 1.07,
+    "drift_since": 2.4,
     "gap_filled": false,
     "state": "DRIFTING",
-    "state_note": "Continued 1.1% further up since the reaction \u2014 the drift is underway.",
-    "spot": 274.48,
-    "rr": 0.01,
-    "tradeable": false,
-    "conviction": "NONE",
-    "down_gap_bonus": false,
-    "fired": [],
+    "state_note": "Continued 2.4% further up since the reaction \u2014 the drift is underway.",
+    "spot": 278.09,
+    "rr": 0.02,
     "chart": {
       "symbol": "AMZN",
-      "asof": "2026-08-07",
-      "price": 274.48,
-      "atr": 9.99,
-      "atr_pct": 3.64,
+      "asof": "2026-08-10",
+      "price": 278.09,
+      "atr": 10.2,
+      "atr_pct": 3.67,
       "trend": "UPTREND",
       "trend_note": "Price above the 20-day above the 50-day.",
-      "ema20": 255.67,
-      "sma50": 247.51,
-      "sma200": 236.54,
+      "ema20": 257.8,
+      "sma50": 247.59,
+      "sma200": 236.82,
       "resistance": [
         {
-          "price": 278.56,
-          "cs": 4,
+          "price": 287.2,
+          "cs": 2,
           "labels": [
-            "swing high",
-            "bear OB"
+            "swing high"
           ],
-          "dist_pct": 1.49,
-          "dist_atr": 0.41
+          "dist_pct": 3.28,
+          "dist_atr": 0.89
         }
       ],
       "support": [
         {
           "price": 270.97,
-          "cs": 3,
-          "labels": [
-            "bear OB",
-            "fib 0.236"
-          ],
-          "dist_pct": -1.28,
-          "dist_atr": 0.35
-        },
-        {
-          "price": 265.14,
           "cs": 5,
           "labels": [
-            "bull OB",
             "bear OB",
+            "bull OB",
+            "fib 0.236"
+          ],
+          "dist_pct": -2.56,
+          "dist_atr": 0.7
+        },
+        {
+          "price": 265.43,
+          "cs": 5,
+          "labels": [
+            "bear OB",
+            "bull OB",
             "fib 0.382"
           ],
-          "dist_pct": -3.4,
-          "dist_atr": 0.94
+          "dist_pct": -4.55,
+          "dist_atr": 1.24
         },
         {
           "price": 258.6,
@@ -2156,22 +3432,21 @@
             "swing low",
             "bull OB"
           ],
-          "dist_pct": -5.79,
-          "dist_atr": 1.59
+          "dist_pct": -7.01,
+          "dist_atr": 1.91
         }
       ],
-      "room_up": 0.41,
-      "room_down": 0.35,
+      "room_up": 0.89,
+      "room_down": 0.7,
       "structure": {
-        "bars_ago": 3,
+        "bars_ago": 0,
         "dir": "up",
         "level": 274.75
       },
-      "pos_52w": 86.1,
+      "pos_52w": 90.0,
       "lo52": 196.0,
       "hi52": 287.2,
       "series": [
-        208.27,
         210.57,
         209.77,
         212.79,
@@ -2260,25 +3535,30 @@
         277.42,
         272.65,
         272.26,
-        274.48
+        274.48,
+        278.09
       ],
       "read": [
         "UPTREND \u2014 Price above the 20-day above the 50-day.",
-        "Nearest resistance 278.56 is 0.41 ATR above (+1.49%), confluence 4 \u2014 swing high, bear OB.",
-        "Nearest support 270.97 is 0.35 ATR below (-1.28%), confluence 3.",
-        "Structure broke up through 274.75 3 sessions ago."
+        "Nearest resistance 287.2 is 0.89 ATR above (+3.28%), confluence 2 \u2014 swing high.",
+        "Nearest support 270.97 is 0.7 ATR below (-2.56%), confluence 5.",
+        "Structure broke up through 274.75 0 sessions ago."
       ]
-    }
+    },
+    "tradeable": false,
+    "conviction": "NONE",
+    "down_gap_bonus": false,
+    "fired": []
   },
   {
     "symbol": "XOM",
     "report_date": "2026-07-31",
-    "days_since": 10,
+    "days_since": 11,
     "beat_rate": 100,
     "avg_surprise": 8.1,
-    "atr": 4.01,
-    "stop": 145.65,
-    "target": 154.91,
+    "atr": 4.29,
+    "stop": 145.51,
+    "target": 163.68,
     "idx": 267,
     "date": "2026-07-29",
     "pre_close": 153.04,
@@ -2286,40 +3566,55 @@
     "day_move_pct": 2.42,
     "react_close": 156.75,
     "vol_ratio": 0.97,
-    "bars_since": 7,
+    "bars_since": 8,
     "direction": "UP",
-    "drift_since": -2.37,
+    "drift_since": 1.94,
     "gap_filled": true,
     "state": "GAP FILLED",
     "state_note": "Price traded back through the pre-report close \u2014 the market rejected the surprise, nothing left to drift.",
-    "spot": 153.04,
-    "rr": 0.25,
-    "tradeable": false,
-    "conviction": "NONE",
-    "down_gap_bonus": false,
-    "fired": [],
+    "spot": 159.79,
+    "rr": 0.27,
     "chart": {
       "symbol": "XOM",
-      "asof": "2026-08-07",
-      "price": 153.04,
-      "atr": 4.01,
-      "atr_pct": 2.62,
+      "asof": "2026-08-10",
+      "price": 159.79,
+      "atr": 4.29,
+      "atr_pct": 2.69,
       "trend": "UPTREND",
       "trend_note": "Price above the 20-day above the 50-day.",
-      "ema20": 151.65,
-      "sma50": 146.48,
-      "sma200": 140.19,
+      "ema20": 152.43,
+      "sma50": 146.74,
+      "sma200": 140.42,
       "resistance": [
         {
-          "price": 154.91,
-          "cs": 4,
+          "price": 161.48,
+          "cs": 2,
           "labels": [
-            "swing high",
             "bear OB"
           ],
-          "dist_pct": 1.22,
-          "dist_atr": 0.47
+          "dist_pct": 1.06,
+          "dist_atr": 0.39
         },
+        {
+          "price": 163.68,
+          "cs": 2,
+          "labels": [
+            "swing high"
+          ],
+          "dist_pct": 2.43,
+          "dist_atr": 0.91
+        },
+        {
+          "price": 176.41,
+          "cs": 2,
+          "labels": [
+            "swing high"
+          ],
+          "dist_pct": 10.4,
+          "dist_atr": 3.87
+        }
+      ],
+      "support": [
         {
           "price": 156.93,
           "cs": 3,
@@ -2327,65 +3622,42 @@
             "swing high",
             "fib 0.236"
           ],
-          "dist_pct": 2.54,
-          "dist_atr": 0.97
+          "dist_pct": -1.79,
+          "dist_atr": 0.67
         },
         {
-          "price": 159.6,
-          "cs": 2,
+          "price": 154.91,
+          "cs": 4,
           "labels": [
-            "swing high"
+            "swing high",
+            "bear OB"
           ],
-          "dist_pct": 4.29,
-          "dist_atr": 1.64
-        }
-      ],
-      "support": [
-        {
-          "price": 152.47,
-          "cs": 3,
-          "labels": [
-            "bear OB",
-            "fib 0.382"
-          ],
-          "dist_pct": -0.38,
-          "dist_atr": 0.14
+          "dist_pct": -3.05,
+          "dist_atr": 1.14
         },
         {
-          "price": 150.79,
+          "price": 152.19,
           "cs": 6,
           "labels": [
             "bull OB",
             "bear OB",
-            "fib 0.5"
+            "fib 0.382"
           ],
-          "dist_pct": -1.47,
-          "dist_atr": 0.56
-        },
-        {
-          "price": 147.66,
-          "cs": 7,
-          "labels": [
-            "swing low",
-            "bear OB",
-            "bull OB"
-          ],
-          "dist_pct": -3.52,
-          "dist_atr": 1.34
+          "dist_pct": -4.76,
+          "dist_atr": 1.77
         }
       ],
-      "room_up": 0.47,
-      "room_down": 0.14,
+      "room_up": 0.39,
+      "room_down": 0.67,
       "structure": {
-        "bars_ago": 25,
+        "bars_ago": 26,
         "dir": "down",
         "level": 141.97
       },
-      "pos_52w": 67.0,
+      "pos_52w": 76.6,
       "lo52": 105.53,
       "hi52": 176.41,
       "series": [
-        169.66,
         160.78,
         160.69,
         163.37,
@@ -2474,23 +3746,28 @@
         153.96,
         151.63,
         154.84,
-        153.04
+        153.04,
+        159.79
       ],
       "read": [
         "UPTREND \u2014 Price above the 20-day above the 50-day.",
-        "Nearest resistance 154.91 is 0.47 ATR above (+1.22%), confluence 4 \u2014 swing high, bear OB.",
-        "Nearest support 152.47 is 0.14 ATR below (-0.38%), confluence 3."
+        "Nearest resistance 161.48 is 0.39 ATR above (+1.06%), confluence 2 \u2014 bear OB.",
+        "Nearest support 156.93 is 0.67 ATR below (-1.79%), confluence 3."
       ]
-    }
+    },
+    "tradeable": false,
+    "conviction": "NONE",
+    "down_gap_bonus": false,
+    "fired": []
   },
   {
     "symbol": "ABBV",
     "report_date": "2026-07-31",
-    "days_since": 10,
+    "days_since": 11,
     "beat_rate": 75,
     "avg_surprise": 1.7,
-    "atr": 6.75,
-    "stop": 239.7,
+    "atr": 6.71,
+    "stop": 239.71,
     "target": 260.96,
     "idx": 266,
     "date": "2026-07-28",
@@ -2499,38 +3776,34 @@
     "day_move_pct": 2.45,
     "react_close": 263.2,
     "vol_ratio": 0.84,
-    "bars_since": 8,
+    "bars_since": 9,
     "direction": "UP",
-    "drift_since": -6.52,
+    "drift_since": -5.79,
     "gap_filled": true,
     "state": "GAP FILLED",
     "state_note": "Price traded back through the pre-report close \u2014 the market rejected the surprise, nothing left to drift.",
-    "spot": 246.04,
-    "rr": 2.35,
-    "tradeable": false,
-    "conviction": "NONE",
-    "down_gap_bonus": false,
-    "fired": [],
+    "spot": 247.97,
+    "rr": 1.57,
     "chart": {
       "symbol": "ABBV",
-      "asof": "2026-08-07",
-      "price": 246.04,
-      "atr": 6.75,
-      "atr_pct": 2.74,
+      "asof": "2026-08-10",
+      "price": 247.97,
+      "atr": 6.71,
+      "atr_pct": 2.71,
       "trend": "MIXED",
       "trend_note": "Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
-      "ema20": 249.76,
-      "sma50": 241.12,
-      "sma200": 225.07,
+      "ema20": 249.59,
+      "sma50": 241.71,
+      "sma200": 225.15,
       "resistance": [
         {
-          "price": 249.76,
+          "price": 249.59,
           "cs": 1,
           "labels": [
             "EMA20"
           ],
-          "dist_pct": 1.51,
-          "dist_atr": 0.55
+          "dist_pct": 0.65,
+          "dist_atr": 0.24
         },
         {
           "price": 252.59,
@@ -2540,8 +3813,8 @@
             "bull OB",
             "fib 0.236"
           ],
-          "dist_pct": 2.66,
-          "dist_atr": 0.97
+          "dist_pct": 1.87,
+          "dist_atr": 0.69
         },
         {
           "price": 256.07,
@@ -2549,8 +3822,8 @@
           "labels": [
             "bear OB"
           ],
-          "dist_pct": 4.08,
-          "dist_atr": 1.49
+          "dist_pct": 3.27,
+          "dist_atr": 1.21
         }
       ],
       "support": [
@@ -2562,43 +3835,42 @@
             "swing low",
             "bull OB"
           ],
-          "dist_pct": -0.5,
-          "dist_atr": 0.18
+          "dist_pct": -1.27,
+          "dist_atr": 0.47
         },
         {
           "price": 239.29,
-          "cs": 3,
+          "cs": 4,
           "labels": [
             "swing high",
+            "fib 0.5",
             "SMA50"
           ],
-          "dist_pct": -2.74,
-          "dist_atr": 1.0
+          "dist_pct": -3.5,
+          "dist_atr": 1.29
         },
         {
           "price": 235.25,
-          "cs": 5,
+          "cs": 4,
           "labels": [
             "swing high",
-            "bull OB",
-            "fib 0.5"
+            "bull OB"
           ],
-          "dist_pct": -4.39,
-          "dist_atr": 1.6
+          "dist_pct": -5.13,
+          "dist_atr": 1.89
         }
       ],
-      "room_up": 0.55,
-      "room_down": 0.18,
+      "room_up": 0.24,
+      "room_down": 0.47,
       "structure": {
-        "bars_ago": 7,
+        "bars_ago": 8,
         "dir": "up",
         "level": 261.63
       },
-      "pos_52w": 72.1,
+      "pos_52w": 74.6,
       "lo52": 190.75,
       "hi52": 267.47,
       "series": [
-        217.49,
         214.98,
         208.84,
         206.69,
@@ -2687,24 +3959,29 @@
         243.8,
         246.2,
         243.87,
-        246.04
+        246.04,
+        247.97
       ],
       "read": [
         "MIXED \u2014 Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
-        "Nearest resistance 249.76 is 0.55 ATR above (+1.51%), confluence 1 \u2014 EMA20.",
-        "Nearest support 244.81 is 0.18 ATR below (-0.50%), confluence 7."
+        "Nearest resistance 249.59 is 0.24 ATR above (+0.65%), confluence 1 \u2014 EMA20.",
+        "Nearest support 244.81 is 0.47 ATR below (-1.27%), confluence 7."
       ]
-    }
+    },
+    "tradeable": false,
+    "conviction": "NONE",
+    "down_gap_bonus": false,
+    "fired": []
   },
   {
     "symbol": "COIN",
     "report_date": "2026-07-30",
-    "days_since": 10,
+    "days_since": 11,
     "beat_rate": 25,
-    "avg_surprise": -1069.7,
-    "atr": 10.44,
-    "stop": 178.31,
-    "target": 152.7,
+    "avg_surprise": -1066.9,
+    "atr": 9.34,
+    "stop": 177.76,
+    "target": 147.88,
     "idx": 269,
     "date": "2026-07-31",
     "pre_close": 163.58,
@@ -2712,30 +3989,37 @@
     "day_move_pct": -10.59,
     "react_close": 146.26,
     "vol_ratio": 3.0,
-    "bars_since": 5,
+    "bars_since": 6,
     "direction": "DOWN",
-    "drift_since": 5.02,
+    "drift_since": 1.65,
     "gap_filled": false,
     "state": "STALLING",
-    "state_note": "Given back 5.0% against the gap without filling it \u2014 momentum is fading but the level still holds.",
-    "spot": 153.6,
-    "rr": 0.04,
-    "tradeable": false,
-    "conviction": "NONE",
-    "down_gap_bonus": true,
-    "fired": [],
+    "state_note": "Given back 1.7% against the gap without filling it \u2014 momentum is fading but the level still holds.",
+    "spot": 148.68,
+    "rr": 0.03,
     "chart": {
       "symbol": "COIN",
-      "asof": "2026-08-07",
-      "price": 153.6,
-      "atr": 10.44,
-      "atr_pct": 6.8,
+      "asof": "2026-08-10",
+      "price": 148.68,
+      "atr": 9.34,
+      "atr_pct": 6.28,
       "trend": "DOWNTREND",
       "trend_note": "Price below the 20-day below the 50-day.",
-      "ema20": 156.63,
-      "sma50": 160.8,
-      "sma200": 207.72,
+      "ema20": 155.87,
+      "sma50": 160.13,
+      "sma200": 206.77,
       "resistance": [
+        {
+          "price": 152.7,
+          "cs": 6,
+          "labels": [
+            "swing low",
+            "bear OB",
+            "SSL"
+          ],
+          "dist_pct": 2.7,
+          "dist_atr": 0.43
+        },
         {
           "price": 158.46,
           "cs": 8,
@@ -2744,8 +4028,8 @@
             "bull OB",
             "bear OB"
           ],
-          "dist_pct": 3.16,
-          "dist_atr": 0.47
+          "dist_pct": 6.58,
+          "dist_atr": 1.05
         },
         {
           "price": 163.13,
@@ -2755,30 +4039,11 @@
             "bear OB",
             "SMA50"
           ],
-          "dist_pct": 6.2,
-          "dist_atr": 0.91
-        },
-        {
-          "price": 170.91,
-          "cs": 1,
-          "labels": [
-            "fib 0.618"
-          ],
-          "dist_pct": 11.27,
-          "dist_atr": 1.66
+          "dist_pct": 9.72,
+          "dist_atr": 1.55
         }
       ],
       "support": [
-        {
-          "price": 147.88,
-          "cs": 4,
-          "labels": [
-            "swing low",
-            "bull OB"
-          ],
-          "dist_pct": -3.72,
-          "dist_atr": 0.55
-        },
         {
           "price": 139.36,
           "cs": 4,
@@ -2786,22 +4051,21 @@
             "swing low",
             "SSL"
           ],
-          "dist_pct": -9.27,
-          "dist_atr": 1.36
+          "dist_pct": -6.27,
+          "dist_atr": 1.0
         }
       ],
-      "room_up": 0.47,
-      "room_down": 0.55,
+      "room_up": 0.43,
+      "room_down": 1.0,
       "structure": {
-        "bars_ago": 27,
+        "bars_ago": 28,
         "dir": "down",
         "level": 147.88
       },
-      "pos_52w": 5.5,
+      "pos_52w": 3.6,
       "lo52": 139.11,
       "hi52": 402.16,
       "series": [
-        174.61,
         172.99,
         171.46,
         174.79,
@@ -2890,23 +4154,431 @@
         150.73,
         149.89,
         145.41,
-        153.6
+        153.6,
+        148.68
       ],
       "read": [
         "DOWNTREND \u2014 Price below the 20-day below the 50-day.",
-        "Nearest resistance 158.46 is 0.47 ATR above (+3.16%), confluence 8 \u2014 swing low, bull OB, bear OB.",
-        "Nearest support 147.88 is 0.55 ATR below (-3.72%), confluence 4."
+        "Nearest resistance 152.7 is 0.43 ATR above (+2.70%), confluence 6 \u2014 swing low, bear OB, SSL.",
+        "Nearest support 139.36 is 1.0 ATR below (-6.27%), confluence 4."
       ]
-    }
+    },
+    "tradeable": false,
+    "conviction": "NONE",
+    "down_gap_bonus": true,
+    "fired": []
+  },
+  {
+    "symbol": "RBLX",
+    "report_date": "2026-07-30",
+    "days_since": 11,
+    "beat_rate": 100,
+    "avg_surprise": 16.2,
+    "atr": 3.37,
+    "stop": 50.22,
+    "target": 33.88,
+    "idx": 269,
+    "date": "2026-07-31",
+    "pre_close": 48.67,
+    "gap_pct": -20.12,
+    "day_move_pct": -26.85,
+    "react_close": 35.6,
+    "vol_ratio": 7.8,
+    "bars_since": 6,
+    "direction": "DOWN",
+    "drift_since": 4.07,
+    "gap_filled": false,
+    "state": "STALLING",
+    "state_note": "Given back 4.1% against the gap without filling it \u2014 momentum is fading but the level still holds.",
+    "spot": 37.05,
+    "rr": 0.24,
+    "chart": {
+      "symbol": "RBLX",
+      "asof": "2026-08-10",
+      "price": 37.05,
+      "atr": 3.37,
+      "atr_pct": 9.1,
+      "trend": "DOWNTREND",
+      "trend_note": "Price below the 20-day below the 50-day.",
+      "ema20": 43.74,
+      "sma50": 47.82,
+      "sma200": 66.95,
+      "resistance": [
+        {
+          "price": 39.13,
+          "cs": 1,
+          "labels": [
+            "fib 0.786"
+          ],
+          "dist_pct": 5.62,
+          "dist_atr": 0.62
+        },
+        {
+          "price": 40.68,
+          "cs": 2,
+          "labels": [
+            "swing low"
+          ],
+          "dist_pct": 9.8,
+          "dist_atr": 1.08
+        },
+        {
+          "price": 42.47,
+          "cs": 3,
+          "labels": [
+            "bull OB",
+            "fib 0.618"
+          ],
+          "dist_pct": 14.62,
+          "dist_atr": 1.61
+        }
+      ],
+      "support": [
+        {
+          "price": 33.88,
+          "cs": 2,
+          "labels": [
+            "swing low"
+          ],
+          "dist_pct": -8.56,
+          "dist_atr": 0.94
+        }
+      ],
+      "room_up": 0.62,
+      "room_down": 0.94,
+      "structure": {
+        "bars_ago": 1,
+        "dir": "down",
+        "level": 40.15
+      },
+      "pos_52w": 2.9,
+      "lo52": 33.88,
+      "hi52": 142.0,
+      "series": [
+        57.63,
+        60.11,
+        57.2,
+        57.5,
+        55.43,
+        55.17,
+        55.59,
+        57.66,
+        58.3,
+        59.79,
+        60.44,
+        60.34,
+        61.83,
+        61.26,
+        59.64,
+        55.45,
+        56.09,
+        57.52,
+        56.11,
+        56.28,
+        55.26,
+        45.13,
+        47.57,
+        44.04,
+        43.76,
+        44.78,
+        41.91,
+        41.31,
+        41.54,
+        41.96,
+        43.72,
+        42.85,
+        46.98,
+        44.45,
+        45.79,
+        46.14,
+        48.16,
+        46.0,
+        45.63,
+        46.83,
+        47.15,
+        47.0,
+        45.0,
+        43.68,
+        43.35,
+        41.82,
+        42.3,
+        43.0,
+        41.5,
+        43.49,
+        43.31,
+        45.66,
+        49.34,
+        48.02,
+        51.53,
+        47.27,
+        47.11,
+        47.94,
+        46.39,
+        47.56,
+        54.34,
+        54.38,
+        57.95,
+        55.41,
+        57.03,
+        56.71,
+        55.12,
+        56.43,
+        55.35,
+        55.03,
+        54.47,
+        57.07,
+        54.01,
+        51.68,
+        53.25,
+        52.5,
+        49.64,
+        47.55,
+        47.55,
+        48.42,
+        49.5,
+        50.13,
+        48.67,
+        35.6,
+        36.67,
+        37.0,
+        36.19,
+        36.04,
+        37.79,
+        37.05
+      ],
+      "read": [
+        "DOWNTREND \u2014 Price below the 20-day below the 50-day.",
+        "Nearest resistance 39.13 is 0.62 ATR above (+5.62%), confluence 1 \u2014 fib 0.786.",
+        "Nearest support 33.88 is 0.94 ATR below (-8.56%), confluence 2.",
+        "Structure broke down through 40.15 1 session ago."
+      ]
+    },
+    "tradeable": false,
+    "conviction": "NONE",
+    "down_gap_bonus": true,
+    "fired": []
+  },
+  {
+    "symbol": "MSTR",
+    "report_date": "2026-07-30",
+    "days_since": 11,
+    "beat_rate": 0,
+    "avg_surprise": -290.6,
+    "atr": 5.55,
+    "stop": 107.37,
+    "target": 90.02,
+    "idx": 266,
+    "date": "2026-07-28",
+    "pre_close": 98.65,
+    "gap_pct": -3.22,
+    "day_move_pct": -2.52,
+    "react_close": 96.16,
+    "vol_ratio": 0.61,
+    "bars_since": 9,
+    "direction": "DOWN",
+    "drift_since": 1.22,
+    "gap_filled": true,
+    "state": "GAP FILLED",
+    "state_note": "Price traded back through the pre-report close \u2014 the market rejected the surprise, nothing left to drift.",
+    "spot": 97.33,
+    "rr": 0.73,
+    "chart": {
+      "symbol": "MSTR",
+      "asof": "2026-08-10",
+      "price": 97.33,
+      "atr": 5.55,
+      "atr_pct": 5.7,
+      "trend": "DOWNTREND",
+      "trend_note": "Price below the 20-day below the 50-day.",
+      "ema20": 97.7,
+      "sma50": 105.25,
+      "sma200": 151.91,
+      "resistance": [
+        {
+          "price": 102.28,
+          "cs": 2,
+          "labels": [
+            "bear OB"
+          ],
+          "dist_pct": 5.08,
+          "dist_atr": 0.89
+        },
+        {
+          "price": 104.78,
+          "cs": 8,
+          "labels": [
+            "swing high",
+            "swing low",
+            "BSL"
+          ],
+          "dist_pct": 7.65,
+          "dist_atr": 1.34
+        },
+        {
+          "price": 118.4,
+          "cs": 2,
+          "labels": [
+            "swing low"
+          ],
+          "dist_pct": 21.65,
+          "dist_atr": 3.8
+        }
+      ],
+      "support": [
+        {
+          "price": 96.73,
+          "cs": 5,
+          "labels": [
+            "bull OB",
+            "bear OB",
+            "EMA20"
+          ],
+          "dist_pct": -0.61,
+          "dist_atr": 0.11
+        },
+        {
+          "price": 93.41,
+          "cs": 4,
+          "labels": [
+            "bear OB",
+            "bull OB"
+          ],
+          "dist_pct": -4.03,
+          "dist_atr": 0.71
+        },
+        {
+          "price": 90.02,
+          "cs": 6,
+          "labels": [
+            "swing low",
+            "bull OB",
+            "SSL"
+          ],
+          "dist_pct": -7.51,
+          "dist_atr": 1.32
+        }
+      ],
+      "room_up": 0.89,
+      "room_down": 0.11,
+      "structure": {
+        "bars_ago": 25,
+        "dir": "down",
+        "level": 116.4
+      },
+      "pos_52w": 4.7,
+      "lo52": 81.81,
+      "hi52": 414.36,
+      "series": [
+        122.78,
+        119.83,
+        127.69,
+        123.72,
+        128.3,
+        128.86,
+        128.64,
+        132.36,
+        137.41,
+        143.54,
+        148.94,
+        166.52,
+        170.81,
+        163.97,
+        179.36,
+        172.47,
+        171.02,
+        169.2,
+        165.71,
+        158.19,
+        165.45,
+        177.17,
+        183.8,
+        186.9,
+        186.82,
+        179.84,
+        187.59,
+        195.94,
+        184.42,
+        178.03,
+        186.97,
+        177.42,
+        166.63,
+        164.63,
+        165.81,
+        164.85,
+        159.89,
+        159.93,
+        154.2,
+        151.64,
+        159.09,
+        149.78,
+        136.08,
+        126.545,
+        129.37,
+        120.44,
+        127.2,
+        117.02,
+        115.35,
+        120.15,
+        123.97,
+        131.14,
+        122.81,
+        116.56,
+        112.53,
+        109.46,
+        103.84,
+        94.13,
+        85.33,
+        82.31,
+        92.68,
+        86.93,
+        93.39,
+        100.77,
+        100.77,
+        97.36,
+        93.87,
+        93.89,
+        94.64,
+        92.1,
+        97.58,
+        97.47,
+        94.03,
+        94.85,
+        97.82,
+        101.95,
+        100.01,
+        93.63,
+        91.67,
+        98.65,
+        96.16,
+        93.33,
+        97.74,
+        93.28,
+        94.86,
+        97.65,
+        98.37,
+        96.85,
+        100.01,
+        97.33
+      ],
+      "read": [
+        "DOWNTREND \u2014 Price below the 20-day below the 50-day.",
+        "Nearest resistance 102.28 is 0.89 ATR above (+5.08%), confluence 2 \u2014 bear OB.",
+        "Nearest support 96.73 is 0.11 ATR below (-0.61%), confluence 5."
+      ]
+    },
+    "tradeable": false,
+    "conviction": "NONE",
+    "down_gap_bonus": true,
+    "fired": []
   },
   {
     "symbol": "MSFT",
     "report_date": "2026-07-29",
-    "days_since": 11,
+    "days_since": 12,
     "beat_rate": 100,
     "avg_surprise": 8.8,
-    "atr": 17.5,
-    "stop": 484.5,
+    "atr": 18.05,
+    "stop": 496.97,
     "target": 513.5,
     "idx": 268,
     "date": "2026-07-30",
@@ -2915,39 +4587,26 @@
     "day_move_pct": 15.51,
     "react_close": 451.1,
     "vol_ratio": 3.36,
-    "bars_since": 6,
+    "bars_since": 7,
     "direction": "UP",
-    "drift_since": 10.84,
+    "drift_since": 12.18,
     "gap_filled": false,
     "state": "DRIFTING",
-    "state_note": "Continued 10.8% further up since the reaction \u2014 the drift is underway.",
-    "spot": 499.99,
-    "rr": 0.87,
-    "tradeable": false,
-    "conviction": "NONE",
-    "down_gap_bonus": false,
-    "fired": [],
+    "state_note": "Continued 12.2% further up since the reaction \u2014 the drift is underway.",
+    "spot": 506.06,
+    "rr": 0.82,
     "chart": {
       "symbol": "MSFT",
-      "asof": "2026-08-07",
-      "price": 499.99,
-      "atr": 17.5,
-      "atr_pct": 3.5,
+      "asof": "2026-08-10",
+      "price": 506.06,
+      "atr": 18.05,
+      "atr_pct": 3.57,
       "trend": "UPTREND",
       "trend_note": "Price above the 20-day above the 50-day.",
-      "ema20": 438.42,
-      "sma50": 407.01,
-      "sma200": 433.08,
+      "ema20": 444.86,
+      "sma50": 408.59,
+      "sma200": 433.02,
       "resistance": [
-        {
-          "price": 506.0,
-          "cs": 2,
-          "labels": [
-            "swing low"
-          ],
-          "dist_pct": 1.2,
-          "dist_atr": 0.34
-        },
         {
           "price": 519.3,
           "cs": 4,
@@ -2955,8 +4614,8 @@
             "swing high",
             "swing low"
           ],
-          "dist_pct": 3.86,
-          "dist_atr": 1.1
+          "dist_pct": 2.62,
+          "dist_atr": 0.73
         },
         {
           "price": 532.7,
@@ -2964,8 +4623,17 @@
           "labels": [
             "swing high"
           ],
-          "dist_pct": 6.54,
-          "dist_atr": 1.87
+          "dist_pct": 5.26,
+          "dist_atr": 1.48
+        },
+        {
+          "price": 555.45,
+          "cs": 2,
+          "labels": [
+            "swing high"
+          ],
+          "dist_pct": 9.76,
+          "dist_atr": 2.74
         }
       ],
       "support": [
@@ -2977,8 +4645,8 @@
             "swing low",
             "bear OB"
           ],
-          "dist_pct": -1.3,
-          "dist_atr": 0.37
+          "dist_pct": -2.48,
+          "dist_atr": 0.7
         },
         {
           "price": 483.74,
@@ -2986,33 +4654,30 @@
           "labels": [
             "swing high"
           ],
-          "dist_pct": -3.25,
-          "dist_atr": 0.93
+          "dist_pct": -4.41,
+          "dist_atr": 1.24
         },
         {
-          "price": 466.32,
-          "cs": 5,
+          "price": 474.9,
+          "cs": 1,
           "labels": [
-            "swing high",
-            "swing low",
             "fib 0.236"
           ],
-          "dist_pct": -6.73,
-          "dist_atr": 1.92
+          "dist_pct": -6.16,
+          "dist_atr": 1.73
         }
       ],
-      "room_up": 0.34,
-      "room_down": 0.37,
+      "room_up": 0.73,
+      "room_down": 0.7,
       "structure": {
         "bars_ago": 0,
         "dir": "up",
         "level": 466.32
       },
-      "pos_52w": 73.7,
+      "pos_52w": 76.7,
       "lo52": 349.2,
       "hi52": 553.72,
       "series": [
-        370.17,
         369.37,
         373.46,
         372.88,
@@ -3101,25 +4766,30 @@
         492.81,
         487.46,
         499.86,
-        499.99
+        499.99,
+        506.06
       ],
       "read": [
         "UPTREND \u2014 Price above the 20-day above the 50-day.",
-        "Nearest resistance 506.0 is 0.34 ATR above (+1.20%), confluence 2 \u2014 swing low.",
-        "Nearest support 493.5 is 0.37 ATR below (-1.30%), confluence 8.",
+        "Nearest resistance 519.3 is 0.73 ATR above (+2.62%), confluence 4 \u2014 swing high, swing low.",
+        "Nearest support 493.5 is 0.7 ATR below (-2.48%), confluence 8.",
         "Structure broke up through 466.32 0 sessions ago."
       ]
-    }
+    },
+    "tradeable": false,
+    "conviction": "NONE",
+    "down_gap_bonus": false,
+    "fired": []
   },
   {
     "symbol": "META",
     "report_date": "2026-07-29",
-    "days_since": 11,
+    "days_since": 12,
     "beat_rate": 50,
     "avg_surprise": -8.5,
-    "atr": 22.29,
-    "stop": 616.96,
-    "target": 581.25,
+    "atr": 22.54,
+    "stop": 617.08,
+    "target": 594.81,
     "idx": 268,
     "date": "2026-07-30",
     "pre_close": 585.61,
@@ -3127,41 +4797,26 @@
     "day_move_pct": -7.95,
     "react_close": 539.03,
     "vol_ratio": 2.22,
-    "bars_since": 6,
+    "bars_since": 7,
     "direction": "DOWN",
-    "drift_since": 9.85,
+    "drift_since": 10.37,
     "gap_filled": true,
     "state": "GAP FILLED",
     "state_note": "Price traded back through the pre-report close \u2014 the market rejected the surprise, nothing left to drift.",
-    "spot": 592.1,
-    "rr": 0.44,
-    "tradeable": false,
-    "conviction": "NONE",
-    "down_gap_bonus": true,
-    "fired": [],
+    "spot": 594.92,
+    "rr": 0.0,
     "chart": {
       "symbol": "META",
-      "asof": "2026-08-07",
-      "price": 592.1,
-      "atr": 22.29,
-      "atr_pct": 3.77,
+      "asof": "2026-08-10",
+      "price": 594.92,
+      "atr": 22.54,
+      "atr_pct": 3.79,
       "trend": "DOWNTREND",
       "trend_note": "Price below the 20-day below the 50-day.",
-      "ema20": 597.33,
-      "sma50": 599.76,
-      "sma200": 631.3,
+      "ema20": 597.1,
+      "sma50": 598.95,
+      "sma200": 630.6,
       "resistance": [
-        {
-          "price": 594.81,
-          "cs": 5,
-          "labels": [
-            "swing low",
-            "bull OB",
-            "fib 0.618"
-          ],
-          "dist_pct": 0.46,
-          "dist_atr": 0.12
-        },
         {
           "price": 605.81,
           "cs": 11,
@@ -3170,8 +4825,8 @@
             "swing low",
             "bull OB"
           ],
-          "dist_pct": 2.32,
-          "dist_atr": 0.61
+          "dist_pct": 1.83,
+          "dist_atr": 0.48
         },
         {
           "price": 624.98,
@@ -3181,8 +4836,19 @@
             "swing low",
             "bear OB"
           ],
-          "dist_pct": 5.55,
-          "dist_atr": 1.47
+          "dist_pct": 5.05,
+          "dist_atr": 1.33
+        },
+        {
+          "price": 643.0,
+          "cs": 7,
+          "labels": [
+            "swing high",
+            "swing low",
+            "BSL"
+          ],
+          "dist_pct": 8.08,
+          "dist_atr": 2.13
         }
       ],
       "support": [
@@ -3192,8 +4858,8 @@
           "labels": [
             "swing low"
           ],
-          "dist_pct": -1.83,
-          "dist_atr": 0.49
+          "dist_pct": -2.3,
+          "dist_atr": 0.61
         },
         {
           "price": 568.49,
@@ -3202,8 +4868,8 @@
             "bull OB",
             "bear OB"
           ],
-          "dist_pct": -3.99,
-          "dist_atr": 1.06
+          "dist_pct": -4.44,
+          "dist_atr": 1.17
         },
         {
           "price": 557.01,
@@ -3212,22 +4878,21 @@
             "swing low",
             "fib 0.786"
           ],
-          "dist_pct": -5.93,
-          "dist_atr": 1.57
+          "dist_pct": -6.37,
+          "dist_atr": 1.68
         }
       ],
-      "room_up": 0.12,
-      "room_down": 0.49,
+      "room_up": 0.48,
+      "room_down": 0.61,
       "structure": {
-        "bars_ago": 6,
+        "bars_ago": 7,
         "dir": "down",
         "level": 540.18
       },
-      "pos_52w": 26.0,
+      "pos_52w": 27.1,
       "lo52": 520.26,
       "hi52": 796.25,
       "series": [
-        572.13,
         579.23,
         574.46,
         573.02,
@@ -3316,23 +4981,28 @@
         587.94,
         588.77,
         589.9,
-        592.1
+        592.1,
+        594.92
       ],
       "read": [
         "DOWNTREND \u2014 Price below the 20-day below the 50-day.",
-        "Nearest resistance 594.81 is 0.12 ATR above (+0.46%), confluence 5 \u2014 swing low, bull OB, fib 0.618.",
-        "Nearest support 581.25 is 0.49 ATR below (-1.83%), confluence 2."
+        "Nearest resistance 605.81 is 0.48 ATR above (+1.83%), confluence 11 \u2014 swing high, swing low, bull OB.",
+        "Nearest support 581.25 is 0.61 ATR below (-2.30%), confluence 2."
       ]
-    }
+    },
+    "tradeable": false,
+    "conviction": "NONE",
+    "down_gap_bonus": true,
+    "fired": []
   },
   {
     "symbol": "MA",
     "report_date": "2026-07-30",
-    "days_since": 11,
+    "days_since": 12,
     "beat_rate": 100,
     "avg_surprise": 5.9,
-    "atr": 12.16,
-    "stop": 556.43,
+    "atr": 11.93,
+    "stop": 556.54,
     "target": 565.91,
     "idx": 268,
     "date": "2026-07-30",
@@ -3341,29 +5011,25 @@
     "day_move_pct": 2.49,
     "react_close": 577.35,
     "vol_ratio": 1.73,
-    "bars_since": 6,
+    "bars_since": 7,
     "direction": "UP",
-    "drift_since": -2.49,
+    "drift_since": -2.46,
     "gap_filled": true,
     "state": "GAP FILLED",
     "state_note": "Price traded back through the pre-report close \u2014 the market rejected the surprise, nothing left to drift.",
-    "spot": 562.95,
-    "rr": 0.45,
-    "tradeable": false,
-    "conviction": "NONE",
-    "down_gap_bonus": false,
-    "fired": [],
+    "spot": 563.17,
+    "rr": 0.41,
     "chart": {
       "symbol": "MA",
-      "asof": "2026-08-07",
-      "price": 562.95,
-      "atr": 12.16,
-      "atr_pct": 2.16,
+      "asof": "2026-08-10",
+      "price": 563.17,
+      "atr": 11.93,
+      "atr_pct": 2.12,
       "trend": "UPTREND",
       "trend_note": "Price above the 20-day above the 50-day.",
-      "ema20": 554.1,
-      "sma50": 521.46,
-      "sma200": 528.15,
+      "ema20": 554.97,
+      "sma50": 522.85,
+      "sma200": 528.1,
       "resistance": [
         {
           "price": 565.91,
@@ -3372,8 +5038,8 @@
             "swing high",
             "swing low"
           ],
-          "dist_pct": 0.53,
-          "dist_atr": 0.24
+          "dist_pct": 0.49,
+          "dist_atr": 0.23
         },
         {
           "price": 573.71,
@@ -3383,17 +5049,17 @@
             "swing low",
             "bear OB"
           ],
-          "dist_pct": 1.91,
+          "dist_pct": 1.87,
           "dist_atr": 0.88
         },
         {
-          "price": 582.29,
+          "price": 583.71,
           "cs": 2,
           "labels": [
             "swing high"
           ],
-          "dist_pct": 3.44,
-          "dist_atr": 1.59
+          "dist_pct": 3.65,
+          "dist_atr": 1.72
         }
       ],
       "support": [
@@ -3405,8 +5071,8 @@
             "swing low",
             "fib 0.236"
           ],
-          "dist_pct": -1.99,
-          "dist_atr": 0.92
+          "dist_pct": -2.03,
+          "dist_atr": 0.96
         },
         {
           "price": 543.64,
@@ -3416,8 +5082,8 @@
             "swing low",
             "bear OB"
           ],
-          "dist_pct": -3.43,
-          "dist_atr": 1.59
+          "dist_pct": -3.47,
+          "dist_atr": 1.64
         },
         {
           "price": 534.21,
@@ -3427,22 +5093,21 @@
             "swing low",
             "bear OB"
           ],
-          "dist_pct": -5.11,
-          "dist_atr": 2.36
+          "dist_pct": -5.14,
+          "dist_atr": 2.43
         }
       ],
-      "room_up": 0.24,
-      "room_down": 0.92,
+      "room_up": 0.23,
+      "room_down": 0.96,
       "structure": {
         "bars_ago": 0,
         "dir": "up",
         "level": 551.72
       },
-      "pos_52w": 71.7,
+      "pos_52w": 71.9,
       "lo52": 464.52,
       "hi52": 601.77,
       "series": [
-        499.66,
         491.65,
         493.44,
         501.5,
@@ -3531,25 +5196,30 @@
         571.1,
         570.48,
         575.95,
-        562.95
+        562.95,
+        563.17
       ],
       "read": [
         "UPTREND \u2014 Price above the 20-day above the 50-day.",
-        "Nearest resistance 565.91 is 0.24 ATR above (+0.53%), confluence 4 \u2014 swing high, swing low.",
-        "Nearest support 551.72 is 0.92 ATR below (-1.99%), confluence 6.",
+        "Nearest resistance 565.91 is 0.23 ATR above (+0.49%), confluence 4 \u2014 swing high, swing low.",
+        "Nearest support 551.72 is 0.96 ATR below (-2.03%), confluence 6.",
         "Structure broke up through 551.72 0 sessions ago."
       ]
-    }
+    },
+    "tradeable": false,
+    "conviction": "NONE",
+    "down_gap_bonus": false,
+    "fired": []
   },
   {
     "symbol": "QCOM",
     "report_date": "2026-07-29",
-    "days_since": 11,
+    "days_since": 12,
     "beat_rate": 75,
     "avg_surprise": 2.5,
-    "atr": 7.72,
-    "stop": 175.84,
-    "target": 164.77,
+    "atr": 7.82,
+    "stop": 167.4,
+    "target": 158.85,
     "idx": 268,
     "date": "2026-07-30",
     "pre_close": 155.68,
@@ -3557,30 +5227,46 @@
     "day_move_pct": -2.62,
     "react_close": 151.6,
     "vol_ratio": 1.74,
-    "bars_since": 6,
+    "bars_since": 7,
     "direction": "DOWN",
-    "drift_since": 10.73,
+    "drift_since": 6.97,
     "gap_filled": true,
     "state": "GAP FILLED",
     "state_note": "Price traded back through the pre-report close \u2014 the market rejected the surprise, nothing left to drift.",
-    "spot": 167.86,
-    "rr": 0.39,
-    "tradeable": false,
-    "conviction": "NONE",
-    "down_gap_bonus": true,
-    "fired": [],
+    "spot": 162.17,
+    "rr": 0.63,
     "chart": {
       "symbol": "QCOM",
-      "asof": "2026-08-07",
-      "price": 167.86,
-      "atr": 7.72,
-      "atr_pct": 4.6,
-      "trend": "MIXED",
-      "trend_note": "Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
-      "ema20": 167.27,
-      "sma50": 191.78,
-      "sma200": 168.91,
+      "asof": "2026-08-10",
+      "price": 162.17,
+      "atr": 7.82,
+      "atr_pct": 4.82,
+      "trend": "DOWNTREND",
+      "trend_note": "Price below the 20-day below the 50-day.",
+      "ema20": 166.78,
+      "sma50": 190.16,
+      "sma200": 168.88,
       "resistance": [
+        {
+          "price": 163.6,
+          "cs": 6,
+          "labels": [
+            "swing high",
+            "swing low",
+            "bear OB"
+          ],
+          "dist_pct": 0.88,
+          "dist_atr": 0.18
+        },
+        {
+          "price": 166.78,
+          "cs": 1,
+          "labels": [
+            "EMA20"
+          ],
+          "dist_pct": 2.84,
+          "dist_atr": 0.59
+        },
         {
           "price": 171.01,
           "cs": 6,
@@ -3589,42 +5275,11 @@
             "bear OB",
             "fib 0.786"
           ],
-          "dist_pct": 1.88,
-          "dist_atr": 0.41
-        },
-        {
-          "price": 174.44,
-          "cs": 6,
-          "labels": [
-            "swing high",
-            "swing low",
-            "bull OB"
-          ],
-          "dist_pct": 3.92,
-          "dist_atr": 0.85
-        },
-        {
-          "price": 178.83,
-          "cs": 4,
-          "labels": [
-            "swing high",
-            "bull OB"
-          ],
-          "dist_pct": 6.54,
-          "dist_atr": 1.42
+          "dist_pct": 5.45,
+          "dist_atr": 1.13
         }
       ],
       "support": [
-        {
-          "price": 163.6,
-          "cs": 4,
-          "labels": [
-            "swing high",
-            "swing low"
-          ],
-          "dist_pct": -2.54,
-          "dist_atr": 0.55
-        },
         {
           "price": 158.85,
           "cs": 6,
@@ -3633,8 +5288,8 @@
             "bull OB",
             "bear OB"
           ],
-          "dist_pct": -5.37,
-          "dist_atr": 1.17
+          "dist_pct": -2.05,
+          "dist_atr": 0.42
         },
         {
           "price": 154.47,
@@ -3642,22 +5297,30 @@
           "labels": [
             "swing low"
           ],
-          "dist_pct": -7.98,
-          "dist_atr": 1.74
+          "dist_pct": -4.75,
+          "dist_atr": 0.98
+        },
+        {
+          "price": 150.08,
+          "cs": 2,
+          "labels": [
+            "bear OB"
+          ],
+          "dist_pct": -7.46,
+          "dist_atr": 1.55
         }
       ],
-      "room_up": 0.41,
-      "room_down": 0.55,
+      "room_up": 0.18,
+      "room_down": 0.42,
       "structure": {
-        "bars_ago": 1,
+        "bars_ago": 0,
         "dir": "down",
         "level": 164.77
       },
-      "pos_52w": 33.3,
+      "pos_52w": 29.1,
       "lo52": 121.99,
       "hi52": 259.92,
       "series": [
-        128.78,
         127.28,
         126.8,
         125.73,
@@ -3746,25 +5409,30 @@
         162.67,
         157.53,
         160.39,
-        167.86
+        167.86,
+        162.17
       ],
       "read": [
-        "MIXED \u2014 Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
-        "Nearest resistance 171.01 is 0.41 ATR above (+1.88%), confluence 6 \u2014 swing low, bear OB, fib 0.786.",
-        "Nearest support 163.6 is 0.55 ATR below (-2.54%), confluence 4.",
-        "Structure broke down through 164.77 1 session ago."
+        "DOWNTREND \u2014 Price below the 20-day below the 50-day.",
+        "Nearest resistance 163.6 is 0.18 ATR above (+0.88%), confluence 6 \u2014 swing high, swing low, bear OB.",
+        "Nearest support 158.85 is 0.42 ATR below (-2.05%), confluence 6.",
+        "Structure broke down through 164.77 0 sessions ago."
       ]
-    }
+    },
+    "tradeable": false,
+    "conviction": "NONE",
+    "down_gap_bonus": true,
+    "fired": []
   },
   {
     "symbol": "SBUX",
     "report_date": "2026-07-29",
-    "days_since": 11,
+    "days_since": 12,
     "beat_rate": 50,
     "avg_surprise": 8.5,
     "atr": 2.95,
-    "stop": 101.47,
-    "target": 108.46,
+    "stop": 101.46,
+    "target": 104.82,
     "idx": 268,
     "date": "2026-07-30",
     "pre_close": 104.14,
@@ -3772,29 +5440,25 @@
     "day_move_pct": 1.64,
     "react_close": 105.85,
     "vol_ratio": 3.5,
-    "bars_since": 6,
+    "bars_since": 7,
     "direction": "UP",
-    "drift_since": -0.26,
+    "drift_since": -1.13,
     "gap_filled": true,
     "state": "GAP FILLED",
     "state_note": "Price traded back through the pre-report close \u2014 the market rejected the surprise, nothing left to drift.",
-    "spot": 105.58,
-    "rr": 0.7,
-    "tradeable": false,
-    "conviction": "NONE",
-    "down_gap_bonus": false,
-    "fired": [],
+    "spot": 104.65,
+    "rr": 0.05,
     "chart": {
       "symbol": "SBUX",
-      "asof": "2026-08-07",
-      "price": 105.58,
+      "asof": "2026-08-10",
+      "price": 104.65,
       "atr": 2.95,
-      "atr_pct": 2.79,
+      "atr_pct": 2.82,
       "trend": "UPTREND",
       "trend_note": "Price above the 20-day above the 50-day.",
       "ema20": 104.62,
-      "sma50": 102.5,
-      "sma200": 95.42,
+      "sma50": 102.58,
+      "sma200": 95.52,
       "resistance": [
         {
           "price": 106.43,
@@ -3803,8 +5467,8 @@
             "bear OB",
             "bull OB"
           ],
-          "dist_pct": 0.81,
-          "dist_atr": 0.29
+          "dist_pct": 1.7,
+          "dist_atr": 0.6
         },
         {
           "price": 109.23,
@@ -3812,22 +5476,11 @@
           "labels": [
             "swing high"
           ],
-          "dist_pct": 3.46,
-          "dist_atr": 1.24
+          "dist_pct": 4.38,
+          "dist_atr": 1.55
         }
       ],
       "support": [
-        {
-          "price": 104.82,
-          "cs": 6,
-          "labels": [
-            "swing high",
-            "bear OB",
-            "fib 0.236"
-          ],
-          "dist_pct": -0.72,
-          "dist_atr": 0.26
-        },
         {
           "price": 102.44,
           "cs": 13,
@@ -3836,8 +5489,8 @@
             "swing low",
             "bear OB"
           ],
-          "dist_pct": -2.97,
-          "dist_atr": 1.06
+          "dist_pct": -2.11,
+          "dist_atr": 0.75
         },
         {
           "price": 101.2,
@@ -3847,18 +5500,27 @@
             "swing low",
             "bull OB"
           ],
-          "dist_pct": -4.15,
-          "dist_atr": 1.49
+          "dist_pct": -3.3,
+          "dist_atr": 1.17
+        },
+        {
+          "price": 99.8,
+          "cs": 3,
+          "labels": [
+            "swing high",
+            "fib 0.618"
+          ],
+          "dist_pct": -4.63,
+          "dist_atr": 1.64
         }
       ],
-      "room_up": 0.29,
-      "room_down": 0.26,
+      "room_up": 0.6,
+      "room_down": 0.75,
       "structure": null,
-      "pos_52w": 88.3,
+      "pos_52w": 85.3,
       "lo52": 77.99,
       "hi52": 109.23,
       "series": [
-        89.59,
         90.43,
         90.37,
         94.78,
@@ -3947,217 +5609,446 @@
         104.97,
         106.0,
         105.16,
-        105.58
+        105.58,
+        104.65
       ],
       "read": [
         "UPTREND \u2014 Price above the 20-day above the 50-day.",
-        "Nearest resistance 106.43 is 0.29 ATR above (+0.81%), confluence 4 \u2014 bear OB, bull OB.",
-        "Nearest support 104.82 is 0.26 ATR below (-0.72%), confluence 6."
+        "Nearest resistance 106.43 is 0.6 ATR above (+1.70%), confluence 4 \u2014 bear OB, bull OB.",
+        "Nearest support 102.44 is 0.75 ATR below (-2.11%), confluence 13."
       ]
-    }
+    },
+    "tradeable": false,
+    "conviction": "NONE",
+    "down_gap_bonus": false,
+    "fired": []
   },
   {
-    "symbol": "V",
-    "report_date": "2026-07-28",
+    "symbol": "ARM",
+    "report_date": "2026-07-29",
     "days_since": 12,
     "beat_rate": 100,
-    "avg_surprise": 2.7,
-    "atr": 7.84,
-    "stop": 368.94,
-    "target": 348.5,
-    "idx": 267,
-    "date": "2026-07-29",
-    "pre_close": 366.59,
-    "gap_pct": -2.62,
-    "day_move_pct": 0.58,
-    "react_close": 368.73,
-    "vol_ratio": 1.4,
+    "avg_surprise": 9.4,
+    "atr": 23.51,
+    "stop": 231.37,
+    "target": 427.99,
+    "idx": 268,
+    "date": "2026-07-30",
+    "pre_close": 224.89,
+    "gap_pct": 14.72,
+    "day_move_pct": 7.4,
+    "react_close": 241.54,
+    "vol_ratio": 2.15,
     "bars_since": 7,
-    "direction": "DOWN",
-    "drift_since": -1.69,
+    "direction": "UP",
+    "drift_since": 10.89,
     "gap_filled": true,
     "state": "GAP FILLED",
     "state_note": "Price traded back through the pre-report close \u2014 the market rejected the surprise, nothing left to drift.",
-    "spot": 362.5,
-    "rr": 2.17,
-    "tradeable": false,
-    "conviction": "NONE",
-    "down_gap_bonus": true,
-    "fired": [],
+    "spot": 267.85,
+    "rr": 4.39,
     "chart": {
-      "symbol": "V",
-      "asof": "2026-08-07",
-      "price": 362.5,
-      "atr": 7.84,
-      "atr_pct": 2.16,
-      "trend": "UPTREND",
-      "trend_note": "Price above the 20-day above the 50-day.",
-      "ema20": 360.93,
-      "sma50": 344.28,
-      "sma200": 330.9,
+      "symbol": "ARM",
+      "asof": "2026-08-10",
+      "price": 267.85,
+      "atr": 23.51,
+      "atr_pct": 8.78,
+      "trend": "DOWNTREND",
+      "trend_note": "Downtrend on the 20/50 stack, but price is on the other side of the 200-day \u2014 a counter-trend move inside a larger one.",
+      "ema20": 274.86,
+      "sma50": 320.86,
+      "sma200": 192.95,
       "resistance": [
         {
-          "price": 365.14,
-          "cs": 8,
+          "price": 279.38,
+          "cs": 3,
           "labels": [
-            "swing high",
-            "bull OB",
-            "bear OB"
+            "bear OB",
+            "EMA20"
           ],
-          "dist_pct": 0.73,
-          "dist_atr": 0.34
+          "dist_pct": 4.31,
+          "dist_atr": 0.49
         },
         {
-          "price": 373.97,
-          "cs": 2,
+          "price": 298.38,
+          "cs": 3,
           "labels": [
-            "swing high"
+            "swing low",
+            "fib 0.618"
           ],
-          "dist_pct": 3.16,
-          "dist_atr": 1.46
+          "dist_pct": 11.4,
+          "dist_atr": 1.3
+        },
+        {
+          "price": 312.5,
+          "cs": 5,
+          "labels": [
+            "bear OB",
+            "bull OB",
+            "SMA50"
+          ],
+          "dist_pct": 16.67,
+          "dist_atr": 1.9
         }
       ],
       "support": [
         {
-          "price": 358.62,
-          "cs": 6,
+          "price": 259.9,
+          "cs": 5,
+          "labels": [
+            "bear OB",
+            "bull OB",
+            "fib 0.786"
+          ],
+          "dist_pct": -2.97,
+          "dist_atr": 0.34
+        },
+        {
+          "price": 239.5,
+          "cs": 4,
           "labels": [
             "swing high",
-            "bear OB",
-            "fib 0.236"
+            "swing low"
           ],
-          "dist_pct": -1.07,
-          "dist_atr": 0.49
+          "dist_pct": -10.58,
+          "dist_atr": 1.21
         },
         {
-          "price": 355.0,
-          "cs": 2,
+          "price": 219.39,
+          "cs": 6,
           "labels": [
-            "swing high"
+            "swing low",
+            "bull OB",
+            "bear OB"
           ],
-          "dist_pct": -2.07,
-          "dist_atr": 0.96
+          "dist_pct": -18.09,
+          "dist_atr": 2.06
+        }
+      ],
+      "room_up": 0.49,
+      "room_down": 0.34,
+      "structure": {
+        "bars_ago": 35,
+        "dir": "up",
+        "level": 427.99
+      },
+      "pos_52w": 47.6,
+      "lo52": 100.02,
+      "hi52": 452.7,
+      "series": [
+        155.07,
+        149.11,
+        148.77,
+        143.86,
+        148.91,
+        149.795,
+        148.93,
+        157.58,
+        161.22,
+        159.34,
+        162.33,
+        166.73,
+        175.1,
+        175.49,
+        196.57,
+        204.61,
+        234.81,
+        215.88,
+        198.65,
+        201.69,
+        210.32,
+        211.18,
+        203.26,
+        208.84,
+        237.3,
+        213.31,
+        213.27,
+        212.65,
+        207.92,
+        221.21,
+        228.5,
+        209.16,
+        215.12,
+        223.15,
+        256.73,
+        298.23,
+        306.51,
+        321.22,
+        302.71,
+        335.27,
+        353.29,
+        408.85,
+        402.71,
+        411.83,
+        393.44,
+        342.93,
+        346.39,
+        324.86,
+        307.43,
+        342.23,
+        380.81,
+        412.55,
+        396.34,
+        418.88,
+        439.46,
+        407.72,
+        366.39,
+        359.08,
+        347.71,
+        334.27,
+        343.58,
+        354.57,
+        337.47,
+        315.28,
+        322.24,
+        300.43,
+        300.24,
+        327.87,
+        323.39,
+        298.99,
+        281.17,
+        277.01,
+        262.01,
+        267.19,
+        269.61,
+        289.73,
+        283.4,
+        283.04,
+        260.01,
+        266.33,
+        244.74,
+        224.89,
+        241.54,
+        239.69,
+        239.06,
+        280.56,
+        274.58,
+        286.68,
+        282.57,
+        267.85
+      ],
+      "read": [
+        "DOWNTREND \u2014 Downtrend on the 20/50 stack, but price is on the other side of the 200-day \u2014 a counter-trend move inside a larger one.",
+        "Nearest resistance 279.38 is 0.49 ATR above (+4.31%), confluence 3 \u2014 bear OB, EMA20.",
+        "Nearest support 259.9 is 0.34 ATR below (-2.97%), confluence 5."
+      ]
+    },
+    "tradeable": false,
+    "conviction": "NONE",
+    "down_gap_bonus": false,
+    "fired": []
+  },
+  {
+    "symbol": "HOOD",
+    "report_date": "2026-07-29",
+    "days_since": 12,
+    "beat_rate": 75,
+    "avg_surprise": 14.4,
+    "atr": 5.27,
+    "stop": 115.14,
+    "target": 92.8,
+    "idx": 266,
+    "date": "2026-07-28",
+    "pre_close": 95.65,
+    "gap_pct": -3.12,
+    "day_move_pct": -3.02,
+    "react_close": 92.76,
+    "vol_ratio": 0.94,
+    "bars_since": 9,
+    "direction": "DOWN",
+    "drift_since": 1.9,
+    "gap_filled": true,
+    "state": "GAP FILLED",
+    "state_note": "Price traded back through the pre-report close \u2014 the market rejected the surprise, nothing left to drift.",
+    "spot": 94.52,
+    "rr": 0.08,
+    "chart": {
+      "symbol": "HOOD",
+      "asof": "2026-08-10",
+      "price": 94.52,
+      "atr": 5.27,
+      "atr_pct": 5.58,
+      "trend": "DOWNTREND",
+      "trend_note": "Price below the 20-day below the 50-day.",
+      "ema20": 95.82,
+      "sma50": 98.53,
+      "sma200": 98.08,
+      "resistance": [
+        {
+          "price": 96.62,
+          "cs": 1,
+          "labels": [
+            "fib 0.5"
+          ],
+          "dist_pct": 2.22,
+          "dist_atr": 0.4
         },
         {
-          "price": 350.98,
+          "price": 99.0,
+          "cs": 6,
+          "labels": [
+            "swing low",
+            "bull OB",
+            "SMA50"
+          ],
+          "dist_pct": 4.74,
+          "dist_atr": 0.85
+        },
+        {
+          "price": 102.1,
+          "cs": 5,
+          "labels": [
+            "swing low",
+            "bull OB",
+            "fib 0.382"
+          ],
+          "dist_pct": 8.02,
+          "dist_atr": 1.44
+        }
+      ],
+      "support": [
+        {
+          "price": 88.98,
+          "cs": 3,
+          "labels": [
+            "bear OB",
+            "fib 0.618"
+          ],
+          "dist_pct": -5.86,
+          "dist_atr": 1.05
+        },
+        {
+          "price": 84.75,
           "cs": 7,
           "labels": [
             "swing high",
             "swing low",
             "bull OB"
           ],
-          "dist_pct": -3.18,
-          "dist_atr": 1.47
+          "dist_pct": -10.34,
+          "dist_atr": 1.85
+        },
+        {
+          "price": 81.93,
+          "cs": 2,
+          "labels": [
+            "swing high"
+          ],
+          "dist_pct": -13.32,
+          "dist_atr": 2.39
         }
       ],
-      "room_up": 0.34,
-      "room_down": 0.49,
+      "room_up": 0.4,
+      "room_down": 1.05,
       "structure": {
-        "bars_ago": 2,
+        "bars_ago": 22,
         "dir": "up",
-        "level": 365.14
+        "level": 112.5
       },
-      "pos_52w": 85.7,
-      "lo52": 293.89,
-      "hi52": 373.97,
+      "pos_52w": 34.3,
+      "lo52": 63.52,
+      "hi52": 153.86,
       "series": [
-        302.24,
-        298.51,
-        300.8,
-        303.33,
-        302.55,
-        308.96,
-        308.29,
-        304.36,
-        309.39,
-        311.37,
-        315.91,
-        315.1,
-        317.02,
-        313.94,
-        309.94,
-        311.29,
-        308.88,
-        309.42,
-        309.65,
-        309.3,
-        334.86,
-        329.84,
-        328.03,
-        326.85,
-        322.03,
-        318.8,
-        321.28,
-        318.79,
-        323.19,
-        326.42,
-        320.31,
-        322.52,
-        325.75,
-        332.64,
-        329.91,
-        330.75,
-        331.12,
-        328.88,
-        326.48,
-        327.61,
-        324.95,
-        326.36,
-        322.77,
-        317.32,
-        312.4,
-        320.18,
-        323.57,
-        319.67,
-        325.05,
-        322.96,
-        319.05,
-        322.39,
-        323.82,
-        333.12,
-        330.38,
-        327.24,
-        326.6,
-        328.48,
-        332.23,
-        330.52,
-        336.23,
-        341.65,
-        343.09,
-        351.08,
-        362.13,
-        357.25,
-        352.2,
-        347.53,
-        348.2,
-        348.97,
-        357.75,
-        356.02,
-        355.14,
-        365.14,
-        358.56,
-        360.57,
-        355.82,
-        353.42,
-        351.6,
-        355.74,
-        362.53,
-        366.59,
-        368.73,
-        366.27,
-        366.13,
-        365.67,
-        369.59,
-        368.54,
-        370.47,
-        362.5
+        70.11,
+        68.9,
+        69.78,
+        69.65,
+        71.83,
+        70.12,
+        69.19,
+        71.67,
+        79.09,
+        87.32,
+        86.85,
+        90.75,
+        91.275,
+        86.43,
+        88.43,
+        83.54,
+        84.71,
+        83.95,
+        82.07,
+        71.2,
+        72.89,
+        73.66,
+        76.55,
+        77.03,
+        79.05,
+        76.28,
+        77.03,
+        80.78,
+        78.27,
+        76.75,
+        80.7,
+        77.14,
+        77.15,
+        74.16,
+        75.76,
+        75.92,
+        73.64,
+        74.09,
+        76.23,
+        84.84,
+        94.3,
+        90.73,
+        88.16,
+        82.85,
+        88.33,
+        82.47,
+        85.04,
+        83.77,
+        86.36,
+        92.23,
+        93.19,
+        98.12,
+        96.71,
+        105.2,
+        108.15,
+        105.71,
+        103.25,
+        97.19,
+        93.47,
+        98.69,
+        101.83,
+        100.28,
+        108.65,
+        112.73,
+        117.55,
+        112.9,
+        113.53,
+        115.11,
+        111.97,
+        109.86,
+        113.45,
+        115.54,
+        106.02,
+        99.96,
+        99.28,
+        106.36,
+        104.48,
+        101.58,
+        94.91,
+        95.65,
+        92.76,
+        89.84,
+        86.6,
+        86.56,
+        90.34,
+        93.51,
+        92.8,
+        90.71,
+        93.29,
+        94.52
       ],
       "read": [
-        "UPTREND \u2014 Price above the 20-day above the 50-day.",
-        "Nearest resistance 365.14 is 0.34 ATR above (+0.73%), confluence 8 \u2014 swing high, bull OB, bear OB.",
-        "Nearest support 358.62 is 0.49 ATR below (-1.07%), confluence 6.",
-        "Structure broke up through 365.14 2 sessions ago."
+        "DOWNTREND \u2014 Price below the 20-day below the 50-day.",
+        "Nearest resistance 96.62 is 0.4 ATR above (+2.22%), confluence 1 \u2014 fib 0.5.",
+        "Nearest support 88.98 is 1.05 ATR below (-5.86%), confluence 3."
       ]
-    }
+    },
+    "tradeable": false,
+    "conviction": "NONE",
+    "down_gap_bonus": true,
+    "fired": []
   }
 ]

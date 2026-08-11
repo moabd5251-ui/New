@@ -26,6 +26,7 @@ import { sizePosition } from './risk/sizing.js'
 import { riskCurve, requiredEdge } from './risk/survival.js'
 import { recordOvernight, loadOvernight, overnightScorecard, OVERNIGHT_SPEC, BACKTEST_REFERENCE } from './research/overnight.js'
 import { recordMondays, mondayScorecard, MONDAY_RTH_SPEC, MONDAY_BACKTEST_REFERENCE } from './research/mondayrth.js'
+import { SWEEP_SPEC, SWEEP_BACKTEST, recordSweeps, loadSweeps, sweepScorecard } from './research/sweep.js'
 import { OPTIONSCAN_SPEC, findReaction, buildVertical, pickExpiration, sizeContracts, loadJournal, saveJournal, appendCandidates, resolveExpired, scanScorecard } from './research/optionscan.js'
 import { renderOptionsPage } from './report/optionspage.js'
 import { analyzeChart, targetFor, assessSpread } from './research/chartanalysis.js'
@@ -533,6 +534,59 @@ function cmdMonday(args) {
   console.log(C.dim('  ~50 Mondays is a year. This hypothesis earns patience, not money.\n'))
 }
 
+/* ── sweep: NY-open liquidity sweep reversal, registered forward test ───── */
+
+function cmdSweep(args) {
+  const source = args.source ?? 'yahoo'
+  const symbol = source === 'yahoo' ? resolveYahooSymbol(args.symbol ?? 'NQ') : String(args.symbol ?? 'NQ').toUpperCase()
+  const root = args.store ?? DEFAULT_STORE
+
+  const { path, added, records, total } = recordSweeps({ root, symbol })
+  section(`SWEEP REVERSAL FORWARD — ${symbol} (spec v${SWEEP_SPEC.version}, registered ${SWEEP_SPEC.registered})`)
+  console.log(`  journal     ${C.cyan(path)}`)
+  console.log(`  new setups  ${added ? C.green(String(added)) : '0'}  (${total} total)`)
+  for (const r of records) {
+    console.log(
+      `              ${r.day}  ${r.direction === 'long' ? C.green('LONG ') : C.red('SHORT')} ${r.level.padEnd(15)} ` +
+        `risk ${r.riskPts.toFixed(1)}pt  ${colourR(r.r)}R  ${C.dim(r.reason)}${r.choch ? C.cyan('  CHoCH') : ''}`,
+    )
+  }
+
+  const all = loadSweeps(path)
+  if (!all.length) {
+    console.log(C.dim('\n  Nothing recorded yet. Measured frequency is ~1.9 setups a month with every'))
+    console.log(C.dim('  filter on, so patience is the expected experience here.\n'))
+    return
+  }
+
+  const card = sweepScorecard(all)
+  section('RUNNING SCORECARD (paper, both variants, never pooled)')
+  for (const [name, v] of [['every filter', card.withChoch], ['CHoCH dropped', card.noChoch]]) {
+    if (!v.n) { console.log(`  ${name.padEnd(14)} ${C.dim('no trades yet')}`); continue }
+    console.log(
+      `  ${name.padEnd(14)} n ${String(v.n).padStart(4)}  exp ${colourR(v.expR)}R  win ${(v.winRate * 100).toFixed(0)}%  ` +
+        `avgWin ${v.avgWin.toFixed(2)}R  PF ${v.profitFactor.toFixed(2)}  t ${(v.tStat >= 0 ? '+' : '') + v.tStat.toFixed(1)}`,
+    )
+    console.log(
+      C.dim(`                 median ${v.medianR.toFixed(2)}R · top-5 share ${(v.topFiveShare * 100).toFixed(0)}% · ` +
+        `worst streak ${v.worstStreak} · ${v.perMonth ? v.perMonth.toFixed(1) + '/month' : '—'} · ${v.totalPts.toFixed(0)}pt`),
+    )
+  }
+
+  section("THE PLAYBOOK'S OWN GO-LIVE GATE")
+  const g = card.withChoch
+  if (!g.n) console.log(C.dim('  no qualifying trades yet'))
+  else {
+    console.log(`  ≥ 30 trades?        ${String(g.n).padStart(4)}   ${g.n >= 30 ? C.green('PASS') : C.yellow('not yet')}`)
+    console.log(`  win rate ≥ 40%?    ${(g.winRate * 100).toFixed(1)}%   ${g.winRate >= 0.4 ? C.green('PASS') : C.red('FAIL')}`)
+    console.log(`  avg winner ≥ 1.8R? ${g.avgWin.toFixed(2)}R   ${g.avgWin >= 1.8 ? C.green('PASS') : C.red('FAIL')}`)
+  }
+  console.log(C.dim(`\n  Pre-registration measurement: ${SWEEP_BACKTEST.withChoch.isR}R IS / ${SWEEP_BACKTEST.withChoch.oosR}R OOS`))
+  console.log(C.dim(`  against a random control at ${SWEEP_BACKTEST.randomControl.isR}R / ${SWEEP_BACKTEST.randomControl.oosR}R.`))
+  console.log(C.yellow(`  Caution on that record: ${SWEEP_BACKTEST.caution}.`))
+  console.log(C.dim('\n  Paper only — nothing here places orders.\n'))
+}
+
 /* ── options: post-reaction debit-spread scanner, paper journal ─────────── */
 
 async function cmdOptions(args) {
@@ -867,6 +921,7 @@ const commands = {
   forward: () => cmdForward(args),
   overnight: () => cmdOvernight(args),
   monday: () => cmdMonday(args),
+  sweep: () => cmdSweep(args),
   options: () => cmdOptions(args),
   analyze: () => cmdAnalyze(args),
   levels: () => cmdLevels(args),

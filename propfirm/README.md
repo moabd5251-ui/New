@@ -598,6 +598,16 @@ smaller +0.160R IS / +0.158R OOS — remarkably stable across halves, and a far
 larger sample, which arguably makes it the better candidate of the two despite
 the smaller number.
 
+Registered for forward validation as `src/research/sweep.js`
+(`node src/cli.js sweep --symbol NQ`), spec v1, 2026-08-11. Re-running the
+productionised module over the same bars reproduced the expectancy exactly
+(+0.840R IS / +0.839R OOS) on a smaller sample — 26 and 10 trades rather than
+34 and 12 — because the module finds every setup and then filters, where the
+exploratory script filtered during the scan so a rejected setup could not
+block a later one. The mean survived that change; the concentration got worse.
+Both variants are journaled from one pass and scored separately, never pooled,
+since the strict set is a subset of the loose one.
+
 Four artifacts were caught and killed in the process — the unsorted-event
 thinning bug (t = −24 that was really t = −1.3), the future-informed pool
 clustering, an earlier lookahead in level ranking, and this one. That is the recurring

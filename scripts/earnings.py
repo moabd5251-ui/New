@@ -49,7 +49,16 @@ OFF_CYCLE = [
     "DE","FDX","ACN","MDT",
 ]
 
-UNIVERSE = MEGA_CAP + OFF_CYCLE
+# High-beta, heavily-optioned names that gap hard on reports. Their absence was found
+# the expensive way: PLTR gapped +15.5% on 4.85x volume on 4 Aug and drifted a further
+# +7.7%, which is the single best-performing profile in the drift backtest — gaps of 8%+
+# on 3x+ volume — and the scan never looked at it, because the universe was built from
+# index heavyweights and off-cycle reporters and PLTR is neither. A screen can only find
+# what it is pointed at.
+HIGH_BETA = ["PLTR", "ARM", "NOW", "ANET", "APP", "HOOD", "RBLX", "NET", "DDOG",
+             "TTD", "SOFI", "MSTR", "VST", "ZM"]
+
+UNIVERSE = MEGA_CAP + OFF_CYCLE + HIGH_BETA
 
 
 def earnings_info(sym):

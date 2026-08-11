@@ -6,6 +6,8 @@ each strategy voted. The change column matters as much as the level — "add lon
 exposure, 30% -> 80%" is an instruction, while "80%" alone is only a state.
 """
 import datetime
+
+import chart as C
 import html
 
 CSS = """
@@ -155,6 +157,7 @@ def build(rows, out_path, errors=None, n_strategies=10):
     <span class="exp {_cls(r['exposure_pct'])}">{r['exposure_pct']:+d}% {r['direction']}</span>
   </div>
   <div class="grid">{''.join(cells)}</div>
+  {C.slot(r['symbol'])}
 </div>""")
 
     err_html = ""
@@ -162,8 +165,9 @@ def build(rows, out_path, errors=None, n_strategies=10):
         err_html = ('<div class="trap"><strong>Not priced:</strong> '
                     + ", ".join(html.escape(e["symbol"]) for e in errors) + "</div>")
 
+    charts = {r["symbol"]: r["chart"] for r in rows if r.get("chart")}
     doc = f"""<title>ETF Trend Compass — Consensus Exposure</title>
-<style>{CSS}</style>
+<style>{CSS}{C.CSS}</style>
 <div class="wrap">
 <header class="mast">
   <div>
@@ -201,7 +205,8 @@ This is decision support, not advice, and it places no orders.</div>
 <footer>{len(rows)} markets · {net_long} net long, {net_short} net short ·
 average exposure {avg:+d}% · {len(changed)} changed since the previous run.
 Educational tooling only — no orders are placed and nothing here is financial advice.</footer>
-</div>"""
+</div>
+<script>{C.mount(charts)}</script>"""
     with open(out_path, "w") as f:
         f.write(doc)
     return out_path

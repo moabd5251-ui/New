@@ -255,6 +255,14 @@ def scan(universe=None, verbose=True):
                        atr=atr, stop=stop, target=target, **react, **st)
             row["rr"] = (round(abs(target - st["spot"]) / abs(st["spot"] - stop), 2)
                          if abs(st["spot"] - stop) > 0 else None)
+            # Built from the same frame, so no extra fetch. A gap that is still
+            # travelling into a swing high is a different trade from one with clear
+            # air above it, and the drift measure alone cannot tell them apart.
+            try:
+                import chart as _C
+                row["chart"] = _C.payload(sym, df)
+            except Exception as _e:
+                row["chart"] = dict(symbol=sym, error=str(_e)[:60])
             out.append(row)
             if verbose:
                 print(f"  [{sym}] {react['gap_pct']:+.1f}% gap {react['date']}, "

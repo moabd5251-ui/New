@@ -242,7 +242,21 @@ def evaluate(symbol, df=None):
                 longs=sum(1 for d in detail if d["signal"] > 0),
                 shorts=sum(1 for d in detail if d["signal"] < 0),
                 neutrals=sum(1 for d in detail if d["signal"] == 0),
-                strategies=detail)
+                strategies=detail,
+                # Built from the frame already in hand, so the technical read costs no
+                # extra fetch. The panel says how many strategies agree; it says nothing
+                # about where price sits relative to the levels that would break them.
+                chart=_chart(symbol, df))
+
+
+def _chart(symbol, df):
+    """Technical read for the dashboard. Never fatal — a missing chart is not a reason
+    to lose a signal that computed correctly."""
+    try:
+        import chart as C
+        return C.payload(symbol, df)
+    except Exception as e:
+        return dict(symbol=symbol, error=str(e)[:60])
 
 
 def direction(pct):

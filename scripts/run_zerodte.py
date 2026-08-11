@@ -25,6 +25,19 @@ import zerodte as Z
 import zerodte_dashboard as ZD
 import zerodte_log as L
 
+import chart as C
+
+
+def with_chart(a):
+    """Attach the technical read. Dealer levels say where hedging pressure sits; they
+    say nothing about whether price is walking into a swing high. A failure here must
+    not cost the positioning read, which is the point of the page."""
+    try:
+        a["chart"] = C.payload(a["symbol"])
+    except Exception as e:
+        a["chart"] = dict(symbol=a["symbol"], error=str(e)[:60])
+    return a
+
 OUT_HTML = ROOT / "zerodte.html"
 STATE = ROOT / "data" / "zerodte.json"
 
@@ -135,7 +148,7 @@ def main():
         if a.get("error"):
             print(f"[{sym}] {a['error']}")
             continue
-        results[sym] = a
+        results[sym] = with_chart(a)
         print(f"[{sym}] {a['expiry']} dte {a['dte']} spot {a['spot']} | "
               f"GEX ${a['total_gex']/1e9:+.2f}bn ({a['regime'].split(' —')[0]}) | "
               f"max pain {a['max_pain']} | flip {a['zero_gamma']}")

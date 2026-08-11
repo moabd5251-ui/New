@@ -1,6 +1,7 @@
 """Render the pre-earnings volatility ramp dashboard."""
 import json, datetime
 
+import chart as C
 import stale
 
 CSS = """
@@ -203,6 +204,7 @@ function card(r){
             too few names reporting within 2 days to read the cross-section</span></div>`}
       </div>
     </div>
+    ${chartBlock(r.chart)}
     <div class="stats">
       <div class="stat"><div class="k">Cost</div><div class="v num">${money(b.cost)}</div></div>
       <div class="stat"><div class="k">Max loss</div><div class="v num bad">${money(b.max_loss)}</div></div>
@@ -363,9 +365,9 @@ def build(rows, meta, out_path, built=None):
     now = built or datetime.datetime.now(datetime.timezone.utc)
     stamp = now.strftime("%d %b %Y, %H:%M UTC")
     html = ("<title>Volatility Ramp — Pre-Earnings Vol Expansion</title>\n"
-            f"<style>{CSS}{stale.CSS}</style>\n"
+            f"<style>{CSS}{stale.CSS}{C.CSS}</style>\n"
             f"{BODY.replace('__STAMP__', stamp).replace('__STALE__', stale.DIV)}\n"
-            f"<script>\nconst DATA = {payload};\n{JS}\n{stale.js(now)}\n</script>\n")
+            f"<script>\nconst DATA = {payload};\n{C.JS}\n{JS}\n{stale.js(now)}\n</script>\n")
     with open(out_path, "w") as f:
         f.write(html)
     return out_path

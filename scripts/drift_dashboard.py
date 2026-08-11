@@ -1,6 +1,7 @@
 """Render the post-earnings drift dashboard."""
 import json, datetime
 
+import chart as C
 import stale
 
 CSS = """
@@ -196,6 +197,7 @@ function card(r){
       <div class="stat"><div class="k">Target</div><div class="v">${r.target}</div></div>
     </div>
     ${st(S.shares)}${st(S.deep_itm)}${st(S.vertical)}
+    ${chartBlock(r.chart)}
     <div class="foot"><span>ATR ${r.atr}</span>
       <span>${r.beat_rate!=null?`beat ${r.beat_rate}% of last ${4}q`:''}</span></div>
   </article>`;
@@ -319,9 +321,9 @@ def build(rows, out_path, backtest=None, built=None):
     stamp = now.strftime("%d %b %Y, %H:%M UTC")
     body = BODY.replace('__STAMP__', stamp).replace('__STALE__', stale.DIV)
     html = ("<title>Earnings Drift — Trade With the Gap</title>\n"
-            f"<style>{CSS}{stale.CSS}</style>\n"
+            f"<style>{CSS}{stale.CSS}{C.CSS}</style>\n"
             f"{body}\n"
-            f"<script>\nconst DATA = {payload};\n{JS}\n{stale.js(now)}\n</script>\n")
+            f"<script>\nconst DATA = {payload};\n{C.JS}\n{JS}\n{stale.js(now)}\n</script>\n")
     with open(out_path, "w") as f:
         f.write(html)
     return out_path

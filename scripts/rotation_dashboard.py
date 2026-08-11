@@ -8,6 +8,7 @@ in downtrends is the reason there is no position in them.
 import datetime
 import html
 
+import chart as C
 from trend_dashboard import CSS as BASE_CSS
 
 CSS = BASE_CSS + """
@@ -92,8 +93,11 @@ def build(res, out_path):
     {_pill(a['action'])}
     <span class="exp {'up' if (pct or 0) > 0 else 'down'}">{'—' if pct is None else f'{pct:+d}%'}</span></div>
   <div class="why">{html.escape(a['reason'])}</div>{body}
+  {C.slot(a['symbol'])}
 </div>""")
 
+    charts = {r['symbol']: r['chart'] for r in res['rows'] if r.get('chart')}
+    top_charts = "".join(C.slot(r['symbol']) for r in ranked[:5])
     rank_rows = "".join(f"""<tr>
   <td class="num flat">{r['rank']}</td>
   <td><span class="tick">{html.escape(r['symbol'])}</span></td>
@@ -116,7 +120,7 @@ def build(res, out_path):
                 'against a closed book.</div>')
 
     doc = f"""<title>LEAP Rotation — Concentrate in the Strongest Trends</title>
-<style>{CSS}</style>
+<style>{CSS}{C.CSS}</style>
 <div class="wrap">
 <header class="mast">
   <div><h1>LEAP Rotation</h1>
@@ -168,6 +172,12 @@ following is expected to lag. Beating SPY anyway is the encouraging part.
 <th>L/S/N</th><th>Close</th></tr></thead>
 <tbody>{rank_rows}</tbody></table></div>
 
+<h2>Chart read · the leaders</h2>
+<p style="color:var(--ink-3);font-size:13px;margin:0 0 14px">Where the top-ranked markets sit
+in their own structure. The ranking says which trend is strongest; this says how much room is
+left before the next level and what would have to break for the trend to fail.</p>
+{top_charts}
+
 <h2>Excluded · no long trend, so no position</h2>
 <div class="excl">{excl_html}</div>
 
@@ -175,7 +185,8 @@ following is expected to lag. Beating SPY anyway is the encouraging part.
 sizing shown against ${alloc:,.0f} per position ·
 signals from completed daily bars.
 Educational tooling only — no orders are placed and nothing here is financial advice.</footer>
-</div>"""
+</div>
+<script>{C.mount(charts)}</script>"""
     with open(out_path, "w") as f:
         f.write(doc)
     return out_path

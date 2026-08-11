@@ -230,6 +230,15 @@ def assess(rows, verbose=True):
     for r in rows:
         d = dict(r)
         d["ramp_estimate"] = ramp
+        # A calendar wants price to sit still near its strike, so where the nearest
+        # levels are is not decoration here — it is the risk. The NVDA card carried a
+        # 205 strike while price ran to 223 with resistance at 232; nothing on the page
+        # said the strike had been left behind.
+        try:
+            import chart as _C
+            d["chart"] = _C.payload(r["symbol"])
+        except Exception as _e:
+            d["chart"] = dict(symbol=r["symbol"], error=str(_e)[:60])
         spread = r.get("iv_term_spread")
         days = r["days"]
         xd = exit_date(r["date"])

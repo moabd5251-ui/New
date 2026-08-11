@@ -195,8 +195,19 @@
     "expected_move_pct": 0.22,
     "flow_bias": "CALLS \u2014 upside flow dominates",
     "flow_ratio": 0.84,
-    "close": null,
-    "scored": false
+    "close": 773.03,
+    "scored": true,
+    "day_open": 772.6,
+    "day_high": 775.05,
+    "day_low": 771.62,
+    "maxpain_moved_toward": false,
+    "maxpain_dist_open": 2.6,
+    "maxpain_dist_close": 3.03,
+    "magnet_moved_toward": false,
+    "magnet_dist_close": 3.03,
+    "realised_move_pct": 0.056,
+    "realised_range_pct": 0.444,
+    "inside_expected": true
   },
   {
     "symbol": "QQQ",
@@ -214,8 +225,19 @@
     "expected_move_pct": 0.35,
     "flow_bias": "CALLS \u2014 upside flow dominates",
     "flow_ratio": 0.46,
-    "close": null,
-    "scored": false
+    "close": 720.87,
+    "scored": true,
+    "day_open": 722.39,
+    "day_high": 724.67,
+    "day_low": 720.33,
+    "maxpain_moved_toward": true,
+    "maxpain_dist_open": 3.39,
+    "maxpain_dist_close": 1.87,
+    "magnet_moved_toward": false,
+    "magnet_dist_close": 4.13,
+    "realised_move_pct": 0.21,
+    "realised_range_pct": 0.601,
+    "inside_expected": true
   },
   {
     "symbol": "IWM",
@@ -233,7 +255,18 @@
     "expected_move_pct": 0.3,
     "flow_bias": "CALLS \u2014 upside flow dominates",
     "flow_ratio": 0.86,
-    "close": null,
-    "scored": false
+    "close": 299.98,
+    "scored": true,
+    "day_open": 300.51,
+    "day_high": 301.39,
+    "day_low": 299.08,
+    "maxpain_moved_toward": true,
+    "maxpain_dist_open": 0.51,
+    "maxpain_dist_close": 0.02,
+    "magnet_moved_toward": false,
+    "magnet_dist_close": 2.02,
+    "realised_move_pct": 0.176,
+    "realised_range_pct": 0.769,
+    "inside_expected": true
   }
 ]

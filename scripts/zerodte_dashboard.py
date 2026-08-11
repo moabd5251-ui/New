@@ -8,6 +8,7 @@ where price actually is, and that relationship is the entire read.
 import datetime
 import html
 
+import chart as C
 from trend_dashboard import CSS as BASE_CSS
 
 CSS = BASE_CSS + """
@@ -217,6 +218,7 @@ def _slim(a):
         straddle=a.get("straddle"), em=a.get("expected_move_pct"),
         pc_oi=a.get("pc_oi"), pc_vol=a.get("pc_volume"),
         greeks=a.get("greek_source"), parity=a.get("parity_strikes"),
+        chart=a.get("chart"),
         flow=a.get("flow") or {}, magnets=a.get("magnets") or [],
         rows=[dict(k=r["strike"], g=round(r["net_gex"] / 1e6, 2),
                    co=int(r["call_oi"]), po=int(r["put_oi"]),
@@ -242,7 +244,7 @@ def build_interactive(results, out_path, reads=None, state=None):
     n0 = sum(1 for v in data.values() if v["dte"] == 0)
 
     doc = f"""<title>Zero-DTE Positioning — search any ticker</title>
-<style>{CSS}{INTERACTIVE_CSS}</style>
+<style>{CSS}{INTERACTIVE_CSS}{C.CSS}</style>
 <div class="wrap">
 <header class="mast">
   <div><h1>Zero-DTE Positioning</h1>
@@ -277,6 +279,7 @@ is running, but no historical test has scored these levels yet.</div>
 </div>
 
 <script>
+{C.JS}
 const D = {payload};
 const SYMS = Object.keys(D).sort();
 const q = document.getElementById('q'), hits = document.getElementById('hits'),
@@ -349,7 +352,8 @@ function render(sym) {{
     against upside ${{(fl.upside_vol||0).toLocaleString()}} — ratio ${{fl.ratio}}. Puts bought below
     spot force dealers to SELL as price falls; calls bought above force them to BUY as it rises.</div>` : ''}}
   <h2>The read</h2>
-  <ul class="read">${{a.read.map(l => `<li>${{esc(l)}}</li>`).join('')}}</ul>`;
+  <ul class="read">${{a.read.map(l => `<li>${{esc(l)}}</li>`).join('')}}</ul>
+  ${{chartBlock(a.chart)}}`;
   chips.querySelectorAll('.chip').forEach(c =>
     c.classList.toggle('on', c.dataset.s === sym));
   panel.scrollIntoView({{behavior:'smooth', block:'nearest'}});

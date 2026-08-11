@@ -27,6 +27,7 @@ import { riskCurve, requiredEdge } from './risk/survival.js'
 import { recordOvernight, loadOvernight, overnightScorecard, OVERNIGHT_SPEC, BACKTEST_REFERENCE } from './research/overnight.js'
 import { recordMondays, mondayScorecard, MONDAY_RTH_SPEC, MONDAY_BACKTEST_REFERENCE } from './research/mondayrth.js'
 import { SWEEP_SPEC, SWEEP_BACKTEST, recordSweeps, loadSweeps, sweepScorecard } from './research/sweep.js'
+import { TRENDCONT_SPEC, TRENDCONT_BACKTEST, recordTrendSetups, loadTrendSetups, trendScorecard } from './research/trendcont.js'
 import { OPTIONSCAN_SPEC, findReaction, buildVertical, pickExpiration, sizeContracts, loadJournal, saveJournal, appendCandidates, resolveExpired, scanScorecard } from './research/optionscan.js'
 import { renderOptionsPage } from './report/optionspage.js'
 import { analyzeChart, targetFor, assessSpread } from './research/chartanalysis.js'
@@ -541,7 +542,9 @@ function cmdSweep(args) {
   const symbol = source === 'yahoo' ? resolveYahooSymbol(args.symbol ?? 'NQ') : String(args.symbol ?? 'NQ').toUpperCase()
   const root = args.store ?? DEFAULT_STORE
 
-  const { path, added, records, total } = recordSweeps({ root, symbol })
+  // ES is the SMT companion for NQ and vice versa; absent, SMT stays null.
+  const companion = args.companion ?? (symbol.includes('NQ') ? 'ES.v.0' : symbol.includes('ES') ? 'NQ.v.0' : null)
+  const { path, added, records, total } = recordSweeps({ root, symbol, companionSymbol: companion })
   section(`SWEEP REVERSAL FORWARD — ${symbol} (spec v${SWEEP_SPEC.version}, registered ${SWEEP_SPEC.registered})`)
   console.log(`  journal     ${C.cyan(path)}`)
   console.log(`  new setups  ${added ? C.green(String(added)) : '0'}  (${total} total)`)
@@ -573,6 +576,15 @@ function cmdSweep(args) {
     )
   }
 
+  if (card.smt?.tagged) {
+    section('SMT DIVERGENCE vs the companion index (recorded, never filtered on)')
+    const f = (x) => (x.meanR === null ? '—' : `${(x.meanR >= 0 ? '+' : '') + x.meanR.toFixed(3)}R`)
+    console.log(`  divergent — companion did NOT sweep   n ${String(card.smt.divergent.n).padStart(4)}   ${f(card.smt.divergent)}`)
+    console.log(`  confirmed — both indices swept        n ${String(card.smt.confirmed.n).padStart(4)}   ${f(card.smt.confirmed)}`)
+    console.log(C.dim(`  Pre-registration: +${SWEEP_BACKTEST.smt.divergentR}R divergent vs +${SWEEP_BACKTEST.smt.confirmedR}R confirmed.`))
+    console.log(C.dim(`  ${SWEEP_BACKTEST.smt.note}.`))
+  }
+
   section("THE PLAYBOOK'S OWN GO-LIVE GATE")
   const g = card.withChoch
   if (!g.n) console.log(C.dim('  no qualifying trades yet'))
@@ -584,6 +596,63 @@ function cmdSweep(args) {
   console.log(C.dim(`\n  Pre-registration measurement: ${SWEEP_BACKTEST.withChoch.isR}R IS / ${SWEEP_BACKTEST.withChoch.oosR}R OOS`))
   console.log(C.dim(`  against a random control at ${SWEEP_BACKTEST.randomControl.isR}R / ${SWEEP_BACKTEST.randomControl.oosR}R.`))
   console.log(C.yellow(`  Caution on that record: ${SWEEP_BACKTEST.caution}.`))
+  console.log(C.dim('\n  Paper only — nothing here places orders.\n'))
+}
+
+/* ── trend: Playbook B killzone continuation, registered forward test ───── */
+
+function cmdTrend(args) {
+  const source = args.source ?? 'yahoo'
+  const symbol = source === 'yahoo' ? resolveYahooSymbol(args.symbol ?? 'NQ') : String(args.symbol ?? 'NQ').toUpperCase()
+  const root = args.store ?? DEFAULT_STORE
+
+  const { path, added, records, total } = recordTrendSetups({ root, symbol })
+  section(`TREND CONTINUATION FORWARD — ${symbol} (spec v${TRENDCONT_SPEC.version}, registered ${TRENDCONT_SPEC.registered})`)
+  console.log(`  journal     ${C.cyan(path)}`)
+  console.log(`  new setups  ${added ? C.green(String(added)) : '0'}  (${total} total)`)
+  for (const r of records) {
+    console.log(
+      `              ${r.day}  ${r.direction === 'long' ? C.green('LONG ') : C.red('SHORT')} risk ${r.riskPts.toFixed(1)}pt  ` +
+        `${colourR(r.r)}R  ${C.dim(r.reason)}${r.valueArea?.entryInValueArea ? C.dim('  in-VA') : ''}`,
+    )
+  }
+
+  const all = loadTrendSetups(path)
+  if (!all.length) {
+    console.log(C.dim('\n  Nothing recorded yet. Measured frequency is ~22 setups a month, so this'))
+    console.log(C.dim('  journal fills far faster than the sweep one — 30 trades in about six weeks.\n'))
+    return
+  }
+
+  const c = trendScorecard(all)
+  section('RUNNING SCORECARD (paper)')
+  console.log(
+    `  n ${String(c.n).padStart(4)}  exp ${colourR(c.expR)}R  win ${(c.winRate * 100).toFixed(0)}%  avgWin ${c.avgWin.toFixed(2)}R  ` +
+      `PF ${c.profitFactor.toFixed(2)}  t ${(c.tStat >= 0 ? '+' : '') + c.tStat.toFixed(1)}`,
+  )
+  console.log(
+    C.dim(`        median ${c.medianR.toFixed(2)}R · top-5 share ${(c.topFiveShare * 100).toFixed(0)}% · ` +
+      `worst streak ${c.worstStreak} · ${c.perMonth ? c.perMonth.toFixed(1) + '/month' : '—'}`),
+  )
+
+  const v = c.valueArea
+  if (v.inside.n || v.outside.n) {
+    section('LEVEL QUALITY — prior-day value area (recorded, never filtered on)')
+    const f = (x) => (x.meanR === null ? '—' : `${(x.meanR >= 0 ? '+' : '') + x.meanR.toFixed(3)}R`)
+    console.log(`  entry inside the value area   n ${String(v.inside.n).padStart(4)}   ${f(v.inside)}`)
+    console.log(`  entry outside it              n ${String(v.outside.n).padStart(4)}   ${f(v.outside)}`)
+    console.log(C.dim('  Pre-registration measurement said OUTSIDE was better in both halves'))
+    console.log(C.dim('  (+0.182R vs +0.017R IS, +0.268R vs +0.230R OOS) — the opposite of the'))
+    console.log(C.dim('  usual claim that value-area levels are higher quality.'))
+  }
+
+  section("THE PLAYBOOK'S OWN GO-LIVE GATE")
+  console.log(`  ≥ 30 trades?        ${String(c.n).padStart(4)}   ${c.n >= 30 ? C.green('PASS') : C.yellow('not yet')}`)
+  console.log(`  win rate ≥ 40%?    ${(c.winRate * 100).toFixed(1)}%   ${c.winRate >= 0.4 ? C.green('PASS') : C.red('FAIL')}`)
+  console.log(`  avg winner ≥ 1.8R? ${c.avgWin.toFixed(2)}R   ${c.avgWin >= 1.8 ? C.green('PASS') : C.red('FAIL')}`)
+  console.log(C.dim(`\n  Pre-registration: ${TRENDCONT_BACKTEST.isR}R IS (n ${TRENDCONT_BACKTEST.isN}) / ${TRENDCONT_BACKTEST.oosR}R OOS (n ${TRENDCONT_BACKTEST.oosN}).`))
+  console.log(C.dim(`  Randomise the direction → ${TRENDCONT_BACKTEST.withoutBias.isR}R / ${TRENDCONT_BACKTEST.withoutBias.oosR}R. Skip the FVG → ${TRENDCONT_BACKTEST.withoutFvg.isR}R / ${TRENDCONT_BACKTEST.withoutFvg.oosR}R.`))
+  console.log(C.yellow(`  ${TRENDCONT_BACKTEST.caution}.`))
   console.log(C.dim('\n  Paper only — nothing here places orders.\n'))
 }
 
@@ -922,6 +991,7 @@ const commands = {
   overnight: () => cmdOvernight(args),
   monday: () => cmdMonday(args),
   sweep: () => cmdSweep(args),
+  trend: () => cmdTrend(args),
   options: () => cmdOptions(args),
   analyze: () => cmdAnalyze(args),
   levels: () => cmdLevels(args),

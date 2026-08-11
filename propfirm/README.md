@@ -598,6 +598,57 @@ smaller +0.160R IS / +0.158R OOS — remarkably stable across halves, and a far
 larger sample, which arguably makes it the better candidate of the two despite
 the smaller number.
 
+### Playbook B — trend continuation, and the better candidate
+
+Tested after Playbook A and measurably the stronger of the two, despite a far
+smaller per-trade edge:
+
+| | A (sweep reversal) | **B (trend continuation)** |
+|---|---|---|
+| in-sample | +0.840R (n 26) | +0.108R (n 379) |
+| out-of-sample | +0.839R (n 10) | **+0.254R (n 142)** |
+| t | 1.4 / 0.7 | 1.3 / **1.7** |
+| median trade | −1.02R | −1.04R |
+| top 5 = % of profit | **139% / 163%** | **86% / 85%** |
+| frequency | 1.5/month | **21.7/month** |
+| **R per month** | ~1.3R | **~3.2R** |
+
+B earns more per month from frequency alone, its profit is not hostage to five
+trades, and thirty trades takes six weeks rather than twenty months. Both of
+its filters are load-bearing: randomise the direction and it returns −0.009R /
++0.036R, enter at market instead of waiting for the FVG and it returns −0.089R
+/ +0.098R.
+
+A lookahead bug was found and fixed while measuring it, and it had been
+flattering the result — a futures daily bar OPENS at 18:00 ET the previous
+evening, so the "last daily bar before now" at 07:00 is today's, still forming.
+Reading its close lifted the figures to +0.158R / +0.286R. The table is
+post-fix. Registered as `src/research/trendcont.js`, `node src/cli.js trend`.
+
+### Two proposed confirmation layers, measured
+
+**SMT divergence (ES vs NQ)** — bought 24 months of ES 1-minute data ($2.57) to
+test it. On the raw sweep setup the claim holds directionally: sweeps where ES
+did *not* sweep its matching level returned **+0.289R against +0.010R** when
+both swept, same sign in both halves (+0.363 vs +0.025 IS, +0.157 vs −0.024
+OOS, n 220 and 465). But t is 1.2, the median trade is −1.07R in *both* groups
+so the filter moves the tail rather than the typical trade, and on the strict
+CHoCH subset the effect disappears. Recorded on every setup, filtered on never.
+The generalisation fails outright: on Playbook B, ES agreeing with NQ's daily
+bias was **worse** (+0.130R) than ES being silent or opposite (+0.250R) — the
+same pattern as multi-timeframe alignment.
+
+**Volume-profile levels (VAH/VAL/POC)** — computed from the prior completed day
+and recorded on every Playbook B setup. The first read contradicts the usual
+claim that value-area levels are higher quality: entries *inside* the prior
+day's value area returned **+0.017R against +0.182R outside** in-sample, and
++0.230R against +0.268R out-of-sample. Worse in both halves, which is coherent
+— the value area is where price has already balanced, so entering there is
+entering congestion rather than an edge.
+
+**Opening-range breakout** was already measured in the price-only sweep and is
+on the failed list: t = +2.8 in-sample, negative out-of-sample.
+
 Registered for forward validation as `src/research/sweep.js`
 (`node src/cli.js sweep --symbol NQ`), spec v1, 2026-08-11. Re-running the
 productionised module over the same bars reproduced the expectancy exactly

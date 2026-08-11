@@ -138,3 +138,54 @@ test('an incomplete day is not journaled until it is past the time stop', () => 
   const out = recordSweeps({ root, symbol: 'TEST' })
   assert.equal(out.added, 0, 'a day still in progress cannot be scored')
 })
+
+test('SMT tagging is best-effort and never drops a setup', async () => {
+  const { makeSmtTagger } = await import('../src/research/sweep.js')
+  // No companion data at all: every setup tags null rather than vanishing.
+  const none = makeSmtTagger([])
+  assert.equal(none({ day: 'd', t: 0, direction: 'short', level: 'overnight high' }), null)
+})
+
+test('SMT divergence is detected from the companion index', async () => {
+  const { makeSmtTagger } = await import('../src/research/sweep.js')
+  // Companion overnight high is 100; the window either exceeds it or not.
+  const build = (killzoneHigh) => {
+    const bars = []
+    for (let k = 0; k < 1000; k++) {
+      const t = DAY1 + k * 60_000
+      const et = etMinuteOfDay(t)
+      const overnight = et >= 1080 || et < 420
+      const p = overnight ? 100 : killzoneHigh
+      bars.push({ t, o: p, h: p, l: p - 1, c: p, v: 100 })
+    }
+    return bars
+  }
+  // 18:00 ET + 800 minutes = 07:20 ET, inside the killzone. (At +460 the stamp
+  // is 01:40 ET — still overnight, where the companion is at its own high and
+  // every case reads as divergence.)
+  const at = DAY1 + 800 * 60_000
+  const day = futuresDayKey(at)
+  const setup = { day, t: at, direction: 'short', level: 'overnight high' }
+
+  // Companion also pushed above its overnight high → both swept, no divergence.
+  const confirmed = makeSmtTagger(build(105))(setup)
+  assert.equal(confirmed?.divergence, false)
+  assert.equal(confirmed?.companionSwept, true)
+
+  // Companion stayed below → divergence, the claimed footprint.
+  const diverged = makeSmtTagger(build(95))(setup)
+  assert.equal(diverged?.divergence, true)
+})
+
+test('the scorecard splits by SMT without pooling it into the headline', () => {
+  const records = [
+    { day: 'a', t: 1, choch: false, r: 3, riskPts: 10, smt: { divergence: true } },
+    { day: 'b', t: 2, choch: false, r: -1, riskPts: 10, smt: { divergence: false } },
+    { day: 'c', t: 3, choch: false, r: -1, riskPts: 10, smt: null },
+  ]
+  const card = sweepScorecard(records)
+  assert.equal(card.noChoch.n, 3, 'the headline still counts every setup')
+  assert.equal(card.smt.tagged, 2, 'only tagged setups enter the SMT split')
+  assert.equal(card.smt.divergent.meanR, 3)
+  assert.equal(card.smt.confirmed.meanR, -1)
+})

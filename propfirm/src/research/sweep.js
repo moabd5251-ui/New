@@ -140,6 +140,47 @@ function manage(candles, entryIdx, entryPrice, dir, stopPrice, t2, spec) {
 }
 
 /**
+ * SMT divergence tagger: did the companion index sweep ITS matching level in
+ * the same window? Divergence — NQ sweeps, ES does not — is the claimed
+ * institutional footprint.
+ *
+ * Measured on 685 sweeps before registration, and the claim survives on the
+ * raw setup: divergent sweeps returned +0.289R against +0.010R when both
+ * indices swept, same sign in both halves (+0.363 vs +0.025 IS, +0.157 vs
+ * −0.024 OOS). But t is only 1.2, the median trade is −1.07R in BOTH groups
+ * so the filter moves the tail rather than the typical trade, and on the
+ * strict CHoCH subset the effect vanishes (+0.795R divergent vs +0.860R
+ * confirmed, n 11 and 25). Recorded, therefore, and not filtered on.
+ */
+export function makeSmtTagger(companionCandles, spec = SWEEP_SPEC) {
+  if (!companionCandles?.length) return () => null
+  const levels = dayLevels(companionCandles, spec)
+  const byTime = new Map(companionCandles.map((c, i) => [c.t, i]))
+  return (setup, windowMin = 15) => {
+    const lv = levels.get(setup.day)
+    if (!lv) return null
+    const buyside = setup.direction === 'short'
+    const level = setup.level.includes('overnight')
+      ? (buyside ? lv.onHigh : lv.onLow)
+      : (buyside ? lv.pdHigh : lv.pdLow)
+    if (!Number.isFinite(level)) return null
+    let i = byTime.get(setup.t)
+    // ES and NQ share the CME clock, but a thin minute can be absent from one.
+    for (let d = 1; d <= 2 && i === undefined; d++) {
+      i = byTime.get(setup.t + d * 60_000) ?? byTime.get(setup.t - d * 60_000)
+    }
+    if (i === undefined) return null
+    for (let j = Math.max(0, i - windowMin); j <= Math.min(companionCandles.length - 1, i + windowMin); j++) {
+      if (futuresDayKey(companionCandles[j].t) !== setup.day) continue
+      if (buyside ? companionCandles[j].h > level : companionCandles[j].l < level) {
+        return { companionSwept: true, divergence: false }
+      }
+    }
+    return { companionSwept: false, divergence: true }
+  }
+}
+
+/**
  * Every setup in the series, tagged with whether it also satisfied CHoCH.
  * The per-day cap is NOT applied here — it is applied per variant when
  * scoring, so that two non-CHoCH setups cannot silently displace a CHoCH one.
@@ -264,7 +305,7 @@ export function loadSweeps(path) {
  * registration, each exactly once. The watermark is the last journaled day, so
  * a day is either fully recorded or not recorded at all — never half.
  */
-export function recordSweeps({ root, symbol, journalPath = null, spec = SWEEP_SPEC }) {
+export function recordSweeps({ root, symbol, journalPath = null, spec = SWEEP_SPEC, companionSymbol = null }) {
   const path = journalPath ?? sweepJournalPath(root, symbol)
   const existing = loadSweeps(path)
   const seenDays = new Set(existing.map((r) => r.day))
@@ -282,7 +323,17 @@ export function recordSweeps({ root, symbol, journalPath = null, spec = SWEEP_SP
   const fresh = findSetups(candles, spec).filter(
     (s) => !seenDays.has(s.day) && complete.has(s.day) && s.t >= registeredAt,
   )
-  const records = fresh.map((s) => ({ spec: spec.version, ...s }))
+
+  // SMT is best-effort: if the companion index has not been collected, the
+  // field is null rather than the setup being dropped. A missing companion
+  // must never silently shrink the primary record.
+  let tag = () => null
+  if (companionSymbol) {
+    try {
+      tag = makeSmtTagger(new CandleStore(root, companionSymbol).load(), spec)
+    } catch { /* companion store absent — SMT stays null */ }
+  }
+  const records = fresh.map((s) => ({ spec: spec.version, ...s, smt: tag(s) }))
   if (records.length) {
     mkdirSync(dirname(path), { recursive: true })
     appendFileSync(path, records.map((r) => JSON.stringify(r)).join('\n') + '\n')
@@ -351,7 +402,23 @@ export function sweepScorecard(records, spec = SWEEP_SPEC) {
     a.perMonth = a.n / months
     b.perMonth = b.n / months
   }
-  return { months, withChoch: a, noChoch: b }
+
+  // The registered SMT question, on the loose variant where the sample lives.
+  const withSmt = noChoch.filter((r) => r.smt)
+  const meanOf = (xs) => (xs.length ? xs.reduce((p, q) => p + q.r, 0) / xs.length : null)
+  const divergent = withSmt.filter((r) => r.smt.divergence)
+  const confirmed = withSmt.filter((r) => !r.smt.divergence)
+
+  return {
+    months,
+    withChoch: a,
+    noChoch: b,
+    smt: {
+      tagged: withSmt.length,
+      divergent: { n: divergent.length, meanR: meanOf(divergent) },
+      confirmed: { n: confirmed.length, meanR: meanOf(confirmed) },
+    },
+  }
 }
 
 /**
@@ -371,6 +438,12 @@ export const SWEEP_BACKTEST = {
   withChoch: { isR: 0.840, isN: 26, oosR: 0.839, oosN: 10, medianR: -1.02, topFiveShare: 1.39, perMonth: 1.5 },
   noChoch: { isR: 0.160, isN: 382, oosR: 0.158, oosN: 180, perMonth: 24 },
   randomControl: { isR: -0.079, oosR: -0.002 },
+  smt: {
+    divergentR: 0.289, divergentN: 220, confirmedR: 0.010, confirmedN: 465,
+    note: 'divergent sweeps beat confirmed ones in both halves (+0.363 vs +0.025 IS, ' +
+      '+0.157 vs −0.024 OOS) but t is 1.2, the median is −1.07R in BOTH groups, ' +
+      'and the effect vanishes on the CHoCH subset',
+  },
   caution:
     'median trade −1.02R; the best five trades were 139% of all profit (IS) and 163% (OOS); ' +
     't 1.4 and 0.7; ten out-of-sample trades; ~1.5 setups a month',

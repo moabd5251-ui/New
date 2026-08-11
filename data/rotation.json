@@ -1,25 +1,25 @@
 {
   "held": {},
-  "asof": "2026-08-07",
+  "asof": "2026-08-10",
   "last_exposures": {
     "SPY": 100,
     "XLI": 100,
     "EFA": 100,
+    "IWM": 90,
     "XLF": 90,
     "XLV": 90,
     "TLT": -90,
-    "IWM": 80,
+    "XLE": 70,
     "XLU": -70,
-    "SLV": -60,
-    "XLE": 50,
-    "GLD": -40,
+    "SLV": -40,
     "XLP": 30,
     "XLK": 20,
-    "EEM": -10,
-    "IBIT": -10,
-    "QQQ": 0,
-    "GDX": 0
+    "GLD": -20,
+    "EEM": -20,
+    "IBIT": -20,
+    "QQQ": -10,
+    "GDX": -10
   },
-  "generated": "2026-08-10T23:53:24Z",
+  "generated": "2026-08-11T00:19:57Z",
   "history": []
 }

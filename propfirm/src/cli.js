@@ -10,6 +10,7 @@
  */
 
 import { writeFileSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { loadCandles, writeCandles } from './data/csv.js'
 import { fetchYahoo, YAHOO_SYMBOLS, YAHOO_LIMITS } from './data/providers/yahoo.js'
 import { fetchTradier, tradierHistory, tradierExpirations, tradierChain } from './data/providers/tradier.js'
@@ -26,10 +27,11 @@ import { sizePosition } from './risk/sizing.js'
 import { riskCurve, requiredEdge } from './risk/survival.js'
 import { recordOvernight, loadOvernight, overnightScorecard, OVERNIGHT_SPEC, BACKTEST_REFERENCE } from './research/overnight.js'
 import { recordMondays, mondayScorecard, MONDAY_RTH_SPEC, MONDAY_BACKTEST_REFERENCE } from './research/mondayrth.js'
-import { SWEEP_SPEC, SWEEP_BACKTEST, recordSweeps, loadSweeps, sweepScorecard } from './research/sweep.js'
-import { TRENDCONT_SPEC, TRENDCONT_BACKTEST, recordTrendSetups, loadTrendSetups, trendScorecard } from './research/trendcont.js'
+import { SWEEP_SPEC, SWEEP_BACKTEST, recordSweeps, loadSweeps, sweepScorecard, sweepJournalPath } from './research/sweep.js'
+import { TRENDCONT_SPEC, TRENDCONT_BACKTEST, recordTrendSetups, loadTrendSetups, trendScorecard, trendJournalPath } from './research/trendcont.js'
 import { OPTIONSCAN_SPEC, findReaction, buildVertical, pickExpiration, sizeContracts, loadJournal, saveJournal, appendCandidates, resolveExpired, scanScorecard } from './research/optionscan.js'
 import { renderOptionsPage } from './report/optionspage.js'
+import { renderFuturesPage } from './report/futurespage.js'
 import { analyzeChart, targetFor, assessSpread } from './research/chartanalysis.js'
 import { BUTTERFLY_SPEC, buildButterfly, sizeFlies, butterflyJournalPath, resolveExpiredFlies, butterflyScorecard } from './research/butterfly.js'
 import { Journal } from './journal/journal.js'
@@ -838,6 +840,136 @@ async function cmdOptions(args) {
   console.log(C.dim('\n  Paper journal only — nothing here places orders. Commit data/ to keep it.\n'))
 }
 
+/* ── dashboard: one page for every registered futures spec ──────────────── */
+
+function cmdDashboard(args) {
+  const root = args.store ?? DEFAULT_STORE
+  const symbol = resolveYahooSymbol(args.symbol ?? 'NQ')
+  const out = args.html ?? 'futures-dashboard.html'
+
+  const sweeps = loadSweeps(sweepJournalPath(root, symbol))
+  const sweepCard = sweeps.length ? sweepScorecard(sweeps) : null
+  const trend = loadTrendSetups(trendJournalPath(root, symbol))
+  const trendCard = trend.length ? trendScorecard(trend) : null
+  const nights = loadOvernight(join(root, `${symbol.replace(/[^A-Za-z0-9]/g, '_')}-overnight.jsonl`))
+  const nightCard = nights.length ? overnightScorecard(nights) : null
+  const mondays = loadOvernight(join(root, `${symbol.replace(/[^A-Za-z0-9]/g, '_')}-monday.jsonl`))
+  const mondayCard = mondays.length ? mondayScorecard(mondays) : null
+
+  const specs = [
+    {
+      key: 'trendcont',
+      name: 'Playbook B — killzone trend continuation',
+      thesis: 'Daily and 4H agree, price on the trend side of the 20 EMA; enter the FVG left by a continuation trigger after a killzone pullback.',
+      registered: TRENDCONT_SPEC.registered,
+      threshold: 30, thresholdUnit: 'setups',
+      etaNote: 'Measured at ~22 setups a month, so this one reaches a verdict fastest — roughly six weeks.',
+      baseline: [
+        ['In-sample', `${sgn(TRENDCONT_BACKTEST.isR)}R (n ${TRENDCONT_BACKTEST.isN})`],
+        ['Out-of-sample', `${sgn(TRENDCONT_BACKTEST.oosR)}R (n ${TRENDCONT_BACKTEST.oosN})`],
+        ['Median trade', `${sgn(TRENDCONT_BACKTEST.medianR)}R`],
+        ['Top 5 = of profit', `${(TRENDCONT_BACKTEST.topFiveShare * 100).toFixed(0)}%`],
+        ['Direction randomised', `${sgn(TRENDCONT_BACKTEST.withoutBias.isR)}R / ${sgn(TRENDCONT_BACKTEST.withoutBias.oosR)}R`],
+        ['FVG entry skipped', `${sgn(TRENDCONT_BACKTEST.withoutFvg.isR)}R / ${sgn(TRENDCONT_BACKTEST.withoutFvg.oosR)}R`],
+      ],
+      caution: TRENDCONT_BACKTEST.caution,
+      current: trendCard && {
+        n: trendCard.n, expR: trendCard.expR, medianR: trendCard.medianR,
+        topFiveShare: trendCard.topFiveShare, winRate: trendCard.winRate, tStat: trendCard.tStat,
+        extra: trendCard.valueArea.inside.n || trendCard.valueArea.outside.n
+          ? [['Inside prior value area', trendCard.valueArea.inside.meanR === null ? '—' : `${sgn(trendCard.valueArea.inside.meanR)}R (n ${trendCard.valueArea.inside.n})`],
+             ['Outside it', trendCard.valueArea.outside.meanR === null ? '—' : `${sgn(trendCard.valueArea.outside.meanR)}R (n ${trendCard.valueArea.outside.n})`]]
+          : [],
+      },
+    },
+    {
+      key: 'overnight',
+      name: 'Overnight capture — 18:00 → 09:30',
+      thesis: 'Long one MNQ from the Globex open to the next RTH open, 100-point disaster stop, no target. The one hypothesis whose effect is documented outside this project.',
+      registered: OVERNIGHT_SPEC.registered,
+      threshold: 30, thresholdUnit: 'nights',
+      etaNote: 'One night per weekday, so about six weeks to a first read.',
+      baseline: [
+        ['Backtest mean', `+${BACKTEST_REFERENCE.meanPtsNoStop} pt/night`],
+        ['In-sample', `+${BACKTEST_REFERENCE.meanPtsInSample} pt`],
+        ['Out-of-sample', `+${BACKTEST_REFERENCE.meanPtsOutOfSample} pt`],
+        ['Nightly sd', `${BACKTEST_REFERENCE.sdPts} pt`],
+        ['Window', BACKTEST_REFERENCE.window],
+      ],
+      caution: 't ≈ 2 on a bull sample; one night in the record lost 945 points, and losses cluster in ways an iid bootstrap understates.',
+      current: nightCard && nightCard.variants?.s100?.n
+        ? {
+            n: nightCard.variants.s100.n,
+            expR: nightCard.variants.s100.meanPts,
+            medianR: 0, topFiveShare: null,
+            winRate: nightCard.variants.s100.winRate,
+            extra: [
+              ['No stop', `${sgn(nightCard.variants.none.meanPts, 1)} pt/night`],
+              ['100 pt stop', `${sgn(nightCard.variants.s100.meanPts, 1)} pt/night`],
+              ['Simulated Lucid', `$${nightCard.variants.s100.balance.toFixed(0)}`],
+            ],
+          }
+        : null,
+    },
+    {
+      key: 'sweep',
+      name: 'Playbook A — NY-open liquidity sweep',
+      thesis: 'Sweep of an overnight or prior-day level, displacement back through it, CHoCH, then a limit in the OTE band. The only entry here that beat a random-entry control.',
+      registered: SWEEP_SPEC.registered,
+      threshold: 30, thresholdUnit: 'setups',
+      etaNote: 'Measured at ~1.5 setups a month with every filter on — this one is slow by nature, well over a year.',
+      baseline: [
+        ['In-sample', `${sgn(SWEEP_BACKTEST.withChoch.isR)}R (n ${SWEEP_BACKTEST.withChoch.isN})`],
+        ['Out-of-sample', `${sgn(SWEEP_BACKTEST.withChoch.oosR)}R (n ${SWEEP_BACKTEST.withChoch.oosN})`],
+        ['Random control', `${sgn(SWEEP_BACKTEST.randomControl.isR)}R / ${sgn(SWEEP_BACKTEST.randomControl.oosR)}R`],
+        ['Median trade', `${sgn(SWEEP_BACKTEST.withChoch.medianR)}R`],
+        ['Top 5 = of profit', `${(SWEEP_BACKTEST.withChoch.topFiveShare * 100).toFixed(0)}%`],
+        ['SMT divergent vs confirmed', `+${SWEEP_BACKTEST.smt.divergentR}R vs +${SWEEP_BACKTEST.smt.confirmedR}R`],
+      ],
+      caution: SWEEP_BACKTEST.caution,
+      current: sweepCard && sweepCard.withChoch.n
+        ? {
+            n: sweepCard.withChoch.n, expR: sweepCard.withChoch.expR,
+            medianR: sweepCard.withChoch.medianR, topFiveShare: sweepCard.withChoch.topFiveShare,
+            winRate: sweepCard.withChoch.winRate, tStat: sweepCard.withChoch.tStat,
+            extra: sweepCard.smt.tagged
+              ? [['SMT divergent', sweepCard.smt.divergent.meanR === null ? '—' : `${sgn(sweepCard.smt.divergent.meanR)}R (n ${sweepCard.smt.divergent.n})`],
+                 ['Both indices swept', sweepCard.smt.confirmed.meanR === null ? '—' : `${sgn(sweepCard.smt.confirmed.meanR)}R (n ${sweepCard.smt.confirmed.n})`]]
+              : [],
+          }
+        : null,
+    },
+    {
+      key: 'monday',
+      name: 'Monday day session',
+      thesis: 'Long the Monday RTH session. One cell out of dozens tested, and it contradicts the weekday-effect literature — registered mostly so it can be killed cleanly.',
+      registered: MONDAY_RTH_SPEC.registered,
+      threshold: 30, thresholdUnit: 'Mondays',
+      etaNote: 'One observation a week: roughly a year before this says anything.',
+      baseline: [
+        ['In-sample', `+${MONDAY_BACKTEST_REFERENCE.meanPtsInSample} pt`],
+        ['Out-of-sample', `+${MONDAY_BACKTEST_REFERENCE.meanPtsOutOfSample} pt`],
+        ['Window', MONDAY_BACKTEST_REFERENCE.window],
+      ],
+      caution: MONDAY_BACKTEST_REFERENCE.caution,
+      current: mondayCard && mondayCard.variants?.none?.n
+        ? {
+            n: mondayCard.variants.none.n, expR: mondayCard.variants.none.meanPts,
+            medianR: 0, topFiveShare: null, winRate: mondayCard.variants.none.winRate,
+          }
+        : null,
+    },
+  ]
+
+  writeFileSync(out, renderFuturesPage({ specs }))
+  section('FUTURES DASHBOARD')
+  for (const s of specs) {
+    const n = s.current?.n ?? 0
+    console.log(`  ${s.name.padEnd(46)} ${n ? C.green(`${n}/${s.threshold} ${s.thresholdUnit}`) : C.dim('awaiting data')}`)
+  }
+  console.log(`\n  page written to ${C.cyan(out)}\n`)
+}
+
 /* ── survival: what edge and what size actually pass an evaluation ──────── */
 
 function cmdSurvival(args) {
@@ -917,6 +1049,7 @@ function table(groups) {
   }
 }
 
+const sgn = (n, d = 2) => (Number.isFinite(n) ? `${n >= 0 ? '+' : '−'}${Math.abs(n).toFixed(d)}` : '—')
 const fmtN = (n, d = 2) => (Number.isFinite(n) ? n.toFixed(d) : '—')
 const fmtPct = (x) => `${(x * 100).toFixed(1).padStart(5)}%`
 const fmtConf = (c) => (c >= 0.6 ? C.green(c.toFixed(2)) : c >= 0.35 ? C.yellow(c.toFixed(2)) : C.red(c.toFixed(2)))
@@ -992,6 +1125,7 @@ const commands = {
   monday: () => cmdMonday(args),
   sweep: () => cmdSweep(args),
   trend: () => cmdTrend(args),
+  dashboard: () => cmdDashboard(args),
   options: () => cmdOptions(args),
   analyze: () => cmdAnalyze(args),
   levels: () => cmdLevels(args),

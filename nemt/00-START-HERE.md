@@ -1,5 +1,10 @@
 # NEMT Launch Plan — Zero Runway Version
 
+> **Washington readers:** two items below are corrected by `03-WASHINGTON.md` — the state
+> uses six regional nonprofit brokers rather than ModivCare/MTM/Veyo, and the licensing
+> cost and capital gate are both lower than the national figures here. Read that file
+> alongside this one.
+
 Built for the actual constraint: **no capital, no runway, keep the paycheck.**
 Every step below is ordered so that **nothing costs money until the step before it has
 proven the business is real.** US-centric, August 2026.

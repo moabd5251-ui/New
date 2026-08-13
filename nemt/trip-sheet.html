@@ -230,13 +230,13 @@
 <div class="wrap">
 
   <header class="mast">
-    <div class="stamp">Ambulatory · single vehicle · owner-driver</div>
+    <div class="stamp">Washington · ambulatory · single vehicle · owner-driver</div>
     <h1>NEMT Trip Sheet</h1>
     <p class="dek">
-      What one van actually earns after insurance, fuel, and the fixed monthly nut. Change
-      any number to your own market — the figures loaded are 2026 national mid-ranges, not
-      your state. The number that decides this business is <b>breakeven trips</b>, because
-      insurance costs the same whether you drive or not.
+      What one van actually earns after insurance, fuel, B&amp;O tax, and the fixed monthly
+      nut. Loaded with <b>2026 Washington rates</b> — replace each with a number you got from
+      a phone call. The figure that decides this business is <b>breakeven trips</b>, because
+      insurance bills the same whether you drive or not.
     </p>
   </header>
 
@@ -278,22 +278,22 @@
 
       <fieldset>
         <legend>What you charge</legend>
-        <p class="hint">Private pay and facility-direct rates run well above broker reimbursement. Get your own state's numbers — California ambulatory runs $45–$80 base, New Mexico $30–$55.</p>
+        <p class="hint">Washington private-pay rates run $45–$75 base and $2.50–$4.50/mile ambulatory — above the national average. Broker rates below are a placeholder: your regional broker sets them, so replace these once you've asked.</p>
         <div class="rows">
           <div class="row">
             <label for="ppBase">Private / facility — base per trip</label>
-            <input type="number" id="ppBase" value="45" min="0" step="1">
+            <input type="number" id="ppBase" value="55" min="0" step="1">
           </div>
           <div class="row">
             <label for="ppMile">Private / facility — per loaded mile</label>
-            <input type="number" id="ppMile" value="2.50" min="0" step="0.1">
+            <input type="number" id="ppMile" value="3.25" min="0" step="0.1">
           </div>
           <div class="row">
-            <label for="brBase">Medicaid broker — base per trip</label>
+            <label for="brBase">Regional broker — base per trip</label>
             <input type="number" id="brBase" value="32" min="0" step="1">
           </div>
           <div class="row">
-            <label for="brMile">Medicaid broker — per loaded mile</label>
+            <label for="brMile">Regional broker — per loaded mile</label>
             <input type="number" id="brMile" value="1.20" min="0" step="0.1">
           </div>
         </div>
@@ -338,7 +338,12 @@
             <label for="driverPay">Driver wage <span class="unit">per hour — 0 while you drive</span></label>
             <input type="number" id="driverPay" value="0" min="0" step="1">
           </div>
+          <div class="row">
+            <label for="bo">WA B&amp;O tax <span class="unit">% of gross revenue</span></label>
+            <input type="number" id="bo" value="1.5" min="0" step="0.05">
+          </div>
         </div>
+        <p class="hint" style="margin-top:16px;margin-bottom:0">Washington charges B&amp;O on <em>gross receipts</em> — no deduction for fuel, insurance, or wages. You owe it in a losing month too. Confirm your rate and classification with the Department of Revenue; transportation can fall under a different rate than general services.</p>
         <p class="hint" style="margin-top:16px;margin-bottom:0">Leave the wage at 0 and the net below is <em>your pay</em>, not profit — which is why the margin looks better than the industry's 8–35%. Enter a real wage (plus ~20% payroll burden, added automatically) to see what the van earns once someone else is driving it. That gap is the whole difference between a job and a business.</p>
       </fieldset>
     </form>
@@ -385,6 +390,7 @@
             <tr><th>Trip revenue</th><td id="lRev">—</td></tr>
             <tr><th>Fuel &amp; maintenance</th><td class="neg" id="lVar">—</td></tr>
             <tr id="rowLabor" hidden><th>Driver wages <span style="color:var(--ink-3);font-size:12.5px">incl. burden</span></th><td class="neg" id="lLabor">—</td></tr>
+            <tr><th>B&amp;O tax <span style="color:var(--ink-3);font-size:12.5px">on gross</span></th><td class="neg" id="lBo">—</td></tr>
             <tr><th>Insurance</th><td class="neg" id="lIns">—</td></tr>
             <tr><th>Software, vehicle, overhead</th><td class="neg" id="lFix">—</td></tr>
             <tr class="total"><th>Net</th><td id="lNet">—</td></tr>
@@ -396,14 +402,14 @@
   </div>
 
   <footer>
-    <p><b>Read this before trusting the output.</b> Defaults are 2026 national mid-ranges assembled from published rate and insurance surveys — they are a starting point for your own arithmetic, not a quote. Rates, licensing, and premiums vary enormously by state. Replace every number with one you got from a phone call.</p>
-    <p><b>What this does not model:</b> self-employment and income tax, the 30–90 day payment lag on broker trips (a cash-flow problem separate from profitability), insurance down payment at binding, licensing and startup costs, unpaid time spent scheduling and billing, or a vehicle replacement reserve. Net shown is pre-tax operating profit for one vehicle you drive yourself.</p>
+    <p><b>Read this before trusting the output.</b> Private-pay defaults are published 2026 Washington ranges; broker rates are a placeholder, because Washington's six regional brokers set their own and only yours can tell you the real number. These are a starting point for your arithmetic, not a quote. Replace every figure with one you got from a phone call.</p>
+    <p><b>What this does not model:</b> federal self-employment tax, the payment lag on broker trips (a cash-flow problem separate from profitability), the insurance down payment due at binding, licensing and startup costs, unpaid time spent scheduling and billing, or a vehicle replacement reserve. B&amp;O is included because Washington charges it on gross receipts even in a losing month; income tax is not, because Washington has none.</p>
     <p><b>The comparison that matters:</b> put your current hourly wage next to "Your hourly." If the business pays less per hour than overtime does, it is only worth building because it eventually runs without you in the seat — not because of what it pays today.</p>
   </footer>
 </div>
 
 <script>
-  var F = ["trips","miles","deadhead","hours","ppBase","ppMile","brBase","brMile","ins","software","vehicle","other","perMile","driverPay"];
+  var F = ["trips","miles","deadhead","hours","ppBase","ppMile","brBase","brMile","ins","software","vehicle","other","perMile","driverPay","bo"];
   var BURDEN = 1.2; // payroll taxes + workers comp on top of wage
   var el = {};
   F.concat(["mix"]).forEach(function (id) { el[id] = document.getElementById(id); });
@@ -414,10 +420,10 @@
   function num(id) { var v = parseFloat(el[id].value); return isFinite(v) ? v : 0; }
 
   var PRESETS = {
-    broker:   { trips: 90, mix: 0,   ppBase: 45, ppMile: 2.5, brBase: 32, brMile: 1.2 },
-    balanced: { trips: 60, mix: 30,  ppBase: 45, ppMile: 2.5, brBase: 32, brMile: 1.2 },
-    facility: { trips: 55, mix: 85,  ppBase: 50, ppMile: 2.75, brBase: 32, brMile: 1.2 },
-    thin:     { trips: 24, mix: 50,  ppBase: 45, ppMile: 2.5, brBase: 32, brMile: 1.2 }
+    broker:   { trips: 90, mix: 0,  ppBase: 55, ppMile: 3.25, brBase: 32, brMile: 1.2 },
+    balanced: { trips: 60, mix: 30, ppBase: 55, ppMile: 3.25, brBase: 32, brMile: 1.2 },
+    facility: { trips: 55, mix: 85, ppBase: 60, ppMile: 3.50, brBase: 32, brMile: 1.2 },
+    thin:     { trips: 24, mix: 50, ppBase: 55, ppMile: 3.25, brBase: 32, brMile: 1.2 }
   };
 
   function calc() {
@@ -433,18 +439,21 @@
     var fuelPerTrip = miles * dh * num("perMile");
     var laborPerTrip = hrs * wage * BURDEN;
     var varPerTrip = fuelPerTrip + laborPerTrip;
-    var contribution = revPerTrip - varPerTrip;
 
     var insM = num("ins") / 12;
     var fixedOther = num("software") + num("vehicle") + num("other");
     var fixed = insM + fixedOther;
 
+    var boRate = num("bo") / 100;
     var revenue = trips * revPerTrip;
     var variable = trips * varPerTrip;
-    var net = revenue - variable - fixed;
+    var boTax = revenue * boRate;
+    var net = revenue - variable - boTax - fixed;
     var margin = revenue > 0 ? net / revenue : 0;
     var hourly = trips * hrs > 0 ? net / (trips * hrs) : 0;
-    var be = contribution > 0 ? fixed / contribution : Infinity;
+    // B&O is charged on gross, so it comes out of each trip's contribution
+    var contribNet = revPerTrip * (1 - boRate) - varPerTrip;
+    var be = contribNet > 0 ? fixed / contribNet : Infinity;
 
     document.getElementById("mixOut").textContent = Math.round(share * 100) + "%";
 
@@ -492,6 +501,7 @@
     document.getElementById("lVar").textContent = "−" + money.format(trips * fuelPerTrip);
     document.getElementById("rowLabor").hidden = !hired;
     document.getElementById("lLabor").textContent = "−" + money.format(trips * laborPerTrip);
+    document.getElementById("lBo").textContent = "−" + money.format(boTax);
     document.getElementById("lIns").textContent = "−" + money.format(insM);
     document.getElementById("lFix").textContent = "−" + money.format(fixedOther);
     var lNet = document.getElementById("lNet");
@@ -499,7 +509,7 @@
     lNet.className = net < 0 ? "neg" : "";
 
     var advice = document.getElementById("advice");
-    if (contribution <= 0) {
+    if (contribNet <= 0) {
       advice.className = "note bad";
       advice.innerHTML = "<span><b>Every trip loses money before fixed costs.</b> At these rates and this trip length, fuel and empty miles exceed what the trip pays. No amount of volume fixes this — the rates or the trip length have to change.</span>";
     } else if (net < 0) {

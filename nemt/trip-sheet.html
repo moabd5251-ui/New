@@ -1,0 +1,539 @@
+<title>NEMT Trip Sheet</title>
+<style>
+  /* ---- Tokens: light is the base, both dark paths redefine only tokens ---- */
+  :root {
+    --paper:        #F2F4F1;
+    --card:         #FFFFFF;
+    --card-2:       #FAFBF9;
+    --ink:          #16201C;
+    --ink-2:        #4A5651;
+    --ink-3:        #78847E;
+    --rule:         #DDE2DC;
+    --rule-strong:  #C3CBC3;
+    --green:        #2F6F4E;
+    --green-soft:   #E4EFE7;
+    --brick:        #A93F25;
+    --brick-soft:   #F7E5DF;
+    --amber:        #B0781A;
+    --amber-soft:   #F6EBD5;
+    --field:        #FFFFFF;
+    --track:        #E2E7E1;
+    --shadow:       0 1px 2px rgba(22,32,28,.06), 0 8px 24px -16px rgba(22,32,28,.28);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:       #101613;
+      --card:        #182018;
+      --card-2:      #1D2620;
+      --ink:         #E8EDE7;
+      --ink-2:       #A7B3AC;
+      --ink-3:       #7C8880;
+      --rule:        #2A342E;
+      --rule-strong: #3B473F;
+      --green:       #7FC49A;
+      --green-soft:  #1B2E23;
+      --brick:       #E08464;
+      --brick-soft:  #33201A;
+      --amber:       #D9A64B;
+      --amber-soft:  #2E2617;
+      --field:       #121A16;
+      --track:       #26302A;
+      --shadow:      0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:       #101613;
+    --card:        #182018;
+    --card-2:      #1D2620;
+    --ink:         #E8EDE7;
+    --ink-2:       #A7B3AC;
+    --ink-3:       #7C8880;
+    --rule:        #2A342E;
+    --rule-strong: #3B473F;
+    --green:       #7FC49A;
+    --green-soft:  #1B2E23;
+    --brick:       #E08464;
+    --brick-soft:  #33201A;
+    --amber:       #D9A64B;
+    --amber-soft:  #2E2617;
+    --field:       #121A16;
+    --track:       #26302A;
+    --shadow:      0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 400 16px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 40px 24px 72px; }
+
+  /* ---- Masthead ---- */
+  .mast { border-bottom: 2px solid var(--ink); padding-bottom: 18px; margin-bottom: 30px; }
+  .stamp {
+    font: 600 11px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--green);
+    display: flex; gap: 10px; align-items: center; margin-bottom: 14px;
+  }
+  .stamp::after { content: ""; flex: 1; height: 1px; background: var(--rule-strong); }
+  h1 {
+    font: 400 clamp(30px, 5vw, 46px)/1.05 "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    margin: 0 0 10px; letter-spacing: -.01em; text-wrap: balance;
+  }
+  .dek { margin: 0; max-width: 62ch; color: var(--ink-2); font-size: 15.5px; }
+
+  /* ---- Scenario presets ---- */
+  .presets { display: flex; flex-wrap: wrap; gap: 8px; margin: 26px 0 22px; align-items: center; }
+  .presets .plabel {
+    font: 600 11px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); margin-right: 4px;
+  }
+  .preset {
+    font: 500 13px/1 ui-sans-serif, system-ui, sans-serif;
+    padding: 9px 14px; border-radius: 999px; cursor: pointer;
+    background: var(--card); color: var(--ink-2);
+    border: 1px solid var(--rule-strong);
+    transition: border-color .15s, color .15s, background .15s;
+  }
+  .preset:hover { border-color: var(--green); color: var(--ink); }
+  .preset:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+
+  /* ---- Layout ---- */
+  .grid { display: grid; grid-template-columns: 1fr; gap: 26px; align-items: start; }
+  @media (min-width: 940px) { .grid { grid-template-columns: 1.05fr .95fr; gap: 34px; } }
+
+  .panel {
+    background: var(--card); border: 1px solid var(--rule);
+    border-radius: 4px; box-shadow: var(--shadow);
+  }
+  @media (min-width: 940px) { .sticky { position: sticky; top: 24px; } }
+
+  fieldset { border: 0; border-top: 1px solid var(--rule); margin: 0; padding: 22px 22px 24px; }
+  fieldset:first-of-type { border-top: 0; }
+  legend {
+    font: 600 11px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3);
+    padding: 0; margin-bottom: 4px;
+  }
+  .hint { color: var(--ink-3); font-size: 13px; margin: 6px 0 16px; max-width: 46ch; }
+
+  .rows { display: grid; gap: 12px; }
+  .row { display: grid; grid-template-columns: 1fr 116px; gap: 14px; align-items: center; }
+  .row label { font-size: 14.5px; color: var(--ink-2); }
+  .row .unit { font-size: 12px; color: var(--ink-3); display: block; }
+
+  input[type="number"] {
+    width: 100%; padding: 9px 10px; text-align: right;
+    background: var(--field); color: var(--ink);
+    border: 1px solid var(--rule-strong); border-radius: 3px;
+    font: 500 15px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  input[type="number"]:focus { outline: 2px solid var(--green); outline-offset: 1px; border-color: var(--green); }
+
+  /* ---- Mix slider ---- */
+  .mixhead { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+  .mixval {
+    font: 600 22px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums; color: var(--green);
+  }
+  input[type="range"] { width: 100%; accent-color: var(--green); height: 26px; }
+  input[type="range"]:focus-visible { outline: 2px solid var(--green); outline-offset: 4px; }
+  .mixends { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--ink-3); margin-top: 2px; }
+
+  /* ---- Verdict ---- */
+  .verdict { padding: 26px 24px 22px; border-bottom: 1px solid var(--rule); }
+  .vlabel {
+    font: 600 11px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 10px;
+  }
+  .big {
+    font: 500 clamp(40px, 8vw, 60px)/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums; letter-spacing: -.02em; color: var(--green);
+  }
+  .big.loss { color: var(--brick); }
+  .vsub { margin-top: 10px; font-size: 14px; color: var(--ink-2); }
+
+  .chips { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--rule); }
+  .chip { padding: 16px 14px; border-left: 1px solid var(--rule); }
+  .chip:first-child { border-left: 0; }
+  .chip .k {
+    font: 600 10.5px/1.3 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3);
+  }
+  .chip .v {
+    font: 500 21px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums; margin-top: 7px;
+  }
+  .chip .n { font-size: 12px; color: var(--ink-3); margin-top: 3px; }
+
+  /* ---- Breakeven meter ---- */
+  .meter { padding: 20px 22px 22px; border-top: 1px solid var(--rule); }
+  .meterhead { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+  .meterhead .k {
+    font: 600 10.5px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3);
+  }
+  .meterhead .v { font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .track { position: relative; height: 12px; background: var(--track); border-radius: 2px; overflow: hidden; }
+  .fill { position: absolute; inset: 0 auto 0 0; background: var(--green); border-radius: 2px; transition: width .18s ease; }
+  .fill.loss { background: var(--brick); }
+  .bemark { position: relative; height: 22px; margin-top: 5px; }
+  .bemark span {
+    position: absolute; transform: translateX(-50%); white-space: nowrap;
+    font: 500 11px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--amber); transition: left .18s ease;
+  }
+  .bemark span::before {
+    content: ""; position: absolute; left: 50%; top: -10px; width: 1px; height: 7px; background: var(--amber);
+  }
+
+  /* ---- Ledger ---- */
+  .ledger { padding: 6px 22px 20px; border-top: 1px solid var(--rule); }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 9px 0; text-align: right; font-variant-numeric: tabular-nums; }
+  th { text-align: left; font-weight: 400; color: var(--ink-2); font-size: 14.5px; }
+  td { font: 500 15px/1.3 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  tbody tr { border-bottom: 1px dotted var(--rule); }
+  tr.total { border-bottom: 0; }
+  tr.total th { font-weight: 600; color: var(--ink); padding-top: 14px; }
+  tr.total td { padding-top: 14px; font-weight: 600; border-top: 2px solid var(--ink); }
+  .neg { color: var(--brick); }
+
+  /* ---- Notes ---- */
+  .note {
+    display: flex; gap: 12px; padding: 14px 16px; border-radius: 3px; margin-top: 18px;
+    font-size: 13.5px; line-height: 1.5;
+  }
+  .note.warn { background: var(--amber-soft); color: var(--ink-2); border-left: 3px solid var(--amber); }
+  .note.bad  { background: var(--brick-soft); color: var(--ink-2); border-left: 3px solid var(--brick); }
+  .note.good { background: var(--green-soft); color: var(--ink-2); border-left: 3px solid var(--green); }
+  .note b { color: var(--ink); }
+
+  footer {
+    margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--rule);
+    color: var(--ink-3); font-size: 13px; max-width: 78ch;
+  }
+  footer p { margin: 0 0 10px; }
+  footer b { color: var(--ink-2); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="mast">
+    <div class="stamp">Ambulatory · single vehicle · owner-driver</div>
+    <h1>NEMT Trip Sheet</h1>
+    <p class="dek">
+      What one van actually earns after insurance, fuel, and the fixed monthly nut. Change
+      any number to your own market — the figures loaded are 2026 national mid-ranges, not
+      your state. The number that decides this business is <b>breakeven trips</b>, because
+      insurance costs the same whether you drive or not.
+    </p>
+  </header>
+
+  <div class="presets">
+    <span class="plabel">Scenario</span>
+    <button class="preset" data-preset="broker" type="button">Broker-only</button>
+    <button class="preset" data-preset="balanced" type="button">Balanced</button>
+    <button class="preset" data-preset="facility" type="button">Facility-heavy</button>
+    <button class="preset" data-preset="thin" type="button">Part-time start</button>
+  </div>
+
+  <div class="grid">
+
+    <!-- ============ INPUTS ============ -->
+    <form class="panel" id="inputs" autocomplete="off">
+
+      <fieldset>
+        <legend>Volume</legend>
+        <p class="hint">One-way trips. A dialysis patient riding three times a week is six one-way trips.</p>
+        <div class="rows">
+          <div class="row">
+            <label for="trips">One-way trips per month</label>
+            <input type="number" id="trips" value="60" min="0" step="1">
+          </div>
+          <div class="row">
+            <label for="miles">Loaded miles per trip <span class="unit">passenger in the vehicle</span></label>
+            <input type="number" id="miles" value="12" min="0" step="0.5">
+          </div>
+          <div class="row">
+            <label for="deadhead">Deadhead factor <span class="unit">1.35 = 35% empty miles</span></label>
+            <input type="number" id="deadhead" value="1.35" min="1" step="0.05">
+          </div>
+          <div class="row">
+            <label for="hours">Hours per trip <span class="unit">door to door, incl. wait</span></label>
+            <input type="number" id="hours" value="0.75" min="0.1" step="0.05">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>What you charge</legend>
+        <p class="hint">Private pay and facility-direct rates run well above broker reimbursement. Get your own state's numbers — California ambulatory runs $45–$80 base, New Mexico $30–$55.</p>
+        <div class="rows">
+          <div class="row">
+            <label for="ppBase">Private / facility — base per trip</label>
+            <input type="number" id="ppBase" value="45" min="0" step="1">
+          </div>
+          <div class="row">
+            <label for="ppMile">Private / facility — per loaded mile</label>
+            <input type="number" id="ppMile" value="2.50" min="0" step="0.1">
+          </div>
+          <div class="row">
+            <label for="brBase">Medicaid broker — base per trip</label>
+            <input type="number" id="brBase" value="32" min="0" step="1">
+          </div>
+          <div class="row">
+            <label for="brMile">Medicaid broker — per loaded mile</label>
+            <input type="number" id="brMile" value="1.20" min="0" step="0.1">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Revenue mix</legend>
+        <div class="mixhead">
+          <label for="mix">Share of trips that are private pay or facility-direct</label>
+          <span class="mixval" id="mixOut">30%</span>
+        </div>
+        <input type="range" id="mix" min="0" max="100" value="30" step="5">
+        <div class="mixends"><span>All broker trips</span><span>All facility direct</span></div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">This one slider moves net margin more than anything else on the page. Broker work nets 8–15% and pays in 30–90 days; facility and private-pay work nets 20–35% and pays on your terms.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>What it costs</legend>
+        <p class="hint">Insurance is the fixed cost that doesn't care about your volume. First-year operators pay 30–50% over established rates — no loss history.</p>
+        <div class="rows">
+          <div class="row">
+            <label for="ins">Commercial auto insurance <span class="unit">annual premium</span></label>
+            <input type="number" id="ins" value="8000" min="0" step="100">
+          </div>
+          <div class="row">
+            <label for="software">Dispatch software <span class="unit">per month</span></label>
+            <input type="number" id="software" value="120" min="0" step="10">
+          </div>
+          <div class="row">
+            <label for="vehicle">Vehicle payment <span class="unit">per month, 0 if owned</span></label>
+            <input type="number" id="vehicle" value="0" min="0" step="25">
+          </div>
+          <div class="row">
+            <label for="other">Phone, accounting, licenses <span class="unit">per month</span></label>
+            <input type="number" id="other" value="110" min="0" step="10">
+          </div>
+          <div class="row">
+            <label for="perMile">Fuel + maintenance <span class="unit">per mile, all in</span></label>
+            <input type="number" id="perMile" value="0.28" min="0" step="0.01">
+          </div>
+          <div class="row">
+            <label for="driverPay">Driver wage <span class="unit">per hour — 0 while you drive</span></label>
+            <input type="number" id="driverPay" value="0" min="0" step="1">
+          </div>
+        </div>
+        <p class="hint" style="margin-top:16px;margin-bottom:0">Leave the wage at 0 and the net below is <em>your pay</em>, not profit — which is why the margin looks better than the industry's 8–35%. Enter a real wage (plus ~20% payroll burden, added automatically) to see what the van earns once someone else is driving it. That gap is the whole difference between a job and a business.</p>
+      </fieldset>
+    </form>
+
+    <!-- ============ RESULTS ============ -->
+    <div class="panel sticky">
+
+      <div class="verdict">
+        <div class="vlabel" id="netLabel">Your take-home per month, before tax</div>
+        <div class="big" id="net">$0</div>
+        <div class="vsub" id="netSub">—</div>
+      </div>
+
+      <div class="chips">
+        <div class="chip">
+          <div class="k">Net margin</div>
+          <div class="v" id="margin">—</div>
+          <div class="n" id="marginNote">of revenue</div>
+        </div>
+        <div class="chip">
+          <div class="k">Your hourly</div>
+          <div class="v" id="hourly">—</div>
+          <div class="n" id="hourlyNote">driving + waiting</div>
+        </div>
+        <div class="chip">
+          <div class="k">Revenue</div>
+          <div class="v" id="rev">—</div>
+          <div class="n">per month</div>
+        </div>
+      </div>
+
+      <div class="meter">
+        <div class="meterhead">
+          <span class="k">Breakeven</span>
+          <span class="v" id="beText">—</span>
+        </div>
+        <div class="track"><div class="fill" id="fill" style="width:0%"></div></div>
+        <div class="bemark"><span id="beMark" style="left:0%">breakeven</span></div>
+      </div>
+
+      <div class="ledger">
+        <table>
+          <tbody>
+            <tr><th>Trip revenue</th><td id="lRev">—</td></tr>
+            <tr><th>Fuel &amp; maintenance</th><td class="neg" id="lVar">—</td></tr>
+            <tr id="rowLabor" hidden><th>Driver wages <span style="color:var(--ink-3);font-size:12.5px">incl. burden</span></th><td class="neg" id="lLabor">—</td></tr>
+            <tr><th>Insurance</th><td class="neg" id="lIns">—</td></tr>
+            <tr><th>Software, vehicle, overhead</th><td class="neg" id="lFix">—</td></tr>
+            <tr class="total"><th>Net</th><td id="lNet">—</td></tr>
+          </tbody>
+        </table>
+        <div class="note" id="advice"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p><b>Read this before trusting the output.</b> Defaults are 2026 national mid-ranges assembled from published rate and insurance surveys — they are a starting point for your own arithmetic, not a quote. Rates, licensing, and premiums vary enormously by state. Replace every number with one you got from a phone call.</p>
+    <p><b>What this does not model:</b> self-employment and income tax, the 30–90 day payment lag on broker trips (a cash-flow problem separate from profitability), insurance down payment at binding, licensing and startup costs, unpaid time spent scheduling and billing, or a vehicle replacement reserve. Net shown is pre-tax operating profit for one vehicle you drive yourself.</p>
+    <p><b>The comparison that matters:</b> put your current hourly wage next to "Your hourly." If the business pays less per hour than overtime does, it is only worth building because it eventually runs without you in the seat — not because of what it pays today.</p>
+  </footer>
+</div>
+
+<script>
+  var F = ["trips","miles","deadhead","hours","ppBase","ppMile","brBase","brMile","ins","software","vehicle","other","perMile","driverPay"];
+  var BURDEN = 1.2; // payroll taxes + workers comp on top of wage
+  var el = {};
+  F.concat(["mix"]).forEach(function (id) { el[id] = document.getElementById(id); });
+
+  var money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+  var money2 = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  function num(id) { var v = parseFloat(el[id].value); return isFinite(v) ? v : 0; }
+
+  var PRESETS = {
+    broker:   { trips: 90, mix: 0,   ppBase: 45, ppMile: 2.5, brBase: 32, brMile: 1.2 },
+    balanced: { trips: 60, mix: 30,  ppBase: 45, ppMile: 2.5, brBase: 32, brMile: 1.2 },
+    facility: { trips: 55, mix: 85,  ppBase: 50, ppMile: 2.75, brBase: 32, brMile: 1.2 },
+    thin:     { trips: 24, mix: 50,  ppBase: 45, ppMile: 2.5, brBase: 32, brMile: 1.2 }
+  };
+
+  function calc() {
+    var trips = num("trips"), miles = num("miles"), dh = Math.max(1, num("deadhead"));
+    var hrs = num("hours"), share = parseFloat(el.mix.value) / 100;
+
+    var ppTrip = num("ppBase") + num("ppMile") * miles;
+    var brTrip = num("brBase") + num("brMile") * miles;
+    var revPerTrip = share * ppTrip + (1 - share) * brTrip;
+
+    var wage = num("driverPay");
+    var hired = wage > 0;
+    var fuelPerTrip = miles * dh * num("perMile");
+    var laborPerTrip = hrs * wage * BURDEN;
+    var varPerTrip = fuelPerTrip + laborPerTrip;
+    var contribution = revPerTrip - varPerTrip;
+
+    var insM = num("ins") / 12;
+    var fixedOther = num("software") + num("vehicle") + num("other");
+    var fixed = insM + fixedOther;
+
+    var revenue = trips * revPerTrip;
+    var variable = trips * varPerTrip;
+    var net = revenue - variable - fixed;
+    var margin = revenue > 0 ? net / revenue : 0;
+    var hourly = trips * hrs > 0 ? net / (trips * hrs) : 0;
+    var be = contribution > 0 ? fixed / contribution : Infinity;
+
+    document.getElementById("mixOut").textContent = Math.round(share * 100) + "%";
+
+    var netEl = document.getElementById("net");
+    netEl.textContent = (net < 0 ? "−" : "") + money.format(Math.abs(net));
+    netEl.className = "big" + (net < 0 ? " loss" : "");
+
+    document.getElementById("netSub").textContent =
+      trips > 0
+        ? money2.format(revPerTrip) + " average per trip · " + trips + " trips · "
+          + Math.round(trips * hrs) + " hours behind the wheel"
+        : "Enter a trip volume to see the numbers.";
+
+    document.getElementById("margin").textContent = revenue > 0 ? Math.round(margin * 100) + "%" : "—";
+    document.getElementById("marginNote").textContent = !hired
+      ? "your labor unpaid"
+      : margin >= 0.20 ? "facility-grade" : margin >= 0.08 ? "broker-grade" : margin > 0 ? "below broker-grade" : "losing money";
+    document.getElementById("hourly").textContent = hired ? "—" : (hourly < 0 ? "−" : "") + money2.format(Math.abs(hourly));
+    document.getElementById("hourlyNote").textContent = hired ? "driver is paid" : "driving + waiting";
+    document.getElementById("rev").textContent = money.format(revenue);
+
+    var beRounded = isFinite(be) ? Math.ceil(be) : null;
+    document.getElementById("beText").textContent = beRounded === null
+      ? "never — each trip loses money"
+      : beRounded + " trips/mo needed · you have " + trips;
+
+    var scaleMax = Math.max(trips, beRounded || 0, 1) * 1.15;
+    var fill = document.getElementById("fill");
+    fill.style.width = Math.min(100, (trips / scaleMax) * 100) + "%";
+    fill.className = "fill" + (net < 0 ? " loss" : "");
+    var mark = document.getElementById("beMark");
+    if (beRounded === null) {
+      mark.style.left = "100%";
+      mark.textContent = "unreachable";
+    } else {
+      mark.style.left = Math.min(100, (beRounded / scaleMax) * 100) + "%";
+      mark.textContent = beRounded + " trips";
+    }
+
+    document.getElementById("netLabel").textContent = hired
+      ? "Profit per month, before tax"
+      : "Your take-home per month, before tax";
+
+    document.getElementById("lRev").textContent = money.format(revenue);
+    document.getElementById("lVar").textContent = "−" + money.format(trips * fuelPerTrip);
+    document.getElementById("rowLabor").hidden = !hired;
+    document.getElementById("lLabor").textContent = "−" + money.format(trips * laborPerTrip);
+    document.getElementById("lIns").textContent = "−" + money.format(insM);
+    document.getElementById("lFix").textContent = "−" + money.format(fixedOther);
+    var lNet = document.getElementById("lNet");
+    lNet.textContent = (net < 0 ? "−" : "") + money.format(Math.abs(net));
+    lNet.className = net < 0 ? "neg" : "";
+
+    var advice = document.getElementById("advice");
+    if (contribution <= 0) {
+      advice.className = "note bad";
+      advice.innerHTML = "<span><b>Every trip loses money before fixed costs.</b> At these rates and this trip length, fuel and empty miles exceed what the trip pays. No amount of volume fixes this — the rates or the trip length have to change.</span>";
+    } else if (net < 0) {
+      advice.className = "note bad";
+      advice.innerHTML = "<span><b>Below breakeven by " + money.format(Math.abs(net)) + " a month.</b> You need "
+        + (beRounded - trips) + " more trips, or higher rates, to cover the fixed nut. Insurance bills whether the van moves or not — that is the whole risk of starting undercapitalized.</span>";
+    } else if (share < 0.25) {
+      advice.className = "note warn";
+      advice.innerHTML = "<span><b>This is a broker-dependent book.</b> It works on paper, but those trips pay in 30–90 days and the contract can be re-bid away from you. Drag the mix slider up to see what facility-direct work does to the same volume.</span>";
+    } else if (hired) {
+      advice.className = margin >= 0.15 ? "note good" : "note warn";
+      advice.innerHTML = "<span><b>" + money.format(net) + " a month with a paid driver, " + Math.round(margin * 100)
+        + "% margin.</b> This is the real test: the van earns this whether or not you're in it. Anything above zero here means the model survives being handed to someone else — which is the only version worth building.</span>";
+    } else if (hourly < 25) {
+      advice.className = "note warn";
+      advice.innerHTML = "<span><b>Profitable, but " + money2.format(hourly) + "/hour is likely under your wage.</b> This is pay for your driving, not profit. Worth doing only as a path to a second van and a driver who isn't you — not as a trade for overtime hours.</span>";
+    } else {
+      advice.className = "note good";
+      advice.innerHTML = "<span><b>" + money.format(net) + " a month, " + money2.format(hourly)
+        + "/hour for your time.</b> That's a wage, not yet a business — the margin looks high only because your labor is free. Put a real driver wage in the cost box to see what it earns without you, then bank the difference toward the second vehicle.</span>";
+    }
+  }
+
+  F.concat(["mix"]).forEach(function (id) {
+    el[id].addEventListener("input", calc);
+  });
+
+  document.querySelectorAll(".preset").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var p = PRESETS[btn.dataset.preset];
+      Object.keys(p).forEach(function (k) { el[k].value = p[k]; });
+      calc();
+    });
+  });
+
+  calc();
+</script>

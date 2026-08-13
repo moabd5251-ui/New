@@ -230,22 +230,23 @@
 <div class="wrap">
 
   <header class="mast">
-    <div class="stamp">Washington · ambulatory · single vehicle · owner-driver</div>
+    <div class="stamp">King County · ambulatory · single vehicle · owner-driver</div>
     <h1>NEMT Trip Sheet</h1>
     <p class="dek">
       What one van actually earns after insurance, fuel, B&amp;O tax, and the fixed monthly
-      nut. Loaded with <b>2026 Washington rates</b> — replace each with a number you got from
-      a phone call. The figure that decides this business is <b>breakeven trips</b>, because
-      insurance bills the same whether you drive or not.
+      nut. Loaded with <b>2026 Washington rates</b> and set to King County's reality:
+      private-pay only, because Hopelink won't contract a startup. Replace each figure with
+      one you got from a phone call. The number that decides this business is
+      <b>breakeven trips</b> — insurance bills the same whether you drive or not.
     </p>
   </header>
 
   <div class="presets">
     <span class="plabel">Scenario</span>
-    <button class="preset" data-preset="broker" type="button">Broker-only</button>
-    <button class="preset" data-preset="balanced" type="button">Balanced</button>
-    <button class="preset" data-preset="facility" type="button">Facility-heavy</button>
     <button class="preset" data-preset="thin" type="button">Part-time start</button>
+    <button class="preset" data-preset="balanced" type="button">Year one</button>
+    <button class="preset" data-preset="facility" type="button">Ramped</button>
+    <button class="preset" data-preset="broker" type="button">Year 3+ with Hopelink</button>
   </div>
 
   <div class="grid">
@@ -255,7 +256,7 @@
 
       <fieldset>
         <legend>Volume</legend>
-        <p class="hint">One-way trips. A dialysis patient riding three times a week is six one-way trips.</p>
+        <p class="hint">One-way trips. A dialysis patient riding three times a week is six one-way trips. Count hours <em>door to door</em> — pickup wait, loading, the drive, unloading, and the empty miles to the next pickup. That last part is why 1.25 hours, not 0.5.</p>
         <div class="rows">
           <div class="row">
             <label for="trips">One-way trips per month</label>
@@ -270,23 +271,23 @@
             <input type="number" id="deadhead" value="1.35" min="1" step="0.05">
           </div>
           <div class="row">
-            <label for="hours">Hours per trip <span class="unit">door to door, incl. wait</span></label>
-            <input type="number" id="hours" value="0.75" min="0.1" step="0.05">
+            <label for="hours">Hours per trip <span class="unit">incl. wait, loading, deadhead driving</span></label>
+            <input type="number" id="hours" value="1.25" min="0.1" step="0.05">
           </div>
         </div>
       </fieldset>
 
       <fieldset>
         <legend>What you charge</legend>
-        <p class="hint">Washington private-pay rates run $45–$75 base and $2.50–$4.50/mile ambulatory — above the national average. Broker rates below are a placeholder: your regional broker sets them, so replace these once you've asked.</p>
+        <p class="hint">Washington's published ambulatory range is $45–$75 base and $2.50–$4.50/mile — but that's <em>retail</em> private pay. Facilities negotiate volume down, so these defaults sit near the bottom of the range. Quote retail to individuals; expect to discount for a dialysis center sending you six trips a week. Broker rates below only matter from year three, once Hopelink is reachable.</p>
         <div class="rows">
           <div class="row">
             <label for="ppBase">Private / facility — base per trip</label>
-            <input type="number" id="ppBase" value="55" min="0" step="1">
+            <input type="number" id="ppBase" value="48" min="0" step="1">
           </div>
           <div class="row">
             <label for="ppMile">Private / facility — per loaded mile</label>
-            <input type="number" id="ppMile" value="3.25" min="0" step="0.1">
+            <input type="number" id="ppMile" value="2.75" min="0" step="0.1">
           </div>
           <div class="row">
             <label for="brBase">Regional broker — base per trip</label>
@@ -303,11 +304,11 @@
         <legend>Revenue mix</legend>
         <div class="mixhead">
           <label for="mix">Share of trips that are private pay or facility-direct</label>
-          <span class="mixval" id="mixOut">30%</span>
+          <span class="mixval" id="mixOut">100%</span>
         </div>
-        <input type="range" id="mix" min="0" max="100" value="30" step="5">
+        <input type="range" id="mix" min="0" max="100" value="100" step="5">
         <div class="mixends"><span>All broker trips</span><span>All facility direct</span></div>
-        <p class="hint" style="margin-top:14px;margin-bottom:0">This one slider moves net margin more than anything else on the page. Broker work nets 8–15% and pays in 30–90 days; facility and private-pay work nets 20–35% and pays on your terms.</p>
+        <p class="hint" style="margin-top:14px;margin-bottom:0"><b>In King County this starts pinned at 100%.</b> Hopelink — the only Medicaid broker for King and Snohomish — requires a year of NEMT experience and a five-vehicle fleet, so the broker channel is closed to you at launch. Slide it down only to model year three. The forced constraint is also the higher-margin half: 20–35% net versus 8–15%.</p>
       </fieldset>
 
       <fieldset>
@@ -402,7 +403,7 @@
   </div>
 
   <footer>
-    <p><b>Read this before trusting the output.</b> Private-pay defaults are published 2026 Washington ranges; broker rates are a placeholder, because Washington's six regional brokers set their own and only yours can tell you the real number. These are a starting point for your arithmetic, not a quote. Replace every figure with one you got from a phone call.</p>
+    <p><b>Read this before trusting the output.</b> Private-pay defaults are published 2026 Washington ranges. Broker rates are a placeholder and don't apply to you yet — Hopelink, the sole Medicaid broker for King and Snohomish, requires a year of NEMT experience and five vehicles before it will contract a provider. These figures are a starting point for your arithmetic, not a quote. Replace every one with a number you got from a phone call.</p>
     <p><b>What this does not model:</b> federal self-employment tax, the payment lag on broker trips (a cash-flow problem separate from profitability), the insurance down payment due at binding, licensing and startup costs, unpaid time spent scheduling and billing, or a vehicle replacement reserve. B&amp;O is included because Washington charges it on gross receipts even in a losing month; income tax is not, because Washington has none.</p>
     <p><b>The comparison that matters:</b> put your current hourly wage next to "Your hourly." If the business pays less per hour than overtime does, it is only worth building because it eventually runs without you in the seat — not because of what it pays today.</p>
   </footer>
@@ -420,10 +421,10 @@
   function num(id) { var v = parseFloat(el[id].value); return isFinite(v) ? v : 0; }
 
   var PRESETS = {
-    broker:   { trips: 90, mix: 0,  ppBase: 55, ppMile: 3.25, brBase: 32, brMile: 1.2 },
-    balanced: { trips: 60, mix: 30, ppBase: 55, ppMile: 3.25, brBase: 32, brMile: 1.2 },
-    facility: { trips: 55, mix: 85, ppBase: 60, ppMile: 3.50, brBase: 32, brMile: 1.2 },
-    thin:     { trips: 24, mix: 50, ppBase: 55, ppMile: 3.25, brBase: 32, brMile: 1.2 }
+    thin:     { trips: 24,  mix: 100, ppBase: 48, ppMile: 2.75, brBase: 32, brMile: 1.2 },
+    balanced: { trips: 45,  mix: 100, ppBase: 48, ppMile: 2.75, brBase: 32, brMile: 1.2 },
+    facility: { trips: 75,  mix: 100, ppBase: 52, ppMile: 3.00, brBase: 32, brMile: 1.2 },
+    broker:   { trips: 110, mix: 55,  ppBase: 52, ppMile: 3.00, brBase: 32, brMile: 1.2 }
   };
 
   function calc() {

@@ -1,13 +1,13 @@
 {
-  "asof": "2026-08-10",
-  "generated": "2026-08-11T00:19:28Z",
+  "asof": "2026-08-12",
+  "generated": "2026-08-13T00:19:41Z",
   "rows": [
     {
       "symbol": "SPY",
-      "price": 773.03,
-      "mom_63": 0.048,
-      "mom_126": 0.1193,
-      "asof": "2026-08-10",
+      "price": 772.49,
+      "mom_63": 0.0465,
+      "mom_126": 0.1161,
+      "asof": "2026-08-12",
       "n_strategies": 10,
       "net": 10,
       "exposure_pct": 100,
@@ -68,38 +68,57 @@
       ],
       "chart": {
         "symbol": "SPY",
-        "asof": "2026-08-10",
-        "price": 773.03,
-        "atr": 8.88,
-        "atr_pct": 1.15,
+        "asof": "2026-08-12",
+        "price": 772.49,
+        "atr": 8.44,
+        "atr_pct": 1.09,
         "trend": "UPTREND",
         "trend_note": "Price above the 20-day above the 50-day.",
-        "ema20": 755.07,
-        "sma50": 747.52,
-        "sma200": 703.45,
-        "resistance": [],
+        "ema20": 758.06,
+        "sma50": 748.08,
+        "sma200": 704.47,
+        "resistance": [
+          {
+            "price": 773.34,
+            "cs": 2,
+            "labels": [
+              "bear OB"
+            ],
+            "dist_pct": 0.11,
+            "dist_atr": 0.1
+          },
+          {
+            "price": 776.85,
+            "cs": 2,
+            "labels": [
+              "swing high"
+            ],
+            "dist_pct": 0.56,
+            "dist_atr": 0.52
+          }
+        ],
         "support": [
           {
             "price": 760.4,
-            "cs": 5,
+            "cs": 6,
             "labels": [
               "swing high",
               "bear OB",
               "fib 0.236"
             ],
-            "dist_pct": -1.63,
-            "dist_atr": 1.42
+            "dist_pct": -1.57,
+            "dist_atr": 1.43
           },
           {
             "price": 756.68,
-            "cs": 10,
+            "cs": 9,
             "labels": [
               "swing high",
               "bull OB",
               "bear OB"
             ],
-            "dist_pct": -2.12,
-            "dist_atr": 1.84
+            "dist_pct": -2.05,
+            "dist_atr": 1.87
           },
           {
             "price": 749.53,
@@ -109,23 +128,21 @@
               "bull OB",
               "BSL"
             ],
-            "dist_pct": -3.04,
-            "dist_atr": 2.65
+            "dist_pct": -2.97,
+            "dist_atr": 2.72
           }
         ],
-        "room_up": null,
-        "room_down": 1.42,
+        "room_up": 0.1,
+        "room_down": 1.43,
         "structure": {
           "bars_ago": 0,
           "dir": "up",
           "level": 760.4
         },
-        "pos_52w": 97.4,
+        "pos_52w": 97.0,
         "lo52": 629.28,
         "hi52": 776.85,
         "series": [
-          655.24,
-          655.83,
           658.93,
           659.22,
           676.01,
@@ -213,12 +230,14 @@
           769.79,
           768.56,
           773.26,
-          773.03
+          773.03,
+          770.56,
+          772.49
         ],
         "read": [
           "UPTREND \u2014 Price above the 20-day above the 50-day.",
-          "No confirmed level above price \u2014 it is at the top of its range, so there is nothing overhead to stall it and nothing to target either.",
-          "Nearest support 760.4 is 1.42 ATR below (-1.63%), confluence 5.",
+          "Nearest resistance 773.34 is 0.1 ATR above (+0.11%), confluence 2 \u2014 bear OB.",
+          "Nearest support 760.4 is 1.43 ATR below (-1.57%), confluence 6.",
           "Structure broke up through 760.4 0 sessions ago."
         ]
       },
@@ -232,10 +251,10 @@
     },
     {
       "symbol": "DIA",
-      "price": 538.99,
-      "mom_63": 0.0864,
-      "mom_126": 0.0758,
-      "asof": "2026-08-10",
+      "price": 537.15,
+      "mom_63": 0.0789,
+      "mom_126": 0.0702,
+      "asof": "2026-08-12",
       "n_strategies": 10,
       "net": 10,
       "exposure_pct": 100,
@@ -296,37 +315,57 @@
       ],
       "chart": {
         "symbol": "DIA",
-        "asof": "2026-08-10",
-        "price": 538.99,
-        "atr": 6.39,
-        "atr_pct": 1.19,
+        "asof": "2026-08-12",
+        "price": 537.15,
+        "atr": 6.18,
+        "atr_pct": 1.15,
         "trend": "UPTREND",
         "trend_note": "Price above the 20-day above the 50-day.",
-        "ema20": 529.12,
-        "sma50": 521.09,
-        "sma200": 492.82,
-        "resistance": [],
+        "ema20": 530.59,
+        "sma50": 522.13,
+        "sma200": 493.53,
+        "resistance": [
+          {
+            "price": 539.04,
+            "cs": 2,
+            "labels": [
+              "bear OB"
+            ],
+            "dist_pct": 0.35,
+            "dist_atr": 0.31
+          },
+          {
+            "price": 546.75,
+            "cs": 2,
+            "labels": [
+              "swing high"
+            ],
+            "dist_pct": 1.79,
+            "dist_atr": 1.55
+          }
+        ],
         "support": [
           {
             "price": 532.54,
-            "cs": 3,
+            "cs": 4,
             "labels": [
               "swing high",
-              "fib 0.236"
+              "fib 0.236",
+              "EMA20"
             ],
-            "dist_pct": -1.2,
-            "dist_atr": 1.01
+            "dist_pct": -0.86,
+            "dist_atr": 0.75
           },
           {
             "price": 527.93,
-            "cs": 8,
+            "cs": 7,
             "labels": [
               "swing high",
               "bear OB",
               "BSL"
             ],
-            "dist_pct": -2.05,
-            "dist_atr": 1.73
+            "dist_pct": -1.72,
+            "dist_atr": 1.49
           },
           {
             "price": 521.68,
@@ -335,23 +374,21 @@
               "bear OB",
               "SMA50"
             ],
-            "dist_pct": -3.21,
-            "dist_atr": 2.71
+            "dist_pct": -2.88,
+            "dist_atr": 2.5
           }
         ],
-        "room_up": null,
-        "room_down": 1.01,
+        "room_up": 0.31,
+        "room_down": 0.75,
         "structure": {
           "bars_ago": 0,
           "dir": "up",
           "level": 532.54
         },
-        "pos_52w": 92.8,
-        "lo52": 439.23,
+        "pos_52w": 90.9,
+        "lo52": 441.14,
         "hi52": 546.75,
         "series": [
-          465.48,
-          465.06,
           466.77,
           465.88,
           479.16,
@@ -439,12 +476,14 @@
           542.81,
           538.19,
           539.62,
-          538.99
+          538.99,
+          537.28,
+          537.15
         ],
         "read": [
           "UPTREND \u2014 Price above the 20-day above the 50-day.",
-          "No confirmed level above price \u2014 it is at the top of its range, so there is nothing overhead to stall it and nothing to target either.",
-          "Nearest support 532.54 is 1.01 ATR below (-1.20%), confluence 3.",
+          "Nearest resistance 539.04 is 0.31 ATR above (+0.35%), confluence 2 \u2014 bear OB.",
+          "Nearest support 532.54 is 0.75 ATR below (-0.86%), confluence 4.",
           "Structure broke up through 532.54 0 sessions ago."
         ]
       },
@@ -458,10 +497,10 @@
     },
     {
       "symbol": "EFA",
-      "price": 108.01,
-      "mom_63": 0.039,
-      "mom_126": 0.0526,
-      "asof": "2026-08-10",
+      "price": 108.5,
+      "mom_63": 0.052,
+      "mom_126": 0.0409,
+      "asof": "2026-08-12",
       "n_strategies": 10,
       "net": 10,
       "exposure_pct": 100,
@@ -522,25 +561,25 @@
       ],
       "chart": {
         "symbol": "EFA",
-        "asof": "2026-08-10",
-        "price": 108.01,
-        "atr": 1.23,
-        "atr_pct": 1.14,
+        "asof": "2026-08-12",
+        "price": 108.5,
+        "atr": 1.18,
+        "atr_pct": 1.08,
         "trend": "UPTREND",
         "trend_note": "Price above the 20-day above the 50-day.",
-        "ema20": 105.64,
-        "sma50": 104.25,
-        "sma200": 100.33,
+        "ema20": 106.13,
+        "sma50": 104.4,
+        "sma200": 100.47,
         "resistance": [],
         "support": [
           {
-            "price": 107.01,
+            "price": 107.05,
             "cs": 1,
             "labels": [
               "fib 0.236"
             ],
-            "dist_pct": -0.93,
-            "dist_atr": 0.81
+            "dist_pct": -1.34,
+            "dist_atr": 1.23
           },
           {
             "price": 105.94,
@@ -550,8 +589,8 @@
               "BSL",
               "fib 0.382"
             ],
-            "dist_pct": -1.92,
-            "dist_atr": 1.68
+            "dist_pct": -2.36,
+            "dist_atr": 2.18
           },
           {
             "price": 105.42,
@@ -561,23 +600,21 @@
               "bull OB",
               "bear OB"
             ],
-            "dist_pct": -2.4,
-            "dist_atr": 2.1
+            "dist_pct": -2.84,
+            "dist_atr": 2.62
           }
         ],
         "room_up": null,
-        "room_down": 0.81,
+        "room_down": 1.23,
         "structure": {
           "bars_ago": 0,
           "dir": "up",
           "level": 105.52
         },
-        "pos_52w": 96.0,
-        "lo52": 89.88,
-        "hi52": 108.76,
+        "pos_52w": 98.3,
+        "lo52": 90.04,
+        "hi52": 108.81,
         "series": [
-          98.61,
-          98.0,
           98.49,
           98.35,
           102.19,
@@ -665,12 +702,14 @@
           107.43,
           107.36,
           108.55,
-          108.01
+          108.01,
+          108.09,
+          108.5
         ],
         "read": [
           "UPTREND \u2014 Price above the 20-day above the 50-day.",
           "No confirmed level above price \u2014 it is at the top of its range, so there is nothing overhead to stall it and nothing to target either.",
-          "Nearest support 107.01 is 0.81 ATR below (-0.93%), confluence 1.",
+          "Nearest support 107.05 is 1.23 ATR below (-1.34%), confluence 1.",
           "Structure broke up through 105.52 0 sessions ago."
         ]
       },
@@ -678,16 +717,16 @@
       "group": "Equity",
       "direction": "LONG",
       "strength": "STRONG",
-      "prev_pct": 100,
-      "change_pct": 0,
-      "action": "NO CHANGE"
+      "prev_pct": 90,
+      "change_pct": 10,
+      "action": "ADD LONG EXPOSURE"
     },
     {
       "symbol": "IWM",
-      "price": 299.98,
-      "mom_63": 0.0556,
-      "mom_126": 0.1319,
-      "asof": "2026-08-10",
+      "price": 302.71,
+      "mom_63": 0.0713,
+      "mom_126": 0.1373,
+      "asof": "2026-08-12",
       "n_strategies": 10,
       "net": 9,
       "exposure_pct": 90,
@@ -748,27 +787,16 @@
       ],
       "chart": {
         "symbol": "IWM",
-        "asof": "2026-08-10",
-        "price": 299.98,
-        "atr": 4.18,
-        "atr_pct": 1.39,
+        "asof": "2026-08-12",
+        "price": 302.71,
+        "atr": 4.01,
+        "atr_pct": 1.32,
         "trend": "UPTREND",
         "trend_note": "Price above the 20-day above the 50-day.",
-        "ema20": 296.14,
-        "sma50": 294.02,
-        "sma200": 267.43,
-        "resistance": [
-          {
-            "price": 302.72,
-            "cs": 4,
-            "labels": [
-              "swing high",
-              "BSL"
-            ],
-            "dist_pct": 0.91,
-            "dist_atr": 0.66
-          }
-        ],
+        "ema20": 297.18,
+        "sma50": 294.5,
+        "sma200": 268.0,
+        "resistance": [],
         "support": [
           {
             "price": 299.12,
@@ -778,8 +806,17 @@
               "bear OB",
               "BSL"
             ],
-            "dist_pct": -0.29,
-            "dist_atr": 0.21
+            "dist_pct": -1.19,
+            "dist_atr": 0.9
+          },
+          {
+            "price": 297.18,
+            "cs": 1,
+            "labels": [
+              "EMA20"
+            ],
+            "dist_pct": -1.83,
+            "dist_atr": 1.38
           },
           {
             "price": 294.72,
@@ -787,36 +824,23 @@
             "labels": [
               "bear OB",
               "fib 0.236",
-              "EMA20"
+              "SMA50"
             ],
-            "dist_pct": -1.76,
-            "dist_atr": 1.26
-          },
-          {
-            "price": 292.88,
-            "cs": 9,
-            "labels": [
-              "swing high",
-              "bear OB",
-              "bull OB"
-            ],
-            "dist_pct": -2.37,
-            "dist_atr": 1.7
+            "dist_pct": -2.64,
+            "dist_atr": 1.99
           }
         ],
-        "room_up": 0.66,
-        "room_down": 0.21,
+        "room_up": null,
+        "room_down": 0.9,
         "structure": {
-          "bars_ago": 22,
+          "bars_ago": 24,
           "dir": "up",
           "level": 292.88
         },
-        "pos_52w": 96.3,
-        "lo52": 219.74,
-        "hi52": 303.06,
+        "pos_52w": 99.1,
+        "lo52": 221.15,
+        "hi52": 303.41,
         "series": [
-          249.56,
-          251.29,
           252.36,
           252.91,
           260.47,
@@ -904,272 +928,30 @@
           299.77,
           298.25,
           301.56,
-          299.98
+          299.98,
+          300.99,
+          302.71
         ],
         "read": [
           "UPTREND \u2014 Price above the 20-day above the 50-day.",
-          "Nearest resistance 302.72 is 0.66 ATR above (+0.91%), confluence 4 \u2014 swing high, BSL.",
-          "Nearest support 299.12 is 0.21 ATR below (-0.29%), confluence 6."
+          "No confirmed level above price \u2014 it is at the top of its range, so there is nothing overhead to stall it and nothing to target either.",
+          "Nearest support 299.12 is 0.9 ATR below (-1.19%), confluence 6."
         ]
       },
       "market": "Russell 2000",
       "group": "Equity",
       "direction": "LONG",
       "strength": "STRONG",
-      "prev_pct": 80,
-      "change_pct": 10,
-      "action": "ADD LONG EXPOSURE"
-    },
-    {
-      "symbol": "EWU",
-      "price": 48.49,
-      "mom_63": 0.0383,
-      "mom_126": 0.0339,
-      "asof": "2026-08-10",
-      "n_strategies": 10,
-      "net": 9,
-      "exposure_pct": 90,
-      "longs": 9,
-      "shorts": 0,
-      "neutrals": 1,
-      "strategies": [
-        {
-          "strategy": "MA 20/50",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "MA 50/200",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Donchian 20",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Donchian 55",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "MACD 12/26/9",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Momentum 63d",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Momentum 126d",
-          "signal": 0,
-          "label": "NEUTRAL"
-        },
-        {
-          "strategy": "Keltner 20",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Slope 40d",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Close vs SMA100",
-          "signal": 1,
-          "label": "LONG"
-        }
-      ],
-      "chart": {
-        "symbol": "EWU",
-        "asof": "2026-08-10",
-        "price": 48.49,
-        "atr": 0.51,
-        "atr_pct": 1.05,
-        "trend": "UPTREND",
-        "trend_note": "Price above the 20-day above the 50-day.",
-        "ema20": 47.77,
-        "sma50": 46.84,
-        "sma200": 45.7,
-        "resistance": [
-          {
-            "price": 48.7,
-            "cs": 2,
-            "labels": [
-              "swing high"
-            ],
-            "dist_pct": 0.43,
-            "dist_atr": 0.41
-          },
-          {
-            "price": 48.92,
-            "cs": 2,
-            "labels": [
-              "swing high"
-            ],
-            "dist_pct": 0.89,
-            "dist_atr": 0.85
-          }
-        ],
-        "support": [
-          {
-            "price": 48.37,
-            "cs": 4,
-            "labels": [
-              "swing high",
-              "bear OB"
-            ],
-            "dist_pct": -0.25,
-            "dist_atr": 0.24
-          },
-          {
-            "price": 48.02,
-            "cs": 1,
-            "labels": [
-              "fib 0.236"
-            ],
-            "dist_pct": -0.96,
-            "dist_atr": 0.92
-          },
-          {
-            "price": 47.69,
-            "cs": 6,
-            "labels": [
-              "swing high",
-              "BSL",
-              "fib 0.382"
-            ],
-            "dist_pct": -1.65,
-            "dist_atr": 1.57
-          }
-        ],
-        "room_up": 0.41,
-        "room_down": 0.24,
-        "structure": {
-          "bars_ago": 2,
-          "dir": "up",
-          "level": 47.69
-        },
-        "pos_52w": 94.9,
-        "lo52": 40.45,
-        "hi52": 48.92,
-        "series": [
-          46.35,
-          46.23,
-          46.42,
-          46.32,
-          47.82,
-          47.64,
-          47.67,
-          47.86,
-          48.07,
-          47.8,
-          47.84,
-          48.25,
-          48.0,
-          46.94,
-          47.15,
-          46.8,
-          46.99,
-          46.61,
-          46.55,
-          45.99,
-          47.15,
-          47.02,
-          46.42,
-          46.45,
-          47.44,
-          46.27,
-          46.7,
-          46.65,
-          46.6,
-          46.9,
-          46.63,
-          45.57,
-          46.63,
-          46.29,
-          47.06,
-          47.34,
-          47.09,
-          47.42,
-          47.23,
-          47.0,
-          46.93,
-          46.69,
-          46.93,
-          46.42,
-          46.88,
-          46.38,
-          46.43,
-          46.28,
-          45.81,
-          46.9,
-          46.4937,
-          46.21,
-          46.51,
-          45.92,
-          45.46,
-          45.69,
-          45.57,
-          45.45,
-          45.88,
-          45.76,
-          46.15,
-          46.14,
-          45.94,
-          47.16,
-          47.22,
-          47.13,
-          46.49,
-          46.41,
-          46.6,
-          46.36,
-          46.31,
-          46.77,
-          46.97,
-          46.94,
-          46.39,
-          46.77,
-          47.24,
-          46.7,
-          47.23,
-          47.37,
-          47.82,
-          47.9,
-          48.68,
-          48.41,
-          48.23,
-          48.34,
-          48.37,
-          48.3,
-          48.64,
-          48.49
-        ],
-        "read": [
-          "UPTREND \u2014 Price above the 20-day above the 50-day.",
-          "Nearest resistance 48.7 is 0.41 ATR above (+0.43%), confluence 2 \u2014 swing high.",
-          "Nearest support 48.37 is 0.24 ATR below (-0.25%), confluence 4.",
-          "Structure broke up through 47.69 2 sessions ago."
-        ]
-      },
-      "market": "UK / FTSE 100",
-      "group": "Equity",
-      "direction": "LONG",
-      "strength": "STRONG",
-      "prev_pct": 100,
-      "change_pct": -10,
-      "action": "REDUCE LONG EXPOSURE"
+      "prev_pct": 90,
+      "change_pct": 0,
+      "action": "NO CHANGE"
     },
     {
       "symbol": "TLT",
-      "price": 82.06,
-      "mom_63": -0.0467,
-      "mom_126": -0.0626,
-      "asof": "2026-08-10",
+      "price": 82.11,
+      "mom_63": -0.0339,
+      "mom_126": -0.0725,
+      "asof": "2026-08-12",
       "n_strategies": 10,
       "net": -9,
       "exposure_pct": -90,
@@ -1230,15 +1012,15 @@
       ],
       "chart": {
         "symbol": "TLT",
-        "asof": "2026-08-10",
-        "price": 82.06,
+        "asof": "2026-08-12",
+        "price": 82.11,
         "atr": 0.6,
         "atr_pct": 0.73,
         "trend": "DOWNTREND",
         "trend_note": "Price below the 20-day below the 50-day.",
-        "ema20": 83.28,
-        "sma50": 84.73,
-        "sma200": 87.0,
+        "ema20": 83.07,
+        "sma50": 84.59,
+        "sma200": 86.9,
         "resistance": [
           {
             "price": 82.18,
@@ -1246,8 +1028,8 @@
             "labels": [
               "bull OB"
             ],
-            "dist_pct": 0.15,
-            "dist_atr": 0.2
+            "dist_pct": 0.09,
+            "dist_atr": 0.12
           },
           {
             "price": 82.77,
@@ -1256,8 +1038,8 @@
               "swing low",
               "bear OB"
             ],
-            "dist_pct": 0.87,
-            "dist_atr": 1.19
+            "dist_pct": 0.8,
+            "dist_atr": 1.1
           },
           {
             "price": 83.3,
@@ -1267,8 +1049,8 @@
               "bull OB",
               "fib 0.786"
             ],
-            "dist_pct": 1.5,
-            "dist_atr": 2.07
+            "dist_pct": 1.44,
+            "dist_atr": 1.98
           }
         ],
         "support": [
@@ -1278,23 +1060,21 @@
             "labels": [
               "swing low"
             ],
-            "dist_pct": -0.21,
-            "dist_atr": 0.28
+            "dist_pct": -0.27,
+            "dist_atr": 0.37
           }
         ],
-        "room_up": 0.2,
-        "room_down": 0.28,
+        "room_up": 0.12,
+        "room_down": 0.37,
         "structure": {
-          "bars_ago": 1,
+          "bars_ago": 3,
           "dir": "down",
           "level": 82.77
         },
-        "pos_52w": 1.7,
+        "pos_52w": 2.1,
         "lo52": 81.89,
         "hi52": 92.19,
         "series": [
-          86.26,
-          86.79,
           86.65,
           86.64,
           86.92,
@@ -1382,13 +1162,15 @@
           83.0,
           82.52,
           82.76,
-          82.06
+          82.06,
+          82.19,
+          82.11
         ],
         "read": [
           "DOWNTREND \u2014 Price below the 20-day below the 50-day.",
-          "Nearest resistance 82.18 is 0.2 ATR above (+0.15%), confluence 2 \u2014 bull OB.",
-          "Nearest support 81.89 is 0.28 ATR below (-0.21%), confluence 2.",
-          "Structure broke down through 82.77 1 session ago."
+          "Nearest resistance 82.18 is 0.12 ATR above (+0.09%), confluence 2 \u2014 bull OB.",
+          "Nearest support 81.89 is 0.37 ATR below (-0.27%), confluence 2.",
+          "Structure broke down through 82.77 3 sessions ago."
         ]
       },
       "market": "US 30-Year Bond",
@@ -1401,10 +1183,10 @@
     },
     {
       "symbol": "EWJ",
-      "price": 96.05,
-      "mom_63": 0.0415,
-      "mom_126": 0.0744,
-      "asof": "2026-08-10",
+      "price": 97.79,
+      "mom_63": 0.0622,
+      "mom_126": 0.0504,
+      "asof": "2026-08-12",
       "n_strategies": 10,
       "net": 8,
       "exposure_pct": 80,
@@ -1465,83 +1247,59 @@
       ],
       "chart": {
         "symbol": "EWJ",
-        "asof": "2026-08-10",
-        "price": 96.05,
-        "atr": 1.68,
-        "atr_pct": 1.74,
+        "asof": "2026-08-12",
+        "price": 97.79,
+        "atr": 1.69,
+        "atr_pct": 1.73,
         "trend": "UPTREND",
         "trend_note": "Price above the 20-day above the 50-day.",
-        "ema20": 93.5,
-        "sma50": 93.02,
-        "sma200": 87.73,
-        "resistance": [
-          {
-            "price": 96.63,
-            "cs": 2,
-            "labels": [
-              "bear OB"
-            ],
-            "dist_pct": 0.61,
-            "dist_atr": 0.35
-          },
+        "ema20": 94.14,
+        "sma50": 93.19,
+        "sma200": 87.87,
+        "resistance": [],
+        "support": [
           {
             "price": 97.52,
             "cs": 2,
             "labels": [
               "swing high"
             ],
-            "dist_pct": 1.53,
-            "dist_atr": 0.88
-          }
-        ],
-        "support": [
+            "dist_pct": -0.28,
+            "dist_atr": 0.16
+          },
+          {
+            "price": 96.63,
+            "cs": 3,
+            "labels": [
+              "bear OB",
+              "fib 0.236"
+            ],
+            "dist_pct": -1.18,
+            "dist_atr": 0.68
+          },
           {
             "price": 95.36,
             "cs": 5,
             "labels": [
               "swing high",
               "bear OB",
-              "fib 0.236"
-            ],
-            "dist_pct": -0.72,
-            "dist_atr": 0.41
-          },
-          {
-            "price": 94.28,
-            "cs": 5,
-            "labels": [
-              "swing high",
-              "bear OB",
               "fib 0.382"
             ],
-            "dist_pct": -1.84,
-            "dist_atr": 1.06
-          },
-          {
-            "price": 93.27,
-            "cs": 9,
-            "labels": [
-              "swing high",
-              "bull OB",
-              "bear OB"
-            ],
-            "dist_pct": -2.89,
-            "dist_atr": 1.66
+            "dist_pct": -2.48,
+            "dist_atr": 1.44
           }
         ],
-        "room_up": 0.35,
-        "room_down": 0.41,
+        "room_up": null,
+        "room_down": 0.16,
         "structure": {
-          "bars_ago": 34,
+          "bars_ago": 0,
           "dir": "up",
-          "level": 94.25
+          "level": 97.52
         },
-        "pos_52w": 92.7,
+        "pos_52w": 98.0,
         "lo52": 77.38,
-        "hi52": 97.52,
+        "hi52": 98.21,
         "series": [
-          86.48,
-          85.29,
           85.57,
           85.51,
           89.41,
@@ -1629,28 +1387,31 @@
           95.16,
           95.15,
           96.9,
-          96.05
+          96.05,
+          96.28,
+          97.79
         ],
         "read": [
           "UPTREND \u2014 Price above the 20-day above the 50-day.",
-          "Nearest resistance 96.63 is 0.35 ATR above (+0.61%), confluence 2 \u2014 bear OB.",
-          "Nearest support 95.36 is 0.41 ATR below (-0.72%), confluence 5."
+          "No confirmed level above price \u2014 it is at the top of its range, so there is nothing overhead to stall it and nothing to target either.",
+          "Nearest support 97.52 is 0.16 ATR below (-0.28%), confluence 2.",
+          "Structure broke up through 97.52 0 sessions ago."
         ]
       },
       "market": "Japan / Nikkei",
       "group": "Equity",
       "direction": "LONG",
       "strength": "STRONG",
-      "prev_pct": 70,
-      "change_pct": 10,
-      "action": "ADD LONG EXPOSURE"
+      "prev_pct": 80,
+      "change_pct": 0,
+      "action": "NO CHANGE"
     },
     {
       "symbol": "EWG",
       "price": 43.87,
-      "mom_63": 0.0286,
-      "mom_126": 0.0078,
-      "asof": "2026-08-10",
+      "mom_63": 0.046,
+      "mom_126": -0.0079,
+      "asof": "2026-08-12",
       "n_strategies": 10,
       "net": 8,
       "exposure_pct": 80,
@@ -1711,15 +1472,15 @@
       ],
       "chart": {
         "symbol": "EWG",
-        "asof": "2026-08-10",
+        "asof": "2026-08-12",
         "price": 43.87,
-        "atr": 0.54,
-        "atr_pct": 1.24,
+        "atr": 0.51,
+        "atr_pct": 1.17,
         "trend": "UPTREND",
         "trend_note": "Price above the 20-day above the 50-day.",
-        "ema20": 42.63,
-        "sma50": 41.98,
-        "sma200": 41.95,
+        "ema20": 42.87,
+        "sma50": 42.0,
+        "sma200": 41.97,
         "resistance": [
           {
             "price": 44.42,
@@ -1728,7 +1489,7 @@
               "swing high"
             ],
             "dist_pct": 1.25,
-            "dist_atr": 1.01
+            "dist_atr": 1.07
           },
           {
             "price": 44.65,
@@ -1737,7 +1498,7 @@
               "swing high"
             ],
             "dist_pct": 1.78,
-            "dist_atr": 1.44
+            "dist_atr": 1.52
           }
         ],
         "support": [
@@ -1750,7 +1511,7 @@
               "bear OB"
             ],
             "dist_pct": -0.82,
-            "dist_atr": 0.66
+            "dist_atr": 0.7
           },
           {
             "price": 43.23,
@@ -1760,22 +1521,22 @@
               "fib 0.236"
             ],
             "dist_pct": -1.47,
-            "dist_atr": 1.19
+            "dist_atr": 1.26
           },
           {
             "price": 42.87,
-            "cs": 7,
+            "cs": 6,
             "labels": [
               "swing high",
-              "swing low",
-              "bear OB"
+              "bear OB",
+              "fib 0.382"
             ],
             "dist_pct": -2.28,
-            "dist_atr": 1.84
+            "dist_atr": 1.95
           }
         ],
-        "room_up": 1.01,
-        "room_down": 0.66,
+        "room_up": 1.07,
+        "room_down": 0.7,
         "structure": {
           "bars_ago": 0,
           "dir": "up",
@@ -1785,8 +1546,6 @@
         "lo52": 37.98,
         "hi52": 44.65,
         "series": [
-          40.2,
-          39.9,
           40.21,
           40.11,
           41.74,
@@ -1874,12 +1633,14 @@
           43.64,
           43.52,
           44.02,
+          43.87,
+          43.99,
           43.87
         ],
         "read": [
           "UPTREND \u2014 Price above the 20-day above the 50-day.",
-          "Nearest resistance 44.42 is 1.01 ATR above (+1.25%), confluence 2 \u2014 swing high.",
-          "Nearest support 43.51 is 0.66 ATR below (-0.82%), confluence 6.",
+          "Nearest resistance 44.42 is 1.07 ATR above (+1.25%), confluence 2 \u2014 swing high.",
+          "Nearest support 43.51 is 0.7 ATR below (-0.82%), confluence 6.",
           "Structure broke up through 43.83 0 sessions ago."
         ]
       },
@@ -1887,22 +1648,265 @@
       "group": "Equity",
       "direction": "LONG",
       "strength": "STRONG",
-      "prev_pct": 70,
-      "change_pct": 10,
-      "action": "ADD LONG EXPOSURE"
+      "prev_pct": 80,
+      "change_pct": 0,
+      "action": "NO CHANGE"
+    },
+    {
+      "symbol": "EWU",
+      "price": 48.37,
+      "mom_63": 0.038,
+      "mom_126": 0.0349,
+      "asof": "2026-08-12",
+      "n_strategies": 10,
+      "net": 8,
+      "exposure_pct": 80,
+      "longs": 8,
+      "shorts": 0,
+      "neutrals": 2,
+      "strategies": [
+        {
+          "strategy": "MA 20/50",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "MA 50/200",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Donchian 20",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Donchian 55",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "MACD 12/26/9",
+          "signal": 0,
+          "label": "NEUTRAL"
+        },
+        {
+          "strategy": "Momentum 63d",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Momentum 126d",
+          "signal": 0,
+          "label": "NEUTRAL"
+        },
+        {
+          "strategy": "Keltner 20",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Slope 40d",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Close vs SMA100",
+          "signal": 1,
+          "label": "LONG"
+        }
+      ],
+      "chart": {
+        "symbol": "EWU",
+        "asof": "2026-08-12",
+        "price": 48.37,
+        "atr": 0.45,
+        "atr_pct": 0.93,
+        "trend": "UPTREND",
+        "trend_note": "Price above the 20-day above the 50-day.",
+        "ema20": 47.87,
+        "sma50": 46.9,
+        "sma200": 45.75,
+        "resistance": [
+          {
+            "price": 48.7,
+            "cs": 2,
+            "labels": [
+              "swing high"
+            ],
+            "dist_pct": 0.68,
+            "dist_atr": 0.73
+          },
+          {
+            "price": 48.92,
+            "cs": 2,
+            "labels": [
+              "swing high"
+            ],
+            "dist_pct": 1.14,
+            "dist_atr": 1.22
+          }
+        ],
+        "support": [
+          {
+            "price": 48.02,
+            "cs": 1,
+            "labels": [
+              "fib 0.236"
+            ],
+            "dist_pct": -0.71,
+            "dist_atr": 0.77
+          },
+          {
+            "price": 47.69,
+            "cs": 5,
+            "labels": [
+              "swing high",
+              "BSL",
+              "EMA20"
+            ],
+            "dist_pct": -1.41,
+            "dist_atr": 1.51
+          },
+          {
+            "price": 47.51,
+            "cs": 1,
+            "labels": [
+              "fib 0.382"
+            ],
+            "dist_pct": -1.78,
+            "dist_atr": 1.91
+          }
+        ],
+        "room_up": 0.73,
+        "room_down": 0.77,
+        "structure": {
+          "bars_ago": 4,
+          "dir": "up",
+          "level": 47.69
+        },
+        "pos_52w": 93.3,
+        "lo52": 40.67,
+        "hi52": 48.92,
+        "series": [
+          46.42,
+          46.32,
+          47.82,
+          47.64,
+          47.67,
+          47.86,
+          48.07,
+          47.8,
+          47.84,
+          48.25,
+          48.0,
+          46.94,
+          47.15,
+          46.8,
+          46.99,
+          46.61,
+          46.55,
+          45.99,
+          47.15,
+          47.02,
+          46.42,
+          46.45,
+          47.44,
+          46.27,
+          46.7,
+          46.65,
+          46.6,
+          46.9,
+          46.63,
+          45.57,
+          46.63,
+          46.29,
+          47.06,
+          47.34,
+          47.09,
+          47.42,
+          47.23,
+          47.0,
+          46.93,
+          46.69,
+          46.93,
+          46.42,
+          46.88,
+          46.38,
+          46.43,
+          46.28,
+          45.81,
+          46.9,
+          46.4937,
+          46.21,
+          46.51,
+          45.92,
+          45.46,
+          45.69,
+          45.57,
+          45.45,
+          45.88,
+          45.76,
+          46.15,
+          46.14,
+          45.94,
+          47.16,
+          47.22,
+          47.13,
+          46.49,
+          46.41,
+          46.6,
+          46.36,
+          46.31,
+          46.77,
+          46.97,
+          46.94,
+          46.39,
+          46.77,
+          47.24,
+          46.7,
+          47.23,
+          47.37,
+          47.82,
+          47.9,
+          48.68,
+          48.41,
+          48.23,
+          48.34,
+          48.37,
+          48.3,
+          48.64,
+          48.49,
+          48.3,
+          48.37
+        ],
+        "read": [
+          "UPTREND \u2014 Price above the 20-day above the 50-day.",
+          "Nearest resistance 48.7 is 0.73 ATR above (+0.68%), confluence 2 \u2014 swing high.",
+          "Nearest support 48.02 is 0.77 ATR below (-0.71%), confluence 1.",
+          "Structure broke up through 47.69 4 sessions ago."
+        ]
+      },
+      "market": "UK / FTSE 100",
+      "group": "Equity",
+      "direction": "LONG",
+      "strength": "STRONG",
+      "prev_pct": 90,
+      "change_pct": -10,
+      "action": "REDUCE LONG EXPOSURE"
     },
     {
       "symbol": "IEF",
-      "price": 92.76,
-      "mom_63": -0.0232,
-      "mom_126": -0.0345,
-      "asof": "2026-08-10",
+      "price": 92.96,
+      "mom_63": -0.0144,
+      "mom_126": -0.0368,
+      "asof": "2026-08-12",
       "n_strategies": 10,
-      "net": -8,
-      "exposure_pct": -80,
+      "net": -7,
+      "exposure_pct": -70,
       "longs": 0,
-      "shorts": 8,
-      "neutrals": 2,
+      "shorts": 7,
+      "neutrals": 3,
       "strategies": [
         {
           "strategy": "MA 20/50",
@@ -1931,8 +1935,8 @@
         },
         {
           "strategy": "Momentum 63d",
-          "signal": -1,
-          "label": "SHORT"
+          "signal": 0,
+          "label": "NEUTRAL"
         },
         {
           "strategy": "Momentum 126d",
@@ -1957,27 +1961,16 @@
       ],
       "chart": {
         "symbol": "IEF",
-        "asof": "2026-08-10",
-        "price": 92.76,
+        "asof": "2026-08-12",
+        "price": 92.96,
         "atr": 0.34,
         "atr_pct": 0.37,
         "trend": "DOWNTREND",
         "trend_note": "Price below the 20-day below the 50-day.",
-        "ema20": 93.27,
-        "sma50": 93.78,
-        "sma200": 95.45,
+        "ema20": 93.2,
+        "sma50": 93.72,
+        "sma200": 95.41,
         "resistance": [
-          {
-            "price": 92.82,
-            "cs": 8,
-            "labels": [
-              "swing high",
-              "swing low",
-              "bull OB"
-            ],
-            "dist_pct": 0.06,
-            "dist_atr": 0.16
-          },
           {
             "price": 93.03,
             "cs": 4,
@@ -1985,8 +1978,8 @@
               "swing low",
               "bull OB"
             ],
-            "dist_pct": 0.29,
-            "dist_atr": 0.79
+            "dist_pct": 0.08,
+            "dist_atr": 0.2
           },
           {
             "price": 93.26,
@@ -1996,19 +1989,40 @@
               "bull OB",
               "bear OB"
             ],
-            "dist_pct": 0.54,
-            "dist_atr": 1.46
+            "dist_pct": 0.32,
+            "dist_atr": 0.87
+          },
+          {
+            "price": 93.52,
+            "cs": 4,
+            "labels": [
+              "swing low",
+              "bear OB"
+            ],
+            "dist_pct": 0.6,
+            "dist_atr": 1.63
           }
         ],
         "support": [
+          {
+            "price": 92.82,
+            "cs": 8,
+            "labels": [
+              "swing high",
+              "swing low",
+              "bull OB"
+            ],
+            "dist_pct": -0.15,
+            "dist_atr": 0.42
+          },
           {
             "price": 92.59,
             "cs": 2,
             "labels": [
               "swing low"
             ],
-            "dist_pct": -0.18,
-            "dist_atr": 0.48
+            "dist_pct": -0.39,
+            "dist_atr": 1.06
           },
           {
             "price": 92.08,
@@ -2016,32 +2030,21 @@
             "labels": [
               "swing low"
             ],
-            "dist_pct": -0.73,
-            "dist_atr": 1.98
-          },
-          {
-            "price": 91.92,
-            "cs": 2,
-            "labels": [
-              "swing low"
-            ],
-            "dist_pct": -0.9,
-            "dist_atr": 2.43
+            "dist_pct": -0.95,
+            "dist_atr": 2.56
           }
         ],
-        "room_up": 0.16,
-        "room_down": 0.48,
+        "room_up": 0.2,
+        "room_down": 0.42,
         "structure": {
-          "bars_ago": 7,
+          "bars_ago": 9,
           "dir": "down",
           "level": 93.26
         },
-        "pos_52w": 1.3,
+        "pos_52w": 5.0,
         "lo52": 92.69,
         "hi52": 98.05,
         "series": [
-          95.04,
-          95.26,
           95.01,
           95.25,
           95.46,
@@ -2129,34 +2132,36 @@
           93.31,
           92.95,
           93.17,
-          92.76
+          92.76,
+          92.87,
+          92.96
         ],
         "read": [
           "DOWNTREND \u2014 Price below the 20-day below the 50-day.",
-          "Nearest resistance 92.82 is 0.16 ATR above (+0.06%), confluence 8 \u2014 swing high, swing low, bull OB.",
-          "Nearest support 92.59 is 0.48 ATR below (-0.18%), confluence 2."
+          "Nearest resistance 93.03 is 0.2 ATR above (+0.08%), confluence 4 \u2014 swing low, bull OB.",
+          "Nearest support 92.82 is 0.42 ATR below (-0.15%), confluence 8."
         ]
       },
       "market": "US 10-Year Note",
       "group": "Rates",
       "direction": "SHORT",
-      "strength": "STRONG",
-      "prev_pct": -60,
-      "change_pct": -20,
-      "action": "ADD SHORT EXPOSURE"
+      "strength": "MODERATE",
+      "prev_pct": -70,
+      "change_pct": 0,
+      "action": "NO CHANGE"
     },
     {
       "symbol": "DBC",
-      "price": 29.93,
-      "mom_63": -0.0122,
-      "mom_126": 0.2466,
-      "asof": "2026-08-10",
+      "price": 30.11,
+      "mom_63": -0.0499,
+      "mom_126": 0.2473,
+      "asof": "2026-08-12",
       "n_strategies": 10,
       "net": 6,
       "exposure_pct": 60,
-      "longs": 7,
-      "shorts": 1,
-      "neutrals": 2,
+      "longs": 8,
+      "shorts": 2,
+      "neutrals": 0,
       "strategies": [
         {
           "strategy": "MA 20/50",
@@ -2180,13 +2185,13 @@
         },
         {
           "strategy": "MACD 12/26/9",
-          "signal": 0,
-          "label": "NEUTRAL"
+          "signal": 1,
+          "label": "LONG"
         },
         {
           "strategy": "Momentum 63d",
-          "signal": 0,
-          "label": "NEUTRAL"
+          "signal": -1,
+          "label": "SHORT"
         },
         {
           "strategy": "Momentum 126d",
@@ -2211,26 +2216,16 @@
       ],
       "chart": {
         "symbol": "DBC",
-        "asof": "2026-08-10",
-        "price": 29.93,
-        "atr": 0.58,
-        "atr_pct": 1.93,
+        "asof": "2026-08-12",
+        "price": 30.11,
+        "atr": 0.53,
+        "atr_pct": 1.78,
         "trend": "UPTREND",
         "trend_note": "Price above the 20-day above the 50-day.",
-        "ema20": 28.94,
-        "sma50": 28.5,
-        "sma200": 26.47,
+        "ema20": 29.14,
+        "sma50": 28.51,
+        "sma200": 26.54,
         "resistance": [
-          {
-            "price": 30.07,
-            "cs": 4,
-            "labels": [
-              "bull OB",
-              "bear OB"
-            ],
-            "dist_pct": 0.47,
-            "dist_atr": 0.24
-          },
           {
             "price": 30.57,
             "cs": 3,
@@ -2238,8 +2233,8 @@
               "swing high",
               "fib 0.236"
             ],
-            "dist_pct": 2.14,
-            "dist_atr": 1.11
+            "dist_pct": 1.53,
+            "dist_atr": 0.86
           },
           {
             "price": 31.46,
@@ -2248,8 +2243,17 @@
               "swing high",
               "bear OB"
             ],
-            "dist_pct": 5.11,
-            "dist_atr": 2.64
+            "dist_pct": 4.48,
+            "dist_atr": 2.53
+          },
+          {
+            "price": 31.79,
+            "cs": 2,
+            "labels": [
+              "swing high"
+            ],
+            "dist_pct": 5.58,
+            "dist_atr": 3.14
           }
         ],
         "support": [
@@ -2261,43 +2265,43 @@
               "swing low",
               "fib 0.382"
             ],
-            "dist_pct": -0.57,
-            "dist_atr": 0.29
+            "dist_pct": -1.16,
+            "dist_atr": 0.65
           },
           {
             "price": 29.3,
-            "cs": 7,
+            "cs": 8,
             "labels": [
               "swing high",
               "swing low",
               "bear OB"
             ],
-            "dist_pct": -2.11,
-            "dist_atr": 1.09
+            "dist_pct": -2.69,
+            "dist_atr": 1.52
           },
           {
-            "price": 28.94,
-            "cs": 1,
+            "price": 28.64,
+            "cs": 6,
             "labels": [
-              "EMA20"
+              "bear OB",
+              "bull OB",
+              "fib 0.618"
             ],
-            "dist_pct": -3.32,
-            "dist_atr": 1.72
+            "dist_pct": -4.87,
+            "dist_atr": 2.74
           }
         ],
-        "room_up": 0.24,
-        "room_down": 0.29,
+        "room_up": 0.86,
+        "room_down": 0.65,
         "structure": {
-          "bars_ago": 27,
+          "bars_ago": 29,
           "dir": "down",
           "level": 27.84
         },
-        "pos_52w": 81.8,
+        "pos_52w": 83.5,
         "lo52": 21.59,
         "hi52": 31.79,
         "series": [
-          28.68,
-          29.33,
           29.48,
           29.37,
           28.56,
@@ -2385,34 +2389,36 @@
           28.48,
           28.86,
           28.91,
-          29.93
+          29.93,
+          29.97,
+          30.11
         ],
         "read": [
           "UPTREND \u2014 Price above the 20-day above the 50-day.",
-          "Nearest resistance 30.07 is 0.24 ATR above (+0.47%), confluence 4 \u2014 bull OB, bear OB.",
-          "Nearest support 29.76 is 0.29 ATR below (-0.57%), confluence 5."
+          "Nearest resistance 30.57 is 0.86 ATR above (+1.53%), confluence 3 \u2014 swing high, fib 0.236.",
+          "Nearest support 29.76 is 0.65 ATR below (-1.16%), confluence 5."
         ]
       },
       "market": "Broad Commodities",
       "group": "Commodity",
       "direction": "LONG",
       "strength": "MODERATE",
-      "prev_pct": 30,
-      "change_pct": 30,
-      "action": "ADD LONG EXPOSURE"
+      "prev_pct": 60,
+      "change_pct": 0,
+      "action": "NO CHANGE"
     },
     {
       "symbol": "FXY",
-      "price": 57.62,
-      "mom_63": -0.0167,
-      "mom_126": -0.015,
-      "asof": "2026-08-10",
+      "price": 57.52,
+      "mom_63": -0.0129,
+      "mom_126": -0.0344,
+      "asof": "2026-08-12",
       "n_strategies": 10,
-      "net": 5,
-      "exposure_pct": 50,
-      "longs": 6,
+      "net": 4,
+      "exposure_pct": 40,
+      "longs": 5,
       "shorts": 1,
-      "neutrals": 3,
+      "neutrals": 4,
       "strategies": [
         {
           "strategy": "MA 20/50",
@@ -2461,21 +2467,21 @@
         },
         {
           "strategy": "Close vs SMA100",
-          "signal": 1,
-          "label": "LONG"
+          "signal": 0,
+          "label": "NEUTRAL"
         }
       ],
       "chart": {
         "symbol": "FXY",
-        "asof": "2026-08-10",
-        "price": 57.62,
+        "asof": "2026-08-12",
+        "price": 57.52,
         "atr": 0.45,
-        "atr_pct": 0.79,
+        "atr_pct": 0.78,
         "trend": "UPTREND",
         "trend_note": "Uptrend on the 20/50 stack, but price is on the other side of the 200-day \u2014 a counter-trend move inside a larger one.",
-        "ema20": 57.26,
+        "ema20": 57.31,
         "sma50": 56.96,
-        "sma200": 58.2,
+        "sma200": 58.17,
         "resistance": [
           {
             "price": 57.73,
@@ -2484,8 +2490,8 @@
               "swing low",
               "bear OB"
             ],
-            "dist_pct": 0.2,
-            "dist_atr": 0.25
+            "dist_pct": 0.37,
+            "dist_atr": 0.48
           },
           {
             "price": 58.11,
@@ -2494,8 +2500,8 @@
               "swing high",
               "fib 0.236"
             ],
-            "dist_pct": 0.85,
-            "dist_atr": 1.08
+            "dist_pct": 1.02,
+            "dist_atr": 1.3
           },
           {
             "price": 58.29,
@@ -2505,31 +2511,19 @@
               "swing low",
               "SMA200"
             ],
-            "dist_pct": 1.16,
-            "dist_atr": 1.48
+            "dist_pct": 1.34,
+            "dist_atr": 1.71
           }
         ],
         "support": [
           {
-            "price": 57.49,
-            "cs": 8,
-            "labels": [
-              "swing high",
-              "swing low",
-              "SSL"
-            ],
-            "dist_pct": -0.23,
-            "dist_atr": 0.29
-          },
-          {
             "price": 57.25,
-            "cs": 3,
+            "cs": 2,
             "labels": [
-              "swing low",
-              "EMA20"
+              "swing low"
             ],
-            "dist_pct": -0.64,
-            "dist_atr": 0.82
+            "dist_pct": -0.47,
+            "dist_atr": 0.6
           },
           {
             "price": 57.06,
@@ -2539,23 +2533,30 @@
               "swing low",
               "bull OB"
             ],
-            "dist_pct": -0.97,
-            "dist_atr": 1.23
+            "dist_pct": -0.8,
+            "dist_atr": 1.02
+          },
+          {
+            "price": 56.77,
+            "cs": 2,
+            "labels": [
+              "bear OB"
+            ],
+            "dist_pct": -1.3,
+            "dist_atr": 1.66
           }
         ],
-        "room_up": 0.25,
-        "room_down": 0.29,
+        "room_up": 0.48,
+        "room_down": 0.6,
         "structure": {
-          "bars_ago": 8,
+          "bars_ago": 10,
           "dir": "down",
           "level": 56.38
         },
-        "pos_52w": 22.7,
+        "pos_52w": 21.4,
         "lo52": 55.96,
         "hi52": 63.26,
         "series": [
-          57.8,
-          57.54,
           57.53,
           57.55,
           57.9,
@@ -2643,34 +2644,36 @@
           58.15,
           57.89,
           58.24,
-          57.62
+          57.62,
+          57.63,
+          57.52
         ],
         "read": [
           "UPTREND \u2014 Uptrend on the 20/50 stack, but price is on the other side of the 200-day \u2014 a counter-trend move inside a larger one.",
-          "Nearest resistance 57.73 is 0.25 ATR above (+0.20%), confluence 4 \u2014 swing low, bear OB.",
-          "Nearest support 57.49 is 0.29 ATR below (-0.23%), confluence 8."
+          "Nearest resistance 57.73 is 0.48 ATR above (+0.37%), confluence 4 \u2014 swing low, bear OB.",
+          "Nearest support 57.25 is 0.6 ATR below (-0.47%), confluence 2."
         ]
       },
       "market": "Japanese Yen",
       "group": "FX",
       "direction": "LONG",
-      "strength": "MODERATE",
+      "strength": "WEAK",
       "prev_pct": 50,
-      "change_pct": 0,
-      "action": "NO CHANGE"
+      "change_pct": -10,
+      "action": "REDUCE LONG EXPOSURE"
     },
     {
       "symbol": "SLV",
-      "price": 59.41,
-      "mom_63": -0.1863,
-      "mom_126": -0.1536,
-      "asof": "2026-08-10",
+      "price": 59.06,
+      "mom_63": -0.2481,
+      "mom_126": -0.1955,
+      "asof": "2026-08-12",
       "n_strategies": 10,
-      "net": -4,
-      "exposure_pct": -40,
+      "net": -3,
+      "exposure_pct": -30,
       "longs": 3,
-      "shorts": 7,
-      "neutrals": 0,
+      "shorts": 6,
+      "neutrals": 1,
       "strategies": [
         {
           "strategy": "MA 20/50",
@@ -2714,8 +2717,8 @@
         },
         {
           "strategy": "Slope 40d",
-          "signal": -1,
-          "label": "SHORT"
+          "signal": 0,
+          "label": "NEUTRAL"
         },
         {
           "strategy": "Close vs SMA100",
@@ -2725,15 +2728,15 @@
       ],
       "chart": {
         "symbol": "SLV",
-        "asof": "2026-08-10",
-        "price": 59.41,
-        "atr": 1.84,
-        "atr_pct": 3.1,
+        "asof": "2026-08-12",
+        "price": 59.06,
+        "atr": 1.74,
+        "atr_pct": 2.94,
         "trend": "MIXED",
         "trend_note": "Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
-        "ema20": 54.61,
-        "sma50": 56.46,
-        "sma200": 63.84,
+        "ema20": 55.37,
+        "sma50": 56.09,
+        "sma200": 63.98,
         "resistance": [
           {
             "price": 60.37,
@@ -2741,30 +2744,28 @@
             "labels": [
               "swing low",
               "bear OB",
-              "fib 0.618"
+              "fib 0.5"
             ],
-            "dist_pct": 1.62,
-            "dist_atr": 0.52
+            "dist_pct": 2.22,
+            "dist_atr": 0.76
           },
           {
-            "price": 63.45,
-            "cs": 2,
+            "price": 62.69,
+            "cs": 1,
             "labels": [
-              "fib 0.5",
+              "fib 0.382"
+            ],
+            "dist_pct": 6.14,
+            "dist_atr": 2.09
+          },
+          {
+            "price": 63.98,
+            "cs": 1,
+            "labels": [
               "SMA200"
             ],
-            "dist_pct": 6.8,
-            "dist_atr": 2.19
-          },
-          {
-            "price": 64.69,
-            "cs": 4,
-            "labels": [
-              "swing high",
-              "swing low"
-            ],
-            "dist_pct": 8.89,
-            "dist_atr": 2.87
+            "dist_pct": 8.34,
+            "dist_atr": 2.84
           }
         ],
         "support": [
@@ -2774,18 +2775,19 @@
             "labels": [
               "bull OB"
             ],
-            "dist_pct": -1.45,
-            "dist_atr": 0.47
+            "dist_pct": -0.87,
+            "dist_atr": 0.3
           },
           {
             "price": 57.3,
-            "cs": 4,
+            "cs": 5,
             "labels": [
               "swing low",
-              "bull OB"
+              "bull OB",
+              "fib 0.618"
             ],
-            "dist_pct": -3.55,
-            "dist_atr": 1.15
+            "dist_pct": -2.98,
+            "dist_atr": 1.01
           },
           {
             "price": 56.37,
@@ -2794,23 +2796,21 @@
               "swing high",
               "SMA50"
             ],
-            "dist_pct": -5.12,
-            "dist_atr": 1.65
+            "dist_pct": -4.55,
+            "dist_atr": 1.55
           }
         ],
-        "room_up": 0.52,
-        "room_down": 0.47,
+        "room_up": 0.76,
+        "room_down": 0.3,
         "structure": {
-          "bars_ago": 27,
+          "bars_ago": 29,
           "dir": "down",
           "level": 57.3
         },
-        "pos_52w": 33.6,
+        "pos_52w": 33.2,
         "lo52": 33.85,
         "hi52": 109.83,
         "series": [
-          68.14,
-          65.79,
           66.09,
           65.94,
           67.47,
@@ -2898,33 +2898,35 @@
           56.07,
           55.85,
           57.5,
-          59.41
+          59.41,
+          58.55,
+          59.06
         ],
         "read": [
           "MIXED \u2014 Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
-          "Nearest resistance 60.37 is 0.52 ATR above (+1.62%), confluence 5 \u2014 swing low, bear OB, fib 0.618.",
-          "Nearest support 58.55 is 0.47 ATR below (-1.45%), confluence 2."
+          "Nearest resistance 60.37 is 0.76 ATR above (+2.22%), confluence 5 \u2014 swing low, bear OB, fib 0.5.",
+          "Nearest support 58.55 is 0.3 ATR below (-0.87%), confluence 2."
         ]
       },
       "market": "Silver",
       "group": "Commodity",
       "direction": "SHORT",
       "strength": "WEAK",
-      "prev_pct": -60,
-      "change_pct": 20,
+      "prev_pct": -40,
+      "change_pct": 10,
       "action": "REDUCE SHORT EXPOSURE"
     },
     {
-      "symbol": "UUP",
-      "price": 28.14,
-      "mom_63": 0.0293,
-      "mom_126": 0.0418,
-      "asof": "2026-08-10",
+      "symbol": "IBIT",
+      "price": 35.89,
+      "mom_63": -0.2164,
+      "mom_126": -0.079,
+      "asof": "2026-08-12",
       "n_strategies": 10,
-      "net": 3,
-      "exposure_pct": 30,
-      "longs": 6,
-      "shorts": 3,
+      "net": -3,
+      "exposure_pct": -30,
+      "longs": 3,
+      "shorts": 6,
       "neutrals": 1,
       "strategies": [
         {
@@ -2934,523 +2936,6 @@
         },
         {
           "strategy": "MA 50/200",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Donchian 20",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "Donchian 55",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "MACD 12/26/9",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "Momentum 63d",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Momentum 126d",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Keltner 20",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "Slope 40d",
-          "signal": 0,
-          "label": "NEUTRAL"
-        },
-        {
-          "strategy": "Close vs SMA100",
-          "signal": 1,
-          "label": "LONG"
-        }
-      ],
-      "chart": {
-        "symbol": "UUP",
-        "asof": "2026-08-10",
-        "price": 28.14,
-        "atr": 0.12,
-        "atr_pct": 0.43,
-        "trend": "MIXED",
-        "trend_note": "Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
-        "ema20": 28.27,
-        "sma50": 28.24,
-        "sma200": 27.73,
-        "resistance": [
-          {
-            "price": 28.22,
-            "cs": 6,
-            "labels": [
-              "swing low",
-              "SSL",
-              "fib 0.382"
-            ],
-            "dist_pct": 0.28,
-            "dist_atr": 0.66
-          },
-          {
-            "price": 28.3,
-            "cs": 5,
-            "labels": [
-              "swing low",
-              "bull OB",
-              "EMA20"
-            ],
-            "dist_pct": 0.59,
-            "dist_atr": 1.36
-          },
-          {
-            "price": 28.38,
-            "cs": 7,
-            "labels": [
-              "swing high",
-              "bear OB",
-              "bull OB"
-            ],
-            "dist_pct": 0.85,
-            "dist_atr": 1.97
-          }
-        ],
-        "support": [
-          {
-            "price": 28.11,
-            "cs": 5,
-            "labels": [
-              "swing high",
-              "bull OB",
-              "fib 0.5"
-            ],
-            "dist_pct": -0.11,
-            "dist_atr": 0.25
-          },
-          {
-            "price": 28.06,
-            "cs": 4,
-            "labels": [
-              "swing high",
-              "swing low"
-            ],
-            "dist_pct": -0.3,
-            "dist_atr": 0.7
-          },
-          {
-            "price": 28.0,
-            "cs": 6,
-            "labels": [
-              "swing high",
-              "swing low",
-              "bear OB"
-            ],
-            "dist_pct": -0.5,
-            "dist_atr": 1.15
-          }
-        ],
-        "room_up": 0.66,
-        "room_down": 0.25,
-        "structure": {
-          "bars_ago": 9,
-          "dir": "up",
-          "level": 28.56
-        },
-        "pos_52w": 79.1,
-        "lo52": 26.39,
-        "hi52": 28.6,
-        "series": [
-          27.73,
-          27.86,
-          27.83,
-          27.75,
-          27.53,
-          27.48,
-          27.44,
-          27.38,
-          27.32,
-          27.29,
-          27.37,
-          27.36,
-          27.32,
-          27.47,
-          27.48,
-          27.53,
-          27.48,
-          27.45,
-          27.53,
-          27.61,
-          27.36,
-          27.41,
-          27.48,
-          27.5,
-          27.35,
-          27.41,
-          27.34,
-          27.35,
-          27.45,
-          27.51,
-          27.62,
-          27.77,
-          27.7,
-          27.79,
-          27.73,
-          27.73,
-          27.77,
-          27.75,
-          27.75,
-          27.7,
-          27.66,
-          27.76,
-          27.76,
-          27.86,
-          27.84,
-          28.02,
-          28.03,
-          28.01,
-          28.05,
-          27.95,
-          27.95,
-          27.97,
-          27.93,
-          28.18,
-          28.3,
-          28.36,
-          28.45,
-          28.53,
-          28.48,
-          28.46,
-          28.37,
-          28.41,
-          28.49,
-          28.34,
-          28.32,
-          28.4,
-          28.36,
-          28.36,
-          28.39,
-          28.5,
-          28.39,
-          28.25,
-          28.34,
-          28.33,
-          28.39,
-          28.48,
-          28.45,
-          28.56,
-          28.58,
-          28.6,
-          28.58,
-          28.42,
-          28.14,
-          28.17,
-          28.17,
-          28.16,
-          28.09,
-          28.19,
-          28.07,
-          28.14
-        ],
-        "read": [
-          "MIXED \u2014 Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
-          "Nearest resistance 28.22 is 0.66 ATR above (+0.28%), confluence 6 \u2014 swing low, SSL, fib 0.382.",
-          "Nearest support 28.11 is 0.25 ATR below (-0.11%), confluence 5."
-        ]
-      },
-      "market": "US Dollar Index",
-      "group": "FX",
-      "direction": "LONG",
-      "strength": "WEAK",
-      "prev_pct": 20,
-      "change_pct": 10,
-      "action": "ADD LONG EXPOSURE"
-    },
-    {
-      "symbol": "EEM",
-      "price": 65.17,
-      "mom_63": -0.0408,
-      "mom_126": 0.0849,
-      "asof": "2026-08-10",
-      "n_strategies": 10,
-      "net": -2,
-      "exposure_pct": -20,
-      "longs": 4,
-      "shorts": 6,
-      "neutrals": 0,
-      "strategies": [
-        {
-          "strategy": "MA 20/50",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "MA 50/200",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Donchian 20",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "Donchian 55",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "MACD 12/26/9",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Momentum 63d",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "Momentum 126d",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Keltner 20",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "Slope 40d",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "Close vs SMA100",
-          "signal": 1,
-          "label": "LONG"
-        }
-      ],
-      "chart": {
-        "symbol": "EEM",
-        "asof": "2026-08-10",
-        "price": 65.17,
-        "atr": 1.35,
-        "atr_pct": 2.07,
-        "trend": "MIXED",
-        "trend_note": "Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
-        "ema20": 64.86,
-        "sma50": 66.31,
-        "sma200": 60.62,
-        "resistance": [
-          {
-            "price": 65.96,
-            "cs": 6,
-            "labels": [
-              "swing high",
-              "bull OB",
-              "fib 0.5"
-            ],
-            "dist_pct": 1.21,
-            "dist_atr": 0.59
-          },
-          {
-            "price": 66.6,
-            "cs": 2,
-            "labels": [
-              "bear OB"
-            ],
-            "dist_pct": 2.2,
-            "dist_atr": 1.06
-          },
-          {
-            "price": 67.44,
-            "cs": 1,
-            "labels": [
-              "fib 0.382"
-            ],
-            "dist_pct": 3.49,
-            "dist_atr": 1.69
-          }
-        ],
-        "support": [
-          {
-            "price": 64.8,
-            "cs": 6,
-            "labels": [
-              "swing low",
-              "bull OB",
-              "fib 0.618"
-            ],
-            "dist_pct": -0.57,
-            "dist_atr": 0.27
-          },
-          {
-            "price": 64.22,
-            "cs": 8,
-            "labels": [
-              "swing high",
-              "swing low",
-              "bull OB"
-            ],
-            "dist_pct": -1.46,
-            "dist_atr": 0.7
-          },
-          {
-            "price": 63.48,
-            "cs": 5,
-            "labels": [
-              "swing low",
-              "bear OB",
-              "fib 0.786"
-            ],
-            "dist_pct": -2.59,
-            "dist_atr": 1.25
-          }
-        ],
-        "room_up": 0.59,
-        "room_down": 0.27,
-        "structure": {
-          "bars_ago": 8,
-          "dir": "down",
-          "level": 62.01
-        },
-        "pos_52w": 71.4,
-        "lo52": 49.23,
-        "hi52": 71.57,
-        "series": [
-          57.23,
-          56.59,
-          57.11,
-          57.31,
-          60.44,
-          60.28,
-          60.56,
-          61.07,
-          62.24,
-          62.2,
-          62.45,
-          63.64,
-          63.18,
-          62.25,
-          63.38,
-          62.35,
-          63.74,
-          63.64,
-          62.99,
-          62.69,
-          63.99,
-          64.13,
-          64.1,
-          65.4,
-          67.49,
-          66.59,
-          67.94,
-          67.89,
-          65.82,
-          67.21,
-          67.38,
-          65.07,
-          64.97,
-          64.26,
-          65.46,
-          66.03,
-          65.88,
-          68.4,
-          68.39,
-          68.61,
-          68.6,
-          70.08,
-          70.8,
-          69.92,
-          69.1,
-          64.59,
-          65.75,
-          65.82,
-          64.66,
-          67.5,
-          67.5292,
-          69.75,
-          68.64,
-          68.56,
-          70.79,
-          71.21,
-          67.17,
-          67.25,
-          67.96,
-          67.19,
-          67.43,
-          68.41,
-          66.48,
-          65.7,
-          67.57,
-          65.72,
-          66.23,
-          66.78,
-          66.9,
-          64.5,
-          65.67,
-          65.57,
-          64.19,
-          63.29,
-          63.56,
-          65.34,
-          64.99,
-          64.6,
-          63.33,
-          63.62,
-          62.36,
-          61.07,
-          63.59,
-          64.09,
-          64.32,
-          66.0,
-          65.72,
-          65.02,
-          65.64,
-          65.17
-        ],
-        "read": [
-          "MIXED \u2014 Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
-          "Nearest resistance 65.96 is 0.59 ATR above (+1.21%), confluence 6 \u2014 swing high, bull OB, fib 0.5.",
-          "Nearest support 64.8 is 0.27 ATR below (-0.57%), confluence 6."
-        ]
-      },
-      "market": "Emerging Markets",
-      "group": "Equity",
-      "direction": "SHORT",
-      "strength": "WEAK",
-      "prev_pct": -10,
-      "change_pct": -10,
-      "action": "ADD SHORT EXPOSURE"
-    },
-    {
-      "symbol": "GLD",
-      "price": 402.54,
-      "mom_63": -0.072,
-      "mom_126": -0.1162,
-      "asof": "2026-08-10",
-      "n_strategies": 10,
-      "net": -2,
-      "exposure_pct": -20,
-      "longs": 3,
-      "shorts": 5,
-      "neutrals": 2,
-      "strategies": [
-        {
-          "strategy": "MA 20/50",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "MA 50/200",
           "signal": -1,
           "label": "SHORT"
         },
@@ -3466,521 +2951,8 @@
         },
         {
           "strategy": "MACD 12/26/9",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Momentum 63d",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "Momentum 126d",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "Keltner 20",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Slope 40d",
           "signal": 0,
           "label": "NEUTRAL"
-        },
-        {
-          "strategy": "Close vs SMA100",
-          "signal": 0,
-          "label": "NEUTRAL"
-        }
-      ],
-      "chart": {
-        "symbol": "GLD",
-        "asof": "2026-08-10",
-        "price": 402.54,
-        "atr": 7.49,
-        "atr_pct": 1.86,
-        "trend": "MIXED",
-        "trend_note": "Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
-        "ema20": 381.14,
-        "sma50": 382.14,
-        "sma200": 411.82,
-        "resistance": [
-          {
-            "price": 403.3,
-            "cs": 5,
-            "labels": [
-              "swing high",
-              "swing low",
-              "fib 0.382"
-            ],
-            "dist_pct": 0.19,
-            "dist_atr": 0.1
-          },
-          {
-            "price": 413.28,
-            "cs": 8,
-            "labels": [
-              "swing low",
-              "bull OB",
-              "bear OB"
-            ],
-            "dist_pct": 2.67,
-            "dist_atr": 1.43
-          },
-          {
-            "price": 418.45,
-            "cs": 2,
-            "labels": [
-              "swing high"
-            ],
-            "dist_pct": 3.95,
-            "dist_atr": 2.12
-          }
-        ],
-        "support": [
-          {
-            "price": 399.2,
-            "cs": 5,
-            "labels": [
-              "swing low",
-              "bull OB",
-              "fib 0.5"
-            ],
-            "dist_pct": -0.83,
-            "dist_atr": 0.45
-          },
-          {
-            "price": 395.33,
-            "cs": 2,
-            "labels": [
-              "swing low"
-            ],
-            "dist_pct": -1.79,
-            "dist_atr": 0.96
-          },
-          {
-            "price": 388.18,
-            "cs": 5,
-            "labels": [
-              "swing high",
-              "bear OB",
-              "fib 0.618"
-            ],
-            "dist_pct": -3.57,
-            "dist_atr": 1.92
-          }
-        ],
-        "room_up": 0.1,
-        "room_down": 0.45,
-        "structure": {
-          "bars_ago": 0,
-          "dir": "up",
-          "level": 402.04
-        },
-        "pos_52w": 47.6,
-        "lo52": 305.19,
-        "hi52": 509.7,
-        "series": [
-          437.82,
-          429.41,
-          427.65,
-          431.81,
-          434.53,
-          437.91,
-          437.13,
-          435.36,
-          445.09,
-          440.46,
-          440.08,
-          445.93,
-          442.09,
-          429.57,
-          435.26,
-          431.04,
-          433.25,
-          429.89,
-          421.91,
-          417.41,
-          423.66,
-          423.18,
-          414.71,
-          418.27,
-          430.96,
-          431.68,
-          433.77,
-          434.65,
-          432.93,
-          430.5,
-          427.21,
-          417.29,
-          418.43,
-          411.5,
-          417.4,
-          416.99,
-          413.82,
-          414.0,
-          408.49,
-          412.77,
-          417.12,
-          411.26,
-          411.95,
-          407.87,
-          411.27,
-          396.24,
-          397.27,
-          390.78,
-          374.58,
-          386.32,
-          386.54,
-          396.55,
-          397.63,
-          388.6,
-          387.12,
-          384.59,
-          377.32,
-          365.92,
-          369.46,
-          373.63,
-          368.58,
-          368.38,
-          370.6,
-          378.13,
-          382.13,
-          377.49,
-          374.45,
-          378.18,
-          377.01,
-          367.13,
-          372.15,
-          372.35,
-          364.96,
-          368.41,
-          367.6,
-          374.81,
-          379.12,
-          371.52,
-          371.9,
-          374.63,
-          369.37,
-          371.08,
-          377.16,
-          371.54,
-          371.71,
-          374.16,
-          389.64,
-          389.67,
-          398.47,
-          402.54
-        ],
-        "read": [
-          "MIXED \u2014 Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
-          "Nearest resistance 403.3 is 0.1 ATR above (+0.19%), confluence 5 \u2014 swing high, swing low, fib 0.382.",
-          "Nearest support 399.2 is 0.45 ATR below (-0.83%), confluence 5.",
-          "Structure broke up through 402.04 0 sessions ago."
-        ]
-      },
-      "market": "Gold",
-      "group": "Commodity",
-      "direction": "SHORT",
-      "strength": "WEAK",
-      "prev_pct": -40,
-      "change_pct": 20,
-      "action": "REDUCE SHORT EXPOSURE"
-    },
-    {
-      "symbol": "FXE",
-      "price": 106.51,
-      "mom_63": -0.0202,
-      "mom_126": -0.0237,
-      "asof": "2026-08-10",
-      "n_strategies": 10,
-      "net": -2,
-      "exposure_pct": -20,
-      "longs": 3,
-      "shorts": 5,
-      "neutrals": 2,
-      "strategies": [
-        {
-          "strategy": "MA 20/50",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "MA 50/200",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "Donchian 20",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Donchian 55",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "MACD 12/26/9",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Momentum 63d",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "Momentum 126d",
-          "signal": 0,
-          "label": "NEUTRAL"
-        },
-        {
-          "strategy": "Keltner 20",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Slope 40d",
-          "signal": 0,
-          "label": "NEUTRAL"
-        },
-        {
-          "strategy": "Close vs SMA100",
-          "signal": -1,
-          "label": "SHORT"
-        }
-      ],
-      "chart": {
-        "symbol": "FXE",
-        "asof": "2026-08-10",
-        "price": 106.51,
-        "atr": 0.39,
-        "atr_pct": 0.36,
-        "trend": "UPTREND",
-        "trend_note": "Uptrend on the 20/50 stack, but price is on the other side of the 200-day \u2014 a counter-trend move inside a larger one.",
-        "ema20": 105.98,
-        "sma50": 105.92,
-        "sma200": 107.3,
-        "resistance": [
-          {
-            "price": 106.71,
-            "cs": 5,
-            "labels": [
-              "swing low",
-              "bull OB",
-              "fib 0.382"
-            ],
-            "dist_pct": 0.19,
-            "dist_atr": 0.52
-          },
-          {
-            "price": 106.93,
-            "cs": 2,
-            "labels": [
-              "swing low"
-            ],
-            "dist_pct": 0.39,
-            "dist_atr": 1.09
-          },
-          {
-            "price": 107.09,
-            "cs": 2,
-            "labels": [
-              "bear OB"
-            ],
-            "dist_pct": 0.55,
-            "dist_atr": 1.52
-          }
-        ],
-        "support": [
-          {
-            "price": 106.46,
-            "cs": 4,
-            "labels": [
-              "swing high",
-              "swing low"
-            ],
-            "dist_pct": -0.05,
-            "dist_atr": 0.13
-          },
-          {
-            "price": 106.22,
-            "cs": 3,
-            "labels": [
-              "SSL",
-              "fib 0.5"
-            ],
-            "dist_pct": -0.28,
-            "dist_atr": 0.77
-          },
-          {
-            "price": 105.96,
-            "cs": 7,
-            "labels": [
-              "swing high",
-              "swing low",
-              "fib 0.618"
-            ],
-            "dist_pct": -0.52,
-            "dist_atr": 1.43
-          }
-        ],
-        "room_up": 0.52,
-        "room_down": 0.13,
-        "structure": {
-          "bars_ago": 27,
-          "dir": "down",
-          "level": 105.64
-        },
-        "pos_52w": 27.5,
-        "lo52": 104.6,
-        "hi52": 111.53,
-        "series": [
-          106.81,
-          106.38,
-          106.56,
-          107.01,
-          107.69,
-          107.96,
-          108.26,
-          108.54,
-          108.82,
-          108.93,
-          108.73,
-          108.65,
-          108.79,
-          108.22,
-          108.0,
-          107.83,
-          108.17,
-          108.08,
-          108.05,
-          107.74,
-          108.2165,
-          108.11,
-          107.9,
-          107.88,
-          108.4,
-          108.27,
-          108.71,
-          108.68,
-          108.34,
-          108.04,
-          107.7,
-          107.25,
-          107.51,
-          107.08,
-          107.31,
-          107.23,
-          107.1,
-          107.35,
-          107.31,
-          107.5,
-          107.6347,
-          107.33,
-          107.26,
-          106.95,
-          107.15,
-          106.29,
-          106.42,
-          106.53,
-          106.55,
-          106.88,
-          106.83,
-          106.89,
-          107.12,
-          106.05,
-          105.77,
-          105.43,
-          105.03,
-          104.77,
-          104.94,
-          105.09,
-          105.45,
-          105.3699,
-          104.95,
-          105.47,
-          105.57,
-          105.307,
-          105.45,
-          105.42,
-          105.3,
-          105.01,
-          105.39,
-          105.81,
-          105.57,
-          105.61,
-          105.37,
-          105.23,
-          105.33,
-          105.03,
-          104.947,
-          104.95,
-          105.11,
-          105.7,
-          106.47,
-          106.4072,
-          106.19,
-          106.37,
-          106.585,
-          106.3,
-          106.68,
-          106.51
-        ],
-        "read": [
-          "UPTREND \u2014 Uptrend on the 20/50 stack, but price is on the other side of the 200-day \u2014 a counter-trend move inside a larger one.",
-          "Nearest resistance 106.71 is 0.52 ATR above (+0.19%), confluence 5 \u2014 swing low, bull OB, fib 0.382.",
-          "Nearest support 106.46 is 0.13 ATR below (-0.05%), confluence 4."
-        ]
-      },
-      "market": "Euro",
-      "group": "FX",
-      "direction": "SHORT",
-      "strength": "WEAK",
-      "prev_pct": 0,
-      "change_pct": -20,
-      "action": "ADD SHORT EXPOSURE"
-    },
-    {
-      "symbol": "IBIT",
-      "price": 36.23,
-      "mom_63": -0.2029,
-      "mom_126": -0.0869,
-      "asof": "2026-08-10",
-      "n_strategies": 10,
-      "net": -2,
-      "exposure_pct": -20,
-      "longs": 4,
-      "shorts": 6,
-      "neutrals": 0,
-      "strategies": [
-        {
-          "strategy": "MA 20/50",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "MA 50/200",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "Donchian 20",
-          "signal": 1,
-          "label": "LONG"
-        },
-        {
-          "strategy": "Donchian 55",
-          "signal": -1,
-          "label": "SHORT"
-        },
-        {
-          "strategy": "MACD 12/26/9",
-          "signal": 1,
-          "label": "LONG"
         },
         {
           "strategy": "Momentum 63d",
@@ -4010,94 +2982,92 @@
       ],
       "chart": {
         "symbol": "IBIT",
-        "asof": "2026-08-10",
-        "price": 36.23,
-        "atr": 0.77,
-        "atr_pct": 2.14,
+        "asof": "2026-08-12",
+        "price": 35.89,
+        "atr": 0.76,
+        "atr_pct": 2.11,
         "trend": "MIXED",
         "trend_note": "Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
-        "ema20": 36.39,
-        "sma50": 36.15,
-        "sma200": 44.11,
+        "ema20": 36.31,
+        "sma50": 35.95,
+        "sma200": 43.85,
         "resistance": [
           {
+            "price": 36.08,
+            "cs": 3,
+            "labels": [
+              "bear OB",
+              "SMA50"
+            ],
+            "dist_pct": 0.52,
+            "dist_atr": 0.24
+          },
+          {
             "price": 36.44,
-            "cs": 6,
+            "cs": 5,
             "labels": [
               "swing high",
               "bear OB",
               "EMA20"
             ],
-            "dist_pct": 0.58,
-            "dist_atr": 0.27
+            "dist_pct": 1.53,
+            "dist_atr": 0.73
           },
           {
             "price": 37.13,
-            "cs": 2,
+            "cs": 3,
             "labels": [
-              "swing low"
-            ],
-            "dist_pct": 2.48,
-            "dist_atr": 1.16
-          },
-          {
-            "price": 38.1,
-            "cs": 5,
-            "labels": [
-              "swing high",
               "swing low",
               "fib 0.618"
             ],
-            "dist_pct": 5.18,
-            "dist_atr": 2.42
+            "dist_pct": 3.46,
+            "dist_atr": 1.64
           }
         ],
         "support": [
           {
-            "price": 36.08,
-            "cs": 2,
-            "labels": [
-              "bear OB"
-            ],
-            "dist_pct": -0.43,
-            "dist_atr": 0.2
-          },
-          {
             "price": 35.6,
-            "cs": 5,
+            "cs": 4,
             "labels": [
               "swing low",
-              "bull OB",
-              "fib 0.786"
+              "bull OB"
             ],
-            "dist_pct": -1.74,
-            "dist_atr": 0.81
+            "dist_pct": -0.81,
+            "dist_atr": 0.38
           },
           {
             "price": 35.12,
-            "cs": 10,
+            "cs": 11,
             "labels": [
               "swing high",
               "swing low",
               "bear OB"
             ],
-            "dist_pct": -3.05,
-            "dist_atr": 1.43
+            "dist_pct": -2.13,
+            "dist_atr": 1.01
+          },
+          {
+            "price": 33.48,
+            "cs": 4,
+            "labels": [
+              "swing low",
+              "bull OB"
+            ],
+            "dist_pct": -6.71,
+            "dist_atr": 3.19
           }
         ],
-        "room_up": 0.27,
-        "room_down": 0.2,
+        "room_up": 0.24,
+        "room_down": 0.38,
         "structure": {
-          "bars_ago": 28,
+          "bars_ago": 30,
           "dir": "down",
           "level": 33.48
         },
-        "pos_52w": 8.7,
+        "pos_52w": 7.8,
         "lo52": 32.84,
         "hi52": 71.82,
         "series": [
-          38.64,
-          37.97,
           39.52,
           39.1,
           40.42,
@@ -4185,33 +3155,295 @@
           36.74,
           36.49,
           36.8,
-          36.23
+          36.23,
+          35.94,
+          35.89
         ],
         "read": [
           "MIXED \u2014 Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
-          "Nearest resistance 36.44 is 0.27 ATR above (+0.58%), confluence 6 \u2014 swing high, bear OB, EMA20.",
-          "Nearest support 36.08 is 0.2 ATR below (-0.43%), confluence 2."
+          "Nearest resistance 36.08 is 0.24 ATR above (+0.52%), confluence 3 \u2014 bear OB, SMA50.",
+          "Nearest support 35.6 is 0.38 ATR below (-0.81%), confluence 4."
         ]
       },
       "market": "Bitcoin",
       "group": "Crypto",
       "direction": "SHORT",
       "strength": "WEAK",
-      "prev_pct": -10,
-      "change_pct": -10,
-      "action": "ADD SHORT EXPOSURE"
+      "prev_pct": -30,
+      "change_pct": 0,
+      "action": "NO CHANGE"
     },
     {
-      "symbol": "QQQ",
-      "price": 720.87,
-      "mom_63": 0.0136,
-      "mom_126": 0.1824,
-      "asof": "2026-08-10",
+      "symbol": "UUP",
+      "price": 28.2,
+      "mom_63": 0.0273,
+      "mom_126": 0.0522,
+      "asof": "2026-08-12",
       "n_strategies": 10,
-      "net": -1,
-      "exposure_pct": -10,
-      "longs": 4,
-      "shorts": 5,
+      "net": 2,
+      "exposure_pct": 20,
+      "longs": 6,
+      "shorts": 4,
+      "neutrals": 0,
+      "strategies": [
+        {
+          "strategy": "MA 20/50",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "MA 50/200",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Donchian 20",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "Donchian 55",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "MACD 12/26/9",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "Momentum 63d",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Momentum 126d",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Keltner 20",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "Slope 40d",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "Close vs SMA100",
+          "signal": 1,
+          "label": "LONG"
+        }
+      ],
+      "chart": {
+        "symbol": "UUP",
+        "asof": "2026-08-12",
+        "price": 28.2,
+        "atr": 0.12,
+        "atr_pct": 0.42,
+        "trend": "DOWNTREND",
+        "trend_note": "Downtrend on the 20/50 stack, but price is on the other side of the 200-day \u2014 a counter-trend move inside a larger one.",
+        "ema20": 28.25,
+        "sma50": 28.26,
+        "sma200": 27.73,
+        "resistance": [
+          {
+            "price": 28.22,
+            "cs": 6,
+            "labels": [
+              "swing low",
+              "SSL",
+              "fib 0.382"
+            ],
+            "dist_pct": 0.07,
+            "dist_atr": 0.17
+          },
+          {
+            "price": 28.3,
+            "cs": 5,
+            "labels": [
+              "swing low",
+              "bull OB",
+              "SMA50"
+            ],
+            "dist_pct": 0.37,
+            "dist_atr": 0.89
+          },
+          {
+            "price": 28.38,
+            "cs": 7,
+            "labels": [
+              "swing high",
+              "bear OB",
+              "bull OB"
+            ],
+            "dist_pct": 0.63,
+            "dist_atr": 1.52
+          }
+        ],
+        "support": [
+          {
+            "price": 28.11,
+            "cs": 5,
+            "labels": [
+              "swing high",
+              "bull OB",
+              "fib 0.5"
+            ],
+            "dist_pct": -0.32,
+            "dist_atr": 0.77
+          },
+          {
+            "price": 28.06,
+            "cs": 4,
+            "labels": [
+              "swing high",
+              "swing low"
+            ],
+            "dist_pct": -0.51,
+            "dist_atr": 1.23
+          },
+          {
+            "price": 28.0,
+            "cs": 7,
+            "labels": [
+              "swing high",
+              "swing low",
+              "bear OB"
+            ],
+            "dist_pct": -0.71,
+            "dist_atr": 1.7
+          }
+        ],
+        "room_up": 0.17,
+        "room_down": 0.77,
+        "structure": {
+          "bars_ago": 11,
+          "dir": "up",
+          "level": 28.56
+        },
+        "pos_52w": 81.9,
+        "lo52": 26.39,
+        "hi52": 28.6,
+        "series": [
+          27.83,
+          27.75,
+          27.53,
+          27.48,
+          27.44,
+          27.38,
+          27.32,
+          27.29,
+          27.37,
+          27.36,
+          27.32,
+          27.47,
+          27.48,
+          27.53,
+          27.48,
+          27.45,
+          27.53,
+          27.61,
+          27.36,
+          27.41,
+          27.48,
+          27.5,
+          27.35,
+          27.41,
+          27.34,
+          27.35,
+          27.45,
+          27.51,
+          27.62,
+          27.77,
+          27.7,
+          27.79,
+          27.73,
+          27.73,
+          27.77,
+          27.75,
+          27.75,
+          27.7,
+          27.66,
+          27.76,
+          27.76,
+          27.86,
+          27.84,
+          28.02,
+          28.03,
+          28.01,
+          28.05,
+          27.95,
+          27.95,
+          27.97,
+          27.93,
+          28.18,
+          28.3,
+          28.36,
+          28.45,
+          28.53,
+          28.48,
+          28.46,
+          28.37,
+          28.41,
+          28.49,
+          28.34,
+          28.32,
+          28.4,
+          28.36,
+          28.36,
+          28.39,
+          28.5,
+          28.39,
+          28.25,
+          28.34,
+          28.33,
+          28.39,
+          28.48,
+          28.45,
+          28.56,
+          28.58,
+          28.6,
+          28.58,
+          28.42,
+          28.14,
+          28.17,
+          28.17,
+          28.16,
+          28.09,
+          28.19,
+          28.07,
+          28.14,
+          28.14,
+          28.2
+        ],
+        "read": [
+          "DOWNTREND \u2014 Downtrend on the 20/50 stack, but price is on the other side of the 200-day \u2014 a counter-trend move inside a larger one.",
+          "Nearest resistance 28.22 is 0.17 ATR above (+0.07%), confluence 6 \u2014 swing low, SSL, fib 0.382.",
+          "Nearest support 28.11 is 0.77 ATR below (-0.32%), confluence 5."
+        ]
+      },
+      "market": "US Dollar Index",
+      "group": "FX",
+      "direction": "LONG",
+      "strength": "WEAK",
+      "prev_pct": 30,
+      "change_pct": -10,
+      "action": "REDUCE LONG EXPOSURE"
+    },
+    {
+      "symbol": "EEM",
+      "price": 66.46,
+      "mom_63": 0.0097,
+      "mom_126": 0.0967,
+      "asof": "2026-08-12",
+      "n_strategies": 10,
+      "net": 1,
+      "exposure_pct": 10,
+      "longs": 5,
+      "shorts": 4,
       "neutrals": 1,
       "strategies": [
         {
@@ -4226,8 +3458,8 @@
         },
         {
           "strategy": "Donchian 20",
-          "signal": -1,
-          "label": "SHORT"
+          "signal": 1,
+          "label": "LONG"
         },
         {
           "strategy": "Donchian 55",
@@ -4266,25 +3498,797 @@
         }
       ],
       "chart": {
-        "symbol": "QQQ",
-        "asof": "2026-08-10",
-        "price": 720.87,
-        "atr": 14.25,
-        "atr_pct": 1.98,
+        "symbol": "EEM",
+        "asof": "2026-08-12",
+        "price": 66.46,
+        "atr": 1.35,
+        "atr_pct": 2.04,
         "trend": "MIXED",
         "trend_note": "Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
-        "ema20": 705.96,
-        "sma50": 714.27,
-        "sma200": 648.4,
+        "ema20": 65.06,
+        "sma50": 66.18,
+        "sma200": 60.74,
         "resistance": [
           {
-            "price": 728.0,
+            "price": 66.6,
+            "cs": 2,
+            "labels": [
+              "bear OB"
+            ],
+            "dist_pct": 0.21,
+            "dist_atr": 0.11
+          },
+          {
+            "price": 67.44,
             "cs": 1,
             "labels": [
+              "fib 0.382"
+            ],
+            "dist_pct": 1.48,
+            "dist_atr": 0.73
+          },
+          {
+            "price": 68.15,
+            "cs": 6,
+            "labels": [
+              "swing high",
+              "bull OB",
+              "bear OB"
+            ],
+            "dist_pct": 2.54,
+            "dist_atr": 1.25
+          }
+        ],
+        "support": [
+          {
+            "price": 65.96,
+            "cs": 6,
+            "labels": [
+              "swing high",
+              "bull OB",
+              "fib 0.5"
+            ],
+            "dist_pct": -0.75,
+            "dist_atr": 0.37
+          },
+          {
+            "price": 64.8,
+            "cs": 6,
+            "labels": [
+              "swing low",
+              "bull OB",
+              "fib 0.618"
+            ],
+            "dist_pct": -2.5,
+            "dist_atr": 1.23
+          },
+          {
+            "price": 64.22,
+            "cs": 8,
+            "labels": [
+              "swing high",
+              "swing low",
+              "bull OB"
+            ],
+            "dist_pct": -3.37,
+            "dist_atr": 1.66
+          }
+        ],
+        "room_up": 0.11,
+        "room_down": 0.37,
+        "structure": {
+          "bars_ago": 10,
+          "dir": "down",
+          "level": 62.01
+        },
+        "pos_52w": 77.0,
+        "lo52": 49.34,
+        "hi52": 71.57,
+        "series": [
+          57.11,
+          57.31,
+          60.44,
+          60.28,
+          60.56,
+          61.07,
+          62.24,
+          62.2,
+          62.45,
+          63.64,
+          63.18,
+          62.25,
+          63.38,
+          62.35,
+          63.74,
+          63.64,
+          62.99,
+          62.69,
+          63.99,
+          64.13,
+          64.1,
+          65.4,
+          67.49,
+          66.59,
+          67.94,
+          67.89,
+          65.82,
+          67.21,
+          67.38,
+          65.07,
+          64.97,
+          64.26,
+          65.46,
+          66.03,
+          65.88,
+          68.4,
+          68.39,
+          68.61,
+          68.6,
+          70.08,
+          70.8,
+          69.92,
+          69.1,
+          64.59,
+          65.75,
+          65.82,
+          64.66,
+          67.5,
+          67.5292,
+          69.75,
+          68.64,
+          68.56,
+          70.79,
+          71.21,
+          67.17,
+          67.25,
+          67.96,
+          67.19,
+          67.43,
+          68.41,
+          66.48,
+          65.7,
+          67.57,
+          65.72,
+          66.23,
+          66.78,
+          66.9,
+          64.5,
+          65.67,
+          65.57,
+          64.19,
+          63.29,
+          63.56,
+          65.34,
+          64.99,
+          64.6,
+          63.33,
+          63.62,
+          62.36,
+          61.07,
+          63.59,
+          64.09,
+          64.32,
+          66.0,
+          65.72,
+          65.02,
+          65.64,
+          65.17,
+          65.43,
+          66.46
+        ],
+        "read": [
+          "MIXED \u2014 Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
+          "Nearest resistance 66.6 is 0.11 ATR above (+0.21%), confluence 2 \u2014 bear OB.",
+          "Nearest support 65.96 is 0.37 ATR below (-0.75%), confluence 6."
+        ]
+      },
+      "market": "Emerging Markets",
+      "group": "Equity",
+      "direction": "LONG",
+      "strength": "NONE",
+      "prev_pct": -20,
+      "change_pct": 30,
+      "action": "REVERSE TO LONG"
+    },
+    {
+      "symbol": "GLD",
+      "price": 404.92,
+      "mom_63": -0.0647,
+      "mom_126": -0.1243,
+      "asof": "2026-08-12",
+      "n_strategies": 10,
+      "net": -1,
+      "exposure_pct": -10,
+      "longs": 4,
+      "shorts": 5,
+      "neutrals": 1,
+      "strategies": [
+        {
+          "strategy": "MA 20/50",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "MA 50/200",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "Donchian 20",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Donchian 55",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "MACD 12/26/9",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Momentum 63d",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "Momentum 126d",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "Keltner 20",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Slope 40d",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Close vs SMA100",
+          "signal": 0,
+          "label": "NEUTRAL"
+        }
+      ],
+      "chart": {
+        "symbol": "GLD",
+        "asof": "2026-08-12",
+        "price": 404.92,
+        "atr": 7.1,
+        "atr_pct": 1.75,
+        "trend": "UPTREND",
+        "trend_note": "Uptrend on the 20/50 stack, but price is on the other side of the 200-day \u2014 a counter-trend move inside a larger one.",
+        "ema20": 385.11,
+        "sma50": 381.69,
+        "sma200": 412.07,
+        "resistance": [
+          {
+            "price": 410.43,
+            "cs": 3,
+            "labels": [
+              "bear OB",
               "fib 0.236"
             ],
-            "dist_pct": 0.99,
-            "dist_atr": 0.5
+            "dist_pct": 1.36,
+            "dist_atr": 0.78
+          },
+          {
+            "price": 413.28,
+            "cs": 5,
+            "labels": [
+              "swing low",
+              "bull OB",
+              "SMA200"
+            ],
+            "dist_pct": 2.06,
+            "dist_atr": 1.18
+          },
+          {
+            "price": 418.45,
+            "cs": 2,
+            "labels": [
+              "swing high"
+            ],
+            "dist_pct": 3.34,
+            "dist_atr": 1.91
+          }
+        ],
+        "support": [
+          {
+            "price": 403.3,
+            "cs": 4,
+            "labels": [
+              "swing high",
+              "swing low"
+            ],
+            "dist_pct": -0.4,
+            "dist_atr": 0.23
+          },
+          {
+            "price": 399.2,
+            "cs": 5,
+            "labels": [
+              "swing low",
+              "bull OB",
+              "fib 0.382"
+            ],
+            "dist_pct": -1.41,
+            "dist_atr": 0.81
+          },
+          {
+            "price": 395.33,
+            "cs": 3,
+            "labels": [
+              "swing low",
+              "fib 0.5"
+            ],
+            "dist_pct": -2.37,
+            "dist_atr": 1.35
+          }
+        ],
+        "room_up": 0.78,
+        "room_down": 0.23,
+        "structure": {
+          "bars_ago": 0,
+          "dir": "up",
+          "level": 402.04
+        },
+        "pos_52w": 48.8,
+        "lo52": 305.19,
+        "hi52": 509.7,
+        "series": [
+          427.65,
+          431.81,
+          434.53,
+          437.91,
+          437.13,
+          435.36,
+          445.09,
+          440.46,
+          440.08,
+          445.93,
+          442.09,
+          429.57,
+          435.26,
+          431.04,
+          433.25,
+          429.89,
+          421.91,
+          417.41,
+          423.66,
+          423.18,
+          414.71,
+          418.27,
+          430.96,
+          431.68,
+          433.77,
+          434.65,
+          432.93,
+          430.5,
+          427.21,
+          417.29,
+          418.43,
+          411.5,
+          417.4,
+          416.99,
+          413.82,
+          414.0,
+          408.49,
+          412.77,
+          417.12,
+          411.26,
+          411.95,
+          407.87,
+          411.27,
+          396.24,
+          397.27,
+          390.78,
+          374.58,
+          386.32,
+          386.54,
+          396.55,
+          397.63,
+          388.6,
+          387.12,
+          384.59,
+          377.32,
+          365.92,
+          369.46,
+          373.63,
+          368.58,
+          368.38,
+          370.6,
+          378.13,
+          382.13,
+          377.49,
+          374.45,
+          378.18,
+          377.01,
+          367.13,
+          372.15,
+          372.35,
+          364.96,
+          368.41,
+          367.6,
+          374.81,
+          379.12,
+          371.52,
+          371.9,
+          374.63,
+          369.37,
+          371.08,
+          377.16,
+          371.54,
+          371.71,
+          374.16,
+          389.64,
+          389.67,
+          398.47,
+          402.54,
+          400.96,
+          404.92
+        ],
+        "read": [
+          "UPTREND \u2014 Uptrend on the 20/50 stack, but price is on the other side of the 200-day \u2014 a counter-trend move inside a larger one.",
+          "Nearest resistance 410.43 is 0.78 ATR above (+1.36%), confluence 3 \u2014 bear OB, fib 0.236.",
+          "Nearest support 403.3 is 0.23 ATR below (-0.40%), confluence 4.",
+          "Structure broke up through 402.04 0 sessions ago."
+        ]
+      },
+      "market": "Gold",
+      "group": "Commodity",
+      "direction": "SHORT",
+      "strength": "NONE",
+      "prev_pct": -20,
+      "change_pct": 10,
+      "action": "REDUCE SHORT EXPOSURE"
+    },
+    {
+      "symbol": "FXE",
+      "price": 106.34,
+      "mom_63": -0.0185,
+      "mom_126": -0.0315,
+      "asof": "2026-08-12",
+      "n_strategies": 10,
+      "net": 1,
+      "exposure_pct": 10,
+      "longs": 4,
+      "shorts": 3,
+      "neutrals": 3,
+      "strategies": [
+        {
+          "strategy": "MA 20/50",
+          "signal": 0,
+          "label": "NEUTRAL"
+        },
+        {
+          "strategy": "MA 50/200",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "Donchian 20",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Donchian 55",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "MACD 12/26/9",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Momentum 63d",
+          "signal": 0,
+          "label": "NEUTRAL"
+        },
+        {
+          "strategy": "Momentum 126d",
+          "signal": 0,
+          "label": "NEUTRAL"
+        },
+        {
+          "strategy": "Keltner 20",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Slope 40d",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Close vs SMA100",
+          "signal": -1,
+          "label": "SHORT"
+        }
+      ],
+      "chart": {
+        "symbol": "FXE",
+        "asof": "2026-08-12",
+        "price": 106.34,
+        "atr": 0.38,
+        "atr_pct": 0.35,
+        "trend": "UPTREND",
+        "trend_note": "Uptrend on the 20/50 stack, but price is on the other side of the 200-day \u2014 a counter-trend move inside a larger one.",
+        "ema20": 106.06,
+        "sma50": 105.87,
+        "sma200": 107.29,
+        "resistance": [
+          {
+            "price": 106.46,
+            "cs": 4,
+            "labels": [
+              "swing high",
+              "swing low"
+            ],
+            "dist_pct": 0.12,
+            "dist_atr": 0.33
+          },
+          {
+            "price": 106.71,
+            "cs": 5,
+            "labels": [
+              "swing low",
+              "bull OB",
+              "fib 0.382"
+            ],
+            "dist_pct": 0.35,
+            "dist_atr": 0.99
+          },
+          {
+            "price": 106.93,
+            "cs": 2,
+            "labels": [
+              "swing low"
+            ],
+            "dist_pct": 0.56,
+            "dist_atr": 1.57
+          }
+        ],
+        "support": [
+          {
+            "price": 106.22,
+            "cs": 3,
+            "labels": [
+              "SSL",
+              "fib 0.5"
+            ],
+            "dist_pct": -0.11,
+            "dist_atr": 0.32
+          },
+          {
+            "price": 105.96,
+            "cs": 7,
+            "labels": [
+              "swing high",
+              "swing low",
+              "fib 0.618"
+            ],
+            "dist_pct": -0.35,
+            "dist_atr": 1.0
+          },
+          {
+            "price": 105.68,
+            "cs": 6,
+            "labels": [
+              "swing high",
+              "swing low",
+              "bull OB"
+            ],
+            "dist_pct": -0.62,
+            "dist_atr": 1.74
+          }
+        ],
+        "room_up": 0.33,
+        "room_down": 0.32,
+        "structure": {
+          "bars_ago": 29,
+          "dir": "down",
+          "level": 105.64
+        },
+        "pos_52w": 25.0,
+        "lo52": 104.6,
+        "hi52": 111.53,
+        "series": [
+          106.56,
+          107.01,
+          107.69,
+          107.96,
+          108.26,
+          108.54,
+          108.82,
+          108.93,
+          108.73,
+          108.65,
+          108.79,
+          108.22,
+          108.0,
+          107.83,
+          108.17,
+          108.08,
+          108.05,
+          107.74,
+          108.2165,
+          108.11,
+          107.9,
+          107.88,
+          108.4,
+          108.27,
+          108.71,
+          108.68,
+          108.34,
+          108.04,
+          107.7,
+          107.25,
+          107.51,
+          107.08,
+          107.31,
+          107.23,
+          107.1,
+          107.35,
+          107.31,
+          107.5,
+          107.6347,
+          107.33,
+          107.26,
+          106.95,
+          107.15,
+          106.29,
+          106.42,
+          106.53,
+          106.55,
+          106.88,
+          106.83,
+          106.89,
+          107.12,
+          106.05,
+          105.77,
+          105.43,
+          105.03,
+          104.77,
+          104.94,
+          105.09,
+          105.45,
+          105.3699,
+          104.95,
+          105.47,
+          105.57,
+          105.307,
+          105.45,
+          105.42,
+          105.3,
+          105.01,
+          105.39,
+          105.81,
+          105.57,
+          105.61,
+          105.37,
+          105.23,
+          105.33,
+          105.03,
+          104.947,
+          104.95,
+          105.11,
+          105.7,
+          106.47,
+          106.4072,
+          106.19,
+          106.37,
+          106.585,
+          106.3,
+          106.68,
+          106.51,
+          106.52,
+          106.337
+        ],
+        "read": [
+          "UPTREND \u2014 Uptrend on the 20/50 stack, but price is on the other side of the 200-day \u2014 a counter-trend move inside a larger one.",
+          "Nearest resistance 106.46 is 0.33 ATR above (+0.12%), confluence 4 \u2014 swing high, swing low.",
+          "Nearest support 106.22 is 0.32 ATR below (-0.11%), confluence 3."
+        ]
+      },
+      "market": "Euro",
+      "group": "FX",
+      "direction": "LONG",
+      "strength": "NONE",
+      "prev_pct": 10,
+      "change_pct": 0,
+      "action": "NO CHANGE"
+    },
+    {
+      "symbol": "QQQ",
+      "price": 723.7,
+      "mom_63": 0.0233,
+      "mom_126": 0.1835,
+      "asof": "2026-08-12",
+      "n_strategies": 10,
+      "net": 0,
+      "exposure_pct": 0,
+      "longs": 5,
+      "shorts": 5,
+      "neutrals": 0,
+      "strategies": [
+        {
+          "strategy": "MA 20/50",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "MA 50/200",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Donchian 20",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "Donchian 55",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "MACD 12/26/9",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Momentum 63d",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Momentum 126d",
+          "signal": 1,
+          "label": "LONG"
+        },
+        {
+          "strategy": "Keltner 20",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "Slope 40d",
+          "signal": -1,
+          "label": "SHORT"
+        },
+        {
+          "strategy": "Close vs SMA100",
+          "signal": 1,
+          "label": "LONG"
+        }
+      ],
+      "chart": {
+        "symbol": "QQQ",
+        "asof": "2026-08-12",
+        "price": 723.7,
+        "atr": 13.75,
+        "atr_pct": 1.9,
+        "trend": "MIXED",
+        "trend_note": "Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
+        "ema20": 708.72,
+        "sma50": 713.49,
+        "sma200": 649.53,
+        "resistance": [
+          {
+            "price": 728.54,
+            "cs": 3,
+            "labels": [
+              "swing high",
+              "fib 0.236"
+            ],
+            "dist_pct": 0.67,
+            "dist_atr": 0.35
           },
           {
             "price": 737.62,
@@ -4293,8 +4297,8 @@
               "swing high",
               "bear OB"
             ],
-            "dist_pct": 2.32,
-            "dist_atr": 1.18
+            "dist_pct": 1.92,
+            "dist_atr": 1.01
           },
           {
             "price": 748.65,
@@ -4303,55 +4307,54 @@
               "swing high",
               "BSL"
             ],
-            "dist_pct": 3.85,
-            "dist_atr": 1.95
+            "dist_pct": 3.45,
+            "dist_atr": 1.81
           }
         ],
         "support": [
+          {
+            "price": 722.03,
+            "cs": 6,
+            "labels": [
+              "swing high",
+              "bull OB",
+              "bear OB"
+            ],
+            "dist_pct": -0.23,
+            "dist_atr": 0.12
+          },
           {
             "price": 715.22,
             "cs": 1,
             "labels": [
               "fib 0.382"
             ],
-            "dist_pct": -0.78,
-            "dist_atr": 0.4
+            "dist_pct": -1.17,
+            "dist_atr": 0.62
           },
           {
             "price": 709.18,
-            "cs": 3,
+            "cs": 4,
             "labels": [
               "bull OB",
+              "EMA20",
               "SMA50"
             ],
-            "dist_pct": -1.62,
-            "dist_atr": 0.82
-          },
-          {
-            "price": 702.81,
-            "cs": 8,
-            "labels": [
-              "swing low",
-              "bull OB",
-              "bear OB"
-            ],
-            "dist_pct": -2.51,
-            "dist_atr": 1.27
+            "dist_pct": -2.01,
+            "dist_atr": 1.06
           }
         ],
-        "room_up": 0.5,
-        "room_down": 0.4,
+        "room_up": 0.35,
+        "room_down": 0.12,
         "structure": {
-          "bars_ago": 7,
+          "bars_ago": 9,
           "dir": "down",
           "level": 686.37
         },
-        "pos_52w": 85.6,
+        "pos_52w": 87.1,
         "lo52": 555.6,
         "hi52": 748.65,
         "series": [
-          584.31,
-          584.98,
           588.5,
           588.59,
           606.09,
@@ -4439,21 +4442,23 @@
           717.3,
           714.65,
           723.03,
-          720.87
+          720.87,
+          718.45,
+          723.7
         ],
         "read": [
           "MIXED \u2014 Price, the 20-day and the 50-day are not stacked \u2014 no trend to trade with or against on this timeframe.",
-          "Nearest resistance 728.0 is 0.5 ATR above (+0.99%), confluence 1 \u2014 fib 0.236.",
-          "Nearest support 715.22 is 0.4 ATR below (-0.78%), confluence 1."
+          "Nearest resistance 728.54 is 0.35 ATR above (+0.67%), confluence 3 \u2014 swing high, fib 0.236.",
+          "Nearest support 722.03 is 0.12 ATR below (-0.23%), confluence 6."
         ]
       },
       "market": "Nasdaq 100",
       "group": "Equity",
-      "direction": "SHORT",
+      "direction": "FLAT",
       "strength": "NONE",
-      "prev_pct": 0,
-      "change_pct": -10,
-      "action": "ADD SHORT EXPOSURE"
+      "prev_pct": -10,
+      "change_pct": 10,
+      "action": "CLOSE \u2014 GO FLAT"
     }
   ],
   "errors": []

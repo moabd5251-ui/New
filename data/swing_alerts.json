@@ -1,1 +1,21 @@
-[]
+[
+  {
+    "symbol": "YM",
+    "dir": "LONG",
+    "status": "pending",
+    "logged_at": "2026-08-12T21:16:43Z",
+    "bar_date": "2026-08-12",
+    "entry": 53864.0,
+    "stop": 53321.32,
+    "stop_effective": 53321.32,
+    "t1": 54613.0,
+    "t2": 54884.0,
+    "rr1": 1.38,
+    "rr2": 1.88,
+    "cs": 3,
+    "trigger": "BOS",
+    "atr": 669.36,
+    "t1_hit": false,
+    "r_mult": null
+  }
+]

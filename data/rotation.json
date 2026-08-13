@@ -1,25 +1,57 @@
 {
-  "held": {},
-  "asof": "2026-08-10",
+  "held": {
+    "GDX": {
+      "opened": "2026-08-13",
+      "entry_exposure": 30,
+      "market": "Gold Miners"
+    },
+    "EEM": {
+      "opened": "2026-08-13",
+      "entry_exposure": 10,
+      "market": "Emerging Markets"
+    }
+  },
+  "asof": "2026-08-12",
   "last_exposures": {
     "SPY": 100,
+    "XLE": 100,
+    "XLV": 100,
     "XLI": 100,
     "EFA": 100,
     "IWM": 90,
-    "XLF": 90,
-    "XLV": 90,
     "TLT": -90,
-    "XLE": 70,
+    "XLF": 80,
     "XLU": -70,
-    "SLV": -40,
-    "XLP": 30,
+    "SLV": -30,
+    "GDX": 30,
+    "IBIT": -30,
     "XLK": 20,
-    "GLD": -20,
-    "EEM": -20,
-    "IBIT": -20,
-    "QQQ": -10,
-    "GDX": -10
+    "XLP": 20,
+    "GLD": -10,
+    "EEM": 10,
+    "QQQ": 0
   },
-  "generated": "2026-08-11T00:19:57Z",
-  "history": []
+  "generated": "2026-08-13T00:20:05Z",
+  "history": [
+    {
+      "action": "OPEN",
+      "symbol": "GDX",
+      "market": "Gold Miners",
+      "exposure_pct": 30,
+      "rank": 8,
+      "reason": "turned positive: 0% -> 30% (6/10 strategies long)",
+      "at": "2026-08-13T00:20:05Z",
+      "asof": "2026-08-12"
+    },
+    {
+      "action": "OPEN",
+      "symbol": "EEM",
+      "market": "Emerging Markets",
+      "exposure_pct": 10,
+      "rank": 11,
+      "reason": "turned positive: -20% -> 10% (5/10 strategies long)",
+      "at": "2026-08-13T00:20:05Z",
+      "asof": "2026-08-12"
+    }
+  ]
 }

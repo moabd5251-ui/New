@@ -203,6 +203,81 @@ requirement. Those three determine whether the school-ownership step works at al
 
 ---
 
+## The adult / permit-only segment
+
+You're right that a distinct set of schools works only the permit and testing side for
+adults, and it's structurally the most attractive version of this business.
+
+**Why the economics are better.** The constraint on teen driver ed is behind-the-wheel hours
+— 6 per student, unbatchable, scaling linearly with enrollment. Permit and knowledge-test
+work has no such ceiling: prep is classroom, and the knowledge test is a proctored
+multiple-choice exam (**32 of 40 to pass**). One room can process far more people per hour
+than one car ever will, and **knowledge testing needs no vehicle at all.**
+
+**Washington approves schools to administer the tests.** DOL-approved testing centers staff
+**Washington State Certified Examiners** who administer both knowledge and skills tests — the
+model behind operators like 911 Driving School and the smaller independents. The state
+publishes a directory of driver training schools and testing locations, which is both your
+competitive map and your proof the segment exists.
+
+**HB 1878 points directly at this segment.** Adults 18 and over currently need no driver
+education — only to pass the tests. **From 2027 that changes**, phasing 18-year-olds and then
+up to age 21 by 2030 into the mandate. The adult permit segment you're describing is the
+exact cohort about to become legally compulsory. Anyone already serving adult permit
+customers when that lands is positioned for it; anyone starting in 2028 is late.
+
+**The language niche is real and the state acknowledges it.** DOL's own guidance tells
+applicants to check whether a school offers the knowledge test **in the language they need**.
+In King County — with large Somali, Amharic, Spanish, Ukrainian, Vietnamese, Punjabi, and
+Tigrinya-speaking communities — a school built around one or two language communities is a
+defensible niche that the franchised operators generally don't serve well. It is also a
+business where trust and word-of-mouth inside a community beat advertising, which favors an
+individual operator over a franchise.
+
+**The open question to ask DOL.** I could not confirm whether you can be approved for
+**knowledge testing only** without holding a full driver training school license — with its
+$500 fee, separate classroom and office, dual-control vehicle, and $1M coverage. That single
+answer decides whether this is a near-zero-capital business or the same capital profile as
+the teen pathway. **Ask TSE@dol.wa.gov directly.** It is the highest-value question in this
+document.
+
+---
+
+## The bigger find: Washington privatized all CDL skills testing
+
+This turned up while researching the above, and it's worth more than the permit niche.
+
+**Washington does not administer CDL skills tests at DOL offices at all.** The entire function
+is handled by **third-party examiners** authorized by the department. And **DOL is actively
+recruiting** — publicly seeking CDL holders to become contracted third-party examiners, with
+applications through **dolcdltpr@dol.wa.gov**.
+
+### Requirements (WAC 308-100-150)
+
+- **Active CDL**
+- **2+ years** operating commercial vehicles representative of the class you'd test
+- **5 years** total driving experience
+- Clean record: no DUI, 0.04+ CMV operation, leaving an accident scene, CMV felony, refusal
+  of alcohol testing, or fraud/dishonesty offenses in the preceding 3 years; no more than one
+  serious traffic violation in 3 years; fewer than 4 moving violations in 3 years or 2 in 1
+  year; no suspension, revocation, or disqualification in 3 years
+- Complete a **state-prescribed CDL skills test examiner training course** and be certified
+- Ongoing: test at least **10 different applicants per calendar year** or meet recertification
+
+### Why this is a strong fit
+
+Your Class B and years of bus driving already satisfy the experience bars for **Class B
+testing**. There is no vehicle to buy — CDL skills-test applicants arrive in a vehicle
+supplied by their school or employer. There is no facility, no fleet, no classroom. The
+qualification is your record and a certification course.
+
+**One caveat worth acting on:** DOL's recruitment specifically names **Class A** holders.
+That's where the volume is, and it's the third separate payoff for the same Class A upgrade —
+alongside higher driving wages and Class A instruction. If you were weighing that upgrade,
+this tips it.
+
+---
+
 ## Honest risks
 
 - **The instructor course is a real gate** — 60+ hours and an unpriced tuition. Find the cost

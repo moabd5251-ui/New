@@ -48,6 +48,42 @@ statutory requirements, pass two exams, and you're licensed.
 
 ---
 
+## Two separate licenses — this distinction is the whole point
+
+Everything below depends on not confusing these:
+
+| | **Instructor license** (RCW 46.82.330) | **School license** (RCW 46.82.310, WAC 308-108) |
+|---|---|---|
+| What it is | A personal credential, like a CDL | A business license |
+| What it asks about | **You** — age, diploma, driving record, training, exams | **Assets** — vehicle, insurance, premises |
+| Vehicle required? | **No** | Yes — dual controls, DOL-registered |
+| Insurance required? | **No** | Yes — $1M auto liability, filed with the director |
+| Facility required? | **No** | Yes — separate classroom and office, fire code |
+| Cost | **~$318 + course** | $500 + vehicle + insurance + lease |
+
+**The car, the insurance, and the classroom attach to the school, never to the instructor.**
+
+And Washington goes further: **RCW 46.82 defines an "instructor" as "any person employed by a
+driver training school."** There is no such thing as a freelance driving instructor here —
+instruction happens under a licensed school by law. The employing school must even display
+your instructor license at its place of business.
+
+So holding only the instructor license means: they own and register the dual-control car,
+they file the $1M coverage, they provide the classroom, you show up with the credential and
+teach on their payroll. **No LLC, no B&O tax, no business license, no bond** — you're an
+employee, not a business.
+
+To be precise about "no vehicle": you'll still be *driving* — in the passenger seat of their
+dual-control car during behind-the-wheel lessons. You just never buy, register, or insure
+one. And a Washington teen course is 30 classroom hours to 6 behind-the-wheel, so there's
+classroom work involving no vehicle at all.
+
+This is the same structure as Stage 1 in the NEMT plan — operate with someone else's vehicle
+and someone else's insurance — except here it's the *permanent* arrangement unless you
+choose to become the school.
+
+---
+
 ## Step one: get licensed as an instructor. This is the cheapest income upgrade in the file.
 
 Under **RCW 46.82.330**, an instructor's license requires:

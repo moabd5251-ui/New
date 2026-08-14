@@ -6,17 +6,28 @@ rediscovered spot. Rules tuned to a chain and then tested on that chain are not 
 A forward log cannot be fitted after the fact: the prediction is written down before the
 outcome exists.
 
-Four claims are scored, each against a benchmark, because "price closed near max pain"
+Three claims are scored, each against a benchmark, because "price closed near max pain"
 means nothing on its own — the level sits close to spot most days, so it is right by
 accident constantly. What matters is whether it beats the naive alternative.
 
   MAX PAIN     did the close move TOWARD max pain from the open? Benchmark: a coin
                flip. Being near it is not the claim; being drawn to it is.
-  MAGNET       did the close land nearer the top magnet than the open did?
   REGIME       was realised range smaller on long-gamma days than short-gamma ones?
                This is the most mechanical claim and the one most likely to hold.
   EXPECTED     did the day's move stay inside the ATM straddle? A straddle is roughly
                fair when this happens about two-thirds of the time.
+
+A fourth claim, MAGNET — did the close land nearer the top magnet than the open did —
+was cut on 14 Aug 2026 after 12 scored sessions. It came back 1-for-12, or 8.3%,
+against a 50% coin-flip benchmark. That is not a weak result awaiting more data: a
+metric that far below its benchmark is either measuring the opposite of what it claims
+or measuring nothing, and neither is worth another thirty sessions to confirm. The
+magnet LEVELS remain on the dashboard, because large open-interest strikes are still
+worth seeing; what was withdrawn is the claim that price is drawn toward them.
+
+Entries scored before that date keep their magnet fields. The point of a forward log is
+that it cannot be rewritten after the outcome is known, and that applies to the results
+that go against the strategy as much as the ones that flatter it.
 
 Scoring compares OPEN to CLOSE, not the reading's spot to close, because the read is
 taken intraday and using its own spot would credit the move that had already happened.
@@ -51,7 +62,7 @@ def record(a, session_open=None):
     key = (a["symbol"], a["expiry"])
     prior = next((r for r in rows if (r["symbol"], r["expiry"]) == key), None)
     if prior is not None:
-        # The CLAIM is fixed at the first read — max pain, magnet and expected move are
+        # The CLAIM is fixed at the first read — max pain and expected move are
         # the prediction, and letting a later capture revise them would be marking your
         # own homework. The REGIME is not a claim, it is a condition that holds during
         # the day, and it moves: on 11 Aug SPY and QQQ were +1.73bn and +0.29bn at 15:35
@@ -67,7 +78,6 @@ def record(a, session_open=None):
             prior["regime_last_at"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
             save(rows)
         return None                      # one call per symbol per expiry
-    mags = a.get("magnets") or []
     entry = dict(
         symbol=a["symbol"], expiry=a["expiry"],
         recorded_at=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -75,8 +85,6 @@ def record(a, session_open=None):
         max_pain=a.get("max_pain"), zero_gamma=a.get("zero_gamma"),
         total_gex=a.get("total_gex"),
         regime=("long" if (a.get("total_gex") or 0) > 0 else "short"),
-        top_magnet=(mags[0]["strike"] if mags else None),
-        magnet_side=(mags[0]["side"] if mags else None),
         straddle=a.get("straddle"), expected_move_pct=a.get("expected_move_pct"),
         flow_bias=(a.get("flow") or {}).get("bias"),
         flow_ratio=(a.get("flow") or {}).get("ratio"),
@@ -104,11 +112,6 @@ def score(symbol, expiry, close, day_open=None, day_high=None, day_low=None):
         hit["maxpain_dist_open"] = round(abs(o - mp), 2)
         hit["maxpain_dist_close"] = round(abs(close - mp), 2)
 
-    mag = hit.get("top_magnet")
-    if mag is not None and o is not None:
-        hit["magnet_moved_toward"] = abs(close - mag) < abs(o - mag)
-        hit["magnet_dist_close"] = round(abs(close - mag), 2)
-
     if o:
         hit["realised_move_pct"] = round(abs(close - o) / o * 100, 3)
         if day_high is not None and day_low is not None:
@@ -133,7 +136,6 @@ def summary():
         return (round(sum(1 for x in v if x) / len(v) * 100, 1), len(v)) if v else (None, 0)
 
     mp_rate, mp_n = rate("maxpain_moved_toward")
-    mg_rate, mg_n = rate("magnet_moved_toward")
     ie_rate, ie_n = rate("inside_expected")
 
     # Prefer the last observed regime over the first. A day is classified by the state
@@ -151,11 +153,10 @@ def summary():
     return dict(
         n=len(rows),
         maxpain_toward_pct=mp_rate, maxpain_n=mp_n,
-        magnet_toward_pct=mg_rate, magnet_n=mg_n,
         inside_expected_pct=ie_rate, inside_expected_n=ie_n,
         long_gamma_range_pct=mean(lng), long_gamma_n=len(lng),
         short_gamma_range_pct=mean(sht), short_gamma_n=len(sht),
-        note=("Benchmarks: max pain and magnet want to beat 50% — a coin flip on whether "
+        note=("Benchmarks: max pain wants to beat 50% — a coin flip on whether "
               "the close ended nearer than the open. Inside-expected wants roughly 65%, "
               "which is where a straddle is fairly priced. The regime claim wants "
               "long-gamma days to show a SMALLER average range than short-gamma days. "

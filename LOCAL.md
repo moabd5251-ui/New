@@ -38,7 +38,7 @@ Two mechanics worth knowing:
 - **Scoring is deferred.** A call recorded today is graded by the *next* run after
   that session closes. Run it once a day and every call still gets scored, one day
   late. Skip a day and the pending call is picked up whenever you next run.
-- **Regime is scored by the last reading, not the first.** Max pain, magnet and
+- **Regime is scored by the last reading, not the first.** Max pain and
   expected move are fixed at the first read (they are the prediction). Gamma regime
   is re-stamped on every subsequent run, because it moves intraday: on both 11 and
   12 Aug, SPY and IWM opened short gamma and closed long. Running more than once a
@@ -59,14 +59,19 @@ never take another entry, because it resolves trades already on the book.
 
     python3 -c "import sys; sys.path.insert(0,'scripts'); import zerodte_log as L; print(L.summary())"
 
-Benchmarks, so a number is never read on its own: max pain and magnet must beat 50%
-(a coin flip on whether the close ended nearer than the open); inside-expected wants
-about 65%, where a straddle is fairly priced; long-gamma days must show a *smaller*
-average range than short-gamma days. Nothing below ~30 sessions means anything.
+Benchmarks, so a number is never read on its own: max pain must beat 50% (a coin flip
+on whether the close ended nearer than the open); inside-expected wants about 65%,
+where a straddle is fairly priced; long-gamma days must show a *smaller* average range
+than short-gamma days. Nothing below ~30 sessions means anything.
 
-As of 12 Aug, at n=12: max pain 50.0%, magnet **8.3%**, inside expected 58.3%,
-long-gamma range 0.594% vs short-gamma 1.031%. The magnet metric is not merely weak
-— at 1-for-12 it is pointing the wrong way, and is the first thing to cut.
+At n=12: max pain 50.0%, inside expected 58.3%, long-gamma range 0.594% vs short-gamma
+1.031%. Max pain is sitting exactly on its coin-flip benchmark — no evidence of a pull
+either way. The regime split is the only one behaving as theory predicts, and seven
+long-gamma days against five short is far too few to lean on.
+
+A fourth metric, MAGNET, was cut on 14 Aug after coming back 1-for-12 against the same
+50% benchmark. Magnet levels still appear on the dashboard as open-interest landmarks;
+what was withdrawn is the claim that price gets drawn toward them.
 
 ## Commit the state
 

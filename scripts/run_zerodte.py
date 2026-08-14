@@ -159,7 +159,7 @@ def main():
             bar = session_bar(sym)
             e = L.record(a, session_open=(bar or {}).get("open"))
             if e:
-                print(f"   logged: max pain {e['max_pain']}, magnet {e['top_magnet']}, "
+                print(f"   logged: max pain {e['max_pain']}, "
                       f"expected ±{e['expected_move_pct']}%")
 
     if not results:
@@ -176,7 +176,7 @@ def main():
     s = L.summary()
     if s.get("n"):
         print(f"\n[forward log] {s['n']} scored — max pain toward {s['maxpain_toward_pct']}% "
-              f"(n={s['maxpain_n']}), magnet toward {s['magnet_toward_pct']}%, "
+              f"(n={s['maxpain_n']}), "
               f"inside expected {s['inside_expected_pct']}%")
         if s.get("long_gamma_range_pct") and s.get("short_gamma_range_pct"):
             print(f"[forward log] avg range: long gamma {s['long_gamma_range_pct']}% "

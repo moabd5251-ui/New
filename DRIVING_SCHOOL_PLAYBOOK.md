@@ -221,21 +221,81 @@ requirement. Those three determine whether the school-ownership step works at al
 
 ---
 
-## Also worth pricing: CDL instruction
+## CDL instruction — the truck and the lot aren't yours to buy
 
-You already hold a CDL with a passenger endorsement. Washington maintains a separate
-registration path for **CDL training providers and instructors**, and federal **ELDT**
-rules require entry-level drivers to train with a provider on the FMCSA Training Provider
-Registry.
+**Owning a CDL school does require a truck and a yard.** That's real capital and a real
+reason to skip it. But that's the *training provider* again — the same split as the teen
+pathway, and the instructor side of it is the cheapest credential in this entire file.
 
-CDL schools charge several thousand dollars per student against $545–$695 for teen driver
-ed, and the driver shortage that makes trucking pay well is the same shortage that fills CDL
-classrooms. **Your existing license is a prerequisite you already hold** — which is not true
-of anyone entering this from outside the industry.
+### Washington charges nothing for it
 
-I haven't researched the WA CDL-instructor requirements in the same depth as the teen
-pathway. If this angle interests you, it's worth a dedicated look — the revenue per student
-is roughly 5–10× and your qualification is already in your wallet.
+**There is no fee to register as a CDL training provider or instructor in Washington.**
+Registration runs online through the Professional and Business Licensing Service (PBLS) with
+a SecureAccess Washington account, and processing takes up to three weeks. Requirements sit
+in **WAC 308-100-005**.
+
+Compare that to $318 and a 60-hour course for the teen-driver instructor license, or $500
+plus a facility for a school. **Free, online, three weeks.**
+
+### You are already qualified — for a specific slice
+
+Federal ELDT rules (49 CFR 380, subpart G) set the bar:
+
+- **Theory instructor:** hold a CDL of the same or higher class, with all endorsements needed
+  for the vehicle being taught, **and** at least 2 years driving experience with that
+  class/endorsement.
+- **Behind-the-wheel instructor:** hold that same CDL and endorsements, **or** have 2 years
+  experience as a BTW CMV instructor.
+- **Range-only exception:** an instructor training solely on a range that isn't a public road
+  doesn't need to *currently* hold the CDL, provided they previously held it and meet the
+  other requirements.
+
+Your Class B with a passenger endorsement plus years of bus driving qualifies you to teach
+**Class B and passenger-endorsement training.** If you hold a school bus (S) endorsement,
+that too.
+
+**What it does not qualify you for is Class A tractor-trailer** — the segment where private
+CDL schools charge $4,000–$7,000 a head. Teaching that requires a Class A, which is a 3–6
+week, ~$4,000–$5,600 upgrade you'd already been considering in
+`TRANSPORTATION_NO_CAPITAL_PLAYBOOK.md`. Worth knowing the door exists; not required to start.
+
+### The employers who need Class B and passenger instructors already own the equipment
+
+Washington's guidance is explicit that training providers include **schools, employers, and
+individual instructors.** The employers are the point:
+
+- **Transit agencies** — King County Metro, Community Transit, Sound Transit, Pierce Transit.
+  They own the buses, they own the training yard, and they run operator training in-house
+  because they must.
+- **School districts** — chronic driver shortages, own the buses and the lots, and need
+  S-endorsement training constantly.
+- **Municipal and utility fleets** — same structure, own equipment.
+
+None of them need you to bring a vehicle. All of them need exactly the class and endorsement
+you already hold.
+
+### This closes the loop with the first thing in this file
+
+`BUS_OPERATOR_PLAYBOOK.md` identified the transit internal ladder as operator → rail →
+**instructor → training supervisor**, with MBTA and King County Metro both running formal
+pathways. That ladder *is* this idea. Becoming an operator trainer at a transit agency
+requires **no truck, no lot, no capital, no LLC** — and it keeps the pension, the seniority,
+and the benefits intact while moving you into instruction.
+
+If you're at a union agency, this is the highest-value version of the driving-school idea
+available to you, and it doesn't require leaving anything behind. The free DOL instructor
+registration is a credential you can add to your file *now*, before any internal posting
+opens — which is exactly the kind of thing that decides who gets the posting.
+
+### What to do
+
+1. **Register with DOL as a CDL instructor.** Free, online via PBLS, ~3 weeks. Check
+   WAC 308-100-005 first, and email **dolcdltpr@dol.wa.gov** with questions. There is no
+   reason not to hold this.
+2. **Ask your employer whether they run in-house operator training**, who staffs it, and what
+   the path into it looks like. If you're at a transit agency or district, start here.
+3. **Then ask about the private side** — Class B and passenger training for municipal fleets
+   and districts that don't train in-house.
 
 ---
 

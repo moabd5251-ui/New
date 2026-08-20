@@ -144,15 +144,101 @@ def run(symbol):
                   f"down {(v < 0).mean()*100:4.1f}%   n={len(v)}   "
                   f"(unconditional mean {base[h]:+.2f}%)")
         print("  A short profits when these are NEGATIVE. Compare each with the "
-              "unconditional\n  mean, not with zero — gold drifts up, so beating "
+              "unconditional\n  mean, not with zero — these drift up, so beating "
               "zero is not the test.")
-    return dict(symbol=symbol, full=fs, subsets=sub, episodes=len(starts))
+
+    cond = forward(close, starts) if starts else {h: [] for h in HORIZONS}
+    uncond = {h: list((close.shift(-h) / close - 1).dropna() * 100) for h in HORIZONS}
+    # starts must be filtered with the SAME rule forward() used for the 5-day
+    # horizon, or zipping the two in pooled() pairs a date with another date's
+    # return. cond[5] keeps episodes where i+5 is in range; so does this.
+    n = len(close)
+    starts_5 = [d for d in starts if close.index.get_loc(d) + 5 < n]
+    assert len(starts_5) == len(cond[5]), "starts/cond misaligned"
+    return dict(symbol=symbol, full=fs, subsets=sub, episodes=len(starts),
+                starts=starts_5, cond=cond, uncond=uncond)
+
+
+def welch(a, b):
+    """t for mean(a) - mean(b), unequal variances. Returns (diff, t)."""
+    a, b = np.asarray(a, float), np.asarray(b, float)
+    if len(a) < 2 or len(b) < 2:
+        return float("nan"), float("nan")
+    se = np.sqrt(a.var(ddof=1) / len(a) + b.var(ddof=1) / len(b))
+    d = a.mean() - b.mean()
+    return d, (d / se if se > 0 else float("nan"))
+
+
+def pooled(out):
+    """Deep-short episodes pooled across every market — the whole point of running
+    the universe. Gold alone gave 23 episodes, which cannot settle anything."""
+    print(f"\n{'='*74}\nPOOLED DEEP SHORT (exposure <= {DEEP:+.0%}) across "
+          f"{len(out)} markets\n{'='*74}")
+    tot = sum(o["episodes"] for o in out)
+    print(f"{tot} distinct episodes\n")
+    print(f"{'':6}{'cond mean':>11}{'uncond':>9}{'diff':>9}{'t':>7}{'down%':>8}{'n':>6}")
+    for h in HORIZONS:
+        c = [x for o in out for x in o["cond"][h]]
+        u = [x for o in out for x in o["uncond"][h]]
+        if len(c) < 2:
+            continue
+        d, t = welch(c, u)
+        ca = np.array(c)
+        print(f"+{h:<5}{ca.mean():+10.2f}%{np.mean(u):+8.2f}%{d:+8.2f}pp"
+              f"{t:+7.2f}{(ca < 0).mean()*100:7.1f}%{len(c):6}")
+    # ---- the correction that matters ----------------------------------------
+    # The block above treats every episode as an independent observation, and they
+    # are nothing of the sort: SPY, QQQ, IWM, DIA, EFA, EEM, EWJ, EWG and EWU are
+    # nine views of one equity factor and go deeply short in the same week. Counting
+    # each separately inflates n roughly threefold and shrinks the standard error by
+    # sqrt(3), which is exactly how a null result is made to look significant.
+    #
+    # Collapsing episodes that begin within five days of each other into one macro
+    # event, then testing the CLUSTER means, removes that. On this universe it takes
+    # the +5d result from t = -2.50 to t = +0.13 and flips its sign — the pooled
+    # effect was an artifact of double counting, not a signal.
+    allep = sorted((d, o["symbol"]) for o in out for d in o.get("starts", []))
+    clusters, cur = [], []
+    for d, s in allep:
+        if cur and (d - cur[-1][0]).days > 5:
+            clusters.append(cur)
+            cur = []
+        cur.append((d, s))
+    if cur:
+        clusters.append(cur)
+
+    by_sym = {o["symbol"]: dict(zip(o.get("starts", []), o["cond"][5])) for o in out}
+    means = []
+    for cl in clusters:
+        v = [by_sym[s][d] for d, s in cl if d in by_sym.get(s, {})]
+        if v:
+            means.append(float(np.mean(v)))
+    if len(means) > 2:
+        m = np.array(means)
+        t = m.mean() / (m.std(ddof=1) / np.sqrt(len(m)))
+        print(f"\nCLUSTER-CORRECTED +5d — episodes within 5 days collapsed to one event")
+        print(f"  {len(clusters)} independent events (from {tot} raw episodes)")
+        print(f"  mean {m.mean():+.3f}%   t vs 0 = {t:+.2f}")
+        print("  The naive block above is the SAME data with correlated markets counted"
+              "\n  as independent. Where the two disagree, this line is the honest one.")
 
 
 def main():
-    syms = [s.upper() for s in sys.argv[1:]] or ["GLD"]
-    out = [run(s) for s in syms]
+    args = [s.upper() for s in sys.argv[1:]]
+    if not args:
+        syms = ["GLD"]
+    elif args[0] in ("--UNIVERSE", "-U"):
+        syms = [m["symbol"] for m in T.UNIVERSE]
+    else:
+        syms = args
+    out = []
+    for s in syms:
+        try:
+            out.append(run(s))
+        except Exception as e:                     # one bad feed must not kill the study
+            print(f"\n[{s}] skipped: {str(e)[:70]}")
     if len(out) > 1:
+        pooled(out)
         print(f"\n{'='*74}\nSUMMARY — full panel vs median 5-subset\n{'='*74}")
         print(f"{'SYM':6}{'CAGR10':>9}{'CAGR5':>9}{'SH10':>7}{'SH5':>7}"
               f"{'CHG10':>8}{'CHG5':>8}")

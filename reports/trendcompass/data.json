@@ -1,0 +1,21 @@
+{"asof":"2026-08-19","generated":"2026-08-20","instruments":[
+{"name":"CASH DJIA","short":"DJIA","cls":"Equity","ccy":"$","price":"53463.05","n":10,"cur":9,"chg":0,"new":9,"etf":"DIA","etf_exp":80},
+{"name":"CME S&P500","short":"S&P 500","cls":"Equity","ccy":"$","price":"7729.0","n":10,"cur":8,"chg":1,"new":9,"etf":"SPY","etf_exp":90},
+{"name":"CME Nikkei 225 (USD)","short":"Nikkei 225","cls":"Equity","ccy":"$","price":"65.985","n":10,"cur":9,"chg":0,"new":9,"etf":"EWJ","etf_exp":90},
+{"name":"EURONEXT FTSE 100","short":"FTSE 100","cls":"Equity","ccy":"£","price":"10773.0","n":10,"cur":7,"chg":1,"new":8,"etf":"EWU","etf_exp":70},
+{"name":"EUREX DAX","short":"DAX","cls":"Equity","ccy":"€","price":"26184.0","n":10,"cur":2,"chg":5,"new":7,"etf":"EWG","etf_exp":80},
+{"name":"CME Russell 2000","short":"Russell 2000","cls":"Equity","ccy":"$","price":"3039.9","n":10,"cur":6,"chg":0,"new":6,"etf":"IWM","etf_exp":100},
+{"name":"CME Nasdaq 100","short":"Nasdaq 100","cls":"Equity","ccy":"$","price":"29512.75","n":10,"cur":4,"chg":0,"new":4,"etf":"QQQ","etf_exp":30},
+{"name":"CASH GBP/USD","short":"GBP/USD","cls":"FX","ccy":"$","price":"1.3606","n":10,"cur":2,"chg":2,"new":4,"etf":null,"etf_exp":null},
+{"name":"CME Bitcoin","short":"Bitcoin","cls":"Crypto","ccy":"$","price":"68575.0","n":10,"cur":1,"chg":2,"new":3,"etf":"IBIT","etf_exp":20},
+{"name":"CASH USD/JPY","short":"USD/JPY","cls":"FX","ccy":"JPY","price":"158.144","n":10,"cur":2,"chg":0,"new":2,"etf":"FXY","etf_exp":-50},
+{"name":"CME USD:CHF","short":"USD/CHF","cls":"FX","ccy":"$","price":"1.2569","n":10,"cur":-5,"chg":1,"new":-4,"etf":null,"etf_exp":null},
+{"name":"COMEX Gold","short":"Gold","cls":"Commodity","ccy":"$","price":"4511.3","n":5,"cur":-4,"chg":0,"new":-4,"etf":"GLD","etf_exp":30},
+{"name":"OSE Japan Gov't Bond","short":"JGB","cls":"Rates","ccy":"JPY","price":"126.42","n":5,"cur":-4,"chg":0,"new":-4,"etf":null,"etf_exp":null},
+{"name":"ME Canada 10 Yr Govt Bond","short":"Canada 10Y","cls":"Rates","ccy":"CAD","price":"118.52","n":10,"cur":-9,"chg":0,"new":-9,"etf":null,"etf_exp":null},
+{"name":"CASH EUR/USD","short":"EUR/USD","cls":"FX","ccy":"$","price":"1.1681","n":10,"cur":-10,"chg":0,"new":-10,"etf":"FXE","etf_exp":60},
+{"name":"CBT US 10-year T-Note","short":"US 10Y","cls":"Rates","ccy":"$","price":"108.7813","n":5,"cur":-5,"chg":0,"new":-5,"etf":"IEF","etf_exp":-60},
+{"name":"CBT US 30-yr T-Bond","short":"US 30Y","cls":"Rates","ccy":"$","price":"109.9688","n":5,"cur":-5,"chg":0,"new":-5,"etf":"TLT","etf_exp":-70},
+{"name":"EUREX German Bund","short":"Bund","cls":"Rates","ccy":"€","price":"123.76","n":5,"cur":-5,"chg":0,"new":-5,"etf":null,"etf_exp":null},
+{"name":"EURONEXT Gilt","short":"Gilt","cls":"Rates","ccy":"£","price":"86.31","n":5,"cur":-5,"chg":0,"new":-5,"etf":null,"etf_exp":null}
+]}

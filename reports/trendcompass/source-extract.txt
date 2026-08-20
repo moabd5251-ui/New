@@ -1,0 +1,2140 @@
+=== PAGE 1 ===
+Instrument
+Signals for
+ last trading day
+Date
+Price
+Strategies
+used
+Current exposure
+Strategies
+% of total
+Today's change
+New exposure
+Strategies
+% of total
+CASH DJIA
+19 Aug. 2026
+$ 
+53463.05
+10
+9
+90 %
+-
+9
+90 %
+CASH EUR/USD
+19 Aug. 2026
+$ 
+1.1681
+10
+-10
+-100 %
+-
+-10
+-100 %
+CASH GBP/USD
+19 Aug. 2026
+$ 
+1.3606
+10
+2
+20 %
++2
+4
+40 %
+CASH USD/JPY
+19 Aug. 2026
+JPY
+158.144
+10
+2
+20 %
+-
+2
+20 %
+CBT US 10-year T-Note
+19 Aug. 2026
+$ 
+108.7813
+5
+-5
+-100 %
+-
+-5
+-100 %
+CBT US 30-yr T-Bond
+19 Aug. 2026
+$ 
+109.9688
+5
+-5
+-100 %
+-
+-5
+-100 %
+CME Bitcoin
+19 Aug. 2026
+$ 
+68575.0
+10
+1
+10 %
++2
+3
+30 %
+CME Nasdaq 100
+19 Aug. 2026
+$ 
+29512.75
+10
+4
+40 %
+-
+4
+40 %
+CME Nikkei 225 (USD)
+19 Aug. 2026
+$ 
+65.985
+10
+9
+90 %
+-
+9
+90 %
+CME Russell 2000
+19 Aug. 2026
+$ 
+3039.9
+10
+6
+60 %
+-
+6
+60 %
+CME S&P500
+19 Aug. 2026
+$ 
+7729.0
+10
+8
+80 %
++1
+9
+90 %
+CME USD:CHF
+19 Aug. 2026
+$ 
+1.2569
+10
+-5
+-50 %
++1
+-4
+-40 %
+COMEX Gold
+19 Aug. 2026
+$ 
+4511.3
+5
+-4
+-80 %
+-
+-4
+-80 %
+EUREX DAX
+19 Aug. 2026
+€ 
+26184.0
+10
+2
+20 %
++5
+7
+70 %
+EUREX German Bund
+19 Aug. 2026
+€ 
+123.76
+5
+-5
+-100 %
+-
+-5
+-100 %
+EURONEXT FTSE 100
+19 Aug. 2026
+£ 
+10773.0
+10
+7
+70 %
++1
+8
+80 %
+EURONEXT Gilt
+19 Aug. 2026
+£ 
+86.31
+5
+-5
+-100 %
+-
+-5
+-100 %
+ME Canada 10 Yr Govt Bond
+19 Aug. 2026
+CAD
+118.52
+10
+-9
+-90 %
+-
+-9
+-90 %
+OSE Japan Gov't Bond
+19 Aug. 2026
+JPY
+126.42
+5
+-4
+-80 %
+-
+-4
+-80 %
+Color indicates:
+long exposure
+no exsposure
+short exposure
+Disclaimer: 
+Trading in market instruments included in these reports entails substantial risk of loss. TrendCompass reports are a form of supplemental decision support aiming to provide guidance as to the likely activities of CTA investment funds which are believed to lead or influence price fluctuations in 
+many markets. The reports represent an approximation of their trades based on I-System trend following strategies which we believe to be similar to models used by CTAs funds. TrendCompass reports should not be deemed as an inducement to trade. DATA INTEGRITY: TrendCompass reports are based 
+on price data published by clearinghouses of various global securities exchanges and may from time to time contain errors. Corrections of data errors are regularly published by exchange clearinghouses and such corrections may on occasion retroactively change the trading recommendations 
+communicated in TrendCompass reports. To minimize such errors, we have sourced the data from providers whom we believe to be reliable. However, we can not guarantee the accuracy, completeness, or continued availability of the data.
+page 1 of 20
+TrendCompass report for
+KEY MARKETS
+  
+Report generated on 20 Aug. 2026
+
+=== PAGE 2 ===
+Trading strategies were generated with I-System technology. All trading signals based on last business day's closing prices. 
+For each strategy, market exposure is shown as 1 for long exposure, -1 for short 
+exposure, and "-" for no exposure (neutral).
+CASH DJIA
+CURRENT EXPOSURE
+TODAY'S CHANGES
+NEW EXPOSURE
+Price(
+$
+) 
+53463.05
+ (COB, 
+19.08.2026
+)
+90%
+ 
+LONG
+NO CHANGE TODAY
+90%
+ 
+LONG
+STRATEGIES
+SIGNALS
+CHANGE
+1
+DJ 04.2 L
++1
+LONG
+-
+-
++1
+LONG
+2
+DJ 05.3 L
++1
+LONG
+-
+-
++1
+LONG
+3
+DJ 09.4 MS
++1
+LONG
+-
+-
++1
+LONG
+4
+DJ 11.1 LM
+-
+NEUTRAL
+-
+-
+-
+NEUTRAL
+5
+DJ 12.1b L
++1
+LONG
+-
+-
++1
+LONG
+6
+DJ 15.2 L
++1
+LONG
+-
+-
++1
+LONG
+7
+DJ 19.2 L
++1
+LONG
+-
+-
++1
+LONG
+8
+DJ 20.3 MS
++1
+LONG
+-
+-
++1
+LONG
+9
+DJ 23.3 MS
++1
+LONG
+-
+-
++1
+LONG
+10
+DJ 24.2 MS
++1
+LONG
+-
+-
++1
+LONG
+10
+ 
+STRATEGIES
++9
+0
++9
+page 2 of 20
+TrendCompass report for
+KEY MARKETS
+  
+Report generated on 20 Aug. 2026
+
+=== PAGE 3 ===
+CASH EUR/USD
+CURRENT EXPOSURE
+TODAY'S CHANGES
+NEW EXPOSURE
+Price(
+$
+) 
+1.1681
+ (COB, 
+19.08.2026
+)
+100%
+ 
+SHORT
+NO CHANGE TODAY
+100%
+ 
+SHORT
+STRATEGIES
+SIGNALS
+CHANGE
+11
+EUR 02.T M
+-1
+SHORT
+-
+-
+-1
+SHORT
+12
+EUR 04.T LM
+-1
+SHORT
+-
+-
+-1
+SHORT
+13
+EUR 06.T LM
+-1
+SHORT
+-
+-
+-1
+SHORT
+14
+EUR 09.T M
+-1
+SHORT
+-
+-
+-1
+SHORT
+15
+EUR 13.T M
+-1
+SHORT
+-
+-
+-1
+SHORT
+16
+EUR 14.T L
+-1
+SHORT
+-
+-
+-1
+SHORT
+17
+EUR 27.T L
+-1
+SHORT
+-
+-
+-1
+SHORT
+18
+EUR 35.T L
+-1
+SHORT
+-
+-
+-1
+SHORT
+19
+EUR 39.T MS
+-1
+SHORT
+-
+-
+-1
+SHORT
+20
+EUR 40.T MS
+-1
+SHORT
+-
+-
+-1
+SHORT
+10
+ 
+STRATEGIES
+-10
+0
+-10
+page 3 of 20
+TrendCompass report for
+KEY MARKETS
+  
+Report generated on 20 Aug. 2026
+
+=== PAGE 4 ===
+CASH GBP/USD
+CURRENT EXPOSURE
+TODAY'S CHANGES
+NEW EXPOSURE
+Price(
+$
+) 
+1.3606
+ (COB, 
+19.08.2026
+)
+20%
+ 
+LONG
+ADD LONG EXPOSURE
+40%
+ 
+LONG
+STRATEGIES
+SIGNALS
+CHANGE
+21
+GBP 01.T L
++1
+LONG
+-
+-
++1
+LONG
+22
+GBP 03.T M
++1
+LONG
+-
+-
++1
+LONG
+23
+GBP 04.T L
++1
+LONG
+-
+-
++1
+LONG
+24
+GBP 05.T L
++1
+LONG
+-
+-
++1
+LONG
+25
+GBP 06.T MS
++1
+LONG
+-
+-
++1
+LONG
+26
+GBP 07.T L
+-1
+SHORT
+BUY (exit short, enter long)
++2
++1
+LONG
+27
+GBP 09.T L
+-1
+SHORT
+-
+-
+-1
+SHORT
+28
+GBP 11.T MS
++1
+LONG
+-
+-
++1
+LONG
+29
+GBP 13.T LM
+-1
+SHORT
+-
+-
+-1
+SHORT
+30
+GBP 14.T M
+-1
+SHORT
+-
+-
+-1
+SHORT
+10
+ 
+STRATEGIES
++2
++2
++4
+page 4 of 20
+TrendCompass report for
+KEY MARKETS
+  
+Report generated on 20 Aug. 2026
+
+=== PAGE 5 ===
+CASH USD/JPY
+CURRENT EXPOSURE
+TODAY'S CHANGES
+NEW EXPOSURE
+Price(
+JPY
+) 
+158.144
+ (COB, 
+19.08.2026
+)
+20%
+ 
+LONG
+NO CHANGE TODAY
+20%
+ 
+LONG
+STRATEGIES
+SIGNALS
+CHANGE
+31
+YEN 08.T LM
++1
+LONG
+-
+-
++1
+LONG
+32
+YEN 11.T L
++1
+LONG
+-
+-
++1
+LONG
+33
+YEN 12 .T L
+-1
+SHORT
+-
+-
+-1
+SHORT
+35
+YEN 16.T L
+-2
+SHORT
+-
+-
+-2
+SHORT
+36
+YEN 18.T LM
+-1
+SHORT
+-
+-
+-1
+SHORT
+37
+YEN 21.T M
++1
+LONG
+-
+-
++1
+LONG
+38
+YEN 23.T M
++1
+LONG
+-
+-
++1
+LONG
+39
+YEN 25.T LM
++1
+LONG
+-
+-
++1
+LONG
+40
+YEN 26.T MS
++1
+LONG
+-
+-
++1
+LONG
+10
+ 
+STRATEGIES
++2
+0
++2
+page 5 of 20
+TrendCompass report for
+KEY MARKETS
+  
+Report generated on 20 Aug. 2026
+
+=== PAGE 6 ===
+CBT US 10-year T-Note
+CURRENT EXPOSURE
+TODAY'S CHANGES
+NEW EXPOSURE
+Price(
+$
+) 
+108.7813
+ (COB, 
+19.08.2026
+)
+100%
+ 
+SHORT
+NO CHANGE TODAY
+100%
+ 
+SHORT
+STRATEGIES
+SIGNALS
+CHANGE
+41
+TY 01.T MS
+-1
+SHORT
+-
+-
+-1
+SHORT
+42
+TY 04.1 LM
+-1
+SHORT
+-
+-
+-1
+SHORT
+43
+TY 07.T MS
+-1
+SHORT
+-
+-
+-1
+SHORT
+44
+TY 17.T L
+-1
+SHORT
+-
+-
+-1
+SHORT
+45
+TY 19.T M
+-1
+SHORT
+-
+-
+-1
+SHORT
+5
+ 
+STRATEGIES
+-5
+0
+-5
+page 6 of 20
+TrendCompass report for
+KEY MARKETS
+  
+Report generated on 20 Aug. 2026
+
+=== PAGE 7 ===
+CBT US 30-yr T-Bond
+CURRENT EXPOSURE
+TODAY'S CHANGES
+NEW EXPOSURE
+Price(
+$
+) 
+109.9688
+ (COB, 
+19.08.2026
+)
+100%
+ 
+SHORT
+NO CHANGE TODAY
+100%
+ 
+SHORT
+STRATEGIES
+SIGNALS
+CHANGE
+46
+US 01.S
+-1
+SHORT
+-
+-
+-1
+SHORT
+47
+US 23.T
+-1
+SHORT
+-
+-
+-1
+SHORT
+48
+US 30.1
+-1
+SHORT
+-
+-
+-1
+SHORT
+49
+US 33.T
+-1
+SHORT
+-
+-
+-1
+SHORT
+50
+US 36.T
+-1
+SHORT
+-
+-
+-1
+SHORT
+5
+ 
+STRATEGIES
+-5
+0
+-5
+page 7 of 20
+TrendCompass report for
+KEY MARKETS
+  
+Report generated on 20 Aug. 2026
+
+=== PAGE 8 ===
+CME Bitcoin
+CURRENT EXPOSURE
+TODAY'S CHANGES
+NEW EXPOSURE
+Price(
+$
+) 
+68575.0
+ (COB, 
+19.08.2026
+)
+10%
+ 
+LONG
+ADD LONG EXPOSURE
+30%
+ 
+LONG
+STRATEGIES
+SIGNALS
+CHANGE
+51
+BTC 02.3 M
++1
+LONG
+-
+-
++1
+LONG
+52
+BTC 03.1 MS
+-
+NEUTRAL
+BUY (enter long)
++1
++1
+LONG
+53
+BTC 04.2B MS
+-
+NEUTRAL
+SELL (enter short)
+-1
+-1
+SHORT
+54
+BTC 05.3 M
+-1
+SHORT
+BUY (exit short)
++1
+-
+NEUTRAL
+55
+BTC 07.4B M
++1
+LONG
+-
+-
++1
+LONG
+56
+BTC 09.4B S
++1
+LONG
+-
+-
++1
+LONG
+57
+BTC 10.3 MS
+-1
+SHORT
+BUY (exit short)
++1
+-
+NEUTRAL
+58
+BTC 11.4 MS
++1
+LONG
+-
+-
++1
+LONG
+59
+BTC 12.3 L
+-1
+SHORT
+BUY (exit short)
++1
+-
+NEUTRAL
+60
+BTC 13.1 L
+-
+NEUTRAL
+SELL (enter short)
+-1
+-1
+SHORT
+10
+ 
+STRATEGIES
++1
++2
++3
+page 8 of 20
+TrendCompass report for
+KEY MARKETS
+  
+Report generated on 20 Aug. 2026
+
+=== PAGE 9 ===
+CME Nasdaq 100
+CURRENT EXPOSURE
+TODAY'S CHANGES
+NEW EXPOSURE
+Price(
+$
+) 
+29512.75
+ (COB, 
+19.08.2026
+)
+40%
+ 
+LONG
+NO CHANGE TODAY
+40%
+ 
+LONG
+STRATEGIES
+SIGNALS
+CHANGE
+61
+NQ 01.1 M
+-1
+SHORT
+-
+-
+-1
+SHORT
+62
+NQ 02.3 L
++1
+LONG
+-
+-
++1
+LONG
+63
+NQ 03.2 M
++1
+LONG
+-
+-
++1
+LONG
+64
+NQ 03A.2 L
++1
+LONG
+-
+-
++1
+LONG
+65
+NQ 04.4 M
+-1
+SHORT
+-
+-
+-1
+SHORT
+66
+NQ 06.3 S
++1
+LONG
+-
+-
++1
+LONG
+67
+NQ 07.3 M
++1
+LONG
+-
+-
++1
+LONG
+68
+NQ 09.3 L
++1
+LONG
+-
+-
++1
+LONG
+69
+NQ 10.4 LM
+-1
+SHORT
+-
+-
+-1
+SHORT
+70
+NQ 11.1 LM
++1
+LONG
+-
+-
++1
+LONG
+10
+ 
+STRATEGIES
++4
+0
++4
+page 9 of 20
+TrendCompass report for
+KEY MARKETS
+  
+Report generated on 20 Aug. 2026
+
+=== PAGE 10 ===
+CME Nikkei 225 (USD)
+CURRENT EXPOSURE
+TODAY'S CHANGES
+NEW EXPOSURE
+Price(
+$
+) 
+65.985
+ (COB, 
+19.08.2026
+)
+90%
+ 
+LONG
+NO CHANGE TODAY
+90%
+ 
+LONG
+STRATEGIES
+SIGNALS
+CHANGE
+71
+NK 01.2 M
++1
+LONG
+-
+-
++1
+LONG
+72
+NK 03.1 LM
++1
+LONG
+-
+-
++1
+LONG
+73
+NK 06.1 L
++1
+LONG
+-
+-
++1
+LONG
+74
+NK 13.2 L
++1
+LONG
+-
+-
++1
+LONG
+75
+NK 15.2 L
++1
+LONG
+-
+-
++1
+LONG
+76
+NK1 05.2 L
++1
+LONG
+-
+-
++1
+LONG
+77
+NK1 08.1 LM
++1
+LONG
+-
+-
++1
+LONG
+78
+NK1 11.2 L
+-
+NEUTRAL
+-
+-
+-
+NEUTRAL
+79
+NK1 16.1 L
++1
+LONG
+-
+-
++1
+LONG
+80
+NK1 17.2 MS
++1
+LONG
+-
+-
++1
+LONG
+10
+ 
+STRATEGIES
++9
+0
++9
+page 10 of 20
+TrendCompass report for
+KEY MARKETS
+  
+Report generated on 20 Aug. 2026
+
+=== PAGE 11 ===
+CME Russell 2000
+CURRENT EXPOSURE
+TODAY'S CHANGES
+NEW EXPOSURE
+Price(
+$
+) 
+3039.9
+ (COB, 
+19.08.2026
+)
+60%
+ 
+LONG
+NO CHANGE TODAY
+60%
+ 
+LONG
+STRATEGIES
+SIGNALS
+CHANGE
+81
+RL 01.1 MS
++1
+LONG
+-
+-
++1
+LONG
+82
+RL 02.3 S
++1
+LONG
+-
+-
++1
+LONG
+83
+RL 02n.1
+-
+NEUTRAL
+-
+-
+-
+NEUTRAL
+84
+RL 03.2
++1
+LONG
+-
+-
++1
+LONG
+85
+RL 05.3 M
+-
+NEUTRAL
+-
+-
+-
+NEUTRAL
+86
+RL 10.2
++1
+LONG
+-
+-
++1
+LONG
+87
+RL 14.1 LM
+-
+NEUTRAL
+-
+-
+-
+NEUTRAL
+88
+RL 18.1
++1
+LONG
+-
+-
++1
+LONG
+89
+RL 19.2 L
+-
+NEUTRAL
+-
+-
+-
+NEUTRAL
+90
+RL 20.T
++1
+LONG
+-
+-
++1
+LONG
+10
+ 
+STRATEGIES
++6
+0
++6
+page 11 of 20
+TrendCompass report for
+KEY MARKETS
+  
+Report generated on 20 Aug. 2026
+
+=== PAGE 12 ===
+CME S&P500
+CURRENT EXPOSURE
+TODAY'S CHANGES
+NEW EXPOSURE
+Price(
+$
+) 
+7729.0
+ (COB, 
+19.08.2026
+)
+80%
+ 
+LONG
+ADD LONG EXPOSURE
+90%
+ 
+LONG
+STRATEGIES
+SIGNALS
+CHANGE
+91
+ES 02.1 M
++1
+LONG
+-
+-
++1
+LONG
+92
+ES 04.3 LM
++1
+LONG
+-
+-
++1
+LONG
+93
+ES 06.1
++1
+LONG
+-
+-
++1
+LONG
+94
+ES 07.4
++1
+LONG
+-
+-
++1
+LONG
+95
+ES 09.1
+-
+NEUTRAL
+BUY (enter long)
++1
++1
+LONG
+96
+ES 13.2 L
++1
+LONG
+-
+-
++1
+LONG
+97
+ES 16.1 L
++1
+LONG
+-
+-
++1
+LONG
+98
+ES 20.3
++1
+LONG
+-
+-
++1
+LONG
+99
+ES 26.3
++1
+LONG
+-
+-
++1
+LONG
+100
+ES 34.1 L
+-
+NEUTRAL
+-
+-
+-
+NEUTRAL
+10
+ 
+STRATEGIES
++8
++1
++9
+page 12 of 20
+TrendCompass report for
+KEY MARKETS
+  
+Report generated on 20 Aug. 2026
+
+=== PAGE 13 ===
+CME USD:CHF
+CURRENT EXPOSURE
+TODAY'S CHANGES
+NEW EXPOSURE
+Price(
+$
+) 
+1.2569
+ (COB, 
+19.08.2026
+)
+50%
+ 
+SHORT
+REDUCE SHORT EXPOSURE
+40%
+ 
+SHORT
+STRATEGIES
+SIGNALS
+CHANGE
+101
+CHF_1.2
+-
+NEUTRAL
+SELL (enter short)
+-1
+-1
+SHORT
+102
+CHF_1.3
+-
+NEUTRAL
+SELL (enter short)
+-1
+-1
+SHORT
+103
+CHF_11.2
+-
+NEUTRAL
+-
+-
+-
+NEUTRAL
+104
+CHF_11.4
+-
+NEUTRAL
+-
+-
+-
+NEUTRAL
+105
+CHF_4.1
+-1
+SHORT
+BUY (exit short)
++1
+-
+NEUTRAL
+106
+CHF_4.2
+-1
+SHORT
+-
+-
+-1
+SHORT
+107
+CHF_5.2
+-1
+SHORT
+BUY (exit short)
++1
+-
+NEUTRAL
+108
+CHF_5.3
+-1
+SHORT
+-
+-
+-1
+SHORT
+109
+CHF_9.1
+-1
+SHORT
+BUY (exit short)
++1
+-
+NEUTRAL
+110
+CHF_9.2
+-
+NEUTRAL
+-
+-
+-
+NEUTRAL
+10
+ 
+STRATEGIES
+-5
++1
+-4
+page 13 of 20
+TrendCompass report for
+KEY MARKETS
+  
+Report generated on 20 Aug. 2026
+
+=== PAGE 14 ===
+COMEX Gold
+CURRENT EXPOSURE
+TODAY'S CHANGES
+NEW EXPOSURE
+Price(
+$
+) 
+4511.3
+ (COB, 
+19.08.2026
+)
+80%
+ 
+SHORT
+NO CHANGE TODAY
+80%
+ 
+SHORT
+STRATEGIES
+SIGNALS
+CHANGE
+111
+GC 01.T M
+-1
+SHORT
+-
+-
+-1
+SHORT
+112
+GC 05.1 LM
+-1
+SHORT
+-
+-
+-1
+SHORT
+113
+GC 13.2 LM
+-1
+SHORT
+-
+-
+-1
+SHORT
+114
+GC 16.3 L
+-1
+SHORT
+-
+-
+-1
+SHORT
+115
+GC 17.2 L
+-
+NEUTRAL
+-
+-
+-
+NEUTRAL
+5
+ 
+STRATEGIES
+-4
+0
+-4
+page 14 of 20
+TrendCompass report for
+KEY MARKETS
+  
+Report generated on 20 Aug. 2026
+
+=== PAGE 15 ===
+EUREX DAX
+CURRENT EXPOSURE
+TODAY'S CHANGES
+NEW EXPOSURE
+Price(
+€
+) 
+26184.0
+ (COB, 
+19.08.2026
+)
+20%
+ 
+LONG
+ADD LONG EXPOSURE
+70%
+ 
+LONG
+STRATEGIES
+SIGNALS
+CHANGE
+116
+DAX 01.3 LM
++1
+LONG
+-
+-
++1
+LONG
+117
+DAX 08.2 L
+-
+NEUTRAL
+BUY (enter long)
++1
++1
+LONG
+118
+DAX 13.1 L
+-
+NEUTRAL
+BUY (enter long)
++1
++1
+LONG
+119
+DAX 19.2 L
+-
+NEUTRAL
+BUY (enter long)
++1
++1
+LONG
+120
+DAX 28.2 LM
+-
+NEUTRAL
+-
+-
+-
+NEUTRAL
+121
+DAX 32.1 L
++1
+LONG
+-
+-
++1
+LONG
+122
+DAX 34.2 LM
+-
+NEUTRAL
+BUY (enter long)
++1
++1
+LONG
+123
+DAX 44.3 L
+-
+NEUTRAL
+BUY (enter long)
++1
++1
+LONG
+124
+DAX 48.1 L
+-
+NEUTRAL
+-
+-
+-
+NEUTRAL
+125
+DAX 49.1 L
+-
+NEUTRAL
+-
+-
+-
+NEUTRAL
+10
+ 
+STRATEGIES
++2
++5
++7
+page 15 of 20
+TrendCompass report for
+KEY MARKETS
+  
+Report generated on 20 Aug. 2026
+
+=== PAGE 16 ===
+EUREX German Bund
+CURRENT EXPOSURE
+TODAY'S CHANGES
+NEW EXPOSURE
+Price(
+€
+) 
+123.76
+ (COB, 
+19.08.2026
+)
+100%
+ 
+SHORT
+NO CHANGE TODAY
+100%
+ 
+SHORT
+STRATEGIES
+SIGNALS
+CHANGE
+126
+EBL 04.T S
+-1
+SHORT
+-
+-
+-1
+SHORT
+127
+EBL 08.T L
+-1
+SHORT
+-
+-
+-1
+SHORT
+128
+EBL 24.T S
+-1
+SHORT
+-
+-
+-1
+SHORT
+129
+EBL 25.T M
+-1
+SHORT
+-
+-
+-1
+SHORT
+130
+EBL 27.T L
+-1
+SHORT
+-
+-
+-1
+SHORT
+5
+ 
+STRATEGIES
+-5
+0
+-5
+page 16 of 20
+TrendCompass report for
+KEY MARKETS
+  
+Report generated on 20 Aug. 2026
+
+=== PAGE 17 ===
+EURONEXT FTSE 100
+CURRENT EXPOSURE
+TODAY'S CHANGES
+NEW EXPOSURE
+Price(
+£
+) 
+10773.0
+ (COB, 
+19.08.2026
+)
+70%
+ 
+LONG
+ADD LONG EXPOSURE
+80%
+ 
+LONG
+STRATEGIES
+SIGNALS
+CHANGE
+131
+FTSE 02.1 S
++1
+LONG
+-
+-
++1
+LONG
+132
+FTSE 04.3 L
++1
+LONG
+-
+-
++1
+LONG
+133
+FTSE 06.2 L
++1
+LONG
+-
+-
++1
+LONG
+134
+FTSE 07.1 L
++1
+LONG
+-
+-
++1
+LONG
+135
+FTSE 10.4 M
++1
+LONG
+-
+-
++1
+LONG
+136
+FTSE 12.1 LM
+-
+NEUTRAL
+BUY (enter long)
++1
++1
+LONG
+137
+FTSE 14.2 L
+-
+NEUTRAL
+-
+-
+-
+NEUTRAL
+138
+FTSE 16.3 LM
++1
+LONG
+-
+-
++1
+LONG
+139
+FTSE 21.T LM
++1
+LONG
+-
+-
++1
+LONG
+140
+FTSE 22.1 L
+-
+NEUTRAL
+-
+-
+-
+NEUTRAL
+10
+ 
+STRATEGIES
++7
++1
++8
+page 17 of 20
+TrendCompass report for
+KEY MARKETS
+  
+Report generated on 20 Aug. 2026
+
+=== PAGE 18 ===
+EURONEXT Gilt
+CURRENT EXPOSURE
+TODAY'S CHANGES
+NEW EXPOSURE
+Price(
+£
+) 
+86.31
+ (COB, 
+19.08.2026
+)
+100%
+ 
+SHORT
+NO CHANGE TODAY
+100%
+ 
+SHORT
+STRATEGIES
+SIGNALS
+CHANGE
+141
+FLG 10.1 M
+-1
+SHORT
+-
+-
+-1
+SHORT
+142
+FLG 11.1 L
+-1
+SHORT
+-
+-
+-1
+SHORT
+143
+FLG 13.1 L
+-1
+SHORT
+-
+-
+-1
+SHORT
+144
+FLG 17.3 MS
+-1
+SHORT
+-
+-
+-1
+SHORT
+145
+FLG 21.1 S
+-1
+SHORT
+-
+-
+-1
+SHORT
+5
+ 
+STRATEGIES
+-5
+0
+-5
+page 18 of 20
+TrendCompass report for
+KEY MARKETS
+  
+Report generated on 20 Aug. 2026
+
+=== PAGE 19 ===
+ME Canada 10 Yr Govt Bond
+CURRENT EXPOSURE
+TODAY'S CHANGES
+NEW EXPOSURE
+Price(
+CAD
+) 
+118.52
+ (COB, 
+19.08.2026
+)
+90%
+ 
+SHORT
+NO CHANGE TODAY
+90%
+ 
+SHORT
+STRATEGIES
+SIGNALS
+CHANGE
+146
+CGB 01.1
+-1
+SHORT
+-
+-
+-1
+SHORT
+147
+CGB 02.2bb
+-1
+SHORT
+-
+-
+-1
+SHORT
+148
+CGB 05.2
+-1
+SHORT
+-
+-
+-1
+SHORT
+149
+CGB 08.4
+-1
+SHORT
+-
+-
+-1
+SHORT
+150
+CGB 09.5B
+-1
+SHORT
+-
+-
+-1
+SHORT
+151
+CGB 10.3
+-
+NEUTRAL
+-
+-
+-
+NEUTRAL
+152
+CGB 11.1
+-1
+SHORT
+-
+-
+-1
+SHORT
+153
+CGB 12.1
+-1
+SHORT
+-
+-
+-1
+SHORT
+154
+CGB 13.2
+-1
+SHORT
+-
+-
+-1
+SHORT
+155
+CGB 14.3
+-1
+SHORT
+-
+-
+-1
+SHORT
+10
+ 
+STRATEGIES
+-9
+0
+-9
+page 19 of 20
+TrendCompass report for
+KEY MARKETS
+  
+Report generated on 20 Aug. 2026
+
+=== PAGE 20 ===
+OSE Japan Gov't Bond
+CURRENT EXPOSURE
+TODAY'S CHANGES
+NEW EXPOSURE
+Price(
+JPY
+) 
+126.42
+ (COB, 
+19.08.2026
+)
+80%
+ 
+SHORT
+NO CHANGE TODAY
+80%
+ 
+SHORT
+STRATEGIES
+SIGNALS
+CHANGE
+156
+JGB 02T S
+-1
+SHORT
+-
+-
+-1
+SHORT
+157
+JGB 03T M
+-1
+SHORT
+-
+-
+-1
+SHORT
+158
+JGB 05T S
+-1
+SHORT
+-
+-
+-1
+SHORT
+159
+JGB 08T L
+-
+NEUTRAL
+-
+-
+-
+NEUTRAL
+160
+JGB 09T M
+-1
+SHORT
+-
+-
+-1
+SHORT
+5
+ 
+STRATEGIES
+-4
+0
+-4
+page 20 of 20
+TrendCompass report for
+KEY MARKETS
+  
+Report generated on 20 Aug. 2026

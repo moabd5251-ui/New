@@ -9,29 +9,34 @@
       "opened": "2026-08-13",
       "entry_exposure": 10,
       "market": "Emerging Markets"
+    },
+    "QQQ": {
+      "opened": "2026-08-20",
+      "entry_exposure": 30,
+      "market": "Nasdaq 100"
     }
   },
-  "asof": "2026-08-12",
+  "asof": "2026-08-19",
   "last_exposures": {
-    "SPY": 100,
+    "IWM": 100,
     "XLE": 100,
     "XLV": 100,
-    "XLI": 100,
-    "EFA": 100,
-    "IWM": 90,
-    "TLT": -90,
+    "SPY": 90,
     "XLF": 80,
-    "XLU": -70,
-    "SLV": -30,
-    "GDX": 30,
-    "IBIT": -30,
-    "XLK": 20,
-    "XLP": 20,
-    "GLD": -10,
-    "EEM": 10,
-    "QQQ": 0
+    "EFA": 80,
+    "XLI": 70,
+    "TLT": -70,
+    "XLU": -60,
+    "GDX": 60,
+    "XLK": 40,
+    "QQQ": 30,
+    "XLP": 30,
+    "GLD": 30,
+    "EEM": 20,
+    "IBIT": 20,
+    "SLV": -10
   },
-  "generated": "2026-08-13T00:20:05Z",
+  "generated": "2026-08-20T02:50:04Z",
   "history": [
     {
       "action": "OPEN",
@@ -52,6 +57,16 @@
       "reason": "turned positive: -20% -> 10% (5/10 strategies long)",
       "at": "2026-08-13T00:20:05Z",
       "asof": "2026-08-12"
+    },
+    {
+      "action": "OPEN",
+      "symbol": "QQQ",
+      "market": "Nasdaq 100",
+      "exposure_pct": 30,
+      "rank": 10,
+      "reason": "turned positive: 0% -> 30% (6/10 strategies long)",
+      "at": "2026-08-20T02:50:04Z",
+      "asof": "2026-08-19"
     }
   ]
 }

@@ -1,0 +1,2 @@
+{"spec":1,"day":"2026-08-17","t":1786965720000,"direction":"long","entry":30292.5,"stop":30286.25,"riskPts":6.25,"r":0.856,"reason":"trail","barsHeld":18,"valueArea":{"poc":30141.5,"vah":30170,"val":30083,"entryInValueArea":false,"atrFromPoc":25.24}}
+{"spec":1,"day":"2026-08-17","t":1786968540000,"direction":"long","entry":30260.25,"stop":30246.25,"riskPts":14,"r":-1.0642857142857143,"reason":"stop","barsHeld":1,"valueArea":{"poc":30141.5,"vah":30170,"val":30083,"entryInValueArea":false,"atrFromPoc":15.24}}

@@ -87,6 +87,51 @@ export function trailTo(dir, cand, stopNow, price) {
   return onSide && better ? cand : null
 }
 
+
+/**
+ * The Playbook B daily bias as of time `t`: +1 long, -1 short, null no-trade.
+ *
+ * Exported so a pre-session report can state the bias using the SAME rule the
+ * journal uses. Reimplementing it elsewhere would let the report and the record
+ * disagree, which is worse than having no report.
+ *
+ * Deliberately duplicates the aggregation rather than sharing state with
+ * findTrendSetups: this runs once a day, correctness matters more than speed,
+ * and findTrendSetups is a registered spec that should not be refactored for
+ * the convenience of a reporting tool.
+ *
+ * Note the -1 indexing throughout. A futures daily bar OPENS at 18:00 ET the
+ * previous evening, so the bar `asOf` returns at 07:00 is TODAY's, still
+ * forming. Reading its close is reading the future — that was a real lookahead
+ * bug here once, and it flattered the results.
+ */
+export function dailyBias(candles, t, spec = TRENDCONT_SPEC) {
+  const h4 = aggregate(candles, '4h')
+  const d1 = aggregate(candles, '1d')
+  const dBos = bosTimeline(d1)
+  const hBos = bosTimeline(h4)
+  const dEma = ema(d1, spec.emaPeriod)
+  const di = asOf(d1, t)
+  const hi = asOf(h4, t)
+  if (di < 1 || hi < 1) return { dir: null, why: 'not enough higher-timeframe history' }
+  const d = dBos[di - 1]
+  const h = hBos[hi - 1]
+  if (!d) return { dir: null, why: 'daily structure has no direction yet' }
+  if (!h) return { dir: null, why: '4h structure has no direction yet' }
+  if (d !== h) return { dir: null, why: `daily is ${d}, 4h is ${h} — they disagree` }
+  const price = d1[di - 1].c
+  const e = dEma[di - 1]
+  if (!Number.isFinite(e)) return { dir: null, why: 'daily EMA not available' }
+  if (d === 'up' && !(price > e)) {
+    return { dir: null, why: `daily BOS up but last close ${price.toFixed(2)} is below EMA20 ${e.toFixed(2)}` }
+  }
+  if (d === 'down' && !(price < e)) {
+    return { dir: null, why: `daily BOS down but last close ${price.toFixed(2)} is above EMA20 ${e.toFixed(2)}` }
+  }
+  return { dir: d === 'up' ? 1 : -1, why: `daily and 4h both ${d}, last close ${price.toFixed(2)} ${d === 'up' ? '>' : '<'} EMA20 ${e.toFixed(2)}`,
+           dailyClose: price, ema: e }
+}
+
 /** Last break-of-structure direction per bar, from confirmed swings only. */
 function bosTimeline(bars) {
   const swings = findSwings(bars, { left: 2, right: 2 })

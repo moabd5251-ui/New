@@ -8,6 +8,22 @@ Each file is the full prompt for one Routine. They are stored here so the text
 is reviewable and version-controlled rather than living only inside trigger
 configuration.
 
+## Live routines
+
+Created 2026-08-22, fresh-session-per-fire, push notifications on:
+
+| Routine | Trigger | Cron (UTC) | Prompt |
+|---|---|---|---|
+| Daily earnings drift | `trig_01BRWarcztXrioGf8WxweJvs` | `15 19 * * 1-5` | [drift.md](drift.md) |
+| Daily volatility ramp | `trig_01H1hYYzByCDy72C1kjqT2fv` | `45 18 * * 1-5` | [vol-ramp.md](vol-ramp.md) |
+| Daily swing scan | `trig_01FeAw4EB3NoumBJ9pVmPM2F` | `15 21 * * *` | [swing.md](swing.md) |
+| Zero-DTE positioning | `trig_01UaHv9s379PtNKBZMtWMwcE` | `30 15,18,19 * * 1-5` | [zero-dte.md](zero-dte.md) |
+| Daily ETF trend + LEAP rotation | `trig_015j5kxZkqkSU8uPS5dCKSiw` | `15 0 * * 2-6` | [etf-trend-rotation.md](etf-trend-rotation.md) |
+
+The five `(bound)` routines below remain stored and disabled. They are not
+deleted, so their prompts stay readable, but they never fire — re-enabling one
+would double up against its replacement.
+
 ## Why the old ones died
 
 All five were bound to a single persistent session, `session_01GcDEyFWjzM36LJ5rDKbc3P`:
@@ -64,3 +80,30 @@ fresh session, they would have had nothing to run against.
 It is now stale: `data/drift.json` exists on `claude/remove-fable-5-auwiw2`.
 Keeping it would have told the run to expect an empty state and to explain away
 a burst of alerts that is no longer going to happen.
+
+
+## Open item: duplicate NQ routine
+
+Two enabled Routines named "NQ forward data collection" share the cron
+`30 22 * * 1-5` and both push to `claude/propfirm-trading-system-3z03tj`:
+
+- `trig_01LxL9MysEMFTsmdkojt2Mu4` — created 23:23, the fuller ten-step prompt
+  (options scan, dashboard, the three standing checks). **Keep this one.**
+- `trig_019ndbmcCkbPJ9vMThNYsB9y` — created 23:15, an earlier generation.
+  **Should be removed.**
+
+Their next fire times are 0.3 s apart. Two sessions would run `collect`
+against the same `data/.state/NQ_F.json` exactly-once watermark and both push
+to the same branch, so one push is rejected as non-fast-forward — and by that
+prompt's own warning, a commit that never reaches origin is destroyed by the
+local mirror's `git reset --hard origin/<branch>`.
+
+`trig_019ndbmc` was created through the claude.ai Routines UI (`created_via:
+http_api`) rather than by an agent, so agent tools cannot delete or even
+disable it:
+
+> Agents can only delete routines they created (via create_trigger), or a
+> routine may delete itself from its own session.
+
+It has to be deleted by hand in the claude.ai Routines UI before Monday
+2026-08-24 22:32 UTC.

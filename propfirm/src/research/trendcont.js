@@ -61,6 +61,32 @@ export const TRENDCONT_SPEC = {
   profileBinSize: 1,
 }
 
+/**
+ * Where a trailing stop may move to, or null if it may not move.
+ *
+ * Two conditions, and the second one is the whole point: a trail may only
+ * ratchet in the trade's favour, AND it must sit on the correct side of the
+ * market. The prior bar's extreme is routinely THROUGH the current price on a
+ * coarse trail, and parking a stop there fills it at a price better than the
+ * market — a phantom profit, not a fill.
+ *
+ * Omitting the side check produced a monotone fake edge (5m +0.142R … 60m
+ * +0.414R, t=4.88) that survived randomising the trade direction and improved
+ * with added lag. Exported so the invariant is testable rather than implied.
+ *
+ * @param {1|-1} dir      +1 long, -1 short
+ * @param {number} cand   candidate stop level (prior bar's extreme)
+ * @param {number} stopNow current stop
+ * @param {number} price  last traded price
+ * @returns {number|null} the new stop, or null to leave it alone
+ */
+export function trailTo(dir, cand, stopNow, price) {
+  if (!Number.isFinite(cand)) return null
+  const onSide = dir > 0 ? cand < price : cand > price
+  const better = dir > 0 ? cand > stopNow : cand < stopNow
+  return onSide && better ? cand : null
+}
+
 /** Last break-of-structure direction per bar, from confirmed swings only. */
 function bosTimeline(bars) {
   const swings = findSwings(bars, { left: 2, right: 2 })
@@ -263,7 +289,8 @@ export function findTrendSetups(candles, spec = TRENDCONT_SPEC) {
         const gi = asOf(m15, c.t)
         if (gi > 0) {
           const cand = dir > 0 ? m15[gi - 1].l : m15[gi - 1].h
-          if (dir > 0 ? cand > stopNow : cand < stopNow) stopNow = cand
+          const next = trailTo(dir, cand, stopNow, c.c)
+          if (next !== null) stopNow = next
         }
       }
       if (etMinuteOfDay(c.t) >= spec.flatBy) {

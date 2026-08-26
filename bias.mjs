@@ -11,6 +11,28 @@
 import { CandleStore } from '/home/valuedcustomer/nq-collect/propfirm/src/data/store.js'
 import { dailyBias, TRENDCONT_SPEC as S } from '/home/valuedcustomer/nq-collect/propfirm/src/research/trendcont.js'
 import { atr } from '/home/valuedcustomer/nq-collect/propfirm/src/core/candles.js'
+import { execSync } from 'node:child_process'
+import { existsSync, readFileSync } from 'node:fs'
+
+/**
+ * Is the thing that gathers this data actually working?
+ *
+ * The bias below is computed from whatever is in the store, and it looks
+ * exactly as confident when the store is stale as when it is current. On
+ * 2026-08-25 the nightly unit failed on DNS, sat in `failed` state, and nothing
+ * said so. A report that reads the data should report the health of the
+ * collector that produced it.
+ */
+function collectionHealth() {
+  let failed = false
+  try {
+    execSync('systemctl --user is-failed --quiet nq-collect.service', { stdio: 'ignore' })
+    failed = true            // is-failed exits 0 when the unit IS failed
+  } catch { failed = false }
+  const marker = '/home/valuedcustomer/nq-collect/.collect-failed'
+  const detail = existsSync(marker) ? readFileSync(marker, 'utf8').trim() : null
+  return { failed, detail }
+}
 
 const STORE = process.env.BIAS_STORE ?? '/home/valuedcustomer/nq-collect/propfirm/data'
 const et = (d) => new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York',
@@ -29,6 +51,16 @@ const a = atr(c, 14).at(-1)
 
 console.log(`\n  PLAYBOOK B — PRE-SESSION BIAS   ${etDate(new Date())}  (${et(new Date())} ET)`)
 console.log('  ' + '─'.repeat(64))
+const health = collectionHealth()
+if (health.failed || health.detail) {
+  console.log('  ** COLLECTOR FAILED — the store may be missing sessions **')
+  for (const line of (health.detail ?? 'nq-collect.service is in failed state').split('\n')) {
+    console.log(`     ${line}`)
+  }
+  console.log('     Yahoo serves a moving 7-day window; past that the bars are gone.')
+  console.log('     Clear with: systemctl --user reset-failed nq-collect.service')
+  console.log('')
+}
 console.log(`  store      ${c.length.toLocaleString()} bars, last ${etDate(new Date(last.t))} ${et(new Date(last.t))} ET `
   + `(${ageH.toFixed(1)}h old)${ageH > 20 ? '   ** STALE — run collect.sh **' : ''}`)
 console.log(`  last price ${last.c.toFixed(2)}    ATR14(1m) ${a?.toFixed(2) ?? '—'}`)

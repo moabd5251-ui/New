@@ -5,7 +5,7 @@
   "type": "module",
   "main": "src/index.js",
   "scripts": {
-    "test": "node --test test/",
+    "test": "node --test test/*.test.js",
     "demo": "node src/cli.js demo",
     "analyze": "node src/cli.js analyze",
     "backtest": "node src/cli.js backtest"

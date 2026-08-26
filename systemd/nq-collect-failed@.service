@@ -1,0 +1,7 @@
+[Unit]
+Description=Surface a failed NQ collection run (%I)
+
+[Service]
+Type=oneshot
+Environment=HOME=/home/valuedcustomer
+ExecStart=/home/valuedcustomer/nq-collect/notify-failure.sh %I

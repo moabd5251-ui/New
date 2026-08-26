@@ -1,0 +1,16 @@
+[Unit]
+Description=Collect NQ 1m bars and score the forward journals
+Documentation=file:///home/valuedcustomer/nq-collect/collect.sh
+# Without this a failed run is silent: the unit sits in `failed` state and
+# nothing tells anyone. That is how 2026-08-25 22:47 went unnoticed.
+OnFailure=nq-collect-failed@%n.service
+
+[Service]
+Type=oneshot
+ExecStart=/home/valuedcustomer/nq-collect/collect.sh
+# node lives under nvm and a unit sources no shell rc; the script resolves it
+# explicitly, but set HOME so that resolution works at all.
+Environment=HOME=/home/valuedcustomer
+# Raised from 1800: the collect step now waits for DNS (<=5min) and retries
+# three times, so the worst-case path is longer than it was.
+TimeoutStartSec=2700

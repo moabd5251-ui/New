@@ -1,0 +1,14 @@
+[Unit]
+Description=Daily NQ collection, weekdays after the CME close
+
+[Timer]
+# 18:30 America/New_York — after the 17:00 ET settlement, so the trading day is
+# complete. Yahoo serves only 7 days of 1m history, so a run missed for more
+# than a week loses those sessions from the free source permanently.
+OnCalendar=Mon..Fri 18:30 America/New_York
+# If the machine was off at the scheduled time, run as soon as it is back.
+Persistent=true
+RandomizedDelaySec=120
+
+[Install]
+WantedBy=timers.target

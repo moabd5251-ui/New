@@ -1,0 +1,10 @@
+[Unit]
+Description=NQ Playbook B pre-session bias check (inside the killzone)
+Documentation=file:///home/valuedcustomer/nq-collect/prop-bias-alert.sh
+OnFailure=nq-collect-failed@%n.service
+
+[Service]
+Type=oneshot
+ExecStart=/home/valuedcustomer/nq-collect/prop-bias-alert.sh
+Environment=HOME=/home/valuedcustomer
+TimeoutStartSec=600

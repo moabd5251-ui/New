@@ -5,3 +5,4 @@
 {"spec":1,"night":"2026-08-24","t":1787608800000,"entry":29140.5,"exit930":29296.25,"bars":908,"variants":{"none":{"pts":154.75,"exit":"time"},"s50":{"pts":-52,"exit":"stop"},"s100":{"pts":-102,"exit":"stop"}}}
 {"spec":1,"night":"2026-08-25","t":1787695200000,"entry":29288,"exit930":29176,"bars":900,"variants":{"none":{"pts":-113,"exit":"time"},"s50":{"pts":-52,"exit":"stop"},"s100":{"pts":-102,"exit":"stop"}}}
 {"spec":1,"night":"2026-08-26","t":1787781600000,"entry":29499.5,"exit930":29524.5,"bars":907,"variants":{"none":{"pts":24,"exit":"time"},"s50":{"pts":-52,"exit":"stop"},"s100":{"pts":24,"exit":"time"}}}
+{"spec":1,"night":"2026-08-27","t":1787868000000,"entry":29635.5,"exit930":29628,"bars":921,"variants":{"none":{"pts":-8.5,"exit":"time"},"s50":{"pts":-52,"exit":"stop"},"s100":{"pts":-8.5,"exit":"time"}}}

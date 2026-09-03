@@ -26,3 +26,4 @@
 {"spec":1,"day":"2026-08-31","t":1788176520000,"direction":"long","level":"prior day low","choch":false,"entry":29435.125,"stop":29432,"riskPts":3.125,"r":-1.288,"grossR":-1,"reason":"stop","barsHeld":1,"smt":null}
 {"spec":1,"day":"2026-08-31","t":1788178140000,"direction":"long","level":"prior day low","choch":false,"entry":29415.79,"stop":29397.75,"riskPts":18.040000000000873,"r":-1.0498891352549864,"grossR":-1,"reason":"stop","barsHeld":15,"smt":null}
 {"spec":1,"day":"2026-08-31","t":1788183180000,"direction":"long","level":"prior day low","choch":false,"entry":29446.285,"stop":29431,"riskPts":15.284999999999854,"r":-1.0588812561334648,"grossR":-1,"reason":"stop","barsHeld":1,"smt":null}
+{"spec":1,"day":"2026-09-03","t":1788438600000,"direction":"short","level":"prior day high","choch":false,"entry":29219.68,"stop":29244.75,"riskPts":25.06999999999971,"r":-1.035899481451935,"grossR":-1,"reason":"stop","barsHeld":1,"smt":null}

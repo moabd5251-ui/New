@@ -7,3 +7,5 @@
 {"spec":1,"night":"2026-08-26","t":1787781600000,"entry":29499.5,"exit930":29524.5,"bars":907,"variants":{"none":{"pts":24,"exit":"time"},"s50":{"pts":-52,"exit":"stop"},"s100":{"pts":24,"exit":"time"}}}
 {"spec":1,"night":"2026-08-27","t":1787868000000,"entry":29635.5,"exit930":29628,"bars":921,"variants":{"none":{"pts":-8.5,"exit":"time"},"s50":{"pts":-52,"exit":"stop"},"s100":{"pts":-8.5,"exit":"time"}}}
 {"spec":1,"night":"2026-08-31","t":1788213600000,"entry":29518.25,"exit930":29111.75,"bars":921,"variants":{"none":{"pts":-407.5,"exit":"time"},"s50":{"pts":-52,"exit":"stop"},"s100":{"pts":-102,"exit":"stop"}}}
+{"spec":1,"night":"2026-09-01","t":1788300000000,"entry":29136.5,"exit930":29098.5,"bars":921,"variants":{"none":{"pts":-39,"exit":"time"},"s50":{"pts":-52,"exit":"stop"},"s100":{"pts":-102,"exit":"stop"}}}
+{"spec":1,"night":"2026-09-02","t":1788386400000,"entry":29177,"exit930":29249.5,"bars":921,"variants":{"none":{"pts":71.5,"exit":"time"},"s50":{"pts":-52,"exit":"stop"},"s100":{"pts":-102,"exit":"stop"}}}

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Pre-session bias check, run inside the killzone rather than hours after it.
 #
-# Playbook B's window is 07:00-10:00 ET. The holder is on the US west coast, so
-# that is 04:00-07:00 PT and the routine kept being run at 11:00 ET — after the
+# Playbook B's window was 07:00-10:00 ET (v1); as of spec v2 it is 11:30-14:30 ET
+# = 08:30-11:30 PT. It is read from the spec below, never hardcoded. Previously the
 # window had already closed. Twice in one week the bias was only read once it
 # could no longer be acted on.
 #
@@ -32,11 +32,16 @@ DIR=$(grep -oE "BIAS: (LONG|SHORT) ONLY" <<<"$OUT" | head -1)
 # State the window honestly rather than always claiming it is open. A manual or
 # late run otherwise produces a marker that says OPEN hours after it closed —
 # the same stale-text failure that made the GLD 421.82 alert misleading.
+# Window read from the spec, not hardcoded, so a spec change cannot leave this
+# script announcing a window the engine no longer uses.
+KZ=$(node -e "import('/home/valuedcustomer/nq-collect/propfirm/src/research/trendcont.js').then(m=>{const S=m.TRENDCONT_SPEC;console.log(S.killzoneStart,S.killzoneEnd,S.version)})")
+KZSTART=$(awk '{print $1}' <<<"$KZ"); KZEND=$(awk '{print $2}' <<<"$KZ"); KZVER=$(awk '{print $3}' <<<"$KZ")
+hhmm(){ printf '%02d:%02d' $(( $1/60 )) $(( $1%60 )); }
 ETMIN=$(( 10#$(TZ=America/New_York date +%H) * 60 + 10#$(TZ=America/New_York date +%M) ))
-if   [ "$ETMIN" -lt 420 ]; then WIN="opens in $(( (420-ETMIN) )) min"
-elif [ "$ETMIN" -lt 600 ]; then WIN="OPEN, $(( 600-ETMIN )) min left"
-else WIN="CLOSED $(( (ETMIN-600) )) min ago — no Playbook B entry today"; fi
-MSG="NQ Playbook B: $DIR. Killzone 07:00-10:00 ET $WIN."
+if   [ "$ETMIN" -lt "$KZSTART" ]; then WIN="opens in $(( KZSTART-ETMIN )) min"
+elif [ "$ETMIN" -lt "$KZEND" ];   then WIN="OPEN, $(( KZEND-ETMIN )) min left"
+else WIN="CLOSED $(( ETMIN-KZEND )) min ago — no Playbook B entry today"; fi
+MSG="NQ Playbook B (spec v$KZVER): $DIR. Killzone $(hhmm $KZSTART)-$(hhmm $KZEND) ET $WIN. NOTHING MEASURED ON THIS WINDOW."
 say "TRADEABLE — $DIR"
 
 # Every channel we have, because the desktop one is not guaranteed to exist:

@@ -1,12 +1,12 @@
 [Unit]
-Description=Read the NQ bias while the killzone is still open, not after it
+Description=Read the NQ bias 20 min before the killzone opens (spec v2: 11:30-14:30 ET)
 
 [Timer]
 # 06:40 America/New_York — 20 minutes before the 07:00 ET killzone opens, which
 # on this machine's clock is 03:40 PT. The whole point is to land BEFORE the
 # window; running at 11:00 ET, as happened twice in one week, reads a bias that
 # can no longer be acted on.
-OnCalendar=Mon..Fri 06:40 America/New_York
+OnCalendar=Mon..Fri 11:10 America/New_York
 # Deliberately NOT Persistent=true, unlike nq-collect.timer. A catch-up run of a
 # time-critical window is worse than no run: it would fire at noon and announce
 # a killzone that closed hours earlier. Collecting bars late is fine; trading

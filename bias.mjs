@@ -82,4 +82,7 @@ if (b.dir === null) {
   console.log('')
   console.log(`      only ${b.dir > 0 ? 'LONGS' : 'SHORTS'} count today. A setup the other way is not a Playbook B trade.`)
 }
-console.log(`\n  Paper//research tool. Measured edge +0.101R, t=2.64, n=2433 — small and unproven live.\n`)
+console.log(`\n  Paper//research tool. SPEC v${S.version} (registered ${S.registered}) — killzone ${hhmm(S.killzoneStart)}-${hhmm(S.killzoneEnd)} ET.`)
+console.log(`  NOTHING IS MEASURED ON THIS WINDOW. The +0.101R / t=2.64 / n=2433 figure was`)
+console.log(`  measured on the v1 07:00-10:00 ET killzone and does not carry over; the`)
+console.log(`  confirmatory sample restarted at n=0 on ${S.registered} per pre-registration §7.\n`)

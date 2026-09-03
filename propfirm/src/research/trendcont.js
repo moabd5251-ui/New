@@ -25,7 +25,7 @@
  *
  * A LOOKAHEAD BUG WAS FOUND AND FIXED while measuring this, and it is worth
  * stating because it flattered the result: a futures daily bar OPENS at 18:00
- * ET the previous evening, so the "last daily bar before now" at 07:00 is
+ * ET the previous evening, so the "last daily bar before now" at the killzone open is
  * today's, still forming. Reading its close was reading the future and lifted
  * the numbers to +0.158R / +0.286R. The figures above are post-fix.
  *
@@ -41,10 +41,24 @@ import { volumeProfile } from '../core/orderflow.js'
 import { etMinuteOfDay, futuresDayKey } from '../core/sessions.js'
 
 export const TRENDCONT_SPEC = {
-  version: 1,
-  registered: '2026-08-11',
-  killzoneStart: 7 * 60,
-  killzoneEnd: 10 * 60,
+  version: 2,
+  registered: '2026-09-03',
+  /**
+   * v2 (2026-09-03): killzone moved 07:00-10:00 ET -> 11:30-14:30 ET at the
+   * operator's instruction, so the window opens at 08:30 PT rather than 04:00 PT.
+   *
+   * THIS VOIDS THE v1 CONFIRMATORY SAMPLE. Pre-registration §7: "Spec changes
+   * mid-study -> Study void. Restart at n=0 under a new registration." The
+   * v1 figures (+0.101R, t=2.64, n=2433) were measured on 07:00-10:00 and do
+   * NOT carry over. Nothing has been measured on this window yet.
+   *
+   * Note the new window straddles the NY lunch lull: sessions.js marks
+   * nyLunch (12:00-13:30 ET) as killzone:null precisely because it is the
+   * low-participation part of the day. 11:30-14:30 spends an hour of its
+   * three inside it.
+   */
+  killzoneStart: 11 * 60 + 30,
+  killzoneEnd: 14 * 60 + 30,
   flatBy: 15 * 60 + 45,
   emaPeriod: 20,
   /** Minimum pullback depth, in ATR, or it is noise rather than a retrace. */
@@ -101,7 +115,7 @@ export function trailTo(dir, cand, stopNow, price) {
  * the convenience of a reporting tool.
  *
  * Note the -1 indexing throughout. A futures daily bar OPENS at 18:00 ET the
- * previous evening, so the bar `asOf` returns at 07:00 is TODAY's, still
+ * previous evening, so the bar `asOf` returns at the killzone open is TODAY's, still
  * forming. Reading its close is reading the future — that was a real lookahead
  * bug here once, and it flattered the results.
  */
@@ -236,7 +250,7 @@ export function findTrendSetups(candles, spec = TRENDCONT_SPEC) {
     const d = dBos[di - 1]
     const h = hBos[hi - 1]
     if (!d || !h || d !== h) return null
-    // The bar `asOf` returns at 07:00 is TODAY's daily bar, opened at 18:00 the
+    // The bar `asOf` returns at the killzone open is TODAY's daily bar, opened at 18:00 the
     // previous evening and still forming. Its close is the future — use the
     // last completed day.
     const price = d1[di - 1].c

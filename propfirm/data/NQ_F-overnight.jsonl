@@ -9,3 +9,4 @@
 {"spec":1,"night":"2026-08-31","t":1788213600000,"entry":29518.25,"exit930":29111.75,"bars":921,"variants":{"none":{"pts":-407.5,"exit":"time"},"s50":{"pts":-52,"exit":"stop"},"s100":{"pts":-102,"exit":"stop"}}}
 {"spec":1,"night":"2026-09-01","t":1788300000000,"entry":29136.5,"exit930":29098.5,"bars":921,"variants":{"none":{"pts":-39,"exit":"time"},"s50":{"pts":-52,"exit":"stop"},"s100":{"pts":-102,"exit":"stop"}}}
 {"spec":1,"night":"2026-09-02","t":1788386400000,"entry":29177,"exit930":29249.5,"bars":921,"variants":{"none":{"pts":71.5,"exit":"time"},"s50":{"pts":-52,"exit":"stop"},"s100":{"pts":-102,"exit":"stop"}}}
+{"spec":1,"night":"2026-09-03","t":1788472800000,"entry":29505,"exit930":29588.75,"bars":921,"variants":{"none":{"pts":82.75,"exit":"time"},"s50":{"pts":82.75,"exit":"time"},"s100":{"pts":82.75,"exit":"time"}}}

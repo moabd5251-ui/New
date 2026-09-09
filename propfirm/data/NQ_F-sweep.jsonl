@@ -29,3 +29,4 @@
 {"spec":1,"day":"2026-09-03","t":1788438600000,"direction":"short","level":"prior day high","choch":false,"entry":29219.68,"stop":29244.75,"riskPts":25.06999999999971,"r":-1.035899481451935,"grossR":-1,"reason":"stop","barsHeld":1,"smt":null}
 {"spec":1,"day":"2026-09-04","t":1788525660000,"direction":"short","level":"prior day high","choch":true,"entry":29558.495,"stop":29585.75,"riskPts":27.25500000000102,"r":-1.0330214639515674,"grossR":-1,"reason":"stop","barsHeld":8,"smt":null}
 {"spec":1,"day":"2026-09-08","t":1788875040000,"direction":"long","level":"overnight low","choch":false,"entry":29484.29,"stop":29466.25,"riskPts":18.040000000000873,"r":-1.0498891352549864,"grossR":-1,"reason":"stop","barsHeld":2,"smt":null}
+{"spec":1,"day":"2026-09-09","t":1788960600000,"direction":"long","level":"prior day low","choch":false,"entry":29432.785,"stop":29417.5,"riskPts":15.284999999999854,"r":0.9411187438665353,"grossR":1,"reason":"be-stop","barsHeld":98,"smt":null}
